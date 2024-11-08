@@ -1,3 +1,13 @@
 ^gmhdatahub\.Rproj$
 ^\.Rproj\.user$
 ^dev$
+^README\.Rmd$
+^codecov\.yml$
+^\.covrignore$
+_\.new\.png$
+^\.lintr$
+^\.gitattributes$
+^\.editorconfig$
+^codemeta\.json$
+^config\.yml$
+^data-raw$

@@ -1,0 +1,19 @@
+.footer {
+  background-color: #f8f9fa;
+  padding: 20px;
+}
+
+.footer-img {
+  vertical-align: middle;
+  margin-left: 5px;
+  height: 20px;
+}
+
+.footer a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}

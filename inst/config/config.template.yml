@@ -1,0 +1,34 @@
+default:
+  app:
+    name: "<NAME>"
+    version: "<VERSION>"
+    description: "<DESCRIPTION>"
+    author: "<AUTHOR>"
+  entrata:
+    base_url: "<BASE_URL>"
+    username: "<USERNAME>"
+    password: "<PASSWORD>"
+  auth:
+    base_url: "<BASE_URL>"
+    api_key: "<API_KEY>"
+  db:
+    host: "<HOST>"
+    port: "<PORT>"
+    dbname: "<DBNAME>"
+    user: "<USER>"
+    password: "<PASSWORD>"
+    uri: "<URI>"
+  gmaps:
+    api_key: "<API_KEY>"
+    signing_secret: "<SIGNING_SECRET>"
+    service_account: "<SERVICE_ACCOUNT>"
+    embed_api_key: "<EMBED_API_KEY>"
+    map_id: "<MAP_ID>"
+  email:
+    provider: "<PROVIDER>"
+    api_key: "<API_KEY>"
+    smtp_host: "<SMTP_HOST>"
+    smtp_port: "<SMTP_PORT>"
+    smtp_user: "<SMTP_USER>"
+    smtp_password: "<SMTP_PASSWORD>"
+
