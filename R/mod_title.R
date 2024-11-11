@@ -7,7 +7,10 @@
 #
 #  ------------------------------------------------------------------------
 
-mod_title_ui <- function(id, ...) {
+mod_title_ui <- function(
+  id,
+  app_info = .app_info
+) {
 
   ns <- shiny::NS(id)
 

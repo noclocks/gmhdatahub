@@ -1,0 +1,172 @@
+---
+title: "Entrata Property Data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Entrata Property Data}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+# Load required libraries
+# library(gmhdatahub)
+library(knitr)
+library(kableExtra)
+library(tibble)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(jsonlite)
+library(httr2)
+```
+
+# Overview
+
+The [Entrata API](https://gmhcommunities.entrata.com/api/v1/documentation) provides access to property data through various endpoints. This vignette focuses on the `/properties` endpoint, which retrieves detailed property information such as addresses, lease terms, and space options. The purpose of this vignette is to illustrate how to use the `gmhdatahub` package to work with this data in R.
+
+## Table of Contents
+
+- [Introduction](#overview)
+- [Properties Endpoint](#properties-endpoint)
+- [Property Data Objects](#property-data-objects)
+  - [SpaceOptions](#spaceoptions)
+  - [LeaseTerms](#leaseterms)
+  - [LeaseStartWindows](#leasestartwindows)
+- [Example API Response](#example-api-response)
+- [Processing Data in R](#processing-data-in-r)
+
+# Properties Endpoint
+
+The `/properties` endpoint allows for the retrieval of property data from the Entrata API. This vignette covers the core objects returned by the API and how to work with this data using the `gmhdatahub` package.
+
+## Property Data Objects
+
+Below are descriptions of the key objects returned by the Entrata API when querying property data.
+
+### SpaceOptions
+
+`SpaceOptions` defines the various types of space available for leasing within a property.
+
+- **Id**: Unique identifier for the space option.
+- **Name**: Descriptive name of the space type (e.g., "Private", "Shared").
+
+**Example:**
+
+```json
+{
+  "SpaceOption": [
+    { "Id": "2", "Name": "Private" },
+    { "Id": "3", "Name": "Shared" },
+    { "Id": "22", "Name": "Per Bedroom" }
+  ]
+}
+```
+
+### LeaseTerms
+
+`LeaseTerms` contains the different leasing agreements available for a property, each with specific durations and conditions.
+
+- **Id**: Unique identifier for the lease term.
+- **Name**: Name of the lease term (e.g., "2021 Fall Semester").
+- **TermMonths**: Length of the lease term in months.
+- **IsProspect**: Indicates if the lease term is available to prospects.
+- **IsRenewal**: Indicates if the lease term is available for renewal.
+
+**Example:**
+
+```json
+{
+  "LeaseTerm": [
+    { "Id": 11037, "Name": "2021 Fall Semester", "TermMonths": 5, "IsProspect": true, "IsRenewal": true }
+  ]
+}
+```
+
+### LeaseStartWindows
+
+For each `LeaseTerm`, there can be associated `LeaseStartWindows`, which specify valid windows of time when the lease can begin.
+
+- **Id**: Unique identifier for the lease start window.
+- **WindowStartDate**: The beginning of the lease start window.
+- **WindowEndDate**: The end of the lease start window.
+
+**Example:**
+
+```json
+{
+  "LeaseStartWindow": [
+    { "Id": 9861, "WindowStartDate": "08/15/2025", "WindowEndDate": "07/30/2026" }
+  ]
+}
+```
+
+# Example API Response
+
+Below is an example of a typical response from the `/properties` endpoint.
+
+```{r}
+# Simulated API response as a prettified JSON string
+api_response <- '
+{
+  "PropertyID": 739076,
+  "MarketingName": "1008 S. 4th",
+  "Type": "Student",
+  "webSite": "https://www.theacademycampustown.com/",
+  "Address": {
+    "Address": "1008 S. 4th",
+    "City": "Champaign",
+    "State": "IL",
+    "PostalCode": "61820",
+    "Country": "US",
+    "Email": "info@theacademycampustown.com"
+  },
+  "SpaceOptions": {
+    "SpaceOption": [
+      { "Id": "2", "Name": "Private" },
+      { "Id": "3", "Name": "Shared" },
+      { "Id": "22", "Name": "Per Bedroom" }
+    ]
+  },
+  "LeaseTerms": {
+    "LeaseTerm": [
+      { "Id": 11037, "Name": "2021 Fall Semester", "TermMonths": 5, "IsProspect": true, "IsRenewal": true },
+      { "Id": 11909, "Name": "Annual", "TermMonths": 12, "IsProspect": true, "IsRenewal": true }
+    ]
+  }
+}
+'
+
+# Display as prettified JSON
+cat(prettify(api_response))
+```
+
+# Processing Data in R
+
+To process the Entrata API response in R, you can leverage the `jsonlite` package to parse the response, followed by `dplyr` and `tidyr` for data manipulation. Below is an example:
+
+```{r}
+# Simulate API response
+property_data <- fromJSON(api_response)
+
+# Convert to tibble
+property_tbl <- as_tibble(property_data)
+
+# Process and view SpaceOptions
+space_options_tbl <- property_tbl |>
+  tidyr::unnest(SpaceOptions) |>
+  select(PropertyID, SpaceOptions = SpaceOption) |>
+  tidyr::unnest(SpaceOptions)
+
+# Display the resulting table
+space_options_tbl |> knitr::kable() |> kableExtra::kable_styling()
+```
+
+This example demonstrates how to extract and unnest space options from the property data for further analysis.
+

@@ -1,0 +1,161 @@
+{
+    "type": "object",
+    "properties": {
+        "endpoint": {
+            "type": "string",
+            "enum": [
+                "status",
+                "applications",
+                "arcodes",
+                "arpayments",
+                "artransactions",
+                "communications",
+                "customers",
+                "financial",
+                "leads",
+                "leases",
+                "leasingcenter",
+                "maintenance",
+                "pricing",
+                "properties",
+                "pricing",
+                "propertyunits",
+                "queue",
+                "reports",
+                "vendors"
+            ]
+        },
+        "method": {
+          "type": "string"
+        },
+        "version": {
+          "type": ["string", "null"]
+        },
+        "params": {
+          "type": ["object", "null"]
+        }
+    },
+    "required": [
+      "endpoint",
+      "method",
+      "version",
+      "params"
+    ],
+    "oneOf": [
+      {
+        "if": { "properties": {"endpoint": { "const": "status" } } },
+        "then": {
+          "properties": {
+            "method": {
+              "type": "string",
+              "enum": [ "getStatus" ],
+              "default": "getStatus"
+            },
+            "version": {
+              "type": ["string", "null"],
+              "enum": [ "r1", null],
+              "default": null
+            },
+            "params": {
+              "type": ["object", "null"],
+              "default": null
+            }
+          },
+          "required": ["method"]
+        }
+      },
+      {
+        "if": { "properties": {"endpoint": { "const": "applications" } } },
+        "then": {
+          "properties": {
+            "method": {
+              "type": "string",
+              "enum": [
+                "getCompanyApplications",
+                "sendApplicantGeneralDetails",
+                "sendApplication",
+                "sendApplicationAddOns",
+                "sendApplicationEmployers",
+                "sendApplicationPets",
+                "sendApplicationVehicles",
+                "updateApplication"
+              ]
+            },
+            "version": {
+              "type": ["string", "null"],
+              "enum": [ "r1", null],
+              "default": "r1"
+            },
+            "params": {
+              "type": "object",
+              "properties": {
+                "propertyId": {
+                  "type": ["integer", "string"],
+                }
+              },
+              "required": ["propertyId"]
+            }
+          },
+          "required": ["method"]
+        }
+      },
+      {
+        "if": { "properties": {"endpoint": { "const": "arcodes" } } },
+        "then": {
+          "properties": {
+            "method": {
+              "type": "string",
+              "enum": [ "getArcodes" ]
+            },
+            "version": {
+              "type": ["string", "null"],
+              "enum": [ "r1", null],
+              "default": null
+            },
+            "params": {
+              "type": "object",
+              "properties": {
+                "arcodes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": ["arcodes"]
+            }
+          },
+          "required": ["method"]
+        }
+      },
+      {
+        "if": { "properties": {"endpoint": { "const": "arpayments" } } },
+        "then": {
+          "properties": {
+            "method": {
+              "type": "string",
+              "enum": [ "getArpayments" ]
+            },
+            "version": {
+              "type": ["string", "null"],
+              "enum": [ "r1", null],
+              "default": null
+            },
+            "params": {
+              "type": "object",
+              "properties": {
+                "arpaymentId": {
+                  "type": "string"
+                }
+              },
+              "required": ["arpaymentId"]
+            }
+          },
+          "required": ["method"]
+        }
+      },
+      {
+        "if": { "properties": {"endpoint": { "const": "artransactions" } } },
+        "then": {
+    ]
+}

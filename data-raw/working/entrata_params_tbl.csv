@@ -1,0 +1,85 @@
+endpoint,method,parameter,type,required,multiple,description
+customers,getCustomers,propertyId,string,TRUE,FALSE,This is a required field. This field accepts single value for the Property ID.
+customers,getCustomers,companyIdentificationTypeIds,integer,FALSE,TRUE,This is an optional field. This field accepts comma seperated multiple values. company Identification type IDs.
+customers,getCustomers,customerIds,string,FALSE,TRUE,This is an optional field. This field accepts comma separated multiple values for the Customer IDs.
+customers,getCustomers,isAgreedToTermsOnly,boolean_string,FALSE,FALSE,This is an optional field. This field accepts single value.`isAgreedToTermsOnly` returns the date when a customer has agreed to the Terms and Conditions of Entrata resident portal.
+customers,getCustomers,leaseStatusTypeIds,string,FALSE,TRUE,This is an optional field. This field accepts comma separated multiple values for the Lease Status Type IDs.
+financial,getBudgetActuals,accountingMethod,string,TRUE,FALSE,This is a required field. This field accepts a single value for the Accounting Method.
+financial,getBudgetActuals,budgetId,integer,TRUE,FALSE,This is a required field. This field accepts a single value for Budget ID.
+financial,getBudgetActuals,glTreeId,integer,TRUE,FALSE,This is a required field. This field accepts a single value for GL Tree ID.
+financial,getBudgetActuals,postMonthFrom,string,TRUE,FALSE,This is a required field. This field accepts a single value in the format MM/YYYY for the start month.
+financial,getBudgetActuals,postMonthTo,string,TRUE,FALSE,This is a required field. This field accepts a single value in the format MM/YYYY for the end month.
+financial,getBudgetActuals,propertyId,string,TRUE,FALSE,This is a required field. This field accepts single value for `propertyId`.
+financial,getBudgetActuals,budgetStatusTypeId,integer,FALSE,FALSE,This is an optional field. This field accepts a single value for Budget Status Type ID.
+financial,getBudgetActuals,glBookTypeIds,integer,FALSE,TRUE,This is an optional field. This field accepts comma separated multiple values for GL Book Type IDs.
+financial,getBudgets,propertyId,string,TRUE,FALSE,This is a required field. This field accepts a single value for `propertyId`.
+financial,getBudgets,budgetIds,string,FALSE,TRUE,This is an optional field. This field accepts comma separated multiple values for the Budget IDs.
+financial,getBudgets,budgetStatusTypeIds,string,FALSE,TRUE,This is an optional field. This field accepts comma separated multiple values for the Budget Status Type IDs.
+financial,getBudgets,fiscalYears,string,FALSE,TRUE,This is an optional field. This field accepts comma separated multiple values for the Fiscal Years.
+leases,getLeaseDetails,leaseId,integer,TRUE,FALSE,This is a required field. This field accepts a single value for the Lease ID.
+leases,getLeaseDetails,propertyId,string,TRUE,FALSE,This is a required field. This field accepts a single value for the Property ID.
+leases,getLeaseDetails,includeAddOns,boolean_string,FALSE,FALSE,"This is an optional field. This field accepts a single value. If provided, it will include lease add-ons."
+leases,getLeaseDetails,includeCharge,boolean_string,FALSE,FALSE,"This is an optional field. This field accepts a single value. If provided, it will include charges."
+leases,getLeaseDetails,leaseStatusTypeIds,integer,FALSE,TRUE,This is an optional field. This field accepts comma separated multiple values for Lease Status Type IDs.
+leases,getLeaseDocuments,leaseId,integer,TRUE,FALSE,This is a required field. This field accepts a single value for the Lease ID.
+leases,getLeaseDocuments,propertyId,integer,TRUE,FALSE,This is a required field. This field accepts a single value for the Property ID.
+leases,getLeaseDocuments,addedOnFromDate,date,FALSE,FALSE,This is an optional field. This field accepts a single value for the Added On date (start).
+leases,getLeaseDocuments,documentIds,integer,FALSE,TRUE,This is an optional field. This field accepts comma separated multiple values for Document IDs.
+leases,getLeaseDocuments,externalLeaseId,string,FALSE,FALSE,This is an optional field. This field accepts a single value for the external Lease ID.
+leases,getLeaseDocuments,fileTypesCode,string,FALSE,TRUE,This is an optional field. This field accepts comma separated multiple values for file types (system codes).
+leases,getLeaseDocuments,showDeletedFile,boolean_string,FALSE,FALSE,"This is an optional field. This field accepts a single value. If provided, it will return deleted files."
+leases,getLeaseDocumentsList,leaseId,integer,TRUE,FALSE,This is a required field. This field accepts a single value for the Lease ID.
+leases,getLeaseDocumentsList,propertyId,string,TRUE,FALSE,This is a required field. This field accepts a single value for the Property ID.
+leases,getLeaseDocumentsList,externalLeaseId,string,FALSE,FALSE,This is an optional field. This field accepts a single value for the external Lease ID.
+leases,getLeaseDocumentsList,fileTypesCode,string,FALSE,TRUE,This is an optional field. This field accepts comma separated multiple values for file types (system codes).
+leases,getLeaseDocumentsList,leaseStatusTypeIds,integer,FALSE,TRUE,This is an optional field. This field accepts comma separated multiple values for Lease Status Type IDs.
+leases,getLeaseDocumentsList,showDeletedFile,boolean_string,FALSE,FALSE,"This is an optional field. This field accepts a single value. If provided, it will return deleted files."
+leases,getLeases,propertyId,string,TRUE,FALSE,This is a required field. This field accepts a single value for the Property ID.
+leases,getLeases,applicationId,integer,FALSE,FALSE,This is an optional field. This field accepts a single value for the Application ID.
+leases,getLeases,buildingName,string,FALSE,FALSE,This is an optional field. This field accepts a single value for the Building Name.
+leases,getLeases,customerId,integer,FALSE,FALSE,This is an optional field. This field accepts a single value for the Customer ID.
+leases,getLeases,includeArTransactions,boolean_string,FALSE,FALSE,"This is an optional field. This field accepts a single value. If provided, it will return the AR Transactions associated with the lease."
+leases,getLeases,includeLeaseHistory,boolean_string,FALSE,FALSE,"This is an optional field. This field accepts a single value. If provided, lease history will be included."
+leases,getLeases,includeOtherIncomeLeases,boolean_string,FALSE,FALSE,"This is an optional field. This field accepts a single value. If provided, this will include leases with other income."
+leases,getLeases,leaseExpiringDateFrom,date,FALSE,FALSE,This is an optional field. This field accepts a single value for the Lease Expiring Date (start).
+leases,getLeases,leaseExpiringDateTo,date,FALSE,FALSE,This is an optional field. This field accepts a single value for the Lease Expiring Date (end).
+leases,getLeases,leaseIds,integer,FALSE,TRUE,This is an optional field. This field accepts comma separated multiple values for Lease IDs.
+leases,getLeases,leaseStatusTypeIds,integer,FALSE,TRUE,This is an optional field. This field accepts comma separated multiple values for Lease Status Type IDs.
+leases,getLeases,moveInDateFrom,date,FALSE,FALSE,This is an optional field. This field accepts a single value for the start Move-in Date.
+leases,getLeases,moveInDateTo,date,FALSE,FALSE,This is an optional field. This field accepts a single value for the end Move-in Date.
+leases,getLeases,moveOutDateFrom,date,FALSE,FALSE,This is an optional field. This field accepts a single value for the Move-out Date (start).
+leases,getLeases,moveOutDateTo,date,FALSE,FALSE,This is an optional field. This field accepts a single value for the Move-out Date (end).
+leases,getLeases,residentFriendlyMode,boolean_string,FALSE,FALSE,"This is an optional field. This field accepts a single value. If provided, this will use Resident Friendly Mode."
+leases,getLeases,scheduledArCodeIds,integer,FALSE,TRUE,This is an optional field. This field accepts comma separated multiple values for Scheduled AR Code IDs.
+leases,getLeases,unitNumber,string,FALSE,FALSE,This is an optional field. This field accepts a single value for the Unit Number.
+properties,getFloorPlans,propertyId,integer,TRUE,FALSE,This is a required field. This field accepts a single value for the Property ID.
+properties,getFloorPlans,includeDisabledFloorPlans,boolean_string,FALSE,FALSE,"This is an optional field. This field accepts a single value. If provided value is 1, then disabled floorplans will be included along with the enabled ones."
+properties,getFloorPlans,propertyFloorPlanIds,string,FALSE,TRUE,This is an optional field. This field accepts comma separated multiple values for Property Floor Plan IDs.
+properties,getFloorPlans,usePropertyPreferences,boolean_string,FALSE,FALSE,This is an optional field. This field accepts a single value. Checks for the property settings manipulate floorplan data and honor those settings.
+properties,getProperties,propertyIds,string_list,FALSE,TRUE,"This is an optional field. This field accepts comma separated multiple values (concatenated into a single, comma-separated string) representing Property IDs."
+properties,getProperties,propertyLookupCode,string,FALSE,FALSE,This is an optional field. This field accepts a single value for the Property Lookup Code.
+properties,getProperties,showAllStatus,boolean_string,FALSE,FALSE,This is an optional field. This field accepts a single value to show all statuses.
+properties,getPropertyAddOns,propertyId,integer,TRUE,FALSE,This is a required field. This field accepts a single value for the Property ID.
+properties,getPropertyAddOns,addOnIds,integer,FALSE,TRUE,This is an optional field. This field accepts comma separated multiple values for the Add-On IDs.
+properties,getPropertyAnnouncements,propertyId,integer,TRUE,FALSE,This is a required field. This field accepts a single value for the Property ID.
+properties,getPropertyAnnouncements,announcementIds,integer,FALSE,TRUE,This is an optional field. This field accepts comma separated multiple values for the Announcement IDs.
+properties,getPropertyRentableItems,propertyId,integer,TRUE,FALSE,This is a required field. This field accepts a single value for the Property ID.
+properties,getPropertyRentableItems,rentableItemIds,integer,FALSE,TRUE,This is an optional field. This field accepts comma separated multiple values for the Rentable Item IDs.
+propertyunits,getPropertyUnits,propertyIds,string,TRUE,TRUE,This is a required field. This field accepts comma separated multiple values for Property IDs.
+propertyunits,getPropertyUnits,availableUnitsOnly,boolean_string,FALSE,FALSE,"This is an optional field. This field accepts a single value. If provided value is 1, only available units will be returned."
+propertyunits,getPropertyUnits,includeDisabledFloorPlans,boolean_string,FALSE,FALSE,"This is an optional field. This field accepts a single value. If provided value is 1, disabled floorplans will be included along with the enabled ones."
+propertyunits,getPropertyUnits,includeDisabledUnits,boolean_string,FALSE,FALSE,"This is an optional field. This field accepts a single value. If provided value is 1, disabled units will be included along with the enabled ones."
+propertyunits,getPropertyUnits,usePropertyPreferences,boolean_string,FALSE,FALSE,"This is an optional field. This field accepts a single value. If enabled, the Entrata setting 'Max Available Units per Floor Plan' will be honored and the available units returned will be reduced. Also requires using the availableUnitsOnly parameter as true (1)."
+propertyunits,getUnitTypes,propertyId,integer,TRUE,FALSE,This is a required field. This field accepts a single value for the Property ID.
+queue,getResponse,queueId,string,TRUE,FALSE,This is a required field. This field accepts single value. This node accepts the queueId. This should be a JWT token. This token should get generated from the getReportData(r3) version.
+queue,getResponse,serviceName,string,TRUE,FALSE,This is a required field. This field accepts single value. This node accepts the service name for which the apiToken is added.
+reports,getReportData,filters,object,TRUE,FALSE,"This is a required field. This field accepts a single value. For each report, there are filter parameters required, such as property ID, dates, etc. You can get filters for each report using the getReportsInfo web service."
+reports,getReportData,reportName,string,TRUE,FALSE,"This is a required field. This field accepts a single value for the report name. Once passed, the web service will return report data for that report."
+reports,getReportData,reportVersion,string,TRUE,FALSE,This is an optional field. This field accepts a single value. Will filter results as per the available report versions.
+reports,getReportDependentFilter,dependentFilter,string,TRUE,FALSE,This is a required field. This field accepts a single value for the dependent filter. The values of these filters will be returned based on the parent fields mentioned in the 'filters' section.
+reports,getReportDependentFilter,filters,string,TRUE,FALSE,"This is a required field. This field accepts a single value. Parent filters are mentioned here, and based on these values, the dependent filters will be returned."
+reports,getReportDependentFilter,reportName,string,TRUE,FALSE,"This is a required field. This field accepts a single value for the report name. Once passed, the web service will return values of the dependent filter for that report."
+reports,getReportInfo,reportName,string,TRUE,FALSE,This is a required field. This field accepts a single value for the report name.
+reports,getReportInfo,reportVersion,string,FALSE,FALSE,This is an optional field. This field accepts a single value. Will filter results based on the available report versions.
+reports,getReportList,,NA,NA,FALSE,NA
+status,getStatus,,NA,NA,FALSE,NA

@@ -18,7 +18,7 @@ Imports:
     fontawesome,
     htmltools,
     pkgload,
-    rlang,
+    rlang (>= 1.1.0),
     shiny
 Suggests: 
     httptest2,
@@ -34,3 +34,5 @@ Encoding: UTF-8
 Language: en-US
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+Depends: 
+    R (>= 2.10)
