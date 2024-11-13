@@ -29,8 +29,8 @@
 app_info <- list(
   name = "GMH Data Hub",
   version = "1.0",
-  logo = "www/img/logos/app-logo.svg",
-  symbol = "www/img/icons/app-icon.webp",
+  logo = "www/images/shared/app/logos/app-logo.svg",
+  symbol = "www/images/shared/app/icons/app-icon.webp",
   repo_url = "https://github.com/noclocks/gmhdatahub",
   docs_url = "https://docs.noclocks.dev/gmhdatahub"
 )
@@ -40,8 +40,8 @@ app_info <- list(
 client_info <- list(
   name = "GMH Communities",
   url = "https://gmhcommunities.com",
-  logo = "www/img/logos/gmh-logo.svg",
-  symbol = "www/img/icons/gmh-icon.png"
+  logo = "www/images/gmh/logos/gmh-logo.svg",
+  symbol = "www/images/gmh/icons/gmh-icon.png"
 )
 
 # noclocks_info -----------------------------------------------------------
@@ -49,8 +49,8 @@ client_info <- list(
 developer_info <- list(
   name = "No Clocks, LLC",
   url = "https://noclocks.dev",
-  logo = "www/img/logos/noclocks-logo.svg",
-  symbol = "www/img/icons/noclocks-icon-circular.png"
+  logo = "www/images/noclocks/logos/noclocks-logo-black.svg",
+  symbol = "www/images/noclocks/icons/noclocks-icon-circular.png"
 )
 
 # entrata_info ------------------------------------------------------------
@@ -58,15 +58,22 @@ developer_info <- list(
 entrata_info <- list(
   name = "Entrata",
   url = "https://gmhcommunities.entrata.com/api/v1/documentation",
-  logo = "www/img/logos/entrata-logo.png",
+  logo = "www/images/entrata/logos/entrata-logo-light.png",
   symbol = NULL
 )
 
 # input_choices -------------------------------------------------------------
 
+portfolios <- readr::read_csv("data-raw/working/investment_partners.csv")
+portfolio_choices <- portfolios$investment_partner
+
+properties <- readr::read_csv("data-raw/working/properties_ids_names.csv")
+property_choices <- properties$property_id
+names(property_choices) <- properties$entrata_name
+
 app_choices <- list(
-  portfolios = c("All", "CBRE"),
-  properties = c()
+  portfolios = portfolio_choices,
+  properties = property_choices
 )
 
 usethis::use_data(

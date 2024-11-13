@@ -9,7 +9,7 @@
 
 files <- fs::dir_ls("inst/www", recurse = TRUE, type = "file")
 
-img_files <- fs::dir_ls("inst/www/img", recurse = TRUE, type = "file")
+img_files <- fs::dir_ls("inst/www/images", recurse = TRUE, type = "file")
 style_files <- fs::dir_ls("inst/www/styles", recurse = TRUE, type = "file")
 js_files <- fs::dir_ls("inst/www/scripts", recurse = TRUE, type = "file")
 font_files <- fs::dir_ls("inst/www/fonts", recurse = TRUE, type = "file")
@@ -35,18 +35,18 @@ registry <- list(
     noclocks = list(
       logos = list(
         primary = list(
-          default = "noclocks/logos/logo.svg",
-          dark = "noclocks/logos/logo-dark.svg",
-          light = "noclocks/logos/logo-light.svg"
+          default = "noclocks/logos/noclocks-logo-black.svg",
+          dark = "noclocks/logos/noclocks-logo-white.svg",
+          light = "noclocks/logos/noclocks-logo-black.svg"
         )
       )
     ),
     entrata = list(
       logos = list(
         primary = list(
-          default = "entrata/logos/logo.svg",
-          dark = "entrata/logos/logo-dark.svg",
-          light = "entrata/logos/logo-light.svg"
+          default = "entrata/logos/entrata-logo-square-red.svg",
+          dark = "entrata/logos/entrata-logo-dark.svg",
+          light = "entrata/logos/entrata-logo-light.svg"
         )
       )
     ),
@@ -71,31 +71,31 @@ registry <- list(
         favicon = "shared/favicons/favicon.ico"
       )
     )
-  )
+  ),
   images = list(
     entrata = list(
-      banner = "img/entrata/entrata-banner.jpeg",
+      banner = "images/entrata/entrata-banner.jpeg",
       logo = list(
-        dark = "img/entrata/entrata-logo-dark.png",
-        light = "img/entrata/entrata-logo-light.png",
-        square = "img/entrata/entrata-logo-square-red.jpg",
-        white = "img/entrata/entrata-logo-white.svg",
-        default = "img/entrata/entrata.png"
+        dark = "images/entrata/entrata-logo-dark.png",
+        light = "images/entrata/entrata-logo-light.png",
+        square = "images/entrata/entrata-logo-square-red.jpg",
+        white = "images/entrata/entrata-logo-white.svg",
+        default = "images/entrata/entrata.png"
       )
     ),
     icons = list(
-      app = "img/icons/app-icon.webp",
-      gmh = "img/icons/gmh-icon.png",
-      noclocks = "img/icons/noclocks-icon-circular.png"
+      app = "images/icons/app-icon.webp",
+      gmh = "images/icons/gmh-icon.png",
+      noclocks = "images/icons/noclocks-icon-circular.png"
     ),
     logos = list(
-      app = "img/logos/app-logo.svg",
-      entrata = "img/logos/entrata-logo.png",
-      gmh = "img/logos/gmh-logo.svg",
-      noclocks = "img/logos/noclocks-logo.svg"
+      app = "images/logos/app-logo.svg",
+      entrata = "images/logos/entrata-logo.png",
+      gmh = "images/logos/gmh-logo.svg",
+      noclocks = "images/logos/noclocks-logo.svg"
     ),
     placeholders = list(
-      default = "img/placeholders/default-image.png"
+      default = "images/placeholders/default-image.png"
     )
   ),
   scripts = list(

@@ -96,9 +96,9 @@ mod_footer_ui <- function(
     id = NULL,
     align = "center",
     class = "footer",
-    app_info = gmhdatahub::app_info,
-    client_info = client_info,
-    developer_info = developer_info,
+    app_info = getFromNamespace("app_info", envir = rlang::pkg_env("gmhdatahub")),
+    client_info = getFromNamespace("client_info", envir = rlang::pkg_env("gmhdatahub")),
+    developer_info = getFromNamespace("developer_info", envir = rlang::pkg_env("gmhdatahub")),
     copyright_holder = "No Clocks, LLC",
     year = format(Sys.Date(), "%Y"),
     ...
@@ -112,15 +112,6 @@ mod_footer_ui <- function(
     shiny::addResourcePath("www", www_dir)
   } else if (!nzchar(www_dir)) {
     stop("The 'www' directory was not found in the 'gmhdatahub' package.")
-  }
-
-  # Include the CSS file from the package's 'www' directory
-  css_file <- system.file("www/styles/css/footer.css", package = "gmhdatahub")
-  if (file.exists(css_file)) {
-    css_content <- shiny::includeCSS(css_file)
-  } else {
-    warning("CSS file 'footer.css' not found in the 'gmhdatahub' package.")
-    css_content <- NULL
   }
 
   # Set default copyright holder if not provided
@@ -137,12 +128,11 @@ mod_footer_ui <- function(
   developer_info$symbol <- validate_image(developer_info$symbol)
 
   # Entrata
-  entrata_info <- .entrata_info
+  entrata_info <- getFromNamespace("entrata_info", envir = rlang::pkg_env("gmhdatahub"))
   entrata_info$logo <- validate_image(entrata_info$logo)
 
   bslib::card_footer(
     class = class,
-    css_content,
     htmltools::tags$footer(
       style = paste0("text-align: ", align, ";"),
       htmltools::tags$hr(),
@@ -383,7 +373,7 @@ validate_image <- function(img_path) {
     return(img_path)
   } else {
     warning(paste("Image not found:", img_path, "- using placeholder image."))
-    return("www/img/placeholders/default-image.png")
+    return("www/images/shared/placeholders/default-image.png")
   }
 }
 
