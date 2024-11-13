@@ -1,0 +1,23 @@
+@import "../theme/colors";
+@import "../theme/spacing";
+
+.footer {
+  background-color: $footer-bg;
+  padding: get-padding(large);
+
+  .footer-img {
+    vertical-align: middle;
+    margin-left: get-margin(small);
+    height: get-height(small);
+  }
+
+  a {
+    color: $footer-link;
+    text-decoration: none;
+
+    &:hover {
+      color: $footer-link-hover;
+      text-decoration: underline;
+    }
+  }
+}

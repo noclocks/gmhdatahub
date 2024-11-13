@@ -7,6 +7,27 @@
 #
 #  ------------------------------------------------------------------------
 
+portfolio_names <- c(
+  "CRG",
+  "Medistar",
+  "ASC",
+  "Principal",
+  "CBRE",
+  "All GMH Properties"
+)
+
+portfolio_types <- c(
+  "Equity Partner",
+  "Owner",
+  "Equity Partner",
+  "Equity Partner",
+  "Equity Partner",
+  "Property Type"
+)
+
+
+
+
 source("data-raw/src/properties.R")
 
 portfolios <- tibble::tribble(
@@ -58,4 +79,49 @@ portfolios <- tibble::tribble(
     portfolio_name,
     property_id,
     property_name
+  )
+
+portfolio_assignments <- tibble::tibble(
+  portfolio = rep(
+    c("AGC", "CBRE", "CRG", "Medistar", "Principal", "GMH"),
+    c(10L, 2L, 1L, 1L, 4L, 19L)
+  ),
+  property_id = c(
+    739085, 739085, 739079, 739080, 739084, 641240, 676055, 535270, 676054,
+    833617, 1143679, 952515, 1197887, 0, 518044, 518041, 518042, 518046, 1311849,
+    0, 1197887, 1143679, 739085, 739085, 739079, 739080, 739084, 641240, 676055,
+    518044, 952515, 518041, 535270, 518042, 676054, 518046, 833617
+  ),
+  property_name = c(
+    "Campustown 1008 S. 4th", "1047 Commonwealth Avenue",
+    "Campustown 307 E. Daniel", "Campustown 501 S. 6th", "Campustown 908 S. 1st",
+    "Academy 65", "Academy Lincoln", "The Academy Chorro", "The Academy Palomar",
+    "The Dean Campustown", "Torre", "SOVA", "The Dean Reno", "Life Tower",
+    "Shortbread Lofts", "The Academy at Frisco", "The Academy on Charles",
+    "The Rise at Northgate", "The Venue at North Campus", "Life Tower",
+    "The Dean Reno", "Torre", "Campustown 1008 S. 4th",
+    "1047 Commonwealth Avenue", "Campustown 307 E. Daniel",
+    "Campustown 501 S. 6th", "Campustown 908 S. 1st", "Academy 65",
+    "Academy Lincoln", "Shortbread Lofts", "SOVA", "The Academy at Frisco",
+    "The Academy Chorro", "The Academy on Charles", "The Academy Palomar",
+    "The Rise at Northgate", "The Dean Campustown"
+  ),
+) |>
+  structure(
+    spec = list(
+      cols = list(
+        portfolio = list() |>
+          structure(class = c("collector_character", "collector")),
+        property_id = list() |>
+          structure(class = c("collector_double", "collector")),
+        property_name = list() |>
+          structure(class = c("collector_character", "collector"))
+      ),
+      default = list() |>
+        structure(class = c("collector_guess", "collector")),
+      delim = ","
+    ) |>
+      structure(class = "col_spec"),
+    problems = constructive::.xptr("000000802B74F0C0"),
+    class = c("spec_tbl_df", "tbl_df", "tbl", "data.frame")
   )

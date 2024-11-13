@@ -1,0 +1,128 @@
+---
+title: "workflow"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+# library(gmhdatahub)
+```
+
+## Understanding Key Terms in API Data Processing
+
+Processing API response data involves a series of steps and concepts that ensure the data is correctly received, interpreted, transformed, and utilized within an application.
+
+Below is an overview of key terms and their roles within the typical workflow of handling API responses:
+
+### API Response
+
+The data returned by an API after a request is made. It usually comes in formats like JSON, XML, or others.
+
+### Parsing
+
+- Definition: Analyzing the API response data structure to convert it into a usable format within your application.
+
+- Example: Converting JSON response data into a list or data frame in R.
+
+### Serialization & Deserialization
+
+- **Serialization:** Converting an in-memory data structure into a format that can be easily stored or transmitted (e.g., JSON, XML).
+
+- **Example:** Using `jsonlite::toJSON()` in R to convert an object into a JSON string before sending it in an API request.
+
+- **Deserialization:** The inverse process; converting serialized data back into an in-memory data structure.
+
+- **Example:** Parsing a JSON response using `jsonlite::fromJSON()` in R to convert it into a list or data frame.
+
+### Marshaling & Unmarshaling
+
+- **Marshaling:** Transforming memory objects to a format suitable for storage or transmission, often used in remote procedure calls (RPC).
+
+- **Example:** Using Protocol Buffers to marshal data before sending it to a microservice.
+
+- **Unmarshaling:** The reverse process; converting marshaled data back into memory objects.
+
+- **Example:** Decoding Protocol Buffers data back into native objects in a service.
+
+### Schemas
+
+- **Definition:** Formal definitions of the structure, types, and constraints of data (e.g., JSON Schema, XML Schema).
+
+- **Example:** Using a JSON Schema to validate that an API response contains required fields like `id`, `name`, and `email`.
+
+### Encoding & Decoding
+
+- **Encoding:** Converting data into a specific format for transmission or storage, ensuring compatibility or efficiency.
+
+- **Example:** Encoding data as Base64 when embedding binary data in a JSON response.
+
+- **Decoding:** The reverse process; converting encoded data back into its original format.
+
+- **Example:** Decoding a Base64 string back into binary data after receiving it from an API.
+
+### Encryption & Decryption
+
+**Encryption:** Converting data into a secure format to prevent unauthorized access.
+
+**Example:** Using HTTPS to encrypt data in transit or encrypting specific fields within an API response.
+
+**Decryption:** Converting encrypted data back into its original, readable format.
+
+**Example:** Decrypting a sensitive field in an API response using a predefined key.
+
+### Extraction
+
+Retrieving specific pieces of data from a larger dataset.
+
+**Example:** Extracting the `user` object from a nested JSON API response.
+
+Transformation
+Modifying data from one format or structure to another to meet the application's requirements.
+
+Example: Converting date strings from the API into JavaScript Date objects.
+
+10. Enrichment
+Enhancing the API response data by adding additional information from other sources.
+
+Example: Adding geographic coordinates to user data by cross-referencing with a location service.
+
+11. Validation
+Checking that the API response data meets certain criteria or standards.
+
+Example: Verifying that a numerical field falls within an expected range or that required fields are present.
+
+12. Normalization
+Structuring data to reduce redundancy and improve integrity.
+
+Example: Splitting a full address into separate street, city, state, and zip fields.
+
+13. Aggregation
+Combining multiple data points into a summarized or consolidated form.
+
+Example: Calculating the total sales from a list of sales transactions received from an API.
+
+14. Caching
+Storing API response data temporarily to improve performance and reduce redundant requests.
+
+Example: Using an in-memory cache like Redis to store user profiles fetched from an API.
+
+15. Error Handling
+Managing and responding to errors that occur during the processing of API responses.
+
+Example: Retrying a failed API request or logging an error for later analysis when parsing fails.
+
+16. Logging and Monitoring
+Recording and tracking the processing of API responses for debugging, auditing, and performance analysis.
+
+Example: Logging the time taken to parse and process each API response or monitoring for a high rate of failed validations.
+

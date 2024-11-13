@@ -1,0 +1,47 @@
+---
+format: markdown
+---
+
+# About GMH Leasing Dashboard
+
+The GMH Leasing Dashboard is a web application that provides a comprehensive overview of the leasing performance
+of GMH Community's leasing properties and portfolios.
+
+The dashboard is designed to help GMH Leasing executives make data-driven decisions to optimize the performance of
+their properties.
+
+## Features
+
+The Leasing Dashboard includes the following features:
+
+- **Dashboard**: A high-level overview of key performance indicators for the leasing portfolio.
+
+- **Reports**: Detailed reports on leasing performance, occupancy rates, and revenue.
+
+- **Properties**: Information on individual properties, including occupancy rates, leasing status, and revenue.
+
+## Technologies
+
+The GMH Leasing Dashboard is built using the following technologies:
+
+- **R Shiny**: A web application framework for R that allows developers to create interactive web applications.
+- **HTML/CSS/JavaScript**: Front-end technologies for building web applications.
+- **Bootstrap**: A front-end framework for building responsive web applications.
+- **DataTables.js**: A JavaScript/jQuery library for creating interactive data tables.
+- **Highcharts.js**: A JavaScript library for creating interactive charts and graphs.
+
+the infrastructure behind the application is built using the following technologies:
+
+- **Docker**: A containerization platform for building, shipping, and running applications.
+- **Docker Compose**: A tool for defining and running multi-container Docker applications.
+- **PostgreSQL**: A powerful, open-source object-relational database system.
+
+and is hosted on Google Cloud Platform using the following services:
+
+- **Google Cloud Run**: A fully managed platform that automatically scales your stateless containers.
+- **Google Cloud Artifact Registry**: A private Docker container registry for storing and managing container images.
+- **Google Cloud Storage**: A scalable object storage service for storing and serving large amounts of unstructured data.
+
+## Contact Us
+
+If you have any questions or feedback about the GMH Leasing Dashboard, please contact us at [support@noclocks.dev](mailto:support@noclocks.dev).

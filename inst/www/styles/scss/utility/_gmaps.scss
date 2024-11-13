@@ -1,0 +1,71 @@
+/* https://github.com/googlemaps/extended-component-library/blob/main/src/store_locator/README.md */
+
+@import "./../theme/_typography";
+
+$gmpx-color-surface: #f6f5ff;
+$gmpx-color-on-primary: #f8e8ff;
+$gmpx-color-on-surface: #212121;
+$gmpx-color-on-surface-variant: #636268;
+$gmpx-color-primary: #8a5cf4;
+$gmpx-color-outline: #e0e0e0;
+$gmpx-fixed-panel-width-row-layout: 28.5em;
+$gmpx-fixed-panel-height-column-layout: 65%;
+$gmpx-font-family-base: $font-body;
+$gmpx-font-family-headings: $font-title;
+$gmpx-font-size-base: 0.875rem;
+$gmpx-hours-color-open: #188038;
+$gmpx-hours-color-closed: #d50000;
+$gmpx-rating-color: #ffb300;
+$gmpx-rating-color-empty: #e0e0e0;
+
+gmpx-store-locator {
+    width: 100%;
+    height: 100%;
+
+    --gmpx-color-surface: $gmpx-color-surface;
+    --gmpx-color-on-surface: $gmpx-color-on-surface;
+    --gmpx-color-on-surface-variant: $gmpx-color-on-surface-variant;
+    --gmpx-color-primary: $gmpx-color-primary;
+    --gmpx-color-outline: $gmpx-color-outline;
+    --gmpx-fixed-panel-width-row-layout: $gmpx-fixed-panel-width-row-layout;
+    --gmpx-fixed-panel-height-column-layout: $gmpx-fixed-panel-height-column-layout;
+    --gmpx-font-family-base: $gmpx-font-family-base;
+    --gmpx-font-family-headings: $gmpx-font-family-headings;
+    --gmpx-font-size-base: $gmpx-font-size-base;
+    --gmpx-hours-color-open: $gmpx-hours-color-open;
+    --gmpx-hours-color-closed: $gmpx-hours-color-closed;
+    --gmpx-rating-color: $gmpx-rating-color;
+    --gmpx-rating-color-empty: $gmpx-rating-color-empty;
+}
+
+gmpx-place-picker {
+  --gmpx-color-surface: #fff;
+  display: block;
+  flex-grow: 1;
+  margin: 1rem;
+}
+
+gmpx-split-layout {
+  flex: 1 auto;
+  overflow: auto;
+}
+
+#close-button {
+  display: block;
+  margin: 1rem;
+}
+
+html, body {
+  --gmpx-color-surface: $gmpx-color-on-surface;
+  --gmpx-color-on-primary: $gmpx-color-on-primary;
+  --gmpx-color-on-surface: $gmpx-color-on-surface;
+  --gmpx-color-on-surface-variant: $gmpx-color-on-surface-variant;
+  --gmpx-color-primary: $gmpx-color-primary;
+  --gmpx-fixed-panel-height-column-layout: $gmpx-fixed-panel-height-column-layout;
+  --gmpx-fixed-panel-width-row-layout: $gmpx-fixed-panel-width-row-layout;
+  background: var(--gmpx-color-surface);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0;
+}

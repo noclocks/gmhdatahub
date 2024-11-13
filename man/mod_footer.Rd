@@ -15,9 +15,9 @@ mod_footer_ui(
   id = NULL,
   align = "center",
   class = "footer",
-  app_info = .app_info,
-  client_info = .client_info,
-  developer_info = .developer_info,
+  app_info = gmhdatahub::app_info,
+  client_info = client_info,
+  developer_info = developer_info,
   copyright_holder = "No Clocks, LLC",
   year = format(Sys.Date(), "\%Y"),
   ...
@@ -86,7 +86,7 @@ validate_image(img_path)
 }
 }
 \description{
-A Shiny module for creating the footer of the GMH Leasing Dashboard.
+A Shiny module for creating the footer of the GMH Data Hub's Leasing Dashboard.
 
 Composed of the \code{ui}, \code{server}, and helper functions:
 \itemize{

@@ -9,3 +9,4 @@ inst/doc
 *_.new.png
 
 config.yml
+.venv/

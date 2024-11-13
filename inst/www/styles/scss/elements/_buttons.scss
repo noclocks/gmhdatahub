@@ -1,0 +1,106 @@
+@import "../theme/colors";
+@import "../theme/spacing";
+
+// Base Button Styles
+.button {
+  padding: get-padding(small) get-padding(medium);
+  border-radius: 0.25rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+// Solid Buttons
+.btn-primary {
+  background-color: get-color(primary);
+  color: get-color(white);
+  border: 1px solid get-color(primary);
+
+  &:hover {
+    background-color: darken(get-color(primary), 10%);
+    border-color: darken(get-color(primary), 10%);
+  }
+}
+
+.btn-success {
+  background-color: get-color(success);
+  color: get-color(white);
+  border: 1px solid get-color(success);
+
+  &:hover {
+    background-color: darken(get-color(success), 10%);
+    border-color: darken(get-color(success), 10%);
+  }
+}
+
+.btn-warning {
+  background-color: get-color(warning);
+  color: get-color(white);
+  border: 1px solid get-color(warning);
+
+  &:hover {
+    background-color: darken(get-color(warning), 10%);
+    border-color: darken(get-color(warning), 10%);
+  }
+}
+
+// Outline Buttons
+.btn-outline-primary {
+  background-color: transparent;
+  color: get-color(primary);
+  border: 1px solid get-color(primary);
+
+  &:hover {
+    background-color: get-color(primary);
+    color: get-color(white);
+  }
+}
+
+.btn-outline-success {
+  background-color: transparent;
+  color: get-color(success);
+  border: 1px solid get-color(success);
+
+  &:hover {
+    background-color: get-color(success);
+    color: get-color(white);
+  }
+}
+
+.btn-outline-warning {
+  background-color: transparent;
+  color: get-color(warning);
+  border: 1px solid get-color(warning);
+
+  &:hover {
+    background-color: get-color(warning);
+    color: get-color(white);
+  }
+}
+
+// Small Buttons
+.btn-small {
+  padding: get-padding(small) get-padding(small);
+  font-size: 0.85em;
+}
+
+// Large Buttons
+.btn-large {
+  padding: get-padding(medium) get-padding(large);
+  font-size: 1.1em;
+}
+
+// Disabled Button State
+.btn-disabled {
+  background-color: get-color(light-grey);
+  color: get-color(mid-grey);
+  border: 1px solid get-color(light-grey);
+  cursor: not-allowed;
+  opacity: 0.6;
+
+  &:hover {
+    background-color: get-color(light-grey);
+    color: get-color(mid-grey);
+  }
+}

@@ -1,0 +1,81 @@
+@import "../theme/colors";
+@import "../theme/spacing";
+
+// Base Table Style
+.table {
+  width: 100%;
+  margin-bottom: get-margin(medium);
+  color: get-color(mid-grey);
+  border-collapse: collapse;
+  background-color: get-color(white);
+  border: 1px solid get-color(light-grey);
+  font-size: 0.9em;
+}
+
+// Table Head
+.table th {
+  padding: get-padding(small);
+  text-align: left;
+  font-weight: bold;
+  color: get-color(dark-grey);
+  background-color: get-color(super-light-grey);
+  border-bottom: 2px solid get-color(light-grey);
+}
+
+// Table Body
+.table td {
+  padding: get-padding(small);
+  border-top: 1px solid get-color(light-grey);
+  vertical-align: middle;
+}
+
+// Striped Rows
+.table-striped tbody tr:nth-child(odd) {
+  background-color: get-color(super-light-grey);
+}
+
+// Hover Effect
+.table-hover tbody tr:hover {
+  background-color: get-color(light-blue);
+  color: get-color(black);
+}
+
+// Bordered Table
+.table-bordered td, .table-bordered th {
+  border: 1px solid get-color(light-grey);
+}
+
+// Condensed Table for Compact Views
+.table-condensed td, .table-condensed th {
+  padding: get-padding(small) get-padding(small);
+}
+
+// Responsive Overflow Wrapper
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+
+  .table {
+    width: 100%;
+    margin-bottom: 0;
+  }
+}
+
+// DT Datatables
+.dataTable th, .dataTable td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  text-align: center;
+}
+
+.dataTable thead {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.dataTable .highlight {
+  background-color: #f9f9f9;
+  color: #333;
+}

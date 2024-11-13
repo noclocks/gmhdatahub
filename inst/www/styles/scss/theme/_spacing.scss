@@ -1,0 +1,34 @@
+// _spacing.scss
+
+// Padding
+$padding: (
+  small: 0.3125rem,
+  medium: 0.625rem,
+  large: 1.25rem
+);
+
+// Margin
+$margin: (
+  small: 0.3125rem,
+  medium: 0.625rem,
+  large: 1.25rem
+);
+
+// Heights
+$height: (
+  small: 1.25rem,
+  medium: 2.5rem
+);
+
+// Helper functions for spacing
+@function get-padding($size) {
+  @return map-get($padding, $size);
+}
+
+@function get-margin($size) {
+  @return map-get($margin, $size);
+}
+
+@function get-height($size) {
+  @return map-get($height, $size);
+}
