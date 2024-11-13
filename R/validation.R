@@ -382,3 +382,321 @@ check_request <- function(
   )
 
 }
+
+#' Is Boolean String
+#'
+#' @description
+#' Checks if provided string represents a boolean (used by Entrata API).
+#'
+#' @param str Character string to check. Typically, with the Entrata API, "boolean"
+#'   values are represented as quoted integers (`"0"` or `"1"`) representing
+#'   `FALSE` and `TRUE`, respectively.
+#'
+#' @return `TRUE` if the string is a boolean string, `FALSE` otherwise.
+#'
+#' @export
+#'
+#' @examples
+#' is_boolean_string("0")
+is_boolean_string <- function(str) {
+  str %in% c(as.character(as.integer(TRUE)), as.character(as.integer(FALSE)))
+}
+
+#' Is Integer String
+#'
+#' @description
+#' Validate a string can be parsed into an integer.
+#'
+#' @param str Character string to check. Typically, with the Entrata API, "integer"
+#'   parameters are actually represented as strings in the request payload.
+#' @param arg For internal use only, used to capture the name of the argument.
+#'
+#' @return `TRUE` if the string is parseable to an integer, `FALSE` otherwise.
+#'
+#' @export
+#'
+#' @importFrom rlang caller_arg
+#'
+#' @examples
+#' is_integer_string("1")
+#' [1] TRUE
+#'
+#' is_integer_string("a")
+#' [1] FALSE
+is_integer_string <- function(str, arg = rlang::caller_arg(str)) {
+
+  int <- NA
+
+  tryCatch({
+    int <- suppressWarnings(as.integer(str))
+  }, error = function(e) {
+    return(FALSE)
+  })
+
+  if (is.na(int)) { return(FALSE) } else { return(TRUE) }
+
+}
+
+#' @describeIn is_integer_string Is Integer String (Multi)
+#'
+#' @description
+#' Validate a string with comma separated integers can be parsed into individual integers.
+#'
+#' @param str Character string to check. Typically, with the Entrata API, "multiple"
+#'   values are represented as comma separated integer strings.
+#' @param arg For internal use only, used to capture the name of the argument.
+#'
+#' @export
+#'
+#' @examples
+#' is_integer_string_multi("1,2,3")
+#' [1] TRUE
+#' is_integer_string_multi("1,2,3,")
+#' [1] FALSE
+#' is_integer_string_multi("1,2,a,b")
+#' [1] FALSE
+is_integer_string_multi <- function(
+    str,
+    arg = rlang::caller_arg(str)
+) {
+
+  # verify a single string with comma separated integers can be parsed
+  # into individual integers
+  int <- NA
+
+  # if ends with a comma, fail
+  if (grepl(",$", str)) {
+    cli::cli_alert_warning("{.arg {str}} ends with a comma.")
+    return(FALSE)
+  }
+
+  tryCatch({
+    int <- suppressWarnings(as.integer(unlist(strsplit(str, ","))))
+  }, error = function(e) {
+    return(FALSE)
+  })
+
+  if (any(is.na(int))) { return(FALSE) } else { return(TRUE) }
+
+}
+
+# get_validation_function <- function(
+#     endpoint,
+#     method,
+#     param,
+#     call = rlang::caller_env(),
+#     arg_endpoint = rlang::caller_arg(endpoint),
+#     arg_method = rlang::caller_arg(method),
+#     arg_param = rlang::caller_arg(param)
+# ) {
+#
+#   hold <- entrata_api_request_endpoint_method_parameters |>
+#     dplyr::filter(endpoint == endpoint,
+#                   method == method,
+#                   parameter == param)
+#
+#   if (nrow(hold) == 0) {
+#     cli::cli_abort(
+#       c(
+#         "No parameter {.arg arg_param} found for the {.arg arg_method} method in the {.arg arg_endpoint} endpoint."
+#       ),
+#       call = call
+#     )
+#   }
+#
+#   param_type <- hold$type[[1]]
+#   param_multi <- hold$multiple[[1]]
+#
+#   dplyr::case_when(
+#     param_multi ~ switch(
+#       param_type,
+#       "integer" = is_integer_string_multi,
+#       "string" = is_string,
+#       "date" = function(x) inherits(x, "Date"),
+#       "boolean" = is.logical,
+#       "boolean_string" = is_boolean_string,
+#       "string_list" = is.character,
+#       "integer_list" = is_integer_string_multi,
+#       stop("Unknown parameter type: ", param_type)
+#     ),
+#     TRUE ~ switch(
+#       param_type,
+#       "integer" = is_integer_string,
+#       "string" = is.character,
+#       "date" = function(x) inherits(x, "Date"),
+#       "boolean" = is.logical,
+#       "boolean_string" = is_boolean_string,
+#       "string_list" = is.character,
+#       "integer_list" = is_integer_string_multi,
+#       stop("Unknown parameter type: ", param_type)
+#     )
+#   )
+#
+#   switch(
+#     param_type,
+#     "integer" = is_integer_string,
+#     "string" = is.character,
+#     "date" = function(x) inherits(x, "Date"),
+#     "boolean" = is.logical,
+#     "boolean_string" = is_boolean_string,
+#     "string_list" = is.character,
+#     "integer_list" = is_integer_string_multi,
+#     stop("Unknown parameter type: ", param_type)
+#   )
+#
+#   switch(
+#     type,
+#     "integer" = is_integer_string,
+#     "string" = is.character,
+#     "date" = function(x) inherits(x, "Date"),
+#     "boolean" = is.logical,
+#     "boolean_string" = is_boolean_string,
+#     "string_list" = is.character,
+#     "integer_list" = is_integer_string_multi,
+#     stop("Unknown parameter type: ", type)
+#   )
+#
+#
+#   if (param_info$type == "integer" && !is.integer(param_value)) {
+#     cli::cli_abort(
+#       c(
+#         "Parameter {.field {param_name}} should be an integer."
+#       ),
+#       call = call
+#     )
+#   } else if (param_info$type == "string" && !is.character(param_value)) {
+#     cli::cli_abort(
+#       c(
+#         "Parameter {.field {param_name}} should be a string."
+#       ),
+#       call = call
+#     )
+#   } else if (param_info$type == "date" && !inherits(param_value, "Date")) {
+#     cli::cli_abort(
+#       c(
+#         "Parameter {.field {param_name}} should be a Date object."
+#       ),
+#       call = call
+#     )
+#   } else if (param_info$type == "boolean" && !is.logical(param_value)) {
+#     cli::cli_abort(
+#       c(
+#         "Parameter {.field {param_name}} should be a logical value."
+#       ),
+#       call = call
+#     )
+#   } else if (param_info$type == "boolean_string" && !is_boolean_string(param_value)) {
+#     cli::cli_abort(
+#       c(
+#         "Parameter {.field {param_name}} should be a boolean string."
+#       ),
+#       call = call
+#     )
+#   }
+#   if (!is.null(param_info$multiple) && param_info$multiple && length(param_value) > 1 && !is.vector(param_value)) {
+#     cli::cli_abort(
+#       c(
+#         "Parameter {.field {param_name}} should be a vector for multiple values."
+#       ),
+#       call = call
+#     )
+#
+#
+#   }
+
+#' #' @rdname entrata_request_validation
+#' #' @export
+#' #' @importFrom cli cli_abort
+#' #' @importFrom rlang caller_arg caller_env
+#' validate_entrata_request_method_params <- function(
+#'     endpoint,
+#'     method,
+#'     method_params,
+#'     arg_endpoint = rlang::caller_arg(endpoint),
+#'     arg_method = rlang::caller_arg(method),
+#'     arg_method_params = rlang::caller_arg(method_params),
+#'     call = rlang::caller_env()
+#' ) {
+#'
+#'   expected_params <- entrata_api_request_parameters[[endpoint]][[method]]
+#'
+#'   if (is.null(expected_params)) {
+#'     cli::cli_alert_info(
+#'       c(
+#'         "No parameters are expected for the {.field {method}} method."
+#'       )
+#'     )
+#'   } else {
+#'     for (param_name in names(method_params)) {
+#'       if (!param_name %in% names(expected_params)) {
+#'         cli::cli_alert_warning(
+#'           c(
+#'             "Unexpected parameter: {.field {param_name}}"
+#'           )
+#'         )
+#'       } else {
+#'         param_info <- expected_params[[param_name]]
+#'         param_value <- method_params[[param_name]]
+#'
+#'         if (param_info$required && is.null(param_value)) {
+#'           cli::cli_abort(
+#'             c(
+#'               "Required parameter is missing: {.field {param_name}}",
+#'               "The {.field {param_name}} parameter is required for the {.field {method}} method.",
+#'               "Please provide a value for the {.field {param_name}} parameter."
+#'             ),
+#'             call = call
+#'           )
+#'         }
+#'
+#'         if (!is.null(param_value)) {
+#'           if (param_info$type == "integer" && !is.integer(param_value)) {
+#'             cli::cli_abort(
+#'               c(
+#'                 "Parameter {.field {param_name}} should be an integer."
+#'               ),
+#'               call = call
+#'             )
+#'           } else if (param_info$type == "string" && !is.character(param_value)) {
+#'             cli::cli_abort(
+#'               c(
+#'                 "Parameter {.field {param_name}} should be a string."
+#'               ),
+#'               call = call
+#'             )
+#'           } else if (param_info$type == "date" && !inherits(param_value, "Date")) {
+#'             cli::cli_abort(
+#'               c(
+#'                 "Parameter {.field {param_name}} should be a Date object."
+#'               ),
+#'               call = call
+#'             )
+#'           } else if (param_info$type == "boolean" && !is.logical(param_value)) {
+#'             cli::cli_abort(
+#'               c(
+#'                 "Parameter {.field {param_name}} should be a logical value."
+#'               ),
+#'               call = call
+#'             )
+#'           } else if (param_info$type == "boolean_string" && !is_boolean_string(param_value)) {
+#'             cli::cli_abort(
+#'               c(
+#'                 "Parameter {.field {param_name}} should be a boolean string."
+#'               ),
+#'               call = call
+#'             )
+#'           }
+#'           if (!is.null(param_info$multiple) && param_info$multiple && length(param_value) > 1 && !is.vector(param_value)) {
+#'             cli::cli_abort(
+#'               c(
+#'                 "Parameter {.field {param_name}} should be a vector for multiple values."
+#'               ),
+#'               call = call
+#'             )
+#'           }
+#'         }
+#'       }
+#'     }
+#'   }
+#' }
+

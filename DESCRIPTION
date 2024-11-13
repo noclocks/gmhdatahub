@@ -13,26 +13,83 @@ Description: Provides a Shiny dashboard and API client for interactingwith
 License: file LICENSE
 URL: https://github.com/noclocks/gmhdatahub
 BugReports: https://github.com/noclocks/gmhdatahub/issues
+Depends: 
+    R (>= 4.1)
 Imports: 
+    bsicons,
     bslib,
+    cli,
+    dplyr,
     fontawesome,
+    golem,
     htmltools,
+    httr2,
+    jsonlite,
+    logger,
     pkgload,
+    purrr,
     rlang (>= 1.1.0),
-    shiny
+    sass,
+    shiny,
+    shinyjs,
+    shinyWidgets,
+    stringr,
+    waiter
 Suggests: 
     httptest2,
+    kableExtra,
     knitr,
     rmarkdown,
     shinytest2,
     spelling,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    tibble,
+    tidyr
+Remotes: 
+    rstudio/bslib,
+    r-lib/httr2,
+    rstudio/sass
 VignetteBuilder: 
     knitr
-Config/testthat/edition: 3
 Encoding: UTF-8
 Language: en-US
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-Depends: 
-    R (>= 2.10)
+Config/testthat/edition: 3
+Config/tests/needs:
+    testthat (>= 3.0.0),
+    spelling,
+    httptest2,
+    shinytest2
+Config/coverage/needs:
+    covr,
+    covrpage
+Config/pkgdown/needs:
+    pkgdown,
+    testdown,
+    gitdown,
+    covrpage
+Config/database/needs:
+    DBI,
+    pool,
+    dbplyr,
+    dplyr,
+    RPostgres,
+    config
+Config/api/needs:
+    httr2,
+    jsonlite,
+    plumber,
+    R6,
+    config
+Config/shiny/needs:
+    shiny,
+    shinyjs,
+    shinyWidgets,
+    waiter,
+    bslib,
+    bsicons,
+    fontawesome,
+    sass,
+    golem
+LazyData: true

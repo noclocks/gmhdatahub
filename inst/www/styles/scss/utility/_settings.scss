@@ -1,0 +1,71 @@
+@import "../theme/colors";
+@import "../theme/spacing";
+
+// Common Breakpoints for Responsiveness
+$breakpoints: (
+  small: 576px,
+  medium: 768px,
+  large: 992px,
+  xlarge: 1200px
+);
+
+// Helper function for accessing breakpoints
+@function breakpoint($size) {
+  @return map-get($breakpoints, $size);
+}
+
+// Default Layout Settings
+$layout: (
+  sidebar-width: 12rem,
+  sidebar-width-collapsed: 3rem,
+  container-max-width: 1200px,
+  header-height: 4rem,
+  footer-height: 3rem
+);
+
+// Function to get layout settings
+@function layout($property) {
+  @return map-get($layout, $property);
+}
+
+// Border and Box Shadow Settings
+$border-radius: 0.5rem;
+$box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+$border-color-default: get-color(light-grey);
+
+// Helper for reusable box-shadow
+@mixin box-shadow($shadow: $box-shadow) {
+  box-shadow: $shadow;
+}
+
+// Utility Classes for Border Radius and Shadows
+.rounded {
+  border-radius: $border-radius;
+}
+
+.shadow {
+  @include box-shadow();
+}
+
+// Responsive Visibility Utilities
+.hidden-small {
+  @media (max-width: breakpoint(medium)) {
+    display: none !important;
+  }
+}
+
+.visible-small {
+  display: none;
+  @media (max-width: breakpoint(medium)) {
+    display: block !important;
+  }
+}
+
+// Container Padding and Margin for Consistency
+.container-padding {
+  padding: get-padding(medium);
+}
+
+.container-margin {
+  margin: get-margin(medium);
+}

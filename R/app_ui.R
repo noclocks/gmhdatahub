@@ -7,30 +7,6 @@
 #
 #  ------------------------------------------------------------------------
 
-
-# internal ----------------------------------------------------------------
-
-add_external_resources <- function() {
-  shiny::addResourcePath(
-    "www",
-    system.file("www", package = "gmhdatahub")
-  )
-
-  htmltools::tags$head(
-    htmltools::tags$link(
-      rel = "shortcut icon",
-      type = "image/x-icon",
-      href = "www/favicon.ico"
-    ),
-    golem::bundle_resources(
-      path = system.file("www", package = "gmhdatahub"),
-      app_title = "gmhdatahub"
-    ),
-    shinyjs::useShinyjs(),
-    waiter::use_waiter()
-  )
-}
-
 # UI ----------------------------------------------------------------------
 
 app_ui <- function(req) {
@@ -50,20 +26,20 @@ app_ui <- function(req) {
       bslib::nav_panel(
         title = "Home",
         value = "home",
-        icon = shiny::icon("home")#,
-        # mod_home_ui("app")
+        icon = shiny::icon("home"),
+        mod_home_ui("app")
       ),
       bslib::nav_panel(
         title = "Data",
         value = "data",
-        icon = shiny::icon("database")#,
-        # mod_data_ui("app")
+        icon = shiny::icon("database"),
+        mod_data_ui("app")
       ),
       bslib::nav_panel(
         title = "Analysis",
         value = "analysis",
-        icon = shiny::icon("chart-line")#,
-        # mod_analysis_ui("app")
+        icon = shiny::icon("chart-line"),
+        mod_analysis_ui("app")
       ),
       bslib::nav_spacer(),
       bslib::nav_menu(

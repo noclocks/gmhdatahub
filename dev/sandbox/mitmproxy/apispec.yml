@@ -1,0 +1,411 @@
+openapi: 3.0.0
+info:
+  title: .\traffic Mitmproxy2Swagger
+  version: 1.0.0
+servers:
+- url: https://gmhcommunities.entrata.com/api/v1
+  description: The default server
+paths:
+  /status:
+    post:
+      summary: POST status
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: object
+                    properties:
+                      requestId:
+                        type: string
+                      code:
+                        type: number
+                      result:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                          message:
+                            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                auth:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                requestId:
+                  type: number
+                method:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    version:
+                      type: string
+                    params:
+                      type: array
+                      items:
+                        type: object
+  /properties:
+    post:
+      summary: POST properties
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: object
+                    properties:
+                      requestId:
+                        type: string
+                      code:
+                        type: number
+                      result:
+                        type: object
+                        properties:
+                          PhysicalProperty:
+                            type: object
+                            properties:
+                              Property:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    PropertyID:
+                                      type: number
+                                    MarketingName:
+                                      type: string
+                                    Type:
+                                      type: string
+                                    webSite:
+                                      type: string
+                                    Address:
+                                      type: object
+                                      properties:
+                                        '@attributes':
+                                          type: object
+                                          properties:
+                                            AddressType:
+                                              type: string
+                                        Address:
+                                          type: string
+                                        City:
+                                          type: string
+                                        State:
+                                          type: string
+                                        PostalCode:
+                                          type: string
+                                        Country:
+                                          type: string
+                                        Email:
+                                          type: string
+                                    Addresses:
+                                      type: object
+                                      properties:
+                                        Address:
+                                          type: array
+                                          items:
+                                            type: object
+                                            properties:
+                                              AddressType:
+                                                type: string
+                                              Address:
+                                                type: string
+                                              City:
+                                                type: string
+                                              StateCode:
+                                                type: string
+                                              PostalCode:
+                                                type: string
+                                              Country:
+                                                type: string
+                                    PostMonths:
+                                      type: object
+                                      properties:
+                                        ArPostMonth:
+                                          type: string
+                                        ApPostMonth:
+                                          type: string
+                                        GlPostMonth:
+                                          type: string
+                                    PropertyHours:
+                                      type: object
+                                      properties:
+                                        OfficeHours:
+                                          type: object
+                                          properties:
+                                            OfficeHour:
+                                              type: array
+                                              items:
+                                                type: object
+                                                properties:
+                                                  Day:
+                                                    type: string
+                                                  AvailabilityType:
+                                                    type: string
+                                                  OpenTime:
+                                                    type: string
+                                                  CloseTime:
+                                                    type: string
+                                    IsDisabled:
+                                      type: number
+                                    IsFeaturedProperty:
+                                      type: number
+                                    SpaceOptions:
+                                      type: object
+                                      properties:
+                                        SpaceOption:
+                                          type: array
+                                          items:
+                                            type: object
+                                            properties:
+                                              Id:
+                                                type: string
+                                              Name:
+                                                type: string
+                                    LeaseTerms:
+                                      type: object
+                                      properties:
+                                        LeaseTerm:
+                                          type: array
+                                          items:
+                                            type: object
+                                            properties:
+                                              Id:
+                                                type: number
+                                              Name:
+                                                type: string
+                                              TermMonths:
+                                                type: number
+                                              IsProspect:
+                                                type: number
+                                              IsRenewal:
+                                                type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                auth:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                requestId:
+                  type: number
+                method:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    version:
+                      type: string
+                    params:
+                      type: array
+                      items:
+                        type: object
+  /queue:
+    post:
+      summary: POST queue
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: object
+                    properties:
+                      requestId:
+                        type: string
+                      code:
+                        type: number
+                      result:
+                        type: object
+                        properties:
+                          reportData:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                property:
+                                  type: string
+                                property_name:
+                                  type: string
+                                lease_type:
+                                  type: string
+                                lead:
+                                  type: object
+                                lead_id:
+                                  type: object
+                                initial_contact_date:
+                                  type: object
+                                leasing_agent:
+                                  type: object
+                                lease_creation_date:
+                                  type: object
+                                building_units:
+                                  type: object
+                                applicant_type:
+                                  type: object
+                                application_approved:
+                                  type: number
+                                generated:
+                                  type: number
+                                signed:
+                                  type: number
+                                approved:
+                                  type: number
+                                cancelled:
+                                  type: object
+                                move_in:
+                                  type: number
+                                reopened_on:
+                                  type: object
+                                lease_approved_by:
+                                  type: object
+                          queueStartedOn:
+                            type: string
+                          queueCompletedOn:
+                            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                auth:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                requestId:
+                  type: number
+                method:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    version:
+                      type: string
+                    params:
+                      type: object
+                      properties:
+                        queueId:
+                          type: string
+                        serviceName:
+                          type: string
+  /reports:
+    post:
+      summary: POST reports
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: object
+                    properties:
+                      requestId:
+                        type: string
+                      code:
+                        type: number
+                      result:
+                        type: object
+                        properties:
+                          queueId:
+                            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                auth:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                requestId:
+                  type: number
+                method:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    version:
+                      type: string
+                    params:
+                      type: object
+                      properties:
+                        reportName:
+                          type: string
+                        reportVersion:
+                          type: string
+                        filters:
+                          type: object
+                          properties:
+                            property_group_ids:
+                              type: array
+                              items:
+                                type: string
+                            period:
+                              type: object
+                              properties:
+                                daterange:
+                                  type: object
+                                  properties:
+                                    daterange-start:
+                                      type: string
+                                    daterange-end:
+                                      type: string
+                                period_type:
+                                  type: string
+                            results_based_on:
+                              type: string
+                            lease_type:
+                              type: array
+                              items:
+                                type: string
+                            summarize_by:
+                              type: string
+                            group_by:
+                              type: string
+                            consolidate_by:
+                              type: string
+                            arrange_by_property:
+                              type: string
+                            subtotals:
+                              type: string
+  /arcodes:
+    post:
+      summary: POST arcodes
+      responses:
+        '200':
+          description: OK
+          content: {}
+x-path-templates:
+# Remove the ignore: prefix to generate an endpoint with its URL
+# Lines that are closer to the top take precedence, the matching is greedy
+- /propertyunits
+- /leases
+- ignore:/documentation

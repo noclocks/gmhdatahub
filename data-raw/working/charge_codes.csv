@@ -1,0 +1,34 @@
+"","charge_code_id","charge_code","charge_type","charge_frequency","related_charge_code_id","charge_usage"
+"1",148134,"Garage Parking","other","Monthly",148134,NA
+"2",147881,"Base Rent","Base Rent","Monthly",147881,NA
+"3",148902,"GMH Communities Covered","other","Monthly",148902,NA
+"4",148096,"Uncovered Garage Parking","other","Monthly",148096,NA
+"5",149017,"Deferred Rent - June 2024","Security Deposit","One-Time",149017,NA
+"6",149015,"Deferred Rent - July 2024","Security Deposit","One-Time",149015,NA
+"7",149009,"Group New Lease Gift Card","other","Monthly",149009,NA
+"8",149010,"Group New Lease Gift Card Adjustment","other","Monthly",149010,NA
+"9",149011,"Group Renewal Gift Card","other","Monthly",149011,NA
+"10",149012,"Group Renewal Gift Card Adjustment","other","Monthly",149012,NA
+"11",148135,"Model / Office","other","Monthly",148135,NA
+"12",149011,"Group Renewal Gift Card","other","One-Time",149011,NA
+"13",149012,"Group Renewal Gift Card Adjustment","other","One-Time",149012,NA
+"14",148097,"Lot Parking","other","Monthly",148097,NA
+"15",148453,"Pet Rent","other","Monthly",148453,NA
+"16",149017,"Deferred Rent - June 2024","Security Deposit","Monthly",149017,NA
+"17",149015,"Deferred Rent - July 2024","Security Deposit","Monthly",149015,NA
+"18",148656,"Deposit","Security Deposit","One-Time",148656,NA
+"19",147884,"Security Deposit","Security Deposit","One-Time",147884,NA
+"20",147893,"Covered Parking","other","Monthly",147893,NA
+"21",148820,"Leasing Special - New","other","Monthly",148820,"Concession"
+"22",148111,"Amenity Fee","other","Monthly",148111,NA
+"23",147897,"Transfer Fees","other","One-Time",147897,NA
+"24",148995,"Renewal Gift Card","other","Monthly",148995,"Concession"
+"25",148996,"Renewal Gift Card Adjustment","other","Monthly",148996,NA
+"26",148993,"New Lease Gift Card","other","Monthly",148993,NA
+"27",148994,"New Lease Gift Card Adjustment","other","Monthly",148994,NA
+"28",148253,"Balcony Premium","Base Rent","Monthly",148253,NA
+"29",148554,"View Discount","Base Rent","Monthly",148554,NA
+"30",148511,"Location Discount","Base Rent","Monthly",148511,NA
+"31",148258,"Pool View Premium","Base Rent","Monthly",148258,NA
+"32",148656,"Deposit","Security Deposit","Monthly",148656,NA
+"33",148109,"Pet Fees","other","One-Time",148109,NA

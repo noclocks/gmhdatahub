@@ -27,7 +27,7 @@
 #' @return
 #' - `mod_sidebar_ui()`: A shiny UI function.
 #' - `mod_sidebar_server()`: A shiny server function.
-
+NULL
 
 # UI ----------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ mod_sidebar_ui <- function(id, ...) {
           shinyWidgets::pickerInput(
             ns("properties"),
             label = icon_text("building", "Select Properties"),
-            choices = .app_choices$properties,
+            choices = app_choices$properties,
             multiple = TRUE,
             options = list(
               `actions-box` = TRUE,

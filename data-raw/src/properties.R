@@ -7,9 +7,38 @@
 #
 #  ------------------------------------------------------------------------
 
+property_ids <- c(
+
+)
+
+property_names <- c(
+
+)
+
+entrata_property_names <- c(
+
+)
+
+name_diffs <- tibble::tibble(
+  gmh_property_name = c(
+    "Campustown 1008 S. 4th",
+    "Campustown 307 E. Daniel",
+    "Campustown 501 S. 6th",
+    "Campustown 908 S. 1st",
+    "The Venue at North Campus"
+  ),
+  entrata_property_name = c(
+    "1008 S. 4th",
+    "307 E. Daniel",
+    "501 S. 6th",
+    "908 S. 1st",
+    "Venue at North Campus"
+  )
+)
+
 properties <- tibble::tribble(
-  ~property_id,                  ~property_name_entrata, property_name_gmh,
-  739076L,                   "1008 S. 4th",              ""
+  ~property_id,                  ~property_name_entrata,
+  739076L,                   "1008 S. 4th",
   739085L,      "1047 Commonwealth Avenue",
   739079L,                 "307 E. Daniel",
   739080L,                    "501 S. 6th",

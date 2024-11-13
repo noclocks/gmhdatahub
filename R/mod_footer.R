@@ -8,45 +8,7 @@
 #  ------------------------------------------------------------------------
 
 
-# internal ----------------------------------------------------------------
 
-#' @keywords internal
-#' @noRd
-.app_info <- list(
-  name = "GMH Data Hub",
-  version = "1.0",
-  logo = "www/img/logos/app-logo.svg",
-  symbol = "www/img/icons/app-icon.webp",
-  repo_url = "https://github.com/noclocks/gmhdatahub",
-  docs_url = "https://docs.noclocks.dev/gmhdatahub"
-)
-
-#' @keywords internal
-#' @noRd
-.client_info <- list(
-  name = "GMH Communities",
-  url = "https://gmhcommunities.com",
-  logo = "www/img/logos/gmh-logo.svg",
-  symbol = "www/img/icons/gmh-icon.png"
-)
-
-#' @keywords internal
-#' @noRd
-.developer_info <- list(
-  name = "No Clocks, LLC",
-  url = "https://noclocks.dev",
-  logo = "www/img/logos/noclocks-logo.svg",
-  symbol = "www/img/icons/noclocks-icon-circular.png"
-)
-
-#' @keywords internal
-#' @noRd
-.entrata_info <- list(
-  name = "Entrata",
-  url = "https://gmhcommunities.entrata.com/api/v1/documentation",
-  logo = "www/img/logos/entrata-logo.png",
-  symbol = NULL
-)
 
 # topic -------------------------------------------------------------------
 
@@ -55,7 +17,7 @@
 #' @name mod_footer
 #'
 #' @description
-#' A Shiny module for creating the footer of the GMH Leasing Dashboard.
+#' A Shiny module for creating the footer of the GMH Data Hub's Leasing Dashboard.
 #'
 #' Composed of the `ui`, `server`, and helper functions:
 #'
@@ -134,9 +96,9 @@ mod_footer_ui <- function(
     id = NULL,
     align = "center",
     class = "footer",
-    app_info = .app_info,
-    client_info = .client_info,
-    developer_info = .developer_info,
+    app_info = gmhdatahub::app_info,
+    client_info = client_info,
+    developer_info = developer_info,
     copyright_holder = "No Clocks, LLC",
     year = format(Sys.Date(), "%Y"),
     ...

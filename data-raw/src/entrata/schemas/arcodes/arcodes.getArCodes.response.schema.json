@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "response": {
+      "type": "object",
+      "properties": {
+        "requestId": { "type": "string" },
+        "code": { "type": "integer" },
+        "result": {
+          "type": "object",
+          "properties": {
+            "arcodes": {
+              "type": "object",
+              "properties": {
+                "arcode": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "integer" },
+                      "code": { "type": "integer" },
+                      "name": { "type": "string" },
+                      "codeType": { "type": "string" },
+                      "chargeUsage": { "type": "string" },
+                      "associatedLedger": { "type": "string" },
+                      "debitGlAccountId": { "type": "integer" },
+                      "creditGlAccountId": { "type": "integer" },
+                      "displayAs": { "type": "string" },
+                      "isDisabled": { "type": "boolean" },
+                      "isEntrataDisabled": { "type": "boolean" },
+                      "isTaxable": { "type": "boolean" },
+                      "chargeTiming": { "type": "string", "nullable": true }
+                    },
+                    "required": [
+                      "id",
+                      "code",
+                      "name",
+                      "codeType",
+                      "chargeUsage",
+                      "associatedLedger",
+                      "debitGlAccountId",
+                      "creditGlAccountId",
+                      "displayAs",
+                      "isDisabled",
+                      "isEntrataDisabled",
+                      "isTaxable"
+                    ]
+                  }
+                }
+              },
+              "required": ["arcode"]
+            }
+          },
+          "required": ["arcodes"]
+        }
+      },
+      "required": ["requestId", "code", "result"]
+    }
+  },
+  "required": ["response"]
+}

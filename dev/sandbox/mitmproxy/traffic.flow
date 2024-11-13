@@ -1,0 +1,33 @@
+POST /api/v1/status HTTP/1.1
+Host: gmhcommunities.entrata.com
+User-Agent: gmhdatahub/0.1.0 (https://github.com/noclocks/gmhdatahub)
+Accept: */*
+Accept-Encoding: deflate, gzip
+Authorization: Basic Z21oX2NvbW11bml0aWVzX3JlcG9ydGluZ18yNDE2QGdtaGNvbW11bml0aWVzOk52eigyWWZARzc=
+Content-Type: application/json
+Content-Length: 101
+
+{"auth":{"type":"basic"},"requestId":15,"method":{"name":"getStatus","version":"r1","params":[null]}}
+
+HTTP/1.1 200 OK
+Date: Wed, 13 Nov 2024 19:42:17 GMT
+Content-Type: application/json;charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+vary: Authorization
+access-control-allow-origin: *
+access-control-expose-headers: Link, X-Total-Count, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, Content-Language
+x-ratelimit-limit: 8640/day;360/hour;6/minute
+x-ratelimit-remaining: 8639/day;359/hour;5/minute
+x-ratelimit-reset: 40662;1062;42
+x-read-only: 000
+CF-Cache-Status: DYNAMIC
+Set-Cookie: __cf_bm=vC_f5xG9iUXpIDs0HuVV6QqMIKOvVxRnGBjGXYqurh4-1731526937-1.0.1.1-ijMMvQEmz9i6TQTKZXD_AoMZcCJ5xS84jNT.F2JgIj4pjABYL.ToePSx1dSskvA5HMm5XdOOUr2vFqoKlXhHaw; path=/; expires=Wed, 13-Nov-24 20:12:17 GMT; domain=.entrata.com; HttpOnly; Secure; SameSite=None
+Server: cloudflare
+CF-RAY: 8e213e7f1de7bffa-ATL
+alt-svc: h3=":443"; ma=86400
+
+7a
+{"response":{"requestId":"15","code":200,"result":{"status":"Success","message":"API service is available and running."}}}
+0
+

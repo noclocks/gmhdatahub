@@ -1,0 +1,35 @@
+// _colors.scss
+
+// Centralized Colors Map
+$colors: (
+  black: #000000,
+  white: #ffffff,
+  light-grey: #D2D2D2,
+  super-light-grey: #F8F8F8,
+  mid-grey: #989898,
+  dark-grey: #686868,
+  super-dark-grey: #363636,
+  brand-blue: #004CA7,
+  pale-blue: #F7FAFD,
+  mid-blue: #3181DE,
+  light-blue: #6ABEEA,
+  dark-green: #86A563,
+  light-green: #ABD27E,
+  orange: #E45C00,
+  light-orange: #FFAE77,
+  danger: #BF616A,
+  warning: #E3A45A,
+  success: #86A563,
+  info: #3181DE,
+  primary: #004CA7
+);
+
+// Helper functions to retrieve color values
+@function get-color($key) {
+  @return map-get($colors, $key);
+}
+
+// Footer-Specific Colors
+$footer-bg: get-color(super-light-grey);
+$footer-link: get-color(brand-blue);
+$footer-link-hover: #0056b3;

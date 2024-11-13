@@ -1,0 +1,43 @@
+// Import utilities
+@import "utility/utils";
+@import "utility/settings";
+@import "utility/hover";
+@import "utility/gmaps";
+
+// Import theme
+@import "theme/colors";
+@import "theme/company";
+@import "theme/logos";
+@import "theme/social";
+@import "theme/typography";
+@import "theme/spacing";
+
+// Import layout
+@import "layout/footer";
+@import "layout/navbar";
+@import "layout/page";
+@import "layout/sidebar";
+@import "layout/tabs";
+
+// Import elements
+@import "elements/buttons";
+@import "elements/cards";
+@import "elements/selectize";
+@import "elements/tables";
+
+// Main Styles
+html {
+  font-size: 16px;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  font-family: $font-body;
+  background-color: get-color(white);
+  color: get-color(color-dark);
+}
