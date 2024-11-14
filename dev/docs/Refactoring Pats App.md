@@ -405,4 +405,4 @@ To finalize this pipeline, we will need to add a variety of additional functions
 - `load_model_beds(conn)`
 - `load_investment_partners(conn)`
 - `calculate_metrics(report_data, weekly_data)`
-- `assemble_summary_table(report_data, weekly_data, model_beds, investment_partners)
+- `assemble_summary_table(report_data, weekly_data, model_beds, investment_partners)`
