@@ -1,0 +1,20 @@
+{
+  "name": "srcjs",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cp node_modules/open-props/open-props.min.css out/ && esbuild src/example-number-input.ts --bundle --minify --sourcemap --outdir=out"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "private": true,
+  "dependencies": {
+    "lit": "latest"
+  },
+  "devDependencies": {
+    "@types/rstudio-shiny": "git+https://github.com/rstudio/shiny#v1.7.4",
+    "esbuild": "latest",
+    "open-props": "latest",
+    "typescript": "latest"
+  }
+}

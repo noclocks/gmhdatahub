@@ -12,3 +12,4 @@ _\.new\.png$
 ^config\.yml$
 ^data-raw$
 ^\.github$
+^vignettes\compile.R$

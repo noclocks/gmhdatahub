@@ -15,9 +15,10 @@ mod_footer_ui(
   id = NULL,
   align = "center",
   class = "footer",
-  app_info = gmhdatahub::app_info,
-  client_info = client_info,
-  developer_info = developer_info,
+  app_info = getFromNamespace("app_info", envir = rlang::pkg_env("gmhdatahub")),
+  client_info = getFromNamespace("client_info", envir = rlang::pkg_env("gmhdatahub")),
+  developer_info = getFromNamespace("developer_info", envir =
+    rlang::pkg_env("gmhdatahub")),
   copyright_holder = "No Clocks, LLC",
   year = format(Sys.Date(), "\%Y"),
   ...

@@ -1,6 +1,7 @@
 library(shiny)
 library(bslib)
 library(bsicons)
+library(DT)
 
 ui <- page_navbar(
   title = htmltools::tags$div(
@@ -25,7 +26,7 @@ ui <- page_navbar(
     title = "Controls",
     selectInput("property", "Select Property", choices = c("Property A", "Property B", "Property C")),
     dateRangeInput("daterange", "Date Range"),
-    actionButton("update", "Update Dashboard", class = "btn-primary")
+    bslib::input_task_button("entrata_refresh", label = "Refresh Data", icon = shiny::icon("refresh"))
   ),
   nav_spacer(),
   nav_panel("Dashboard", icon = bs_icon("speedometer2"),
@@ -80,7 +81,8 @@ ui <- page_navbar(
             card(
               card_header(bs_icon("clipboard-data"), "Data Summary"),
               card_body(
-                "Here you can display summary statistics or visualizations."
+                "Here you can display summary statistics or visualizations.",
+                DT::DTOutput("summary_table")
               )
             )
   ),
@@ -132,13 +134,12 @@ ui <- page_navbar(
     icon = bsicons::bs_icon("envelope"),
     align = "right",
     nav_item(
-      div(
-        style = "padding: 0.5rem 1rem;",
-        span(bs_icon("envelope"), "Contact")
-      ),
-      "Email Support" = list(icon = bs_icon("envelope"), href = "mailto:support@example.com"),
-      "Phone Support" = list(icon = bs_icon("telephone"), href = "tel:+1234567890"),
-      "Live Chat" = list(icon = bs_icon("chat-dots"), href = "#")
+      htmltools::tags$a(
+        shiny::icon("envelope"),
+        "Email Support",
+        href = "mailto:support@noclocks.dev",
+        target = "_blank"
+      )
     )
   ),
   nav_menu(
@@ -146,13 +147,25 @@ ui <- page_navbar(
     icon = bs_icon("person-circle"),
     align = "right",
     nav_item(
-      div(
-        style = "padding: 0.5rem 1rem;",
-        span(bs_icon("person-circle"), "John Doe")
+      htmltools::tags$a(
+        shiny::icon("person"),
+        "John Doe",
+        href = "#"
       ),
-      "Profile" = list(icon = bs_icon("person"), href = "#"),
-      "Settings" = list(icon = bs_icon("gear"), href = "#"),
-      "Logout" = list(icon = bs_icon("box-arrow-right"), href = "#")
+      nav_item(
+        htmltools::tags$a(
+          shiny::icon("gear"),
+          "Settings",
+          href = "#"
+        )
+      ),
+      nav_item(
+        htmltools::tags$a(
+          shiny::icon("box-arrow-right"),
+          "Logout",
+          href = "#"
+        )
+      )
     )
   )
 )
@@ -161,6 +174,34 @@ server <- function(input, output, session) {
   output$occupancy <- renderText("95%")
   output$leases <- renderText("23")
   output$revenue <- renderText("$127,500")
+
+
+  summary_data <- reactive({
+    data = data.frame(
+      property_name = c("Property A", "Property B", "Property C"),
+      occupancy_rate = c(0.95, 0.87, 0.92),
+      new_leases = c(23, 15, 18),
+      revenue = c(127500, 98000, 110000)
+    )
+    data <- data[data$property_name %in% input$property, ]
+    data
+  })
+
+  output$summary_table <- renderDT({
+    datatable(
+      data = summary_data(),
+      class = 'cell-border stripe hover compact table-responsive',
+      options = list(
+        dom = 'Bfrtip',
+        buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+        scrollX = TRUE,
+        pageLength = 10,
+        columnDefs = list(list(className = "dt-center", targets = "_all"))
+      )
+    ) |>
+      formatPercentage(columns = "occupancy_rate", digits = 1) |>
+      formatCurrency(columns = "revenue", currency = "$", digits = 0)
+  })
 }
 
 shinyApp(ui, server)
