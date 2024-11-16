@@ -7,6 +7,78 @@
 #
 #  ------------------------------------------------------------------------
 
+
+# database ----------------------------------------------------------------
+
+#' Get Database Configuration
+#'
+#' @description
+#' This function retrieves the database configuration from the specified configuration
+#' file and returns the configuration as a list. You can optionally specify a key
+#' to retrieve a specific configuration value.
+#'
+#' @param key A character string representing the configuration key to retrieve.
+#' @param file A character string representing the path to the configuration file.
+#' @param config A character string representing the configuration to use from the
+#'   configuration file.
+#'
+#' @return A list, or vector (if `key` is specified), corresponding to the
+#'   contents of the `db` configuration key's values (i.e. `dbname`, `host`,
+#'   `port`, `username`, and `password`).
+#'
+#' @export
+#'
+#' @importFrom cli cli_abort
+#' @importFrom config get
+#' @importFrom rlang arg_match
+get_db_config <- function(
+  key = NULL,
+  file = Sys.getenv("R_CONFIG_FILE", "config.yml"),
+  config = Sys.getenv("R_CONFIG_ACTIVE", "default")
+) {
+
+  # normalize path to config file
+  file <- normalizePath(file, mustWork = FALSE)
+
+  # ensure config file exists
+  if (!file.exists(file)) {
+    cli::cli_abort(
+      c(
+        "Provided configuration file: {.field {basename(file)}} not found ",
+        "under path: {.path {dirname(file)}}. Please ensure the file exists."
+      )
+    )
+  }
+
+  # attempt to read the configuration file
+  cfg <- tryCatch({
+    config::get(
+      value = "db",
+      file = file,
+      config = config
+    )
+  }, error = function(e) {
+    cli::cli_abort(
+      c(
+        "Error reading configuration file {.field {basename(file)}}.",
+        "Ensure the file contains a {.code db} configuration block for ",
+        " the {.field {config}} configuration.",
+        "Error: {.error_message {e}}"
+      )
+    )
+  })
+
+  keys <- names(cfg)
+
+  if (!is.null(key)) {
+    key <- rlang::arg_match(key, keys)
+    return(cfg[[key]])
+  }
+
+  return(cfg)
+
+}
+
 # entrata -----------------------------------------------------------------
 
 # notes:
@@ -253,4 +325,63 @@ validate_entrata_config <- function(
   invisible(cfg_orig)
 
 }
+
+# gmaps -------------------------------------------------------------------
+
+#' Get Google Maps API Configuration
+#'
+#' @description
+#' This function retrieves the Google Maps API configuration from the specified configuration
+#' file and returns the configuration as a list. You can optionally specify a key
+#' to retrieve a specific configuration value.
+
+get_gmaps_config <- function(
+  key = NULL,
+  file = Sys.getenv("R_CONFIG_FILE", "config.yml"),
+  config = Sys.getenv("R_CONFIG_ACTIVE", "default")
+) {
+
+  # normalize path to config file
+  file <- normalizePath(file, mustWork = FALSE)
+
+  # ensure config file exists
+  if (!file.exists(file)) {
+    cli::cli_abort(
+      c(
+        "Provided configuration file: {.field {basename(file)}} not found ",
+        "under path: {.path {dirname(file)}}. Please ensure the file exists."
+      )
+    )
+  }
+
+  # attempt to read the configuration file
+  cfg <- tryCatch({
+    config::get(
+      value = "gmaps",
+      file = file,
+      config = config
+    )
+  }, error = function(e) {
+    cli::cli_abort(
+      c(
+        "Error reading configuration file {.field {basename(file)}}.",
+        "Ensure the file contains a {.code gmaps} configuration block for ",
+        " the {.field {config}} configuration.",
+        "Error: {.error_message {e}}"
+      )
+    )
+  })
+
+  keys <- names(cfg)
+
+  if (!is.null(key)) {
+    key <- rlang::arg_match(key, keys)
+    return(cfg[[key]])
+  }
+
+  return(cfg)
+
+}
+
+
 
