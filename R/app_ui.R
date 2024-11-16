@@ -13,6 +13,8 @@ app_ui <- function(req) {
 
   force(req)
 
+  app_info <- getFromNamespace("app_info", envir = rlang::pkg_env("gmhdatahub"))
+
   htmltools::tagList(
     add_external_resources(),
     bslib::page_navbar(
@@ -48,14 +50,14 @@ app_ui <- function(req) {
         bslib::nav_item(
           htmltools::tags$a(
             shiny::icon("github"), "GitHub",
-            href = .app_info$repo_url,
+            href = app_info$repo_url,
             target = "_blank"
           )
         ),
         bslib::nav_item(
           htmltools::tags$a(
             shiny::icon("book"), "Documentation",
-            href = .app_info$docs_url,
+            href = app_info$docs_url,
             target = "_blank"
           )
         ),
@@ -70,11 +72,13 @@ app_ui <- function(req) {
       bslib::nav_menu(
         title = "Logout",
         align = "right",
+        shiny::textOutput("signed_in_as"),
         bslib::nav_item(
-          htmltools::tags$a(
-            shiny::icon("sign-out-alt"), "Logout",
-            href = "#",
-            target = "_blank"
+          shiny::actionLink(
+            inputId = "auth_logout",
+            label = "Logout",
+            icon = shiny::icon("sign-out-alt"),
+            style = "display: inline-flex; align-items: center; padding: 2.5px 50px; width: -webkit-fill-available;"
           )
         )
       )
