@@ -7,7 +7,7 @@
 #
 #  ------------------------------------------------------------------------
 
-db_connect <- function(db_config, ...) {
+db_connect <- function(db_config = get_db_config(), ...) {
 
   conn <- pool::dbPool(
     drv = RPostgres::Postgres(),
