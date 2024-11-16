@@ -7,6 +7,9 @@
 #
 #  ------------------------------------------------------------------------
 
+
+# package utilities -------------------------------------------------------
+
 #' Package System File
 #'
 #' @name pkg_sys
@@ -53,6 +56,9 @@ pkg_sys_examples <- function(...) {
   pkg_sys("examples", ...)
 }
 
+
+# shiny utilities ---------------------------------------------------------
+
 #' Icon Text
 #'
 #' @description
@@ -78,3 +84,26 @@ icon_text <- function(icon, text, .function = shiny::icon) {
   t <- paste0(" ", text)
   htmltools::tagList(htmltools::tags$div(i, t))
 }
+
+# GIS utilities -----------------------------------------------------------
+
+# get coordinates from address:
+
+geocode_address <- function(
+  address,
+  gmaps_api_key = get_gmaps_api_key()
+) {
+
+  # ensure has gmaps api key registered
+  if (!ggmap::has_google_key()) {
+    if (is.null(gmaps_api_key)) {
+      cli::cli_abort("No Google Maps API key provided.")
+    }
+    ggmap::register_google(key = gmaps_api_key)
+  }
+
+  # geocode address
+  ggmap::geocode(address)
+
+}
+
