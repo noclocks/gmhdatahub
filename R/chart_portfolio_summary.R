@@ -1,3 +1,4 @@
+
 chart_portfolio_summary <- function(data, ...) {
 
   validate_col_names(

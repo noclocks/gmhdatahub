@@ -1,0 +1,97 @@
+---
+title: "Understanding Date Utilities in GMH Communities"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Understanding Date Utilities in GMH Communities}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
+# library(gmhdatahub)
+pkgload::load_all()
+```
+
+## Introduction
+
+This vignette explains the date utility functions in the GMH Communities package, 
+focusing on the nuances of leasing periods, pre-lease seasons, and weekly calculations.
+
+## Leasing Cycle Overview
+
+The GMH Communities leasing cycle is structured around the academic year:
+
+- **Pre-Lease Season**: September 1st to July 31st
+- **Primary Leasing Period**: Begins August 1st
+- **Transition Month**: August
+
+## Key Date Functions
+
+### Leasing Period
+
+```{r leasing_period_examples}
+# Get the current leasing period
+leasing_period <- get_leasing_period()
+print(leasing_period)
+
+# Get the start date of the current leasing period
+start_date <- get_leasing_period_start_date()
+print(start_date)
+
+# Get the end date of the current leasing period
+end_date <- get_leasing_period_end_date()
+print(end_date)
+```
+
+The leasing period typically starts on August 1st and ends on July 31st of the following year.
+
+### Pre-Lease Season
+
+```{r pre_lease_season_examples}
+# Get the pre-lease year
+pre_lease_year <- get_pre_lease_year()
+print(pre_lease_year)
+
+# Get the pre-lease season dates
+pre_lease_season <- get_pre_lease_season()
+print(pre_lease_season)
+```
+
+The pre-lease season starts on September 1st and ends on July 31st of the following year, overlapping with the current leasing period.
+
+### Weekly Calculations
+
+```{r weekly_calculations_examples}
+# Get the current leasing week
+leasing_week <- get_leasing_week()
+print(leasing_week)
+
+# Get the number of weeks left to lease
+weeks_left <- get_weeks_left_to_lease()
+print(weeks_left)
+```
+
+Weekly calculations are based on the leasing period and help track progress throughout the year.
+
+## Important Considerations
+
+1. **August Transition**: August is a crucial month, marking the end of one pre-lease season and the beginning of the primary leasing period.
+
+2. **Year Calculations**: The `get_pre_lease_year()` function determines the appropriate year based on the current date, considering September 1st as the cutoff.
+
+3. **Date Formatting**: Use `entrata_date()` for Entrata API compatibility and `http_date()` for parsing HTTP date strings.
+
+## Conclusion
+
+Understanding these date utilities is crucial for accurate leasing calculations and reporting in GMH Communities. Always consider the context of the academic year when working with these functions.
+
+This vignette provides an overview of the date utility functions, explains the structure of the leasing cycle, and demonstrates the usage of key functions. It also highlights important considerations specific to GMH Communities' leasing process.
+
+For more details on individual functions and their parameters, refer to the package documentation and function references.

@@ -1,0 +1,53 @@
+default:
+  app:
+    id: "<ID>"
+    name: "<NAME>"
+    version: "<VERSION>"
+    description: "<DESCRIPTION>"
+    author: "<AUTHOR>"
+  auth:
+    base_url: "<BASE_URL>"
+    app_name: "<APP_NAME>"
+    api_key: "<API_KEY>"
+  sentry:
+    enabled: "<ENABLED>"
+    dsn: "<DSN>"
+  entrata:
+    base_url: "<BASE_URL>"
+    username: "<USERNAME>"
+    password: "<PASSWORD>"
+  db:
+    host: "<HOST>"
+    port: "<PORT>"
+    dbname: "<DBNAME>"
+    user: "<USER>"
+    password: "<PASSWORD>"
+    uri: "<URI>"
+  auth_db:
+    host: "<HOST>"
+    port: "<PORT>"
+    dbname: "<DBNAME>"
+    user: "<USER>"
+    password: "<PASSWORD>"
+  gmaps:
+    api_key: "<API_KEY>"
+    signing_secret: "<SIGNING_SECRET>"
+    service_account: "<SERVICE_ACCOUNT>"
+    embed_api_key: "<EMBED_API_KEY>"
+    embed_url: "<EMBED_URL>"
+    map_id: "<MAP_ID>"
+  email:
+    api_url: "<API_URL>"
+    api_key: "<API_KEY>"
+    smtp_host: "<SMTP_HOST>"
+    smtp_port: "<SMTP_PORT>"
+    smtp_user: "<SMTP_USER>"
+    smtp_password: "<SMTP_PASSWORD>"
+  tools:
+    brandfetch_api_key: "<BRANDFETCH_API_KEY>"
+    real_favicon_generator_api_key: "<REAL_FAVICON_GENERATOR_API_KEY>"
+    toggl_api_key: "<TOGGL_API_KEY>"
+    removebg_api_key: "<REMOVEBG_API_KEY>"
+    swaggerhub_api_key: "<SWAGGERHUB_API_KEY>"
+    plausible_api_key: "<PLAUSIBLE_API_KEY>"
+

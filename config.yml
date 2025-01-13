@@ -1,0 +1,67 @@
+default:
+  app:
+    id: gmhdatahub
+    name: GMH Data Hub
+    version: 0.0.1
+    description: Shiny Dashboard for the GMH Communities Data Hub Platform
+    author: No Clocks, LLC
+  auth:
+    base_url: https://gmh-noclocks-auth.noclocks.co/v1
+    app_name: gmhdatahub
+    api_key: c2zm5Gr8wyPyT26HRpqF8s5wSYEPE9KT8T
+  sentry:
+    enabled: no
+    dsn: https://d6fa80226669dcba5c9dfc72bbb5eaa6@o4507375097610240.ingest.us.sentry.io/4507375099772928
+  entrata:
+    base_url: https://gmhcommunities.entrata.com/api/v1
+    username: gmh_communities_reporting_2416@gmhcommunities
+    password: Nvz(2Yf@G7
+  db:
+    host: 34.75.86.90
+    port: 5432
+    dbname: gmh_leasing_dev
+    user: postgres
+    password: f+40e+i=PGg?D4@3
+    uri: postgresql://postgres:f+40e+i=PGg?D4@3@34.75.86.90:5432/gmh_leasing_dev
+  auth_db:
+    host: 34.75.86.90
+    port: 5432
+    dbname: noclocks-authr-db
+    user: postgres
+    password: f+40e+i=PGg?D4@3
+  gcp:
+    project_id: gmh-communities
+    project_name: client-gmh
+    artifact_registry_repo: us-docker.pkg.dev/gmh-communities/gmh-containers
+    compute_service_account: 851121724994-compute@developer.gserviceaccount.com
+    compute_service_account_key: gmh-communities-31b2bbdac50c.json
+    oauth_client_id: 851121724994-se5g19ld16c6vma1eu501hr9d208c0g5.apps.googleusercontent.com
+    oauth_client_secret: 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
+    oauth_key: client_secret_851121724994-se5g19ld16c6vma1eu501hr9d208c0g5.apps.googleusercontent.com.json
+    cloud_storage_service_account: service-851121724994@gs-project-accounts.iam.gserviceaccount.com
+    cloud_storage_uri: https://storage.googleapis.com
+    cloud_storage_access_key: GOOGJRZZEV55PWLU4PKZUMAB
+    cloud_storage_access_secret: MqJSxtuTuZmriXjBIJBLwsORz0BXn8b1cU2+RTIN
+    storage_bucket_images: gmh-images
+    storage_bucket_images_url: https://storage.cloud.google.com/gmh-images/
+  gmaps:
+    api_key: AIzaSyA9iicnOPVX6NmifeCQNYtEhIciwdSgaOc
+    signing_secret: pApdMCybU2qwhG1etpD5qQH9sxc=
+    service_account: 851121724994-compute@developer.gserviceaccount.com
+    embed_api_key: AIzaSyA9iicnOPVX6NmifeCQNYtEhIciwdSgaOc
+    embed_url: https://www.google.com/maps/d/embed?mid=19tP5Bf66khGcrNnqTBsk879W2fS-u7U&ehbc=2E312F
+    map_id: e41a5d4f3d81b765
+  email:
+    api_url: https://api.resend.com
+    api_key: re_i73A1aK5_AWjdVW3yYPef7xa2iuakWpEv
+    smtp_host: smtp.resend.com
+    smtp_port: 587
+    smtp_user: resend
+    smtp_password: re_i73A1aK5_AWjdVW3yYPef7xa2iuakWpEv
+  tools:
+    brandfetch_api_key: ptInJU3gefMprWwlTOMXmQbBAtpb91chqS2faW20ZE0=
+    real_favicon_generator_api_key: 30a983a2a77117a1bb48c3f62fb601006fbe6c92
+    toggl_api_key: a945eb24413c5d1eb3d5845e21d13b23
+    removebg_api_key: 30a983a2a77117a1bb48c3f62fb601006fbe6c92
+    swaggerhub_api_key: ba2569bf-14d2-4554-b571-04eb05bf8ead
+    plausible_api_key: c7QjaXGjvnolU1pFI0qVTaeO98XstxgAl__PN0B_4s78yZvHVkk1Y9Zh2B7l4gq_

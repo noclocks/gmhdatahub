@@ -1,0 +1,8 @@
+id,name,allowed_charge_timing_ids
+2,Rent,"302,303,307,312"
+3,Other Income,"302,303,307,312"
+4,Expense,"302,303,307,312"
+5,Asset,"302,303,307,312"
+6,Equity,"302,303,307,312"
+7,Deposit,
+9,Other Liability,"302,303,307,312"

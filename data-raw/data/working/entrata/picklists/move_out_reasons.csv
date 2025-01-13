@@ -1,0 +1,581 @@
+property_id,reason_id,reason_name,move_out_type_id
+739076,49238,Failure To Pay,1
+739076,49239,Unknown Skip Reason,2
+739076,49244,Buying House,4
+739076,49256,Death,4
+739076,49240,Disturbing Neighbors,1
+739076,49732,Eviction,1
+739076,49753,Family / Marital Change,4
+739076,49245,Financial Difficulties,4
+739076,49749,Graduating School,4
+739076,49736,Graduating School Transfer Relet/Lease Take Over,4
+739076,49246,Health Reasons,4
+739076,49253,Job Transfer / Lost Job,4
+739076,49241,Lied on Application,1
+739076,49247,Need Larger Apartment,4
+739076,49248,Need Smaller Apartment,4
+739076,50185,Non-renewal,4
+739076,49257,Non-Renewal (by Property),4
+739076,49737,On-Site Transfer,4
+739076,49242,Other Lease Violation,1
+739076,49252,Relationship / Marital Change,4
+739076,49751,Relet/Lease Take Over,4
+739076,49735,Relocated,4
+739076,49255,Relocating,4
+739076,50166,Renewal Transfer,4
+739076,50165,Renewal Transfer to Luna,4
+739076,50164,Renewal Transfer To Sol,4
+739076,49250,Rent Too High,4
+739076,49731,Skip/No Notice Given,4
+739076,49251,Too Far From Work,4
+739076,49750,Transfer,4
+739076,49733,Transferred to Sister Property,4
+739076,49734,Unhappy with Apartment Management,4
+739076,49249,Unhappy w/ Neighbors,4
+739076,49254,Unhappy w/ Site Management,4
+739076,50505,Unknown,4
+739085,49238,Failure To Pay,1
+739085,49239,Unknown Skip Reason,2
+739085,49244,Buying House,4
+739085,49256,Death,4
+739085,49240,Disturbing Neighbors,1
+739085,49732,Eviction,1
+739085,49753,Family / Marital Change,4
+739085,49245,Financial Difficulties,4
+739085,49749,Graduating School,4
+739085,49736,Graduating School Transfer Relet/Lease Take Over,4
+739085,49246,Health Reasons,4
+739085,49253,Job Transfer / Lost Job,4
+739085,49241,Lied on Application,1
+739085,49247,Need Larger Apartment,4
+739085,49248,Need Smaller Apartment,4
+739085,50185,Non-renewal,4
+739085,49257,Non-Renewal (by Property),4
+739085,49737,On-Site Transfer,4
+739085,49242,Other Lease Violation,1
+739085,49252,Relationship / Marital Change,4
+739085,49751,Relet/Lease Take Over,4
+739085,49735,Relocated,4
+739085,49255,Relocating,4
+739085,50166,Renewal Transfer,4
+739085,50165,Renewal Transfer to Luna,4
+739085,50164,Renewal Transfer To Sol,4
+739085,49250,Rent Too High,4
+739085,49731,Skip/No Notice Given,4
+739085,49251,Too Far From Work,4
+739085,49750,Transfer,4
+739085,49733,Transferred to Sister Property,4
+739085,49734,Unhappy with Apartment Management,4
+739085,49249,Unhappy w/ Neighbors,4
+739085,49254,Unhappy w/ Site Management,4
+739085,50505,Unknown,4
+739079,49238,Failure To Pay,1
+739079,49239,Unknown Skip Reason,2
+739079,49244,Buying House,4
+739079,49256,Death,4
+739079,49240,Disturbing Neighbors,1
+739079,49732,Eviction,1
+739079,49753,Family / Marital Change,4
+739079,49245,Financial Difficulties,4
+739079,49749,Graduating School,4
+739079,49736,Graduating School Transfer Relet/Lease Take Over,4
+739079,49246,Health Reasons,4
+739079,49253,Job Transfer / Lost Job,4
+739079,49241,Lied on Application,1
+739079,49247,Need Larger Apartment,4
+739079,49248,Need Smaller Apartment,4
+739079,50185,Non-renewal,4
+739079,49257,Non-Renewal (by Property),4
+739079,49737,On-Site Transfer,4
+739079,49242,Other Lease Violation,1
+739079,49252,Relationship / Marital Change,4
+739079,49751,Relet/Lease Take Over,4
+739079,49735,Relocated,4
+739079,49255,Relocating,4
+739079,50166,Renewal Transfer,4
+739079,50165,Renewal Transfer to Luna,4
+739079,50164,Renewal Transfer To Sol,4
+739079,49250,Rent Too High,4
+739079,49731,Skip/No Notice Given,4
+739079,49251,Too Far From Work,4
+739079,49750,Transfer,4
+739079,49733,Transferred to Sister Property,4
+739079,49734,Unhappy with Apartment Management,4
+739079,49249,Unhappy w/ Neighbors,4
+739079,49254,Unhappy w/ Site Management,4
+739079,50505,Unknown,4
+739080,49238,Failure To Pay,1
+739080,49239,Unknown Skip Reason,2
+739080,49244,Buying House,4
+739080,49256,Death,4
+739080,49240,Disturbing Neighbors,1
+739080,49732,Eviction,1
+739080,49753,Family / Marital Change,4
+739080,49245,Financial Difficulties,4
+739080,49749,Graduating School,4
+739080,49736,Graduating School Transfer Relet/Lease Take Over,4
+739080,49246,Health Reasons,4
+739080,49253,Job Transfer / Lost Job,4
+739080,49241,Lied on Application,1
+739080,49247,Need Larger Apartment,4
+739080,49248,Need Smaller Apartment,4
+739080,50185,Non-renewal,4
+739080,49257,Non-Renewal (by Property),4
+739080,49737,On-Site Transfer,4
+739080,49242,Other Lease Violation,1
+739080,49252,Relationship / Marital Change,4
+739080,49751,Relet/Lease Take Over,4
+739080,49735,Relocated,4
+739080,49255,Relocating,4
+739080,50166,Renewal Transfer,4
+739080,50165,Renewal Transfer to Luna,4
+739080,50164,Renewal Transfer To Sol,4
+739080,49250,Rent Too High,4
+739080,49731,Skip/No Notice Given,4
+739080,49251,Too Far From Work,4
+739080,49750,Transfer,4
+739080,49733,Transferred to Sister Property,4
+739080,49734,Unhappy with Apartment Management,4
+739080,49249,Unhappy w/ Neighbors,4
+739080,49254,Unhappy w/ Site Management,4
+739080,50505,Unknown,4
+739084,49238,Failure To Pay,1
+739084,49239,Unknown Skip Reason,2
+739084,49244,Buying House,4
+739084,49256,Death,4
+739084,49240,Disturbing Neighbors,1
+739084,49732,Eviction,1
+739084,49753,Family / Marital Change,4
+739084,49245,Financial Difficulties,4
+739084,49749,Graduating School,4
+739084,49736,Graduating School Transfer Relet/Lease Take Over,4
+739084,49246,Health Reasons,4
+739084,49253,Job Transfer / Lost Job,4
+739084,49241,Lied on Application,1
+739084,49247,Need Larger Apartment,4
+739084,49248,Need Smaller Apartment,4
+739084,50185,Non-renewal,4
+739084,49257,Non-Renewal (by Property),4
+739084,49737,On-Site Transfer,4
+739084,49242,Other Lease Violation,1
+739084,49252,Relationship / Marital Change,4
+739084,49751,Relet/Lease Take Over,4
+739084,49735,Relocated,4
+739084,49255,Relocating,4
+739084,50166,Renewal Transfer,4
+739084,50165,Renewal Transfer to Luna,4
+739084,50164,Renewal Transfer To Sol,4
+739084,49250,Rent Too High,4
+739084,49731,Skip/No Notice Given,4
+739084,49251,Too Far From Work,4
+739084,49750,Transfer,4
+739084,49733,Transferred to Sister Property,4
+739084,49734,Unhappy with Apartment Management,4
+739084,49249,Unhappy w/ Neighbors,4
+739084,49254,Unhappy w/ Site Management,4
+739084,50505,Unknown,4
+641240,49238,Failure To Pay,1
+641240,49239,Unknown Skip Reason,2
+641240,49244,Buying House,4
+641240,49256,Death,4
+641240,49240,Disturbing Neighbors,1
+641240,49732,Eviction,1
+641240,49753,Family / Marital Change,4
+641240,49245,Financial Difficulties,4
+641240,49749,Graduating School,4
+641240,49736,Graduating School Transfer Relet/Lease Take Over,4
+641240,49246,Health Reasons,4
+641240,49253,Job Transfer / Lost Job,4
+641240,49241,Lied on Application,1
+641240,49247,Need Larger Apartment,4
+641240,49248,Need Smaller Apartment,4
+641240,49257,Non-Renewal (by Property),4
+641240,49737,On-Site Transfer,4
+641240,49242,Other Lease Violation,1
+641240,49252,Relationship / Marital Change,4
+641240,49751,Relet/Lease Take Over,4
+641240,49735,Relocated,4
+641240,49255,Relocating,4
+641240,50166,Renewal Transfer,4
+641240,50165,Renewal Transfer to Luna,4
+641240,50164,Renewal Transfer To Sol,4
+641240,49250,Rent Too High,4
+641240,49731,Skip/No Notice Given,4
+641240,49251,Too Far From Work,4
+641240,49750,Transfer,4
+641240,49733,Transferred to Sister Property,4
+641240,49734,Unhappy with Apartment Management,4
+641240,49249,Unhappy w/ Neighbors,4
+641240,49254,Unhappy w/ Site Management,4
+641240,50505,Unknown,4
+676055,49238,Failure To Pay,1
+676055,49239,Unknown Skip Reason,2
+676055,49244,Buying House,4
+676055,49256,Death,4
+676055,49240,Disturbing Neighbors,1
+676055,49732,Eviction,1
+676055,49753,Family / Marital Change,4
+676055,49245,Financial Difficulties,4
+676055,49749,Graduating School,4
+676055,49736,Graduating School Transfer Relet/Lease Take Over,4
+676055,49246,Health Reasons,4
+676055,49253,Job Transfer / Lost Job,4
+676055,49241,Lied on Application,1
+676055,50235,Military,4
+676055,49247,Need Larger Apartment,4
+676055,49248,Need Smaller Apartment,4
+676055,49257,Non-Renewal (by Property),4
+676055,49737,On-Site Transfer,4
+676055,49242,Other Lease Violation,1
+676055,49252,Relationship / Marital Change,4
+676055,49751,Relet/Lease Take Over,4
+676055,49735,Relocated,4
+676055,49255,Relocating,4
+676055,50166,Renewal Transfer,4
+676055,50165,Renewal Transfer to Luna,4
+676055,50164,Renewal Transfer To Sol,4
+676055,49250,Rent Too High,4
+676055,49731,Skip/No Notice Given,4
+676055,49251,Too Far From Work,4
+676055,49750,Transfer,4
+676055,49733,Transferred to Sister Property,4
+676055,49734,Unhappy with Apartment Management,4
+676055,49249,Unhappy w/ Neighbors,4
+676055,49254,Unhappy w/ Site Management,4
+676055,50505,Unknown,4
+1115679,49238,Failure To Pay,1
+1115679,49239,Unknown Skip Reason,2
+1115679,49240,Disturbing Neighbors,1
+1115679,49732,Eviction,1
+1115679,49749,Graduating School,4
+1115679,49246,Health Reasons,4
+1115679,49241,Lied on Application,1
+1115679,49247,Need Larger Apartment,4
+1115679,49248,Need Smaller Apartment,4
+1115679,50185,Non-renewal,4
+1115679,49257,Non-Renewal (by Property),4
+1115679,49737,On-Site Transfer,4
+1115679,49242,Other Lease Violation,1
+1115679,49751,Relet/Lease Take Over,4
+1115679,49735,Relocated,4
+1115679,50501,Relocated to be closer to work/school.,4
+1115679,49250,Rent Too High,4
+1115679,49731,Skip/No Notice Given,4
+1115679,49750,Transfer,4
+1115679,49733,Transferred to Sister Property,4
+1115679,49734,Unhappy with Apartment Management,4
+1115679,49249,Unhappy w/ Neighbors,4
+1115679,50505,Unknown,4
+1161867,49238,Failure To Pay,1
+1161867,49239,Unknown Skip Reason,2
+1161867,49244,Buying House,4
+1161867,49256,Death,4
+1161867,49240,Disturbing Neighbors,1
+1161867,49732,Eviction,1
+1161867,49753,Family / Marital Change,4
+1161867,49245,Financial Difficulties,4
+1161867,49749,Graduating School,4
+1161867,49736,Graduating School Transfer Relet/Lease Take Over,4
+1161867,49246,Health Reasons,4
+1161867,49253,Job Transfer / Lost Job,4
+1161867,49241,Lied on Application,1
+1161867,49247,Need Larger Apartment,4
+1161867,49248,Need Smaller Apartment,4
+1161867,50185,Non-renewal,4
+1161867,49257,Non-Renewal (by Property),4
+1161867,49737,On-Site Transfer,4
+1161867,49242,Other Lease Violation,1
+1161867,49252,Relationship / Marital Change,4
+1161867,49751,Relet/Lease Take Over,4
+1161867,49735,Relocated,4
+1161867,49255,Relocating,4
+1161867,49250,Rent Too High,4
+1161867,49731,Skip/No Notice Given,4
+1161867,49251,Too Far From Work,4
+1161867,49750,Transfer,4
+1161867,49733,Transferred to Sister Property,4
+1161867,49734,Unhappy with Apartment Management,4
+1161867,49249,Unhappy w/ Neighbors,4
+1161867,49254,Unhappy w/ Site Management,4
+518044,49238,Failure To Pay,1
+518044,49239,Unknown Skip Reason,2
+518044,49240,Disturbing Neighbors,1
+518044,49732,Eviction,1
+518044,49749,Graduating School,4
+518044,49246,Health Reasons,4
+518044,49241,Lied on Application,1
+518044,49247,Need Larger Apartment,4
+518044,49248,Need Smaller Apartment,4
+518044,49257,Non-Renewal (by Property),4
+518044,49737,On-Site Transfer,4
+518044,49242,Other Lease Violation,1
+518044,49751,Relet/Lease Take Over,4
+518044,49735,Relocated,4
+518044,49250,Rent Too High,4
+518044,49731,Skip/No Notice Given,4
+518044,49750,Transfer,4
+518044,49733,Transferred to Sister Property,4
+518044,49734,Unhappy with Apartment Management,4
+518044,49249,Unhappy w/ Neighbors,4
+518044,50505,Unknown,4
+952515,49238,Failure To Pay,1
+952515,49239,Unknown Skip Reason,2
+952515,49240,Disturbing Neighbors,1
+952515,49732,Eviction,1
+952515,49749,Graduating School,4
+952515,49246,Health Reasons,4
+952515,49241,Lied on Application,1
+952515,50235,Military,4
+952515,49247,Need Larger Apartment,4
+952515,49248,Need Smaller Apartment,4
+952515,50185,Non-renewal,4
+952515,49257,Non-Renewal (by Property),4
+952515,49737,On-Site Transfer,4
+952515,49242,Other Lease Violation,1
+952515,49751,Relet/Lease Take Over,4
+952515,49735,Relocated,4
+952515,49255,Relocating,4
+952515,50166,Renewal Transfer,4
+952515,49250,Rent Too High,4
+952515,49731,Skip/No Notice Given,4
+952515,49750,Transfer,4
+952515,49733,Transferred to Sister Property,4
+952515,49734,Unhappy with Apartment Management,4
+952515,49249,Unhappy w/ Neighbors,4
+952515,50505,Unknown,4
+577897,49238,Failure To Pay,1
+577897,49239,Unknown Skip Reason,2
+577897,49244,Buying House,4
+577897,49256,Death,4
+577897,49240,Disturbing Neighbors,1
+577897,49732,Eviction,1
+577897,49753,Family / Marital Change,4
+577897,49245,Financial Difficulties,4
+577897,49749,Graduating School,4
+577897,49736,Graduating School Transfer Relet/Lease Take Over,4
+577897,49246,Health Reasons,4
+577897,49253,Job Transfer / Lost Job,4
+577897,49241,Lied on Application,1
+577897,49247,Need Larger Apartment,4
+577897,49248,Need Smaller Apartment,4
+577897,49257,Non-Renewal (by Property),4
+577897,49737,On-Site Transfer,4
+577897,49242,Other Lease Violation,1
+577897,49252,Relationship / Marital Change,4
+577897,49751,Relet/Lease Take Over,4
+577897,49735,Relocated,4
+577897,49255,Relocating,4
+577897,49250,Rent Too High,4
+577897,49731,Skip/No Notice Given,4
+577897,49251,Too Far From Work,4
+577897,49750,Transfer,4
+577897,49733,Transferred to Sister Property,4
+577897,49734,Unhappy with Apartment Management,4
+577897,49249,Unhappy w/ Neighbors,4
+577897,49254,Unhappy w/ Site Management,4
+577897,50505,Unknown,4
+518041,49238,Failure To Pay,1
+518041,49239,Unknown Skip Reason,2
+518041,49240,Disturbing Neighbors,1
+518041,49732,Eviction,1
+518041,49749,Graduating School,4
+518041,49246,Health Reasons,4
+518041,49241,Lied on Application,1
+518041,49247,Need Larger Apartment,4
+518041,49248,Need Smaller Apartment,4
+518041,50185,Non-renewal,4
+518041,49257,Non-Renewal (by Property),4
+518041,49737,On-Site Transfer,4
+518041,49242,Other Lease Violation,1
+518041,49751,Relet/Lease Take Over,4
+518041,49735,Relocated,4
+518041,49250,Rent Too High,4
+518041,49731,Skip/No Notice Given,4
+518041,49750,Transfer,4
+518041,49733,Transferred to Sister Property,4
+518041,49734,Unhappy with Apartment Management,4
+518041,49249,Unhappy w/ Neighbors,4
+518041,50505,Unknown,4
+518042,49238,Failure To Pay,1
+518042,49239,Unknown Skip Reason,2
+518042,49240,Disturbing Neighbors,1
+518042,49732,Eviction,1
+518042,49753,Family / Marital Change,4
+518042,49245,Financial Difficulties,4
+518042,49749,Graduating School,4
+518042,49246,Health Reasons,4
+518042,49253,Job Transfer / Lost Job,4
+518042,49241,Lied on Application,1
+518042,50235,Military,4
+518042,49247,Need Larger Apartment,4
+518042,49248,Need Smaller Apartment,4
+518042,50185,Non-renewal,4
+518042,49257,Non-Renewal (by Property),4
+518042,49737,On-Site Transfer,4
+518042,49242,Other Lease Violation,1
+518042,49751,Relet/Lease Take Over,4
+518042,49255,Relocating,4
+518042,50166,Renewal Transfer,4
+518042,49250,Rent Too High,4
+518042,49731,Skip/No Notice Given,4
+518042,49251,Too Far From Work,4
+518042,49750,Transfer,4
+518042,49733,Transferred to Sister Property,4
+518042,49734,Unhappy with Apartment Management,4
+518042,49249,Unhappy w/ Neighbors,4
+518042,50505,Unknown,4
+1197886,49238,Failure To Pay,1
+1197886,49239,Unknown Skip Reason,2
+1197886,49244,Buying House,4
+1197886,49256,Death,4
+1197886,49240,Disturbing Neighbors,1
+1197886,49732,Eviction,1
+1197886,49753,Family / Marital Change,4
+1197886,49245,Financial Difficulties,4
+1197886,49749,Graduating School,4
+1197886,49736,Graduating School Transfer Relet/Lease Take Over,4
+1197886,49246,Health Reasons,4
+1197886,49253,Job Transfer / Lost Job,4
+1197886,49241,Lied on Application,1
+1197886,49247,Need Larger Apartment,4
+1197886,49248,Need Smaller Apartment,4
+1197886,49257,Non-Renewal (by Property),4
+1197886,49737,On-Site Transfer,4
+1197886,49242,Other Lease Violation,1
+1197886,49252,Relationship / Marital Change,4
+1197886,49751,Relet/Lease Take Over,4
+1197886,49735,Relocated,4
+1197886,49255,Relocating,4
+1197886,49250,Rent Too High,4
+1197886,49731,Skip/No Notice Given,4
+1197886,49251,Too Far From Work,4
+1197886,49750,Transfer,4
+1197886,49733,Transferred to Sister Property,4
+1197886,49734,Unhappy with Apartment Management,4
+1197886,49249,Unhappy w/ Neighbors,4
+1197886,49254,Unhappy w/ Site Management,4
+1197886,50505,Unknown,4
+833617,49238,Failure To Pay,1
+833617,49239,Unknown Skip Reason,2
+833617,49244,Buying House,4
+833617,49256,Death,4
+833617,49240,Disturbing Neighbors,1
+833617,49732,Eviction,1
+833617,49753,Family / Marital Change,4
+833617,49245,Financial Difficulties,4
+833617,49749,Graduating School,4
+833617,49736,Graduating School Transfer Relet/Lease Take Over,4
+833617,49246,Health Reasons,4
+833617,49253,Job Transfer / Lost Job,4
+833617,49241,Lied on Application,1
+833617,49247,Need Larger Apartment,4
+833617,49248,Need Smaller Apartment,4
+833617,50185,Non-renewal,4
+833617,49257,Non-Renewal (by Property),4
+833617,49737,On-Site Transfer,4
+833617,49242,Other Lease Violation,1
+833617,49252,Relationship / Marital Change,4
+833617,49751,Relet/Lease Take Over,4
+833617,49735,Relocated,4
+833617,49255,Relocating,4
+833617,50166,Renewal Transfer,4
+833617,50165,Renewal Transfer to Luna,4
+833617,50164,Renewal Transfer To Sol,4
+833617,49250,Rent Too High,4
+833617,49731,Skip/No Notice Given,4
+833617,49251,Too Far From Work,4
+833617,49750,Transfer,4
+833617,49733,Transferred to Sister Property,4
+833617,49734,Unhappy with Apartment Management,4
+833617,49249,Unhappy w/ Neighbors,4
+833617,49254,Unhappy w/ Site Management,4
+833617,50505,Unknown,4
+1197887,49238,Failure To Pay,1
+1197887,49239,Unknown Skip Reason,2
+1197887,49240,Disturbing Neighbors,1
+1197887,49732,Eviction,1
+1197887,49749,Graduating School,4
+1197887,49246,Health Reasons,4
+1197887,49241,Lied on Application,1
+1197887,49247,Need Larger Apartment,4
+1197887,49248,Need Smaller Apartment,4
+1197887,50185,Non-renewal,4
+1197887,49257,Non-Renewal (by Property),4
+1197887,49737,On-Site Transfer,4
+1197887,49242,Other Lease Violation,1
+1197887,49751,Relet/Lease Take Over,4
+1197887,49735,Relocated,4
+1197887,49250,Rent Too High,4
+1197887,49731,Skip/No Notice Given,4
+1197887,49750,Transfer,4
+1197887,49733,Transferred to Sister Property,4
+1197887,49734,Unhappy with Apartment Management,4
+1197887,49249,Unhappy w/ Neighbors,4
+518046,49238,Failure To Pay,1
+518046,49239,Unknown Skip Reason,2
+518046,49240,Disturbing Neighbors,1
+518046,49732,Eviction,1
+518046,49245,Financial Difficulties,4
+518046,49749,Graduating School,4
+518046,49246,Health Reasons,4
+518046,49247,Need Larger Apartment,4
+518046,49248,Need Smaller Apartment,4
+518046,50185,Non-renewal,4
+518046,49257,Non-Renewal (by Property),4
+518046,49737,On-Site Transfer,4
+518046,49242,Other Lease Violation,1
+518046,49751,Relet/Lease Take Over,4
+518046,49735,Relocated,4
+518046,49250,Rent Too High,4
+518046,49731,Skip/No Notice Given,4
+518046,49750,Transfer,4
+518046,49733,Transferred to Sister Property,4
+518046,49734,Unhappy with Apartment Management,4
+518046,49249,Unhappy w/ Neighbors,4
+518046,50505,Unknown,4
+1143679,49238,Failure To Pay,1
+1143679,49239,Unknown Skip Reason,2
+1143679,50541,Denied by Entrata screening,4
+1143679,49240,Disturbing Neighbors,1
+1143679,49732,Eviction,1
+1143679,49749,Graduating School,4
+1143679,49246,Health Reasons,4
+1143679,50542,Insufficient Income/Credit Score,4
+1143679,49241,Lied on Application,1
+1143679,49247,Need Larger Apartment,4
+1143679,49248,Need Smaller Apartment,4
+1143679,50185,Non-renewal,4
+1143679,49257,Non-Renewal (by Property),4
+1143679,49737,On-Site Transfer,4
+1143679,49242,Other Lease Violation,1
+1143679,49751,Relet/Lease Take Over,4
+1143679,49735,Relocated,4
+1143679,49250,Rent Too High,4
+1143679,49731,Skip/No Notice Given,4
+1143679,49750,Transfer,4
+1143679,49733,Transferred to Sister Property,4
+1143679,49734,Unhappy with Apartment Management,4
+1143679,49249,Unhappy w/ Neighbors,4
+1143679,50505,Unknown,4
+1311849,49238,Failure To Pay,1
+1311849,49239,Unknown Skip Reason,2
+1311849,49240,Disturbing Neighbors,1
+1311849,49732,Eviction,1
+1311849,49749,Graduating School,4
+1311849,49246,Health Reasons,4
+1311849,49241,Lied on Application,1
+1311849,49247,Need Larger Apartment,4
+1311849,49248,Need Smaller Apartment,4
+1311849,50185,Non-renewal,4
+1311849,49257,Non-Renewal (by Property),4
+1311849,49737,On-Site Transfer,4
+1311849,49242,Other Lease Violation,1
+1311849,49751,Relet/Lease Take Over,4
+1311849,49735,Relocated,4
+1311849,49250,Rent Too High,4
+1311849,49731,Skip/No Notice Given,4
+1311849,49750,Transfer,4
+1311849,49733,Transferred to Sister Property,4
+1311849,49734,Unhappy with Apartment Management,4
+1311849,49249,Unhappy w/ Neighbors,4
+1311849,50505,Unknown,4

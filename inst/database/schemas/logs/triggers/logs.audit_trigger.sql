@@ -1,0 +1,3 @@
+CREATE TRIGGER audit_trigger
+AFTER INSERT OR UPDATE OR DELETE ON your_table
+FOR EACH ROW EXECUTE FUNCTION logs.audit_trigger_func();

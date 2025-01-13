@@ -1,0 +1,49 @@
+Package: gmhdatahub
+Title: Shiny Dashboard and API Client for GMH Communities Leasing Data
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Jimmy", "Briggs", , "jimmy.briggs@jimbrig.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-7489-8787")),
+    person("Patrick", "Howard", , "patrick.howard@noclocks.dev", role = c("aut", "rev")),
+    person("No Clocks, LLC", , , "team@noclocks.dev", role = c("cph", "fnd"))
+  )
+Description: Provides a Shiny dashboard and API client for interactingwith
+    GMH Communities leasing data via the Entrata API. Includesfunctions
+    for API authentication, data retrieval, and datavisualization.
+License: MIT + file LICENSE
+Imports: 
+    bsicons,
+    bslib,
+    cli,
+    config,
+    dplyr,
+    fontawesome,
+    golem,
+    htmltools,
+    lubridate,
+    mime,
+    pkgload,
+    rintrojs,
+    rlang,
+    shiny,
+    shinycustomloader,
+    shinyjs,
+    waiter,
+    withr
+Suggests: 
+    httptest2,
+    knitr,
+    rmarkdown,
+    shinytest2,
+    spelling,
+    testthat (>= 3.0.0)
+VignetteBuilder: 
+    knitr
+Config/testthat/edition: 3
+Config/testthat/parallel: true
+Encoding: UTF-8
+Language: en-US
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Depends: 
+    R (>= 3.5)

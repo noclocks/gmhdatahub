@@ -1,0 +1,16 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^data-raw$
+dev_history.R
+^dev$
+$run_dev.*
+^.here$
+^README\.Rmd$
+^\.covrignore$
+^codecov\.yml$
+_\.new\.png$
+^\.lintr$
+^\.gitattributes$
+^\.editorconfig$
+^codemeta\.json$
+^config\.yml$

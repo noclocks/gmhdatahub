@@ -1,0 +1,301 @@
+id,system_code,name
+77236,1099COPY1,1099 Form Copy 1
+77280,1099COPY2,1099 Form Copy 2
+77258,1099COPYB,1099 Form Copy B
+77302,1099COPYC,1099 Form Copy C
+77030,NA,2018/2019 Aspen Lease Packet
+77033,NA,2019/2020 Aspen Guaranty
+77032,NA,2019/2020 Aspen Lease Packet
+77034,NA,2019/2020 Aspen Renewal
+73901,ADDENDUM,Addendum
+73941,ADDON,Add-On
+73923,AAL,Adverse Action Letter
+78753,POA,Affordable Assets verification
+78828,CIV,Affordable Citizenship verification
+78809,DOBV,Affordable DOB verification
+78847,VED,Affordable Document verification
+75049,COL,Affordable Electronic Report COL
+75050,NAHMA,Affordable Electronic Report NAHMA
+75779,WBARS,Affordable Electronic Report WBARS
+78734,POEX,Affordable Expenses verification
+78715,POIN,Affordable Income verification
+78790,SV,Affordable SSN verification
+77061,AGREEMENT,Agreement
+76040,AL_TIC,ALABAMA_TIC
+76041,AK_TIC,ALASKA_TIC
+75809,AVID,AP Payment - Avid File
+79442,BILLPAY_SM,AP Payment - Bill Pay Summary document
+78550,CAPITAL,AP Payment - Capital One File
+75159,CHECKCOPY,AP Payment - Check Copy document
+75839,CHECK,AP Payment - Check File
+75194,APDOC,AP Payment document
+78037,APPID,Applicant Identification
+73916,APP,Application
+75340,APP_UPLOAD,Application Upload
+76840,AZ_TIC,ARIZONA_TIC
+74914,AR_TIC,ARKANSAS_TIC
+73934,ARTRANS,AR Transaction Attachment
+78968,V_AST,ASSET_VERIFICATION
+78877,NA,Assistance Animal
+79712,BACS,BACS File
+78771,BMA,Blue Moon Application
+78875,NA,BPDA Unit Addendum
+78872,NA,Brown Acceptance Letter
+73928,BDE,Bulk Document Export
+75375,CA_TIC,CALIFORNIA_CALHFA_TIC
+75648,CA2_TIC,CALIFORNIA_CTCAC_TIC
+78937,NA,Certificate of Rental Suitability
+73956,CRP,Certificate Of Rent Paid
+77825,CHAT,Chat Communication
+75617,COLLECTNTC,Collections Notice
+76051,CO_TIC,COLORADO_TIC
+77128,NA,Concession
+77129,NA,Concession Policy and Procedure
+75749,CT_TIC,CONNECTICUT_TIC
+79040,V_CNT,CONSENT_VERIFICATION
+74107,CAET,Consumer Authorization and Electronic Transaction
+77789,CAC,Consumer Authorization Canada
+77092,CONTRACT,Contract
+73936,CAPD,Corporate Ap Contract Document
+73935,CJD,Corporate Job Document
+73972,CLOR,Corporate Letter Of Responsibility
+79076,CV_AST,Custom Asset Verification
+79148,CV_CNT,Custom Consent Verification
+73894,CDVF,Customer Data Verification File
+77781,CI,Customer Invoice
+78865,CPI,Customer Profile Image
+79094,CV_EXP,Custom Expense Verification
+79112,CV_HLD,Custom Household Verification
+79058,CV_INC,Custom Income Verification
+79130,CV_PET,Custom Pet Verification
+79194,CSELF_CERT,Custom Self Certification
+76001,NA,Deferred Rent
+76042,DE_TIC,DELAWARE_TIC
+75515,DQEVENTS,Delinquency Events
+78929,DI,DI Addendum
+76049,DC_TIC,DISTRICT_OF_COLUMBIA_TIC
+73943,DMUD,Document Management Uncategorized Document
+73937,DRD,Draw Request Document
+73990,ETA,Early Termination Agreement
+78935,NA,Employee Addendums
+78876,NA,ESA Animal
+79197,EDP,Eviction Documents Packet
+78986,V_EXP,EXPENSE_VERIFICATION
+73921,FMOS,Financial Move Out Statement
+77029,NA,First Collection Notice
+74984,FL_TIC,FLORIDA_TIC
+77361,GCIC,GCIC Consent Form
+75089,GA_TIC,GEORGIA_TIC
+78595,GL_REC,GL Reconciliation
+75553,NA,GMH Move Out Letter
+75871,NA,GMH VIP FAST PASS
+79373,GFMO,Group Financial Move Out Statement
+79375,FOFMO,Group Occupant Financial Move Out Statement
+79337,GRSS,Group Resident Shuffle Statement
+73913,GC,Guest Card
+75746,NA,Happy Co Inspection Bedspace
+75747,NA,Happy Co Inspection Common Area
+79155,NA,Hard Hat Waiver
+76029,HI_TIC,HAWAII_TIC
+79004,V_HLD,HOUSEHOLD_VERIFICATION
+77727,HUD120DN,HUD 120 Day Notice
+73903,HUD50059,HUD50059
+73904,HUD50059A,HUD50059A
+73905,HUD52670,HUD52670
+73906,HUD52670A1,HUD52670A_PART1
+73929,HUD52670A2,HUD52670A_PART2
+73930,HUD52670A3,HUD52670A_PART3
+73931,HUD52670A4,HUD52670A_PART4
+73932,HUD52670A5,HUD52670A_PART5
+73933,HUD52670A6,HUD52670A_PART6
+73967,HUD52671A,HUD52671A
+73968,HUD52671B,HUD52671B
+73969,HUD52671C,HUD52671C
+73970,HUD52671D,HUD52671D
+77763,HUD60DN,HUD 60 Day Notice
+79544,HUD90100,HUD90100
+73959,HUD90105A,HUD90105A
+73960,HUD90105B,HUD90105B
+73961,HUD90105C,HUD90105C
+73962,HUD90105D,HUD90105D
+77745,HUD90DN,HUD 90 Day Notice
+77817,HUD91067,HUD91067
+76997,NA,I20
+76037,ID_TIC,IDAHO_TIC
+75705,IL_TIC,ILLINOIS_TIC
+78950,V_INC,INCOME_VERIFICATION
+76028,IN_TIC,INDIANA_TIC
+78528,IS,Inspection Signature
+78065,IC,Insurance Claim
+75229,INVOICE,Invoice
+76034,IA_TIC,IOWA_TIC
+78508,JEA,Journal Entry Attachment
+76044,KS_TIC,KANSAS_TIC
+75270,KY_TIC,KENTUCKY_TIC
+75999,NA,Key Release Form
+77637,NA,Landmark 2019/2020 Lease Contract
+77639,NA,Landmark 2020/2021 Lease Contract
+77638,NA,Landmark Application
+77640,NA,Landmark Guaranty Agreement
+73945,LTNTC,Late Notice
+77655,LEASEABST,Lease Abstract
+78614,LEASEACCM,Lease Accommodations Attachment
+73948,LA,Lease Addendum
+73912,LEASE,Lease Agreement
+77673,LEASECLAUS,Lease Clause Document
+76999,LDA,Lease Dates Adjustment
+73911,LD,Lease Document
+76995,NA,Lease File Checklist
+77031,NA,Lease Guaranty
+73954,LP,Lease Packet
+76996,NA,Lease Transfer
+73938,LW,Lien Waiver Document
+75305,LA_TIC,LOUISIANA_TIC
+76035,ME_TIC,MAINE_TIC
+73949,MA,Maintenance Attachment
+77698,MFI,Management Fee Invoice
+75612,MD_TIC,MARYLAND_TIC
+74809,MA_TIC,MASSACHUSETTS_TIC
+77589,MAT_ADDR,MAT_ADDR
+77611,MAT_BASE,MAT_BASE
+77545,MAT_CERTS,MAT_CERTS
+77523,MAT_FILE,MAT_FILE
+77567,MAT_HAP,MAT_HAP
+73915,MESSAGE,Message Center
+74353,MI_TIC,MICHIGAN_TIC
+77346,MILDD1746,Military DD 1746
+74455,MILMACPMT,Military MAC Payment
+74389,MILMIMO,Military MIMO
+74422,MILPRODEM,Military Promo/Demo
+76047,MN_TIC,MINNESOTA_TIC
+75445,MS_TIC,MISSISSIPPI_TIC
+78084,MO_EX_TIC,MISSOURI_EXHIBIT_IUNIT_CERTIFICATION_TIC
+75480,MO_TIC,MISSOURI_TIC
+76039,MT_TIC,MONTANA_TIC
+73940,MOVEIN,Move-In
+73944,MIA,Move-in Adjustment
+76000,NA,Move In Inspection Update
+75868,NA,Move In Letter
+73958,MIS,Move-in Statement
+78874,NA,Move-Out Final Inspection
+78873,NA,Move-Out Pre Inspection
+79678,MSH_MS_EXE,MSH Marketing Spend Excel
+79510,MSH_MS_INV,MSH Marketing Spend Invoice
+73953,NACHA,NACHA File
+76032,NE_TIC,NEBRASKA_TIC
+75736,NV_TIC,NEVADA_TIC
+76871,NH_TIC,NEW_HAMPSHIRE_TIC
+74949,NJ_TIC,NEW_JERSEY_TIC
+77691,MX_TIC,NEW_MEXICO_TIC
+76902,NYC_TIC,NEW_YORK_CITY_TIC
+76027,NY_TIC,NEW_YORK_TIC
+78674,NRN,Non Renewal Notice
+74844,NSF,Non-Sufficient Funds
+76038,NC_TIC,NORTH_CAROLINA_TIC
+76046,ND_TIC,NORTH_DAKOTA_TIC
+75870,NA,North Gate Parking Contract
+78910,NRI,Notice of Rent Increase
+78891,NTV,Notice to Vacate
+73909,OTR,Offer To Rent
+76031,OH_TIC,OHIO_TIC
+75124,OK_TIC,Oklahoma_TIC
+74774,OR_TIC,OREGON_TIC
+73910,OTHER,Other Document
+77123,OTHER_DOC,Other Document
+73920,OEL,Other eSigned Lease
+73955,OEP,Other Esign Lease Packet
+73900,PACKET,Packet
+73957,PCF,Parental Consent Form
+73918,PS,Partially Signed
+78680,NA,Payment Plan Addendum
+76809,PA_TIC,PENNSYLVANIA_TIC
+77413,PRS,Percent Rent Sales
+73939,PET,Pet
+73963,PA,Pet Addendum
+74488,PETIMG,Pet Image
+79022,V_PET,PET_VERIFICATION
+75869,NA,Placement
+73907,POLICY,Policy Document
+73927,PCL,Pre-Collection Letter
+73917,PRES,Pre-Signed
+78544,NA,Proof of COVID Screening
+73946,POE,Proof Of Electricity
+75552,NA,Proof of Income
+73914,POI,Proof Of Insurance
+73971,POLP,Proof Of Lawful Presence
+75551,NA,Proof of Renters Insurance
+79610,NA,Proof of Service of Annual Notice
+79577,NA,Proof of Simple Bills Account Setup
+79154,NA,Proof of University Affiliation
+79409,PSA,Provisional Screening Addendum
+76048,PR_TIC,PUERTO_RICO_TIC
+78498,PO,Purchase Order
+78655,QP,Qbe Policy
+73895,QUOTE,Quote
+73964,RE120DN,RE120DN
+73966,RE60DN,RE60DN
+73965,RE90DN,RE90DN
+73947,RS,Refund Statement
+74056,RMCS,Renewal Month Charges Statement
+75549,NA,Renewal Offer
+73925,ROA,Renewal Offer Accepted
+73924,ROS,Renewal Offer Sent
+77383,RCPP,Rental Collection Payment Proof
+79233,RCRC,Rent Credit Reporting Addendum
+79231,RCRS,Rent Credit Reporting Authorization
+78936,NA,Renters Insurance Opt-Out
+73898,RA,Repayment Agreement
+73952,REPORT,Report
+75410,RI_TIC,RHODE_ISLAND_TIC
+73942,ROOMMATE,Roommate
+75745,NA,Roommate Matching
+79339,RTB,RTB Certificate
+73897,RVCA,RV Consumer Authorization
+73896,RVETA,RV Electronic Transaction Agreement
+74106,SAR,Screening Authorization and Rights
+79301,SCR,screening consumer report
+79267,SCR,screening consumer report
+77307,SDSL,Screening Decision Summary Letter
+78633,SR,Screening Report
+78577,STAC,Screening Terms and Conditions
+73926,STC,Send To Collections
+79644,NA,Settlement Offer Addendum
+73902,SIGNATURE,Signature Image
+73919,SIGNED,Signed
+79160,ST_ASS_LIB,Site Tablet Asset Library
+78693,ST_PK_SIGN,Site Tablet Package Signature
+74521,SMALLBAL,Small Balance Reminder
+75555,SC_TIC,South_Carolina_TIC
+76050,SD_TIC,SOUTH_DAKOTA_TIC
+75550,NA,Station Nine Move Out Inspection
+79180,SELF_CERT,System Self Certification
+77435,TC120DN,Tax Credit 120 Day Notice
+77501,TC30DN,Tax Credit 30 Day Notice
+77479,TC60DN,Tax Credit 60 Day Notice
+77457,TC90DN,Tax Credit 90 Day Notice
+74170,TENSTMT,Tenant Statement
+74554,TN_TIC,TENNESSEE_TIC
+74354,TX_SC_TIC,TEXAS_STUDENT_CERTIFICATION_TIC
+74352,TX_TIC,TEXAS_TIC
+79476,NA,Transfer Addendum
+79611,NA,Trash Recycling Annual Notice
+77633,NNNR,Triple Net Reconciliation
+77350,NA,Uhomes Visa Denial
+73922,UTS,Unit Transfer Statement
+74023,USRD,User Document
+76778,UT_TIC,UTAH_TIC
+78871,NA,Utility Addendum
+73899,VF,Verification Form
+76036,VT_TIC,VERMONT_TIC
+76934,VM,Violation
+75265,VA_TIC,VIRGINIA_TIC
+76043,VI_TIC,VIRGIN_ISLANDS_TIC
+78641,NA,W8
+78640,NA,W9
+73951,WAIT,Waitlist
+79335,MFTE_TIC,WASHINGTON_MFTE_TIC
+74880,WA_TIC,WASHINGTON_TIC
+76030,WV_TIC,WEST_VIRGINIA_TIC
+76965,WFPM,WFPM File
+76045,WI_TIC,WISCONSIN_TIC
+76033,WY_TIC,WYOMING_TIC

@@ -1,0 +1,7 @@
+id,name,type
+1,Applicant,NA
+2,Cancelled,NA
+3,Future,NA
+4,Current,Active
+5,Notice,Active
+6,Past,Completed

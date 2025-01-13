@@ -1,0 +1,196 @@
+
+#  ------------------------------------------------------------------------
+#
+# Title : Shiny App UI
+#    By : Jimmy Briggs
+#  Date : 2025-01-09
+#
+#  ------------------------------------------------------------------------
+
+app_ui <- function(req) {
+
+  force(req)
+
+  http_method <- req$REQUEST_METHOD
+  path_info <- req$PATH_INFO
+
+  if (http_method == "GET" && path_info == "/health") {
+    return(app_healthcheck())
+  }
+
+  htmltools::tagList(
+    add_external_resources(),
+    bslib::page_navbar(
+      id = "nav",
+      lang = "en",
+      window_title = "GMH DataHub",
+      position = "static-top",
+
+      header = app_header_ui(),
+      theme = app_theme_ui(),
+      title = app_title_ui(),
+      sidebar = app_sidebar_ui("sidebar"),
+      footer = app_footer_ui(),
+
+      bslib::nav_spacer(),
+
+      bslib::nav_panel(
+        title = "Home",
+        value = "home",
+        icon = bsicons::bs_icon("house"),
+        mod_home_ui("home")
+      ),
+
+      bslib::nav_panel(
+        title = "Dashboard",
+        value = "dashboard",
+        icon = bsicons::bs_icon("speedometer2"),
+        mod_dashboard_ui("dashboard")
+      ),
+
+      bslib::nav_menu(
+        title = "Data",
+        value = "data",
+        icon = bsicons::bs_icon("database"),
+        bslib::nav_panel(
+          title = "Properties",
+          value = "properties",
+          icon = bsicons::bs_icon("buildings"),
+          mod_properties_ui("properties")
+        ),
+        bslib::nav_panel(
+          title = "Property Units",
+          value = "property_units",
+          icon = bsicons::bs_icon("door-open"),
+          mod_property_units_ui("property_units")
+        ),
+        bslib::nav_panel(
+          title = "Leases",
+          value = "leases",
+          icon = bsicons::bs_icon("file-earmark-text"),
+          mod_leases_ui("leases")
+        ),
+        bslib::nav_panel(
+          title = "Floorplans",
+          value = "floorplans",
+          icon = bsicons::bs_icon("file-earmark-image"),
+          mod_floorplans_ui("floorplans")
+        ),
+        bslib::nav_panel(
+          title = "Residents",
+          value = "residents",
+          icon = bsicons::bs_icon("people"),
+          mod_residents_ui("residents")
+        )
+      ),
+
+      bslib::nav_menu(
+        title = "Reports",
+        value = "reports",
+        icon = bsicons::bs_icon("file-earmark-text"),
+        bslib::nav_panel(
+          title = "Pre Lease",
+          value = "pre_lease",
+          icon = bsicons::bs_icon("file-check"),
+          mod_pre_lease_ui("pre_lease")
+        ),
+        bslib::nav_panel(
+          title = "Box Score",
+          value = "box_score",
+          icon = bsicons::bs_icon("file-earmark-bar-graph"),
+          mod_box_score_ui("box_score")
+        ),
+        bslib::nav_panel(
+          title = "Performance",
+          value = "performance",
+          icon = bsicons::bs_icon("graph-up-arrow"),
+          mod_performance_ui("performance")
+        )
+      ),
+
+      bslib::nav_menu(
+        title = "Market Survey",
+        value = "market_survey",
+        icon = bsicons::bs_icon("clipboard-data"),
+        bslib::nav_panel(
+          title = "Survey Admin",
+          value = "survey_admin",
+          icon = bsicons::bs_icon("person-gear"),
+          mod_survey_admin_ui("survey_admin")
+        ),
+        bslib::nav_panel(
+          title = "Survey Forms",
+          value = "survey_forms",
+          icon = bsicons::bs_icon("ui-checks"),
+          mod_survey_forms_ui("survey_forms")
+        ),
+        bslib::nav_panel(
+          title = "Survey Insights",
+          value = "survey_insights",
+          icon = bsicons::bs_icon("lightbulb"),
+          mod_survey_insights_ui("survey_insights")
+        )
+      ),
+
+      bslib::nav_spacer(),
+
+      bslib::nav_item(bslib::input_dark_mode(id = "dark_mode", mode = "light")),
+
+      bslib::nav_menu(
+        title = "Links",
+        align = "right",
+        icon = bsicons::bs_icon("link-45deg"),
+        bslib::nav_item(
+          tags$a(
+            icon("book"), "Documentation",
+            href = "#",
+            target = "_blank"
+          )
+        ),
+        bslib::nav_item(
+          tags$a(
+            icon("github"), "GitHub",
+            href = "#",
+            target = "_blank"
+          )
+        )
+      ),
+
+      bslib::nav_menu(
+        title = "Contact",
+        align = "right",
+        icon = bsicons::bs_icon("envelope"),
+        bslib::nav_item(
+          tags$a(
+            icon("envelope"),
+            "Email Support",
+            href = "mailto:support@noclocks.dev",
+            target = "_blank"
+          )
+        )
+      ),
+      bslib::nav_menu(
+        title = "User",
+        align = "right",
+        icon = bsicons::bs_icon("person-circle"),
+        bslib::nav_item(
+          tags$a(
+            icon("user"),
+            # textOutput("signed_in_as"),
+            "User",
+            href = "#"
+          )
+        ),
+        bslib::nav_item(
+          actionLink(
+            inputId = "auth_logout",
+            label = "Logout",
+            icon = icon("sign-out-alt"),
+            style = "display: inline-flex; align-items: center; padding: 2.5px 50px; width: -webkit-fill-available;"
+          )
+        )
+      )
+    )
+  )
+}
+

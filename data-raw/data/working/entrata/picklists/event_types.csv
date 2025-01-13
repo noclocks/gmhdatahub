@@ -1,0 +1,467 @@
+id,name
+472,Referred Contact
+132,Delete Applicant Application
+157,Quote Applied
+335,Lease Retrieved By Collections Agency
+131,Add Applicant Application
+133,Reactivate Applicant Application
+414,Merged
+1,Email - Incoming
+2,Email - Outgoing
+3,Call - Incoming
+4,Call - Outgoing
+5,Text - Incoming
+6,Text - Outgoing
+7,Online Chat
+8,Notes
+9,Onsite Visit
+10,Online Guest Card
+11,Pre Qualification
+12,Application Progress
+13,Lease Progress
+14,Renewal Progress
+15,Scheduled Follow-Up
+16,Voice Mail
+17,Scheduled Appointment
+18,Duplicate Lead
+19,Resident Log In By Manager
+20,Resident Log In
+21,Status Change
+22,Eviction Notice
+23,Standard Notice
+24,Invoice Sent
+25,Renewal Offer Sent
+26,Lease Renewed
+27,Moved to Month-to-Month
+28,Closed
+29,Feedback
+30,Financial Move-out
+31,Reverse Financial Move-out
+32,Other
+33,Invitation Email
+34,Denied
+35,Reverse Move-out
+36,Property Change
+37,SMS Opt-In
+38,SMS Opt-Out
+39,Email Opt-In
+40,Email Opt-Out
+41,Screening Decision
+42,Adverse Action Letter Generated
+43,Lease Information
+44,Payment Status Change
+45,Schedule Charge Information
+46,Ledger Information
+48,Evicted
+49,Skipped
+50,Month To Month
+51,Craigslist Post Reminder
+52,Unit Transfer
+53,First Notice
+54,Repeat Notice
+55,Final Notice
+56,Late Notice Reset
+57,Leasing Center Welcome Call
+58,Combined
+59,Delinquency Notes
+60,Lease Sent To Collections
+61,Lease Removed From Collections
+62,Rentable Item
+63,Move In
+64,Move Out
+65,Late Fee
+66,Cloned
+67,Unit Change
+68,Demo Screening Processed
+69,Demand Notice
+70,Contact Submission
+71,Payment Receipt
+72,Rent Reminder
+73,Recurring Payment
+77,Occupant Remove
+78,Tour
+80,Move In Review Completed
+81,Call Center
+82,First Pre-Collection Letter Sent
+83,Screening Email To Manager
+84,Reverse Move-in
+85,Cancel Lease
+86,Renewal Offer Reviewed
+87,Move-in Adjustment
+94,Print Application
+95,Download Application Details
+96,Download Application Document
+97,Signed lease manually uploaded
+98,Lease Excluded from Collections
+99,Exclusion From Collections Removed
+100,Second Pre-Collection Letter Sent
+101,Final Pre-Collection Letter Sent
+102,Lease End
+103,Month Period Advanced
+104,Month Period Rollback
+105,SD - Group Dissociation
+106,Roommate Notification Sent
+107,Prospect Log In By Manager
+108,Generate Waitlist Offer
+109,Waitlist Application Removed by Applicant
+110,Waitlist Application Removed by Property
+111,Applicant Declined Waitlist Offer
+112,Applicant Accepted Waitlist Offer
+113,Offer Expired
+114,Offer Skipped
+115,Reverse Move-in Prerequisites
+116,SD - Bulk Unit Assignment
+117,Demand for possession
+118,Unit Unavailable
+119,Renewal Offer Edited
+120,Document deleted
+121,Resident Username and Password Change
+122,renewal end date changed
+129,Resident Payment Due
+130,Resident Birthday
+141,Guarantor Lease Skipped
+142,Application Updated
+143,Screening Status
+148,Application Partially Complete Email Sent
+149,Start Termination
+150,Cancel Termination
+155,Move Out Adjustment
+156,Lease Start
+158,Signing Invitation
+160,Revise Financial Move-out
+161,SD - Reset Unit Assignment
+163,Alarm key change
+165,Non-Renewal Notice
+167,Customer Type Change
+168,Checklist Item Completed
+169,Checklist Item Reversed
+172,Lease Countersign
+173,Resident Visit
+174,NSF Notice
+175,NSF Notes
+176,Parental Consent Form Signed
+177,Asset placed in service
+178,Asset Transfer
+179,Renewal event trigger for inspection
+181,Split Lease
+182,Repayment Agreement Created
+183,Repayment Agreement Cancelled
+184,Repayment Agreement Late Notice
+185,Repayment Agreement Notes
+186,Insurance Policy Add Update
+188,Screening Processed
+189,Screening Validation
+379,Esign Notification Sent
+190,Renewal Lease Start
+380,Esign Completed
+193,Asset Property Transfer
+200,Marked As Contacted
+201,Resident Log In From App
+202,Mid Lease Customer Relationship Change
+203,Mid Lease Move In
+204,Mid Lease Cancel Move In
+205,Mid Lease Cancel Notice
+206,Mid Lease Move Out
+207,Unit Space Configuration Notes
+208,Screening Decision Reset
+209,Installment Change
+215,Holidays
+216,Parent Consent Form Email Resent
+217,Guest Added In Resident Portal
+218,Guest Added In Entrata
+220,Guest Unit Access In Resident Portal
+221,Guest Unit Access In Entrata
+222,Financial Move-out Started
+223,Financial Move-out Approved
+224,Financial Move-out Rejected
+225,Accelerated Rent Adjustment
+226,Update Space Configuration
+227,screening conditions
+228,List Type Change
+229,Late Payment Count Updated
+230,Work Order Updated
+231,Issue Refund
+238,Guest Card Back Track
+239,Change Primary Applicant Application
+240,Add Pet
+241,Delete Pet
+242,Re-associate Pet
+243,Add Vehicle
+244,Delete Vehicle
+245,Re-associate Vehicle
+247,Corporate details change
+248,Merge Lease
+249,Unmerge Lease
+250,Statement Emailed
+251,Returned Payment Count Updated
+273,Waive Late Fees Change
+274,Quote Generated
+275,Not Progressing
+276,Reassociated Package.
+278,Recertification 120 Days Notice
+279,Recertification 90 Days Notice
+280,Recertification 60 Days Notice
+281,Draw Request Deposit Reversed
+282,Vendor Status Changed
+283,Vendor Added
+284,Vendor Edited
+285,Vendor Document Added
+286,Vendor Document Deleted
+287,Vendor Notes
+288,Draw Request Rejected
+292,Inspection Updated
+293,Transfer Quote Declined
+294,Transfer Quote Resent
+295,Delinquency Policy Change
+296,Delinquency Notice
+297,Transfer Quote
+298,Return To Previous Stop
+299,Return To Beginning
+300,Job Group Added
+301,Job Group Status Changed
+302,Unit/Location Added
+303,Unit/Location Removed
+304,Unit/Location Status Changed
+305,Budget Adjustment Approved
+306,Budget Adjustment Unapproved
+307,Guest Parcel Pickup Permitted In Resident Portal
+308,Guest Parcel Pickup Permitted In Entrata
+309,Esign Document Initiated
+310,Esign Document Signed
+312,Collections Policy Change
+313,Entratamation
+314,Budget Adjustment Cancelled
+315,Change Order Cancelled
+316,Special Qualified
+317,Collections Notice
+318,Write Off Balance
+319,Moneygram Instruction Email
+320,Unit Notes
+321,Stored Billing Account Added
+322,Stored Billing Account Updated
+323,Stored Billing Account Deleted
+325,Corporate Care Request Added
+326,Corporate Care Request Assigned
+327,Corporate Care Re-assigned
+328,Unit gender change.
+329,Payment Submitted
+330,CDMP Status Change
+331,Unit Space Status Change
+332,Lease Partially Completed
+333,Lease Completed
+334,Violation Manager
+336,Recurring Payment created
+337,Recurring Payment Updated
+338,Recurring Payment Deleted
+339,Resident Contact Needed - Call Outgoing
+340,Resident Contact Needed - Resident Visit
+341,Subsidy certification updated
+342,Applicant Grouping
+343,Create Corporate Leads
+344,Corporate screening decision
+345,Corporate screening status
+346,Corporate outgoing email
+347,Owner Added
+348,Owner Disabled
+349,Owner Re Enabled
+350,Owner Document Added
+351,Owner Document Deleted
+352,Owner Distribution Generated
+353,Owner Notes
+354,Corporate Care Request Dismissed
+355,Override Rent Limit
+356,Screening Recommendation Recalculated
+357,Move In Scheduler Move-In Date Changed
+358,Units Added
+360,Asset Edited
+361,Regenerate FMO Statement
+362,Early Termination
+363,Income Change
+364,Asset Change
+365,Expense Change
+366,Suite Information
+367,Suite Notes
+368,MTM Offer Accepted
+369,Special Removed
+370,Job Updated
+371,Commercial Clause
+372,Commercial Suite
+373,Commercial Insurance Policy
+374,Unit Web Visibility
+377,Unit Exclusion Reason Change
+378,All Required Checklist Item Completed
+381,Lease Packet Generated
+385,GCIC consent form generated
+386,GCIC consent form signed
+387,GCIC consent form email sent
+388,Recertification 30 Days Notice
+389,Commercial Lease
+390,Commercial Contact Submission
+391,Commercial Email - Outgoing
+392,Contract Updated
+395,Contact Form Submitted
+396,Referrer Added Edited
+397,Referrer Portal Access
+398,Contact Added Edited
+399,Primary Contact Changed
+400,Referrer Stage Status Interact
+401,Skip Screening Transaction
+402,Document Uploaded
+403,NNN Reconciliation
+404,Reimbursable Expense Pools
+405,Referred Incoming Call
+406,Group Leasing Contract Update
+407,Group Leasing Contract Unit Change
+408,Required Checklist Item Reversed
+409,Utility Move Out
+410,Scheduled Charge Approval Routing
+411,Rental history collection document uploaded
+412,Do Not Rent
+413,Unit Occupancy Type Change
+415,Document Reuploaded
+416,Screening Id Verification
+417,Individual Transfer
+418,Group Created
+419,Group Archived
+420,Group Enabled
+421,Journal Entry Template Created
+422,Journal Entry Template Edited
+423,Journal Entry Template Disabled
+424,Journal Entry Template Deleted
+425,Journal Entry Template Approved
+426,Journal Entry Template Attachment Added
+427,Journal Entry Template Attachment Removed
+428,Customer Invoice Generated
+430,Application policy document generated
+431,Checklist Item Actions
+432,Referrer Archived
+433,Referrer Reopened
+434,Deposit Service Selected
+435,Deposit Service Removed
+436,Hazard Notes
+437,Pricing Publishing Event
+438,Extension Lease Progress
+439,Cam Pool
+440,Cam Share
+441,Mid Lease modification application
+443,Data Privacy Request
+442,Self-Guided Tour
+444,Phone Calls Opt-in
+445,Phone Calls Opt-out
+446,Postal Mail Opt-in
+447,Postal Mail Opt-out
+448,Renewal Requested
+449,Virtual Tour
+450,Approval Routing
+451,Quote
+452,Tenant Portal Log In
+453,ReservationHub Log In
+454,Tenant Portal Log In By Manager
+455,ReservationHub Log In By Manager
+456,Offsite
+460,Customer Commercial Measure
+464,ESign Lease Sign Refused
+466,Unanswered Question
+467,Document Verified
+468,Document Rejected
+469,Vendor Outgoing Call
+470,Vendor Incoming Call
+471,Vendor Incoming Email
+473,Tier Screening
+475,rv pre screening
+476,Precise id abandoned
+477,Process Screening Verification of Income
+478,External
+479,Call - Leasing Center Outbound
+480,Primary Resident Correction
+481,Customer Invoice Deletion
+482,Invoice
+483,Purchase Order
+484,Services
+486,Accessed Link Screening Verification of Income
+487,Completed Screening Verification of Income
+488,Screening Conditions Reset
+489,Resident Log In From White labeled App
+490,Consumer Report WI/CA
+492,Tenant Visit
+493,Voi Abandoned
+495,Accommodation
+496,ESign Lease Partially Completed
+497,ESign Lease Completed
+498,Identity Verification
+499,Journal Entry Template Enable
+500,Started screening verification of income
+501,Reinitiated verification of income
+502,Screening Email Send Validation Activity
+503,VOI No Bank Provided
+504,BUA Resident Note
+505,Lease Extension Requested
+510,Bank Reconciliation
+506,Guest Updated in Entrata
+507,Guest Updated in Resident Portal
+508,Guest Deleted in Entrata
+509,Guest Deleted in Resident Portal
+512,Tour Activity
+513,Asset
+514,Transfer Requested
+515,Group Visit
+516,Callback Requested
+517,Online Chat Conversation Failed
+518,Ap Payment
+519,Approval Options
+520,Application Bluemoon Document API call failed
+521,Unknown
+522,Id Verification Email
+523,Id Verification Manually
+524,Id Verification Skip
+525,Id Verification Reinitiate
+526,Rent And Other Steps
+527,Vendor Data Cleanup
+528,New SEPA Mandate created in Resident Portal
+529,New SEPA Mandate created in Entrata
+530,New SEPA Mandate deleted in Entrata
+531,SEPA Mandate emailed
+532,User Uploaded Document Permanently Deleted
+533,Unit Space Association Change
+534,Boleto Payments
+535,Plaid Payment Account Relink
+536,Plaid Pending Micro Deposit Confirmation
+537,Plaid Micro Deposit Automatically Verified
+538,Plaid Account Instant Auth
+539,Plaid Micro Deposits Manually Verified
+540,Payment Account Verification Expired
+541,Payment Account Is In Error
+542,Resident Micro Deposits Deposited
+543,Lease sent to inhouse collections
+544,WhatsApp Opt-In
+545,WhatsApp Opt-Out
+546,WhatsApp - Incoming
+547,WhatsApp - Outgoing
+548,Group Resident Shuffle
+549,Month To Month Increase Rescheduled
+550,VOI Bank Account Details Not Shared
+551,VOI Bank Provider not listed
+552,Accessed Link Screening Need Assistance VOI
+553,Provisional Screening Decision
+554,Rent Increase Rescheduled
+555,Send Invite for countersign
+556,Mid-Lease Rent Increase Scheduled
+557,Month To Month Rent Increase Scheduled
+558,Contract Financial Move-out
+559,Plaid Account Database Matched
+560,Process Screening Document Verification
+561,Document Verification Transaction
+562,Document Verification Notified
+563,Renitiate Document Verification
+564,Skipped Document Verification
+565,Contract Reverse Financial Move-out
+567,Alert Dismiss From Resident Portal
+568,Alert Delete From Resident Portal
+569,Journal Entry
+570,Id Scanning SMS Sent
+571,Skipped Id Scanning
+572,Reinitiate Id Scanning
+573,Id Scanning Notified
+574,Plaid Account User Permission Revoked
+575,Pet Screening
+576,Document Verification Result Applied Manually
