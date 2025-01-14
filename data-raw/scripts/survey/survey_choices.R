@@ -1,5 +1,13 @@
 
-survey_section_choices_lst <- list(
+#  ------------------------------------------------------------------------
+#
+# Title : Market Survey Choices (by section)
+#    By : Jimmy Briggs
+#  Date : 2025-01-13
+#
+#  ------------------------------------------------------------------------
+
+survey_choices_lst <- list(
   property_summary = list(
     property_type = c(
       "Student",

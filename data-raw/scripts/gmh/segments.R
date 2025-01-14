@@ -35,3 +35,7 @@ gmh_segments_tbl <- tibble::tibble(
     "https://storage.googleapis.com/gmh-images/banners/gmh-innovative-living-banner.png"
   )
 )
+
+gmh_segments_lst <- gmh_segments_tbl$segment_id |>
+  setNames(gmh_segments_tbl$segment_name) |>
+  as.list()

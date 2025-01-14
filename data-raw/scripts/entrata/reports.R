@@ -63,7 +63,7 @@ entrata_report_versions_tbl <- purrr::map(
 entrata_report_latest_versions_tbl <- entrata_report_versions_tbl |>
   dplyr::filter(is_latest)
 
-entrata_report_names <- entrata_report_latest_versions_tbl$report_name |>
+entrata_report_names_lst <- entrata_report_latest_versions_tbl$report_name |>
   unique()
 
 # cleanup
