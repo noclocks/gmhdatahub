@@ -66,26 +66,18 @@ mod_survey_admin_ui <- function(id) {
           title = "Total Surveys",
           value = shiny::textOutput(ns("val_surveys")),
           showcase = bsicons::bs_icon("clipboard"),
-          theme = "primray"
+          theme = "primary"
         )
       ),
       bslib::layout_column_wrap(
         width = 1/3,
-        actionButton(ns("add_property"), "Add New Property", icon = shiny::icon("plus"), class = "btn-success"),
+        actionButton(ns("add_property"), "Add New Property", icon = shiny::icon("plus"), class = "btn-primary"),
         actionButton(ns("add_competitor"), "Add New Competitor", icon = shiny::icon("plus"), class = "btn-primary"),
-        actionButton(ns("create_survey"), "Create New Survey", icon = shiny::icon("plus"), class = "btn-info")
+        actionButton(ns("create_survey"), "Create New Survey", icon = shiny::icon("plus"), class = "btn-primary")
       ),
       bslib::navset_card_underline(
         id = ns("nav"),
-        bslib::nav_panel(
-          title = icon_text("map", "Property Map"),
-          bslib::card(
-            bslib::card_header("Property Map"),
-            bslib::card_body(
-              leaflet::leafletOutput(ns("property_map"))
-            )
-          )
-        ),
+        title = htmltools::tags$span(bsicons::bs_icon("clipboard"), "Survey Admin"),
         bslib::nav_panel(
           title = icon_text("dashboard", "Overview"),
           bslib::layout_column_wrap(
@@ -109,6 +101,33 @@ mod_survey_admin_ui <- function(id) {
               bslib::card_header("Survey Timeline"),
               bslib::card_body(
                 # plotly::plotlyOutput(ns("survey_timeline"))
+              )
+            )
+          )
+        ),
+        bslib::nav_panel(
+          title = icon_text("map", "Property Map"),
+          bslib::card(
+            bslib::card_header("Property Map"),
+            bslib::card_body(
+              leaflet::leafletOutput(ns("property_map"))
+            )
+          )
+        ),
+        bslib::nav_panel(
+          title = icon_text("chart-line", "Survey Charts"),
+          bslib::layout_column_wrap(
+            width = 1/2,
+            bslib::card(
+              bslib::card_header("Survey Rate Adjustments"),
+              bslib::card_body(
+                # apexcharter::apexchartOutput(ns("survey_rate_adjustments_chart"))
+              )
+            ),
+            bslib::card(
+              bslib::card_header("Survey Market Velocity"),
+              bslib::card_body(
+                # apexcharter::apexchartOutput(ns("survey_market_velocity_chart"))
               )
             )
           )
@@ -150,17 +169,17 @@ mod_survey_admin_server <- function(
 
       # Reactive values and observers
       properties_data <- shiny::reactive({
-        # shiny::req(pool)
+        shiny::req(pool)
         db_read_tbl(pool, "mkt.properties")
       })
 
       survey_data <- shiny::reactive({
-        # shiny::req(pool)
+        shiny::req(pool)
         db_read_tbl(pool, "mkt.surveys")
       })
 
       universities_data <- shiny::reactive({
-        # shiny::req(pool)
+        shiny::req(pool)
         unis <- db_read_tbl(pool, "mkt.universities")
         locs <- db_read_tbl(pool, "mkt.university_locations")
         dplyr::left_join(
@@ -172,7 +191,7 @@ mod_survey_admin_server <- function(
       })
 
       map_data <- shiny::reactive({
-        # shiny::req(pool)
+        shiny::req(pool)
         properties <- db_read_tbl(pool, "mkt.locations") |>
           dplyr::filter(.data$is_competitor == FALSE)
         competitors <- db_read_tbl(pool, "mkt.locations") |>
