@@ -55,7 +55,7 @@ chart_current_vs_prior <- function(data, metric = c("leases", "renewals", "prele
 
   hold <- apexcharter::apex(
     data = chart_data,
-    mapping = aes(
+    mapping = apexcharter::aes(
       x = property_name,
       y = value,
       fill = type

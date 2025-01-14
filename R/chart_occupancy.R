@@ -58,7 +58,7 @@ chart_occupancy <- function(data, target = 0.9, by = c("property", "partner"), i
 
   apexcharter::apex(
     data = chart_data,
-    mapping = aes(
+    mapping = apexcharter::aes(
       x = !!rlang::sym(aes_x),
       y = `Current Occupancy`
     ),

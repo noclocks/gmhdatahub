@@ -38,7 +38,7 @@ chart_yoy_variance <- function(data, by = c("property", "partner"), id = NULL, .
 
   apexcharter::apex(
     data = chart_data,
-    mapping = aes(x = if (by == "property") property_name else investment_partner, y = yoy_variance_percent),
+    mapping = apexcharter::aes(x = if (by == "property") property_name else investment_partner, y = yoy_variance_percent),
     type = "bar",
     elementId = id,
     ...
