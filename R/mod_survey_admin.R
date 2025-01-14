@@ -46,11 +46,8 @@ mod_survey_admin_ui <- function(id) {
 
   ns <- shiny::NS(id)
 
-  bslib::page_fluid(
-    bslib::layout_sidebar(
-      sidebar = bslib::sidebar(
-
-      ),
+  htmltools::tagList(
+    bslib::page_fluid(
       bslib::layout_column_wrap(
         width = 1/3,
         bslib::value_box(
@@ -62,7 +59,7 @@ mod_survey_admin_ui <- function(id) {
         bslib::value_box(
           title = "Total Competitors",
           value = shiny::textOutput(ns("val_competitors")),
-          showcase = bsicons::bs_icon("users"),
+          showcase = bsicons::bs_icon("building"),
           theme = "primary"
         ),
         bslib::value_box(
@@ -74,45 +71,46 @@ mod_survey_admin_ui <- function(id) {
       ),
       bslib::layout_column_wrap(
         width = 1/3,
-        bslib::card(
-          bslib::card_header("Actions"),
-          bslib::card_body(
-            actionButton(ns("add_property"), "Add New Property"),
-            actionButton(ns("add_competitor"), "Add New Competitor"),
-            actionButton(ns("create_survey"), "Create New Survey")
-          )
-        )
+        actionButton(ns("add_property"), "Add New Property", icon = shiny::icon("plus"), class = "btn-success"),
+        actionButton(ns("add_competitor"), "Add New Competitor", icon = shiny::icon("plus"), class = "btn-primary"),
+        actionButton(ns("create_survey"), "Create New Survey", icon = shiny::icon("plus"), class = "btn-info")
       ),
-      bslib::layout_column_wrap(
-        width = 1,
-        bslib::card(
-          bslib::card_header("Properties and Competitors"),
-          bslib::card_body(
-            reactable::reactableOutput(ns("properties_table"))
-          )
-        )
-      ),
-      bslib::layout_column_wrap(
-        width = 1/2,
-        bslib::card(
-          bslib::card_header("Property Map"),
-          bslib::card_body(
-            leaflet::leafletOutput(ns("property_map"))
+      bslib::navset_card_underline(
+        id = ns("nav"),
+        bslib::nav_panel(
+          title = icon_text("map", "Property Map"),
+          bslib::card(
+            bslib::card_header("Property Map"),
+            bslib::card_body(
+              leaflet::leafletOutput(ns("property_map"))
+            )
           )
         ),
-        bslib::card(
-          bslib::card_header("Survey Status"),
-          bslib::card_body(
-            reactable::reactableOutput(ns("survey_status_table"))
-          )
-        )
-      ),
-      bslib::layout_column_wrap(
-        width = 1,
-        bslib::card(
-          bslib::card_header("Survey Timeline"),
-          bslib::card_body(
-            plotly::plotlyOutput(ns("survey_timeline"))
+        bslib::nav_panel(
+          title = icon_text("dashboard", "Overview"),
+          bslib::layout_column_wrap(
+            width = 1/2,
+            bslib::card(
+              bslib::card_header("Properties and Competitors"),
+              bslib::card_body(
+                # reactable::reactableOutput(ns("properties_table"))
+              )
+            ),
+            bslib::card(
+              bslib::card_header("Survey Status"),
+              bslib::card_body(
+                # reactable::reactableOutput(ns("survey_status_table"))
+              )
+            )
+          ),
+          bslib::layout_column_wrap(
+            width = 1,
+            bslib::card(
+              bslib::card_header("Survey Timeline"),
+              bslib::card_body(
+                # plotly::plotlyOutput(ns("survey_timeline"))
+              )
+            )
           )
         )
       )
@@ -152,17 +150,17 @@ mod_survey_admin_server <- function(
 
       # Reactive values and observers
       properties_data <- shiny::reactive({
-        shiny::req(pool)
+        # shiny::req(pool)
         db_read_tbl(pool, "mkt.properties")
       })
 
       survey_data <- shiny::reactive({
-        shiny::req(pool)
+        # shiny::req(pool)
         db_read_tbl(pool, "mkt.surveys")
       })
 
       universities_data <- shiny::reactive({
-        shiny::req(pool)
+        # shiny::req(pool)
         unis <- db_read_tbl(pool, "mkt.universities")
         locs <- db_read_tbl(pool, "mkt.university_locations")
         dplyr::left_join(
@@ -174,7 +172,7 @@ mod_survey_admin_server <- function(
       })
 
       map_data <- shiny::reactive({
-        shiny::req(pool)
+        # shiny::req(pool)
         properties <- db_read_tbl(pool, "mkt.locations") |>
           dplyr::filter(.data$is_competitor == FALSE)
         competitors <- db_read_tbl(pool, "mkt.locations") |>
@@ -189,20 +187,22 @@ mod_survey_admin_server <- function(
       })
 
       # Value box outputs
-      output$total_properties <- shiny::renderText({
-        properties_data() |>
-          dplyr::filter(.data$is_competitor == FALSE) |>
-          nrow()
+      output$val_properties <- shiny::renderText({
+        properties_data()$property_id |>
+          length() |>
+          scales::comma()
       })
 
-      output$total_competitors <- shiny::renderText({
-        properties_data() |>
-          dplyr::filter(.data$is_competitor == TRUE) |>
-          nrow()
+      output$val_competitors <- shiny::renderText({
+        map_data()$competitors |>
+          nrow() |>
+          scales::comma()
       })
 
-      output$survey_completion_rate <- shiny::renderText({
-        # calculate_completion_rate(survey_data())
+      output$val_surveys <- shiny::renderText({
+        survey_data()$survey_id |>
+          length() |>
+          scales::comma()
       })
 
       # Action button observers
@@ -245,7 +245,8 @@ mod_survey_admin_server <- function(
         list(
           properties_data = properties_data,
           survey_data = survey_data,
-          locations_data = locations_data
+          universities_data = universities_data,
+          map_data = map_data
         )
       )
     }
@@ -267,7 +268,7 @@ mod_survey_admin_demo <- function() {
   ui <- bslib::page_navbar(
     title = "Demo: Survey Admin",
     window_title = "Demo: Survey Admin",
-    theme = app_theme(),
+    theme = app_theme_ui(),
     lang = "en",
     bslib::nav_spacer(),
     bslib::nav_panel(
@@ -279,7 +280,8 @@ mod_survey_admin_demo <- function() {
   )
 
   server <- function(input, output, session) {
-    mod_survey_admin_server("demo")
+    pool <- db_connect()
+    mod_survey_admin_server("demo", pool)
   }
 
   shiny::shinyApp(ui, server)

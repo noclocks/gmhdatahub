@@ -47,7 +47,7 @@ mod_survey_leasing_summary_ui <- function(id) {
   ns <- shiny::NS(id)
 
   current_leasing_week <- get_leasing_week_start_date()
-  min_leasing_week <- current_leasing_week_start - lubridate::years(1)
+  min_leasing_week <- current_leasing_week - lubridate::years(1)
   max_leasing_week <- get_leasing_week_end_date()
 
   htmltools::tagList(

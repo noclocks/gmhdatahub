@@ -47,27 +47,28 @@ mod_survey_forms_ui <- function(id) {
   ns <- shiny::NS(id)
 
   htmltools::tagList(
+    bslib::page_fluid(
 
-    bslib::layout_columns(
-      bslib::value_box(
-        id = ns("properties_value_box"),
-        title = "Properties",
-        value = shiny::textOutput(ns("properties_count")),
-        showcase = bsicons::bs_icon("building")
-      ),
-      bslib::value_box(
-        id = ns("competitors_value_box"),
-        title = "Competitors",
-        value = shiny::textOutput("competitor_count"),
-        showcase = bsicons::bs_icon("graph-up")
-      ),
-      bslib::value_box(
-        id = ns("surveys_value_box"),
-        title = "Survey Responses",
-        value = shiny::textOutput("response_count"),
-        showcase = bsicons::bs_icon("clipboard-data")
-      )
-    ),
+    # bslib::layout_columns(
+    #   bslib::value_box(
+    #     id = ns("properties_value_box"),
+    #     title = "Properties",
+    #     value = shiny::textOutput(ns("properties_count")),
+    #     showcase = bsicons::bs_icon("building")
+    #   ),
+    #   bslib::value_box(
+    #     id = ns("competitors_value_box"),
+    #     title = "Competitors",
+    #     value = shiny::textOutput("competitor_count"),
+    #     showcase = bsicons::bs_icon("graph-up")
+    #   ),
+    #   bslib::value_box(
+    #     id = ns("surveys_value_box"),
+    #     title = "Survey Responses",
+    #     value = shiny::textOutput("response_count"),
+    #     showcase = bsicons::bs_icon("clipboard-data")
+    #   )
+    # ),
 
     # progress ----------------------------------------------------------------
     bslib::card(
@@ -92,13 +93,13 @@ mod_survey_forms_ui <- function(id) {
         shiny::selectizeInput(
           ns("property"),
           label = icon_text("building", "Select Property"),
-          choices = app_choices$properties,
-          selected = app_choices$properties[["1047 Commonwealth Avenue"]]
+          choices = app_choices_lst$properties,
+          selected = app_choices_lst$properties[["1047 Commonwealth Avenue"]]
         ),
         shiny::selectizeInput(
           ns("competitor"),
           label = icon_text("building", "Select Competitor"),
-          choices = app_choices$competitors[[1]]
+          choices = app_choices_lst$competitors[[1]]
         ),
         shiny::dateRangeInput(
           ns("leasing_week"),
@@ -156,6 +157,7 @@ mod_survey_forms_ui <- function(id) {
       )
     )
   )
+  )
 }
 
 
@@ -196,20 +198,20 @@ mod_survey_forms_server <- function(
       db_metrics <- shiny::reactive({ db_read_survey_metrics(pool) })
 
       # value boxes -------------------------------------------------------------
-      output$properties_count <- shiny::renderText({
-        shiny::req(db_metrics())
-        db_metrics()$total_properties
-      })
-
-      output$competitor_count <- shiny::renderText({
-        shiny::req(db_metrics())
-        db_metrics()$total_competitors
-      })
-
-      output$response_count <- shiny::renderText({
-        shiny::req(db_metrics())
-        db_metrics()$total_responses
-      })
+      # output$properties_count <- shiny::renderText({
+      #   shiny::req(db_metrics())
+      #   db_metrics()$total_properties
+      # })
+      #
+      # output$competitor_count <- shiny::renderText({
+      #   shiny::req(db_metrics())
+      #   db_metrics()$total_competitors
+      # })
+      #
+      # output$response_count <- shiny::renderText({
+      #   shiny::req(db_metrics())
+      #   db_metrics()$total_responses
+      # })
 
       # progress bars ----------------------------------------------------------
       output$total_progress <- shinyWidgets::updateProgressBar(
