@@ -94,19 +94,12 @@ parse_request <- function(req) {
 }
 
 get_default_app_choices <- function(type) {
+  type <- rlang::arg_match0(type, names(app_choices_lst))
+  app_choices_lst[[type]]
+}
 
-  type <- rlang::arg_match(
-    type,
-    c("properties", "portfolios", "reports", "competitors", "partners", "charts", "tables")
-  )
-
-  switch(
-    type,
-    properties = app_choices$properties,
-    portfolios = app_choices$portfolios,
-    reports = app_choices$reports,
-    competitors = app_choices$competitors,
-    partners = app_choices$partners
-  )
-
+get_survey_choices <- function(section, type) {
+  section <- rlang::arg_match0(section, names(survey_choices_lst))
+  type <- rlang::arg_match0(type, names(survey_choices_lst[[section]]))
+  survey_choices_lst[[section]][[type]]
 }
