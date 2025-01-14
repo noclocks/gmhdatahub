@@ -187,6 +187,31 @@ db_read_mkt_property_summary <- function(pool, property_id) {
 
 }
 
+db_read_mkt_leasing_summary <- function(pool, property_id = NULL, leasing_week = NULL) {
+
+  check_db_conn(pool)
+
+  hold <- db_read_tbl(pool, "mkt.leasing_summary", collect = FALSE)
+
+  if (!is.null(property_id)) {
+    hold <- dplyr::filter(hold, .data$property_id == .env$property_id)
+  }
+
+  if (!is.null(leasing_week)) {
+    hold <- dplyr::filter(hold, .data$leasing_week_id == .env$leasing_week)
+  }
+
+  dplyr::collect(hold)
+
+}
+
+db_read_gmh_leasing_calendar <- function(pool, date_key = Sys.Date()) {
+  check_db_conn(pool)
+  date_key <- format(date_key, "%Y-%m-%d")
+  db_read_tbl(pool, "gmh.leasing_calendar", collect = FALSE) |>
+    dplyr::filter(.data$date_key == .env$date_key) |>
+    dplyr::collect()
+}
 
 
 db_read_mkt_locations <- function(pool, property_ids = NULL) {
@@ -277,11 +302,19 @@ db_read_home_metrics <- function(pool, report_date = NULL, property_ids = NULL) 
 
 }
 
-db_get_recent_activity_logs <- function(pool, ...) {
+db_read_recent_activity_logs <- function(pool, ...) {
 
   check_db_conn(pool)
 
   dplyr::tbl(pool, I("logs.recent_activity")) |>
     dplyr::arrange(dplyr::desc(created_at))
+
+}
+
+db_read_survey_property_ids <- function(pool, ...) {
+
+  db_read_tbl(pool, "mkt.properties", collect = FALSE) |>
+    dplyr::filter(.data$is_competitor == FALSE) |>
+    dplyr::pull("property_id")
 
 }
