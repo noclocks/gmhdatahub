@@ -41,15 +41,15 @@ run_app <- function(
   # run app
   shiny::shinyApp(
     ui = ui,
-    server = server
+    server = server,
+    onStart = on_start,
+    options = options,
+    enableBookmarking = enable_bookmarking,
+    uiPattern = ui_pattern,
+    ...
   )
 
-  # ,
-  # onStart = on_start,
-  # options = options,
-  # enableBookmarking = enable_bookmarking,
-  # uiPattern = ui_pattern,
-  # ...
+
 
 }
 
