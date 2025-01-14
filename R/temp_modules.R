@@ -6,9 +6,6 @@ mod_properties_ui <- function(id) {
   )
 }
 
-
-
-
 mod_property_units_ui <- function(id) {
   ns <- NS(id)
   bslib::card(
@@ -65,26 +62,3 @@ mod_performance_ui <- function(id) {
   )
 }
 
-# mod_survey_admin_ui <- function(id) {
-#   ns <- NS(id)
-#   bslib::card(
-#     title = "Survey Administration",
-#     "Survey administration tools"
-#   )
-# }
-#
-# mod_survey_forms_ui <- function(id) {
-#   ns <- NS(id)
-#   bslib::card(
-#     title = "Survey Forms",
-#     "Survey form builder"
-#   )
-# }
-#
-# mod_survey_insights_ui <- function(id) {
-#   ns <- NS(id)
-#   bslib::card(
-#     title = "Survey Insights",
-#     "Survey analytics and insights"
-#   )
-# }

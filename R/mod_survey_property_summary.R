@@ -233,10 +233,6 @@ mod_survey_property_summary_server <- function(
   selected_property_id = NULL
 ) {
 
-  # check database connection
-  if (is.null(pool)) pool <- db_connect()
-  check_db_conn(pool)
-
   # validation of reactives
   if (is.null(selected_property_id)) {
     property_id <- db_read_tbl(pool, "mkt.properties", collect = FALSE) |>
@@ -245,14 +241,18 @@ mod_survey_property_summary_server <- function(
     selected_property_id <- shiny::reactive({ property_id })
   }
 
-  stopifnot(shiny::is.reactive(selected_property_id))
-
   shiny::moduleServer(
     id,
     function(input, output, session) {
 
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_property_summary_server()")
+
+      # check database connection
+      if (is.null(pool)) pool <- session$userData$pool
+      check_db_conn(pool)
+
+      stopifnot(shiny::is.reactive(selected_property_id))
 
       db_refresh_trigger <- shiny::reactiveVal(0)
 

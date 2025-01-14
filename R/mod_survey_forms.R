@@ -112,47 +112,47 @@ mod_survey_forms_ui <- function(id) {
       ),
       bslib::nav_panel(
         title = "Property Summary",
-        value = ns("property_summary"),
+        value = ns("nav_property_summary"),
         mod_survey_property_summary_ui(ns("property_summary"))
       ),
       bslib::nav_panel(
         title = "Leasing Summary",
-        value = ns("leasing_summary"),
+        value = ns("nav_leasing_summary"),
         mod_survey_leasing_summary_ui(ns("leasing_summary"))
       ),
       bslib::nav_panel(
         title = "Short Term Leases",
-        value = ns("short_term_leases"),
+        value = ns("nav_short_term_leases"),
         mod_survey_short_term_leases_ui(ns("short_term_leases"))
       ),
       bslib::nav_panel(
         title = "Fees",
-        value = ns("fees"),
+        value = ns("nav_fees"),
         mod_survey_fees_ui(ns("fees"))
       ),
       bslib::nav_panel(
         title = "Amenities",
-        value = ns("amenities"),
+        value = ns("nav_amenities"),
         mod_survey_amenities_ui(ns("amenities"))
       ),
       bslib::nav_panel(
         title = "Parking",
-        value = ns("parking"),
+        value = ns("nav_parking"),
         mod_survey_parking_ui(ns("parking"))
       ),
       bslib::nav_panel(
         title = "Utilities",
-        value = ns("utilities"),
+        value = ns("nav_utilities"),
         mod_survey_utilities_ui(ns("utilities"))
       ),
       bslib::nav_panel(
         title = "Notes",
-        value = ns("notes"),
+        value = ns("nav_notes"),
         mod_survey_notes_ui(ns("notes"))
       ),
       bslib::nav_panel(
         title = "Rents",
-        value = ns("rents"),
+        value = ns("nav_rents"),
         mod_survey_rents_ui(ns("rents"))
       )
     )
@@ -223,55 +223,52 @@ mod_survey_forms_server <- function(
 
       # sub-modules -------------------------------------------------------------
 
-      property_summary_data <- mod_survey_property_summary_server(
-        ns("property_summary"),
-        pool = pool
-      )
+      property_summary_data <- mod_survey_property_summary_server("property_summary", pool = pool)
 
       leasing_summary_data <- mod_survey_leasing_summary_server(
-        ns("leasing_summary"),
+        "leasing_summary",
         pool = pool,
         selected_property_id = NULL
       )
 
       short_term_leases_data <- mod_survey_short_term_leases_server(
-        ns("short_term_leases"),
+        "short_term_leases",
         pool = pool,
         global_filters = global_filters
       )
 
       fees_data <- mod_survey_fees_server(
-        ns("fees"),
+        "fees",
         pool = pool,
         global_filters = global_filters
       )
 
       amenities_data <- mod_survey_amenities_server(
-        ns("amenities"),
+        "amenities",
         pool = pool,
         global_filters = global_filters
       )
 
       parking_data <- mod_survey_parking_server(
-        ns("parking"),
+        "parking",
         pool = pool,
         global_filters = global_filters
       )
 
       utilities_data <- mod_survey_utilities_server(
-        ns("utilities"),
+        "utilities",
         pool = pool,
         global_filters = global_filters
       )
 
       notes_data <- mod_survey_notes_server(
-        ns("notes"),
+        "notes",
         pool = pool,
         global_filters = global_filters
       )
 
       rents_data <- mod_survey_rents_server(
-        ns("rents"),
+        "rents",
         pool = pool,
         global_filters = global_filters
       )
