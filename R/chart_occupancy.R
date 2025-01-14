@@ -40,12 +40,15 @@ chart_occupancy <- function(data, target = 0.9, by = c("property", "partner"), i
     chart_subtitle <- "Current Occupancy Rates by Investment Partner"
     chart_xaxis_title <- "Investment Partners"
     chart_xaxis_categories <- unique(chart_data$investment_partner)
+    aes_x <- "investment_partner"
 
   } else {
 
     chart_subtitle <- "Current Occupancy Rates by Property"
     chart_xaxis_title <- "Property Name"
     chart_xaxis_categories <- unique(chart_data$property_name)
+    aes_x <- "property_name"
+
   }
 
   chart_data <- dplyr::rename(
@@ -56,7 +59,7 @@ chart_occupancy <- function(data, target = 0.9, by = c("property", "partner"), i
   apexcharter::apex(
     data = chart_data,
     mapping = aes(
-      x = if (by == "property") property_name else investment_partner,
+      x = !!rlang::sym(aes_x),
       y = `Current Occupancy`
     ),
     type = "column",
