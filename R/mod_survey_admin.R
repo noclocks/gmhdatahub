@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Survey Admin Shiny Module
@@ -85,7 +84,7 @@ mod_survey_admin_ui <- function(id) {
             bslib::card(
               bslib::card_header("Properties and Competitors"),
               bslib::card_body(
-                # reactable::reactableOutput(ns("properties_table"))
+                reactable::reactableOutput(ns("properties_table"))
               )
             ),
             bslib::card(
@@ -236,7 +235,43 @@ mod_survey_admin_server <- function(
       })
 
       output$properties_table <- reactable::renderReactable({
-        # tbl_survey_properties(properties_data())
+
+        properties_data <- properties_data()
+        survey_data <- survey_data()
+        map_data <- map_data()
+
+        combined_data <- properties_data |>
+          dplyr::left_join(
+            survey_data |>
+              dplyr::group_by(property_id) |>
+              dplyr::filter(survey_date == max(survey_date)) |>
+              dplyr::ungroup(),
+            by = "property_id"
+          ) |>
+          dplyr::left_join(
+            map_data$properties |>
+              dplyr::select(property_id, address) |>
+              dplyr::bind_rows(
+                map_data$competitors |>
+                  dplyr::select(property_id, address)
+              ),
+            by = "property_id"
+          ) |>
+          dplyr::transmute(
+            name = property_name,
+            type = ifelse(is_competitor, "Competitor", "Property"),
+            address = address,
+            last_survey_date = survey_date,
+            survey_status = case_when(
+              is.na(survey_date) ~ "Pending",
+              difftime(Sys.Date(), survey_date, units = "days") > 7 ~ "Overdue",
+              TRUE ~ "Complete"
+            ),
+            occupancy = as.numeric(NA),
+            avg_rent = as.numeric(NA)
+          )
+
+        tbl_survey_properties_competitors(combined_data)
       })
 
       output$survey_status_table <- reactable::renderReactable({
@@ -307,7 +342,6 @@ mod_survey_admin_demo <- function() {
 }
 
 # utilities ---------------------------------------------------------------
-
 
 
 # bslib::navset_card_underline(
