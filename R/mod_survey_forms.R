@@ -229,7 +229,7 @@ mod_survey_forms_server <- function(
       leasing_summary_data <- mod_survey_leasing_summary_server(
         ns("leasing_summary"),
         pool = pool,
-        global_filters = global_filters
+        selected_property_id = NULL
       )
 
       short_term_leases_data <- mod_survey_short_term_leases_server(

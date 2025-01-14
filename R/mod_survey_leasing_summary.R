@@ -46,9 +46,140 @@ mod_survey_leasing_summary_ui <- function(id) {
 
   ns <- shiny::NS(id)
 
-  htmltools::tagList(
-    bslib::card(
+  current_leasing_week <- get_leasing_week_start_date()
+  min_leasing_week <- current_leasing_week_start - lubridate::years(1)
+  max_leasing_week <- get_leasing_week_end_date()
 
+  htmltools::tagList(
+    bslib::layout_sidebar(
+      sidebar = bslib::sidebar(
+        shiny::dateInput(
+          ns("leasing_week"),
+          label = "Leasing Week",
+          value = current_leasing_week,
+          weekstart = 1,
+          min = min_leasing_week,
+          max = max_leasing_week#,
+          # datesdisabled =
+
+        )
+      )
+    ),
+    bslib::card(
+      bslib::card_header(
+        class = "d-flex justify-content-between align-items-center",
+        htmltools::tags$h3(
+          class = "m-0",
+          shiny::textOutput(ns("property_name_title"))
+        ),
+        shiny::actionButton(
+          ns("edit"),
+          "Edit",
+          icon = shiny::icon("edit"),
+          class = "btn-sm btn-primary"
+        )
+      ),
+      bslib::card_body(
+        class = "p-0",
+        bslib::layout_columns(
+          col_widths = c(6, 6),
+          gap = "1rem",
+          bslib::card(
+            shiny::selectInput(
+              ns("reporting_cycle"),
+              label = htmltools::tags$span(
+                bsicons::bs_icon("calendar-week"),
+                "Reporting Cycle"
+              ),
+              choices = get_survey_choices(section = "leasing_summary", type = "reporting_cycle"),
+              selected = get_survey_choices(section = "leasing_summary", type = "reporting_cycle")[[3]]
+            ),
+            shiny::dateInput(
+              ns("lease_launch_date"),
+              label = htmltools::tags$span(
+                bsicons::bs_icon("calendar-check"),
+                "Lease Launch Date"
+              ),
+              value = NULL
+            ),
+            shiny::dateInput(
+              ns("renewal_launch_date"),
+              label = htmltools::tags$span(
+                bsicons::bs_icon("calendar-plus"),
+                "Renewal Launch Date"),
+              value = NULL
+            ),
+            shiny::numericInput(
+              ns("current_occupancy"),
+              label = htmltools::tags$span(bsicons::bs_icon("percent"), "Current Occupancy (%)"),
+              value = 0,
+              min = 0,
+              max = 100,
+              step = 1
+            ),
+            shiny::numericInput(
+              ns("prior_year_occupancy"),
+              label = htmltools::tags$span(bsicons::bs_icon("clock-history"), "Prior Year Occupancy (%)"),
+              value = 0,
+              min = 0,
+              max = 100,
+              step = 1
+            ),
+            shiny::numericInput(
+              ns("current_prelease"),
+              label = htmltools::tags$span(bsicons::bs_icon("graph-up"), "Current Pre-Lease (%)"),
+              value = 38.8
+            ),
+            shiny::numericInput(
+              ns("last_year_prelease"),
+              label = htmltools::tags$span(bsicons::bs_icon("clock-history"), "Prior Year Pre-Lease (%)"),
+              value = 0,
+              min = 0,
+              max = 100,
+              step = 1
+            )
+          ),
+          bslib::card(
+            shiny::numericInput(
+              ns("total_renewals"),
+              label = htmltools::tags$span(bsicons::bs_icon("arrow-repeat"), "Total Renewals"),
+              value = 0,
+              min = 0,
+              step = 1
+            ),
+            shiny::numericInput(
+              ns("total_new_leases"),
+              label = htmltools::tags$span(bsicons::bs_icon("file-earmark-plus"), "Total New Leases"),
+              value = 0,
+              min = 0,
+              step = 1
+            ),
+            shiny::numericInput(
+              ns("weekly_traffic"),
+              label = htmltools::tags$span(bsicons::bs_icon("people"), "Total Weekly Traffic"),
+              value = NULL,
+              min = 0,
+              step = 1
+            ),
+            shiny::selectInput(
+              ns("current_incentive"),
+              label = htmltools::tags$span(bsicons::bs_icon("gift"), "Current Incentive"),
+              choices = get_survey_choices("leasing_summary", "current_incentive"),
+              selected = get_survey_choices("leasing_summary", "current_incentive")[[1]]
+            ),
+            shiny::numericInput(
+              ns("incentive_amount"),
+              label = htmltools::tags$span(bsicons::bs_icon("cash-stack"), "Incentive Amount ($)"),
+              value = 0
+            )
+          ),
+          shiny::dateInput(
+            ns("data_last_updated"),
+            label = htmltools::tags$span(bsicons::bs_icon("clock"), "Data Last Updated"),
+            value = Sys.Date()
+          )
+        )
+      )
     )
   )
 }
@@ -63,12 +194,27 @@ mod_survey_leasing_summary_ui <- function(id) {
 mod_survey_leasing_summary_server <- function(
   id,
   pool = NULL,
-  global_filters = NULL
+  selected_property_id = NULL
 ) {
 
   # check database connection
   if (is.null(pool)) pool <- db_connect()
   check_db_conn(pool)
+
+  # validation of reactives
+  if (is.null(selected_property_id)) {
+    property_id <- db_read_survey_property_ids(pool)
+    selected_property_id <- shiny::reactive({ property_id })
+  }
+
+  leasing_week_tbl <- db_read_gmh_leasing_calendar(pool)
+  leasing_week_rng <- c(leasing_week_tbl$leasing_week_start_date[[1]], leasing_week_tbl$leasing_week_end_date[[1]])
+  selected_leasing_week <- shiny::reactive({ leasing_week_rng })
+
+  stopifnot(
+    shiny::is.reactive(selected_property_id),
+    shiny::is.reactive(selected_leasing_week)
+  )
 
   shiny::moduleServer(
     id,
@@ -77,9 +223,38 @@ mod_survey_leasing_summary_server <- function(
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_leasing_summary_server()")
 
+      db_refresh_trigger <- shiny::reactiveVal(0)
+
+      leasing_data <- shiny::reactive({
+        shiny::req(pool, selected_property_id())
+        property_id <- selected_property_id()
+        db_read_mkt_leasing_summary(pool, property_id) |>
+          dplyr::filter(leasing_week_id == max(.data$leasing_week_id, na.rm = TRUE))
+      }) |>
+        shiny::bindEvent(selected_property_id(), db_refresh_trigger())
+
+      # inputs_data <- shiny::reactive({
+      #   tibble::tibble(
+      #     property_id = selected_property_id(),
+      #     leasing_week_id = get_leasing_wee
+      #     reporting_cycle = input$reporting_cycle,
+      #     lease_launch_date = input$lease_launch_date,
+      #     renewal_launch_date = input$renewal_launch_date,
+      #     current_occupancy = input$current_occupancy,
+      #     prior_year_occupancy = input$prior_year_occupancy,
+      #     current_prelease = input$current_prelease,
+      #     last_year_prelease = input$last_year_prelease,
+      #     total_renewals = input$total_renewals,
+      #     total_new_leases = input$total_new_leases,
+      #     weekly_traffic = input$weekly_traffic,
+      #     current_incentive = input$current_incentive,
+      #     incentive_amount = input$incentive_amount,
+      #     data_last_updated = input$data_last_updated
+      #   )
+
       return(
         list(
-          # reactive values
+
         )
       )
     }

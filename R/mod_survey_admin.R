@@ -47,8 +47,19 @@ mod_survey_admin_ui <- function(id) {
   ns <- shiny::NS(id)
 
   htmltools::tagList(
-    bslib::card(
+    # nav card for survey admin
+    bslib::navset_card_underline(
+      id = ns("survey_admin_nav"),
+      title = htmltools::tags$span(bsicons::bs_icon("clipboard"), "Survey Admin"),
+      header = "Header Test",
+      footer = NULL,
 
+      bslib::nav_panel(
+        title = "Overview",
+        value = ns("overview"),
+        icon = bsicons::bs_icon("house"),
+        # ...
+      )
     )
   )
 }
