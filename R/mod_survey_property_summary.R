@@ -106,7 +106,7 @@ mod_survey_property_summary_ui <- function(id) {
 
           # property information card
           bslib::card(
-            full_screen = TRUE,
+            # full_screen = TRUE,
             bslib::card_header(
               class = "d-flex justify-content-between align-items-center",
               htmltools::tags$h3(
