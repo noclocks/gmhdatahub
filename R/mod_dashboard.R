@@ -50,11 +50,121 @@ mod_dashboard_ui <- function(id) {
     id = ns("nav"),
     bslib::nav_panel(
       title = icon_text("dashboard", "Overview"),
-      mod_dashboard_overview_ui(ns("overview"))
+      bslib::page_fluid(
+        bslib::card(
+          full_screen = TRUE,
+          reactable::reactableOutput(ns("pre_lease_summary_table")) |>
+            with_loader()
+        )
+      )
     ),
     bslib::nav_panel(
       title = icon_text("bar-chart", "Charts"),
-      mod_dashboard_charts_ui(ns("charts"))
+      bslib::page_fluid(
+        bslib::layout_sidebar(
+          sidebar = bslib::sidebar(
+            shiny::selectInput(
+              ns("metric"),
+              "Metric",
+              choices = c("Leases" = "leases", "Renewals" = "renewals", "Pre-Lease %" = "prelease"),
+              selected = "leases"
+            ),
+            shiny::sliderInput(
+              ns("occupancy_target"),
+              "Occupancy Target %",
+              min = 0,
+              max = 1,
+              value = 0.95,
+              step = 0.05,
+              ticks = TRUE,
+              post = "%"
+            ),
+            shiny::radioButtons(
+              ns("group_by"),
+              "Group By",
+              choices = c("Property" = "property", "Investment Partner" = "partner"),
+              selected = "property"
+            )
+          ),
+          bslib::layout_columns(
+            bslib::card(
+              full_screen = TRUE,
+              apexcharter::apexchartOutput(
+                ns("yoy_variance_chart"),
+                height = "400px"
+              )
+            )
+          ),
+          bslib::layout_columns(
+            col_widths = c(6, 6),
+            bslib::card(
+              full_screen = TRUE,
+              apexcharter::apexchartOutput(
+                ns("current_vs_prior_chart"),
+                height = "400px"
+              )
+            ),
+            bslib::card(
+              full_screen = TRUE,
+              apexcharter::apexchartOutput(
+                ns("occupancy_chart"),
+                height = "400px"
+              )
+            )
+          ),
+          bslib::layout_columns(
+            col_widths = c(6, 6),
+            bslib::card(
+              full_screen = TRUE,
+              apexcharter::apexchartOutput(
+                ns("velocity_chart"),
+                height = "400px"
+              )
+            ),
+            bslib::card(
+              full_screen = TRUE,
+              apexcharter::apexchartOutput(
+                ns("pre_lease_rates_chart"),
+                height = "400px"
+              )
+            )
+          ),
+          bslib::layout_columns(
+            col_widths = c(6, 6),
+            bslib::card(
+              full_screen = TRUE,
+              apexcharter::apexchartOutput(
+                ns("partner_distribution_chart"),
+                height = "400px"
+              )
+            ),
+            bslib::card(
+              full_screen = TRUE,
+              apexcharter::apexchartOutput(
+                ns("portfolio_summary_chart"),
+                height = "400px"
+              )
+            )
+          ),
+          bslib::layout_columns(
+            col_widths = c(6, 6),
+            bslib::card(
+              full_screen = TRUE,
+              apexcharter::apexchartOutput(
+                ns("weekly_activity_chart"),
+                height = "400px"
+              )
+            ),
+            bslib::card(
+              full_screen = TRUE,
+              apexcharter::apexchartOutput(
+                ns("weekly_leasing_breakdown_chart"),
+                height = "400px"
+              )
+            )
+          )
+        )
+      )
     )
   )
 
@@ -77,11 +187,6 @@ mod_dashboard_server <- function(
   if (is.null(pool)) pool <- session$userData$pool
   check_db_conn(pool)
 
-  # validation of reactives
-  if (!is.null(global_filters)) {
-    stopifnot(shiny::is.reactive(global_filters))
-  }
-
   shiny::moduleServer(
     id,
     function(input, output, session) {
@@ -90,26 +195,85 @@ mod_dashboard_server <- function(
       cli::cat_rule("[Module]: mod_dashboard_server()")
 
       summary_data <- shiny::reactive({
+        db_read_gmh_pre_lease_summary_tbl(
+          pool = pool,
+          report_date = NULL,
+          property_ids = NULL # filter_property_ids
+        )
+      })
 
-        filter_property_ids <- global_filters$properties
+      output$pre_lease_summary_table <- reactable::renderReactable({
+        shiny::req(summary_data())
+        tbl_pre_lease_summary(summary_data())
+      })
 
-        dplyr::tbl(pool, I("gmh.pre_lease_summary")) |>
-          dplyr::filter(
-            report_date == max(.data$report_date, na.rm = TRUE),
-            property_id %in% filter_property_ids
-          ) |>
-          dplyr::collect()
+      pre_lease_data <- shiny::reactive({
+        shiny::req(summary_data())
+        summary_data()
+        # db_read_gmh_pre_lease_summary_tbl(pool)
+      })
 
-      }) |>
-        shiny::bindEvent(global_filters$properties)
+      # current vs prior
+      output$current_vs_prior_chart <- apexcharter::renderApexchart({
+        shiny::req(pre_lease_data(), input$metric)
+        chart_current_vs_prior(data = pre_lease_data(), metric = input$metric)
+      })
 
+      # occupancy
+      output$occupancy_chart <- apexcharter::renderApexchart({
+        shiny::req(pre_lease_data(), input$occupancy_target, input$group_by)
+        chart_occupancy(
+          data = pre_lease_data(),
+          target = input$occupancy_target,
+          by = input$group_by
+        )
+      })
 
-      mod_dashboard_overview_server(ns("overview"), summary_data)
-      mod_dashboard_charts_server(ns("charts"), summary_data)
+      # velocity
+      output$velocity_chart <- apexcharter::renderApexchart({
+        shiny::req(pre_lease_data())
+        chart_velocity_comparison(data = pre_lease_data())
+      })
+
+      # pre-lease rates
+      output$pre_lease_rates_chart <- apexcharter::renderApexchart({
+        shiny::req(pre_lease_data())
+        chart_pre_lease_rates(data = pre_lease_data())
+      })
+
+      # partner distribution
+      output$partner_distribution_chart <- apexcharter::renderApexchart({
+        shiny::req(pre_lease_data())
+        chart_partner_distribution(data = pre_lease_data())
+      })
+
+      # portfolio summary
+      output$portfolio_summary_chart <- apexcharter::renderApexchart({
+        shiny::req(pre_lease_data())
+        chart_portfolio_summary(data = pre_lease_data())
+      })
+
+      # weekly activity
+      output$weekly_activity_chart <- apexcharter::renderApexchart({
+        shiny::req(pre_lease_data())
+        chart_weekly_activity(data = pre_lease_data())
+      })
+
+      # weekly leasing breakdown
+      output$weekly_leasing_breakdown_chart <- apexcharter::renderApexchart({
+        shiny::req(pre_lease_data())
+        chart_weekly_leasing_breakdown(data = pre_lease_data())
+      })
+
+      # yoy variance
+      output$yoy_variance_chart <- apexcharter::renderApexchart({
+        shiny::req(pre_lease_data(), input$group_by)
+        chart_yoy_variance(data = pre_lease_data(), by = input$group_by)
+      })
 
       return(
         list(
-          # reactive values
+          summary_data = summary_data
         )
       )
     }
@@ -149,299 +313,4 @@ mod_dashboard_demo <- function() {
   shiny::shinyApp(ui, server)
 }
 
-# overview ----------------------------------------------------------------
 
-
-mod_dashboard_overview_ui <- function(id) {
-
-  ns <- shiny::NS(id)
-
-  htmltools::tagList(
-    bslib::layout_columns(
-      bslib::card(
-        full_screen = TRUE,
-        bslib::card_header(
-          icon_text("buildings", "Property Summary Metrics", .function = bsicons::bs_icon),
-          class = "bg-primary text-white"
-        ),
-        reactable::reactableOutput(ns("property_summary_table")) |>
-          with_loader()
-      ),
-      bslib::card(
-        full_screen = TRUE,
-        bslib::card_header(
-          icon_text("house-check-fill", "Occupancy by Property", .function = bsicons::bs_icon),
-          class = "bg-primary text-white"
-        ),
-        plotly::plotlyOutput(ns("occupancy_plot")) |>
-          with_loader()
-      )
-    ),
-    bslib::layout_columns(
-      bslib::card(
-        full_screen = TRUE,
-        bslib::card_header(
-          # icon for velocity
-          icon_text("speedometer2", "Leasing Velocity", .function = bsicons::bs_icon),
-          class = "bg-primary text-white"
-        ),
-        plotly::plotlyOutput(ns("velocity_plot")) |>
-          with_loader()
-      ),
-      bslib::card(
-        full_screen = TRUE,
-        bslib::card_header(
-          # weekly performance
-          icon_text("calendar-week", "Weekly Performance"),
-          class = "bg-primary text-white"
-        ),
-        plotly::plotlyOutput(ns("weekly_plot")) |>
-          with_loader()
-      )
-    )
-  )
-
-}
-
-mod_dashboard_overview_server <- function(id, summary_data) {
-
-  # validate reactives
-  stopifnot(shiny::is.reactive(summary_data))
-
-  # module
-  shiny::moduleServer(id, function(input, output, session) {
-
-    ns <- session$ns
-    cli::cli_rule("[Module]: Dashboard - Overview")
-
-    # property summary table
-    output$property_summary_table <- reactable::renderReactable({
-      shiny::req(summary_data())
-
-      data <- summary_data() |>
-        dplyr::select(
-          "property_name",
-          "total_beds",
-          "current_occupied",
-          "current_preleased_percent",
-          "weekly_total",
-          "beds_left"
-        ) |>
-        dplyr::arrange(dplyr::desc(.data$total_beds))
-
-      reactable::reactable(
-        data,
-        compact = TRUE,
-        searchable = TRUE,
-        striped = TRUE,
-        defaultPageSize = 5,
-        columns = list(
-          property_name = reactable::colDef(name = "Property Name"),
-          total_beds = reactable::colDef(name = "Total Beds"),
-          current_occupied = reactable::colDef(name = "Occupied Beds"),
-          current_preleased_percent = reactable::colDef(
-            name = "Pre-leased %",
-            format = reactable::colFormat(percent = TRUE, digits = 1)
-          ),
-          weekly_total = reactable::colDef(name = "Weekly Leases"),
-          beds_left = reactable::colDef(name = "Beds Available")
-        )
-      )
-    })
-
-    # occupancy plot
-    output$occupancy_plot <- plotly::renderPlotly({
-      shiny::req(summary_data())
-      data <- summary_data()
-
-      plotly::plot_ly(
-        data,
-        x = ~property_name,
-        y = ~current_occupancy,
-        type = "bar",
-        name = "Current Occupancy (%)"
-      ) |>
-        plotly::layout(
-          title = "Occupancy Rate by Property",
-          xaxis = list(title = "", tickangle = 45),
-          yaxis = list(title = "Occupancy Rate (%)", tickformat = ",.1%"),
-          margin = list(b = 120)
-        )
-    })
-
-    # velocity plot
-    output$velocity_plot <- plotly::renderPlotly({
-      shiny::req(summary_data())
-      data <- summary_data()
-
-      plotly::plot_ly(data) |>
-        plotly::add_trace(
-          x = ~property_name,
-          y = ~vel_90,
-          name = "90% Velocity",
-          type = "bar"
-        ) |>
-        plotly::add_trace(
-          x = ~property_name,
-          y = ~vel_95,
-          name = "95% Velocity",
-          type = "bar"
-        ) |>
-        plotly::add_trace(
-          x = ~property_name,
-          y = ~vel_100,
-          name = "100% Velocity",
-          type = "bar"
-        ) |>
-        plotly::layout(
-          title = "Velocity by Property",
-          xaxis = list(title = "", tickangle = 45),
-          yaxis = list(title = "Velocity % (Beds/Week Needed)"),
-          margin = list(b = 120)
-        )
-
-    })
-
-    # weekly plot
-    output$weekly_plot <- plotly::renderPlotly({
-      shiny::req(summary_data())
-      data <- summary_data()
-
-      plotly::plot_ly(data) |>
-        plotly::add_trace(
-          x = ~property_name,
-          y = ~weekly_new,
-          name = "New Leases",
-          type = "bar"
-        ) |>
-        plotly::add_trace(
-          x = ~property_name,
-          y = ~weekly_renewal,
-          name = "Renewals",
-          type = "bar"
-        ) |>
-        plotly::layout(
-          barmode = "stack",
-          yaxis = list(title = "Weekly Leases"),
-          xaxis = list(title = "", tickangle = 45),
-          margin = list(b = 120)
-        )
-
-    })
-
-  })
-}
-
-
-# details -----------------------------------------------------------------
-
-# Details Module UI
-mod_dashboard_charts_ui <- function(id) {
-
-  ns <- shiny::NS(id)
-
-  htmltools::tagList(
-    bslib::card(
-      bslib::card_header("Property Metrics"),
-      bslib::layout_columns(
-        bslib::value_box(
-          title = "Total Beds",
-          value = shiny::textOutput(ns("total_beds")),
-          showcase = bsicons::bs_icon("building")
-        ),
-        bslib::value_box(
-          title = "Current Occupancy",
-          value = shiny::textOutput(ns("occupancy_rate")),
-          showcase = bsicons::bs_icon("percent")
-        ),
-        bslib::value_box(
-          title = "Weekly Leases",
-          value = shiny::textOutput(ns("weekly_leases")),
-          showcase = bsicons::bs_icon("graph-up")
-        )
-      ),
-      bslib::layout_columns(
-        bslib::card(
-          bslib::card_header("Detailed Metrics"),
-          reactable::reactableOutput(ns("details_table"))
-        )
-      )
-    )
-  )
-
-}
-
-# Details Module Server
-mod_dashboard_charts_server <- function(id, property_data) {
-
-  # validate reactives
-  stopifnot(shiny::is.reactive(property_data))
-
-  shiny::moduleServer(id, function(input, output, session) {
-
-    output$total_beds <- shiny::renderText({
-      shiny::req(property_data())
-      sum(property_data()$total_beds) |>
-        format_number()
-    })
-
-    output$occupancy_rate <- shiny::renderText({
-      shiny::req(property_data())
-      scales::percent(mean(property_data()$current_occupancy), accuracy = 0.1)
-    })
-
-    output$weekly_leases <- shiny::renderText({
-      shiny::req(property_data())
-      sum(property_data()$weekly_total) |>
-        format_currency()
-    })
-
-    output$details_table <- reactable::renderReactable({
-      shiny::req(property_data())
-      data <- property_data() |>
-        dplyr::select(
-          property_name,
-          current_total_new,
-          current_total_renewals,
-          current_total_leases,
-          prior_total_new,
-          prior_total_renewals,
-          prior_total_leases,
-          yoy_variance_count,
-          yoy_variance_percent
-        )
-
-      reactable::reactable(
-        data,
-        columns = list(
-          property_name = reactable::colDef(name = "Property Name"),
-          current_total_new = reactable::colDef(name = "Current New"),
-          current_total_renewals = reactable::colDef(name = "Current Renewals"),
-          current_total_leases = reactable::colDef(name = "Current Total"),
-          prior_total_new = reactable::colDef(name = "Prior New"),
-          prior_total_renewals = reactable::colDef(name = "Prior Renewals"),
-          prior_total_leases = reactable::colDef(name = "Prior Total"),
-          yoy_variance_count = reactable::colDef(name = "YOY Variance Count"),
-          yoy_variance_percent = reactable::colDef(
-            name = "YOY Variance %",
-            format = reactable::colFormat(percent = TRUE, digits = 1)
-          )
-        ),
-        compact = TRUE,
-        filterable = TRUE
-      )
-    })
-  })
-}
-
-
-db_get_latest_pre_lease_summary <- function(pool) {
-
-  check_db_conn(pool)
-
-  dplyr::tbl(pool, I("gmh.pre_lease_summary")) |>
-    dplyr::filter(
-      report_date == max(.data$report_date, na.rm = TRUE)
-    )
-
-}
