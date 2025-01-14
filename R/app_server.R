@@ -5,6 +5,9 @@ app_server <- function(input, output, session) {
   pool <- db_connect()
   session$userData$pool <- pool
 
+  # waiter
+  waiter::waiter_hide()
+
   # global filters
   global_filters <- shiny::reactive({
     list(
