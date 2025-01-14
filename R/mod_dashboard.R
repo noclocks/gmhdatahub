@@ -49,12 +49,12 @@ mod_dashboard_ui <- function(id) {
   bslib::navset_card_underline(
     id = ns("nav"),
     bslib::nav_panel(
-      title = icon_text("dashboard", "Overview")#,
-      # mod_dashboard_overview_ui(ns("overview"))
+      title = icon_text("dashboard", "Overview"),
+      mod_dashboard_overview_ui(ns("overview"))
     ),
     bslib::nav_panel(
-      title = icon_text("bar-chart", "Charts")#,
-      # mod_dashboard_charts_ui(ns("charts"))
+      title = icon_text("bar-chart", "Charts"),
+      mod_dashboard_charts_ui(ns("charts"))
     )
   )
 
@@ -102,6 +102,10 @@ mod_dashboard_server <- function(
 
       }) |>
         shiny::bindEvent(global_filters$properties)
+
+
+      mod_dashboard_overview_server(ns("overview"), summary_data)
+      mod_dashboard_charts_server(ns("charts"), summary_data)
 
       return(
         list(
@@ -178,7 +182,7 @@ mod_dashboard_overview_ui <- function(id) {
         full_screen = TRUE,
         bslib::card_header(
           # icon for velocity
-          icon_text("speedometer", "Leasing Velocity"),
+          icon_text("speedometer2", "Leasing Velocity", .function = bsicons::bs_icon),
           class = "bg-primary text-white"
         ),
         plotly::plotlyOutput(ns("velocity_plot")) |>
@@ -332,7 +336,7 @@ mod_dashboard_overview_server <- function(id, summary_data) {
 # details -----------------------------------------------------------------
 
 # Details Module UI
-mod_dashboard_details_ui <- function(id) {
+mod_dashboard_charts_ui <- function(id) {
 
   ns <- shiny::NS(id)
 
@@ -368,7 +372,7 @@ mod_dashboard_details_ui <- function(id) {
 }
 
 # Details Module Server
-mod_dashboard_details_server <- function(id, property_data) {
+mod_dashboard_charts_server <- function(id, property_data) {
 
   # validate reactives
   stopifnot(shiny::is.reactive(property_data))
