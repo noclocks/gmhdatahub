@@ -79,12 +79,32 @@ db_read_gmh_partners <- function(conn, collect = TRUE) {
 
 }
 
-db_read_gmh_locations <- function(conn, collect = TRUE) {
+db_read_gmh_locations <- function(pool, collect = TRUE) {
+  check_db_conn(pool)
+  db_read_tbl(pool, "gmh.locations", collect = collect)
+}
 
-  check_db_conn(conn)
+db_read_gmh_property_summary <- function(pool, property_ids = NULL) {
 
-  db_read_tbl(conn, "locations", schema = "gmh", collect = collect)
+  check_db_conn(pool)
 
+  hold <- db_read_tbl(pool, "gmh.property_summary", collect = FALSE)
+
+  if (!is.null(property_ids)) {
+    hold <- dplyr::filter(hold, property_id %in% property_ids)
+  }
+
+  if (!collect) {
+    return(hold)
+  }
+
+  dplyr::collect(hold)
+
+}
+
+db_read_gmh_universities <- function(pool, collect = TRUE) {
+  check_db_conn(pool)
+  db_read_tbl(pool, "gmh.universities", collect = collect)
 }
 
 db_read_survey_metrics <- function(pool) {
