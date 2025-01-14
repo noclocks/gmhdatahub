@@ -7,6 +7,22 @@
 #
 #  ------------------------------------------------------------------------
 
+#' Shiny App UI
+#'
+#' @description
+#' This is the main UI function for the Shiny application.
+#'
+#' @param req (internal) The request object.
+#'
+#' @returns
+#' The UI for the Shiny application.
+#'
+#' @export
+#'
+#' @importFrom bslib page_navbar nav_spacer nav_panel nav_menu nav_item input_dark_mode
+#' @importFrom shiny actionLink
+#' @importFrom htmltools tagList tags
+#' @importFrom bsicons bs_icon
 app_ui <- function(req) {
 
   force(req)
@@ -194,3 +210,42 @@ app_ui <- function(req) {
   )
 }
 
+app_header_ui <- function(title = "GMH Data Hub Platform") {
+  htmltools::tags$div(
+    class = "px-4 py-3 app-header",
+    htmltools::tags$div(
+      class = "d-flex align-items-center",
+      bsicons::bs_icon("building-fill", size = "1.5rem", class = "me-2"),
+      htmltools::h3(title, class = "m-0")
+    ),
+    htmltools::p(
+      class = "m-0 mt-1",
+      "Your centralized platform for student housing portfolio analytics and insights."
+    )
+  )
+}
+
+app_title_ui <- function() {
+  htmltools::tags$span(
+    class = "navbar-brand",
+    htmltools::tags$img(
+      src = "www/logo.svg",
+      alt = "GMH Communities Logo Dark",
+      width = "auto",
+      height = 50,
+      class = "logo-light"
+    )
+  )
+}
+
+app_footer_ui <- function() {
+  tags$footer(
+    class = "footer py-3",  # Removed mt-auto and bg-light classes
+    tags$div(
+      class = "container",
+      tags$span(
+        "© 2024 GMH DataHub"  # Removed text-muted class
+      )
+    )
+  )
+}
