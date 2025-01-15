@@ -197,13 +197,21 @@ db_read_survey_metrics <- function(pool) {
 
 }
 
-db_read_mkt_property_summary <- function(pool, property_id) {
+db_read_mkt_property_summary <- function(pool, property_id = NULL) {
 
   check_db_conn(pool)
 
-  db_read_tbl(pool, "mkt.property_summary", collect = FALSE) |>
-    dplyr::filter(.data$property_id == as.character(.env$property_id)) |>
-    dplyr::collect()
+  hold <- db_read_tbl(pool, "mkt.property_summary", collect = FALSE)
+
+  if (!is.null(property_id)) {
+    prop_ids <- hold |> dplyr::pull("property_id") |> unique()
+    if (!property_id %in% prop_ids) {
+      cli::cli_alert_warning("No data found for the specified property ID: {.field {property_id}}.")
+    }
+    hold <- dplyr::filter(hold, .data$property_id == as.character(.env$property_id))
+  }
+
+  dplyr::collect(hold)
 
 }
 

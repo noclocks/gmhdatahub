@@ -217,8 +217,29 @@ enrich_property_data <- function(
     property_data,
     gmaps_api_key = get_gmaps_config("api_key")
 ) {
-  # For each row, fetch data from Google Maps
-  gmaps_info <- purrr::map_dfr(property_data$address, ~get_gmaps_data(.x, gmaps_api_key))
+
+  addresses <- property_data$address
+
+  gmaps_data_lst <- purrr::map(addresses, purrr::safely(get_gmaps_data)) |>
+    setNames(property_data$marketing_name)
+
+  gmaps_info <- purrr::map_dfr(gmaps_data_lst, function(dat) {
+    if (is.null(dat$error)) {
+      return(dat$result)
+    }
+  })
+
+  errored_addresses <- purrr::map(gmaps_data_lst, function(dat) {
+    if (!is.null(dat$error)) {
+      return(dat$error)
+    }
+  }) |>
+    purrr::compact() |>
+    names()
+
+  cli::cli_alert_danger(
+    "Failed to fetch Google Maps data for the following addresses: {.field {errored_addresses}}"
+  )
 
   dplyr::left_join(
     property_data,

@@ -21,7 +21,7 @@ property_summary_validator <- function() {
   iv <- shinyvalidate::InputValidator$new()
 
   purrr::walk2(
-    input_ids,
+    required_inputs,
     validation_msgs,
     function(input_id, validation_msg) {
       iv$add_rule(
@@ -59,7 +59,7 @@ leasing_summary_validator <- function() {
   iv <- shinyvalidate::InputValidator$new()
 
   purrr::walk2(
-    input_ids,
+    required_inputs,
     validation_msgs,
     function(input_id, validation_msg) {
       iv$add_rule(

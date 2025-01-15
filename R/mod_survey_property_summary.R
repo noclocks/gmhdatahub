@@ -256,16 +256,40 @@ mod_survey_property_summary_server <- function(
 
       db_refresh_trigger <- shiny::reactiveVal(0)
 
+      iv <- property_summary_validator()
+
       # property data
       property_data <- reactive({
-        shiny::req(selected_property_id())
+        shiny::req(selected_property_id(), db_refresh_trigger())
         property_id <- selected_property_id()
         db_read_mkt_property_summary(pool, property_id)
       }) |>
         shiny::bindEvent(selected_property_id(), db_refresh_trigger())
 
+      # if property data is empty notify user and launch modal form
+      shiny::observe({
+        shiny::req(property_data())
+        if (nrow(property_data()) == 0) {
+          shiny::showNotification(
+            "No Survey Data Found for the Selected Property",
+            type = "error"
+          )
+          iv$initialize()
+          shinyjs::click("edit")
+          shinyjs::enable("save_changes")
+        }
+      })
+
       property_map_data <- reactive({
         db_read_mkt_locations(pool, property_data()$property_id)
+      })
+
+      shiny::observeEvent(input$refresh, {
+        db_refresh_trigger(db_refresh_trigger() + 1)
+        shiny::showNotification(
+          "Data Refreshed",
+          type = "default"
+        )
       })
 
       # inputs data
@@ -297,9 +321,11 @@ mod_survey_property_summary_server <- function(
         paste0(name, " (", id, ")")
       })
 
-      output$property_image_card <- renderUI({
+      output$property_image_card <- shiny::renderUI({
+
         data <- property_data()
         img_src <- data$property_image
+        if (is.na(img_src)) { img_src <- "https://placehold.co/600x400.png" }
 
         bslib::card_image(
           src = img_src,
@@ -379,6 +405,38 @@ mod_survey_property_summary_server <- function(
 
       shiny::observeEvent(input$edit, {
         data <- property_data()
+
+        iv$initialize()
+        iv$enable()
+
+        if (nrow(data) == 0) {
+          prop_id <- selected_property_id()
+          gmh_property_data <- db_read_tbl(pool, "gmh.properties", collect = FALSE) |>
+            dplyr::filter(property_id == prop_id) |>
+            dplyr::collect()
+          gmh_location_data <- db_read_tbl(pool, "gmh.locations", collect = FALSE) |>
+            dplyr::filter(.data$location_name %in% gmh_property_data$property_name) |>
+            dplyr::collect()
+          data <- tibble::tibble(
+            property_id = prop_id,
+            property_name = gmh_property_data$property_name,
+            website = gmh_property_data$property_url,
+            address = gmh_location_data$address,
+            phone_number = gmh_location_data$phone_number,
+            property_image = gmh_location_data$image_url,
+            developer = "",
+            manager = "",
+            owner = "",
+            property_type = get_survey_choices("property_summary", "property_type")[[1]],
+            property_rating = gmh_location_data$gmaps_rating,
+            property_status = get_survey_choices("property_summary", "property_status")[[1]],
+            comp_status = get_survey_choices("property_summary", "comp_status")[[1]],
+            year_built = 1970,
+            most_recent_sale = as.Date("1900-01-01"),
+            distance_from_campus = 0
+          )
+        }
+
         shiny::showModal(
           shiny::modalDialog(
             title = "Edit Property",
@@ -387,23 +445,47 @@ mod_survey_property_summary_server <- function(
               col_widths = c(6, 6),
               bslib::card(
                 bslib::card_body(
-                  shiny::textInput(session$ns("property_name_input"), "Property Name", value = data$property_name),
-                  shiny::textInput(session$ns("website_input"), "Website URL", value = data$website),
-                  shiny::textInput(session$ns("address_input"), "Address", value = data$address),
-                  shiny::textInput(session$ns("phone_input"), "Phone Number", value = data$phone_number),
-                  radioButtons(
+                  shiny::textInput(
+                    session$ns("property_name_input"),
+                    "Property Name",
+                    value = data$property_name
+                  ),
+                  shiny::textInput(
+                    session$ns("website_input"),
+                    "Website URL",
+                    value = data$website
+                  ),
+                  shiny::textInput(
+                    session$ns("address_input"),
+                    "Address",
+                    value = data$address
+                  ),
+                  shiny::textInput(
+                    session$ns("phone_input"),
+                    "Phone Number",
+                    value = data$phone_number
+                  ),
+                  shiny::radioButtons(
                     session$ns("image_input_type"),
                     "Image Input Type",
                     choices = c("URL" = "url", "File Upload" = "file"),
                     selected = "url"
                   ),
-                  conditionalPanel(
+                  shiny::conditionalPanel(
                     condition = sprintf("input['%s'] == 'url'", session$ns("image_input_type")),
-                    textInput(session$ns("image_url_input"), "Image URL", value = data$property_image)
+                    shiny::textInput(
+                      session$ns("image_url_input"),
+                      "Image URL",
+                      value = data$property_image
+                    )
                   ),
-                  conditionalPanel(
+                  shiny::conditionalPanel(
                     condition = sprintf("input['%s'] == 'file'", session$ns("image_input_type")),
-                    shiny::fileInput(session$ns("image_file"), "Upload Image", accept = c('image/png', 'image/jpeg', 'image/gif'))
+                    shiny::fileInput(
+                      session$ns("image_file"),
+                      "Upload Image",
+                      accept = c('image/png', 'image/jpeg', 'image/gif')
+                    )
                   )
                 )
               ),
@@ -420,16 +502,30 @@ mod_survey_property_summary_server <- function(
                     "Rating",
                     min = 0,
                     max = 5,
-                    value = data$property_rating,
+                    value = data$property_rating %||% 0,
                     step = 0.5
                   ),
-                  selectInput(session$ns("status_input"), "Status",
-                              choices = c("New Construction", "Operational", "Undergoing Renovation"),
-                              selected = data$property_status),
-                  numericInput(session$ns("year_built_input"), "Year Built",
-                               value = data$year_built, min = 1900, max = 2023),
-                  sliderInput(session$ns("distance_input"), "Distance (miles)",
-                              min = 0, max = 10, value = data$distance_from_campus, step = 0.1)
+                  shiny::selectInput(
+                    session$ns("status_input"),
+                    "Status",
+                    choices = c("New Construction", "Operational", "Undergoing Renovation"),
+                    selected = data$property_status
+                  ),
+                  shiny::numericInput(
+                    session$ns("year_built_input"),
+                    "Year Built",
+                    value = data$year_built,
+                    min = 1900,
+                    max = 2023
+                  ),
+                  shiny::sliderInput(
+                    session$ns("distance_input"),
+                    "Distance (miles)",
+                    min = 0,
+                    max = 10,
+                    value = data$distance_from_campus,
+                    step = 0.1
+                  )
                 )
               )
             ),
@@ -455,28 +551,26 @@ mod_survey_property_summary_server <- function(
         req(input_data())
         original_data <- property_data()
         new_values <- input_data()
-
-        # Only show fields that have changed and have non-NULL values
-        changes <- list()
-        for (field in names(new_values)) {
-          if (!is.null(new_values[[field]]) &&
-              !isTRUE(all.equal(new_values[[field]], original_data[[field]]))) {
-            changes[[field]] <- list(
-              old = original_data[[field]],
-              new = new_values[[field]]
-            )
+        if (nrow(original_data) == 0) {
+          changes <- "new"
+        } else {
+          changes <- list()
+          for (field in names(new_values)) {
+            if (!is.null(new_values[[field]]) && !isTRUE(all.equal(new_values[[field]], original_data[[field]]))) {
+              changes[[field]] <- list(
+                old = original_data[[field]],
+                new = new_values[[field]]
+              )
+            }
           }
         }
-
-        changes
+        return(changes)
       })
 
       shiny::observe({
         req(changes())
         if (length(changes()) > 0) {
           shinyjs::enable("save_changes")
-        } else {
-          shinyjs::disable("save_changes")
         }
       })
 
@@ -487,6 +581,14 @@ mod_survey_property_summary_server <- function(
 
         if (length(changes_data) == 0) {
           return(p("No changes made"))
+        }
+
+        if (changes_data == "new") {
+          return(
+            strong(
+              p("New property being added", style = "color: #007bff;")
+            )
+          )
         }
 
         # Create the change preview UI
@@ -536,7 +638,6 @@ mod_survey_property_summary_server <- function(
 
         # Trigger a refresh of the property data
         db_refresh_trigger(db_refresh_trigger() + 1)
-
         shiny::removeModal()
       })
 
