@@ -47,38 +47,24 @@ mod_survey_leasing_summary_ui <- function(id) {
   ns <- shiny::NS(id)
 
   current_leasing_week <- get_leasing_week_start_date()
-  min_leasing_week <- current_leasing_week_start - lubridate::years(1)
+  min_leasing_week <- current_leasing_week - lubridate::years(1)
   max_leasing_week <- get_leasing_week_end_date()
 
   htmltools::tagList(
-    bslib::layout_sidebar(
-      sidebar = bslib::sidebar(
-        shiny::dateInput(
-          ns("leasing_week"),
-          label = "Leasing Week",
-          value = current_leasing_week,
-          weekstart = 1,
-          min = min_leasing_week,
-          max = max_leasing_week#,
-          # datesdisabled =
-
-        )
-      )
-    ),
     bslib::card(
-      bslib::card_header(
-        class = "d-flex justify-content-between align-items-center",
-        htmltools::tags$h3(
-          class = "m-0",
-          shiny::textOutput(ns("property_name_title"))
-        ),
-        shiny::actionButton(
-          ns("edit"),
-          "Edit",
-          icon = shiny::icon("edit"),
-          class = "btn-sm btn-primary"
-        )
-      ),
+      # bslib::card_header(
+      #   class = "d-flex justify-content-between align-items-center",
+      #   htmltools::tags$h3(
+      #     class = "m-0",
+      #     shiny::textOutput(ns("property_name_title"))
+      #   ),
+      #   shiny::actionButton(
+      #     ns("edit"),
+      #     "Edit",
+      #     icon = shiny::icon("edit"),
+      #     class = "btn-sm btn-primary"
+      #   )
+      # ),
       bslib::card_body(
         class = "p-0",
         bslib::layout_columns(

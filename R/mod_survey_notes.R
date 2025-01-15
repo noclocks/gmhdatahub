@@ -88,29 +88,29 @@ mod_survey_notes_ui <- function(id) {
   ns <- NS(id)
 
   tagList(
-    layout_column_wrap(
-      width = 1/4,
-      value_box(
-        "Total Notes",
-        textOutput(ns("total_notes")),
-        showcase = bsicons::bs_icon("clipboard")
-      ),
-      value_box(
-        "Actionable Items",
-        textOutput(ns("actionable_notes")),
-        showcase = bsicons::bs_icon("exclamation-circle")
-      ),
-      value_box(
-        "Completed",
-        textOutput(ns("completed_notes")),
-        showcase = bsicons::bs_icon("check-circle")
-      ),
-      value_box(
-        "Pending",
-        textOutput(ns("pending_notes")),
-        showcase = bsicons::bs_icon("clock")
-      )
-    ),
+    # layout_column_wrap(
+    #   width = 1/4,
+    #   value_box(
+    #     "Total Notes",
+    #     textOutput(ns("total_notes")),
+    #     showcase = bsicons::bs_icon("clipboard")
+    #   ),
+    #   value_box(
+    #     "Actionable Items",
+    #     textOutput(ns("actionable_notes")),
+    #     showcase = bsicons::bs_icon("exclamation-circle")
+    #   ),
+    #   value_box(
+    #     "Completed",
+    #     textOutput(ns("completed_notes")),
+    #     showcase = bsicons::bs_icon("check-circle")
+    #   ),
+    #   value_box(
+    #     "Pending",
+    #     textOutput(ns("pending_notes")),
+    #     showcase = bsicons::bs_icon("clock")
+    #   )
+    # ),
     card(
       card_header(
         div(

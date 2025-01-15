@@ -50,111 +50,72 @@ mod_survey_property_summary_ui <- function(id) {
     bslib::card(
       full_screen = TRUE,
       class = "property-card",
-      bslib::card_header(
-        class = "d-flex justify-content-between align-items-center",
-        htmltools::tags$h3(
-          class = "m-0",
-          shiny::textOutput(ns("property_name_title"))
-        ),
-        shiny::actionButton(
-          ns("edit"),
-          "Edit",
-          icon = shiny::icon("edit"),
-          class = "btn-sm btn-primary"
-        )
-      ),
+      # bslib::card_header(
+      #   class = "d-flex justify-content-between align-items-center",
+      #   htmltools::tags$h4(
+      #     class = "m-0",
+      #     shiny::textOutput(ns("property_name_title"))
+      #   ),
+      #   shiny::actionButton(
+      #     ns("edit"),
+      #     "Edit",
+      #     icon = shiny::icon("edit"),
+      #     class = "btn-sm btn-primary"
+      #   )
+      # ),
       bslib::card_body(
         class = "p-0",
         bslib::layout_columns(
           col_widths = c(4, 4, 4),
           gap = "1rem",
 
-          # image card display
-          bslib::card(
-            full_screen = TRUE,
-            bslib::card_header("Property Image"),
-            bslib::card_body(
-              htmltools::tags$div(
-                class = "position-relative",
-                shiny::uiOutput(ns("property_image_card"))
-              ),
-              htmltools::tags$h3(
-                class = "mb-2",
-                shiny::textOutput(ns("property_name"))
-              ),
-              shiny::uiOutput(ns("rating_stars")),
-              htmltools::tags$p(
-                shiny::icon("globe"),
-                htmltools::tags$a(
-                  shiny::textOutput(ns("website_url"), inline = TRUE),
-                  target = "_blank"
-                )
-              ),
-              htmltools::tags$p(
-                shiny::icon("location-dot"),
-                shiny::textOutput(ns("address"), inline = TRUE)
-              ),
-              htmltools::tags$p(
-                shiny::icon("phone"),
-                shiny::textOutput(ns("phone"), inline = TRUE)
-              )
-            )
-          ),
-
-          # property information card
-          bslib::card(
-            full_screen = TRUE,
-            bslib::card_header("Property Information"),
-            bslib::card_body(
-              p(icon("building"), strong(" Developer: "), textOutput(ns("developer"), inline = TRUE)),
-              p(icon("user-tie"), strong(" Manager: "), textOutput(ns("manager"), inline = TRUE)),
-              p(icon("user"), strong(" Owner: "), textOutput(ns("owner"), inline = TRUE)),
-              p(icon("home"), strong(" Type: "), textOutput(ns("type"), inline = TRUE)),
-              p(icon("info-circle"), strong(" Status: "), textOutput(ns("status"), inline = TRUE)),
-              p(icon("chart-line"), strong(" Comp Status: "), textOutput(ns("comp_status"), inline = TRUE)),
-              p(icon("calendar-alt"), strong(" Year Built: "), textOutput(ns("year_built"), inline = TRUE)),
-              p(icon("money-bill-wave"), strong(" Last Sale: "), textOutput(ns("last_sale"), inline = TRUE)),
-              p(icon("route"), strong(" Distance: "), textOutput(ns("distance"), inline = TRUE))
+          # property image display
+          shiny::tags$div(
+            htmltools::tags$div(
+              class = "position-relative",
+              shiny::uiOutput(ns("property_image_card"))
             ),
-            bslib::card_footer(
-              htmltools::tags$span(
-                htmltools::tags$small(
-                  class = "text-muted text-center",
-                  "Click the 'Edit' button to make changes."
-                ),
-                shiny::actionButton(
-                  ns("refresh"),
-                  "Refresh Data",
-                  icon = shiny::icon("sync"),
-                  class = "btn-sm btn-outline-primary"
-                )
+            htmltools::tags$h3(
+              class = "mb-2",
+              shiny::textOutput(ns("property_name"))
+            ),
+            shiny::uiOutput(ns("rating_stars")),
+            htmltools::tags$p(
+              shiny::icon("globe"),
+              htmltools::tags$a(
+                shiny::textOutput(ns("website_url"), inline = TRUE),
+                target = "_blank"
               )
+            ),
+            htmltools::tags$p(
+              shiny::icon("location-dot"),
+              shiny::textOutput(ns("address"), inline = TRUE)
+            ),
+            htmltools::tags$p(
+              shiny::icon("phone"),
+              shiny::textOutput(ns("phone"), inline = TRUE)
             )
           ),
 
-          # property map card
-          bslib::card(
-            full_screen = TRUE,
-            max_height = "300px",
-            bslib::card_header("Property Map"),
-            bslib::card_body(
-              class = "p-0",
-              leaflet::leafletOutput(ns("property_map"), height = 300),
-              htmltools::tags$small(
-                "Click the marker for more information."
-              )
-            )
-          )
-        )
-      ),
-      # footer with last updated at timestamp & refresh button
-      bslib::card_footer(
-        class = "text-muted text-center",
-        htmltools::tags$small(
-          "Last Updated: ",
-          htmltools::tags$span(
-            class = "fw-bold",
-            shiny::textOutput(ns("last_updated_at"))
+          # property information
+          shiny::tags$div(
+            p(icon("building"), strong(" Developer: "), textOutput(ns("developer"), inline = TRUE)),
+            p(icon("user-tie"), strong(" Manager: "), textOutput(ns("manager"), inline = TRUE)),
+            p(icon("user"), strong(" Owner: "), textOutput(ns("owner"), inline = TRUE)),
+            p(icon("home"), strong(" Type: "), textOutput(ns("type"), inline = TRUE)),
+            p(icon("info-circle"), strong(" Status: "), textOutput(ns("status"), inline = TRUE)),
+            p(icon("chart-line"), strong(" Comp Status: "), textOutput(ns("comp_status"), inline = TRUE)),
+            p(icon("calendar-alt"), strong(" Year Built: "), textOutput(ns("year_built"), inline = TRUE)),
+            p(icon("money-bill-wave"), strong(" Last Sale: "), textOutput(ns("last_sale"), inline = TRUE)),
+            p(icon("route"), strong(" Distance: "), textOutput(ns("distance"), inline = TRUE))
+          ),
+
+          shiny::tags$div(
+            class = "p-0",
+            leaflet::leafletOutput(ns("property_map"), height = 300)#,
+            # htmltools::tags$small(
+            #   "Click the marker for more information."
+            # )
           )
         )
       )
@@ -172,7 +133,8 @@ mod_survey_property_summary_ui <- function(id) {
 mod_survey_property_summary_server <- function(
   id,
   pool = NULL,
-  selected_property_id = NULL
+  selected_property_id = NULL,
+  edit_survey_section = NULL
 ) {
 
   # check database connection
@@ -298,11 +260,16 @@ mod_survey_property_summary_server <- function(
         paste(property_data()$distance_from_campus, "miles")
       })
 
-      shiny::observeEvent(input$edit, {
+      # Edit ####
+      shiny::observeEvent(edit_survey_section(), {
+
+        # Hide nav menu (`bslib` bug)
+        shinyjs::runjs("$('ul.dropdown-menu.show').removeClass('show')")
+
         data <- property_data()
         shiny::showModal(
           shiny::modalDialog(
-            title = "Edit Property",
+            title = "Property Summary",
             size = "l",
             bslib::layout_columns(
               col_widths = c(6, 6),
@@ -354,21 +321,21 @@ mod_survey_property_summary_server <- function(
                 )
               )
             ),
-            bslib::layout_columns(
-              col_widths = c(12),
-              bslib::card(
-                bslib::card_header("Review Changes"),
-                bslib::card_body(
-                  shiny::uiOutput(session$ns("changes_preview"))
-                )
-              )
-            ),
+            # bslib::layout_columns(
+            #   col_widths = c(12),
+            #   bslib::card(
+            #     bslib::card_header("Review Changes"),
+            #     bslib::card_body(
+            #       shiny::uiOutput(session$ns("changes_preview"))
+            #     )
+            #   )
+            # ),
             footer = tagList(
-              actionButton(session$ns("save_changes"), "Save Changes", class = "btn-primary") |>
+              actionButton(session$ns("save_changes"), "Save", class = "btn-primary") |>
                 shinyjs::disabled(),
               modalButton("Cancel")
-            ),
-            easyClose = TRUE
+            )#,
+            # easyClose = TRUE
           ))
       })
 
@@ -401,29 +368,32 @@ mod_survey_property_summary_server <- function(
         }
       })
 
-      output$changes_preview <- renderUI({
-        req(changes())
-
-        changes_data <- changes()
-
-        if (length(changes_data) == 0) {
-          return(p("No changes made"))
-        }
-
-        # Create the change preview UI
-        changes_ui <- lapply(names(changes_data), function(field) {
-          div(
-            p(
-              strong(paste0(tools::toTitleCase(gsub("_", " ", field)), ":")),
-              span(paste("Current:", changes_data[[field]]$old), style = "color: #666;"),
-              span("→", style = "margin: 0 10px;"),
-              span(paste("New:", changes_data[[field]]$new), style = "color: #007bff;")
-            )
-          )
-        })
-
-        do.call(tagList, changes_ui)
-      })
+      # TODO @phoward38 (@jimbrig This is awesome!):
+      #  - Add this back after survey finished & deployed
+      #  - Apply to all survey sections
+      # output$changes_preview <- renderUI({
+      #   req(changes())
+      #
+      #   changes_data <- changes()
+      #
+      #   if (length(changes_data) == 0) {
+      #     return(p("No changes made"))
+      #   }
+      #
+      #   # Create the change preview UI
+      #   changes_ui <- lapply(names(changes_data), function(field) {
+      #     div(
+      #       p(
+      #         strong(paste0(tools::toTitleCase(gsub("_", " ", field)), ":")),
+      #         span(paste("Current:", changes_data[[field]]$old), style = "color: #666;"),
+      #         span("→", style = "margin: 0 10px;"),
+      #         span(paste("New:", changes_data[[field]]$new), style = "color: #007bff;")
+      #       )
+      #     )
+      #   })
+      #
+      #   do.call(tagList, changes_ui)
+      # })
 
       shiny::observeEvent(input$save_changes, {
 

@@ -42,7 +42,7 @@ app_ui <- function(req) {
       window_title = "GMH DataHub",
       position = "static-top",
 
-      header = app_header_ui(),
+      # header = app_header_ui(),
       theme = app_theme_ui(),
       title = app_title_ui(),
       sidebar = app_sidebar_ui("sidebar"),

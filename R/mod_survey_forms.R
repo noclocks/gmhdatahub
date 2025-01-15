@@ -48,57 +48,59 @@ mod_survey_forms_ui <- function(id) {
 
   htmltools::tagList(
 
-    bslib::layout_columns(
-      bslib::value_box(
-        id = ns("properties_value_box"),
-        title = "Properties",
-        value = shiny::textOutput(ns("properties_count")),
-        showcase = bsicons::bs_icon("building")
-      ),
-      bslib::value_box(
-        id = ns("competitors_value_box"),
-        title = "Competitors",
-        value = shiny::textOutput("competitor_count"),
-        showcase = bsicons::bs_icon("graph-up")
-      ),
-      bslib::value_box(
-        id = ns("surveys_value_box"),
-        title = "Survey Responses",
-        value = shiny::textOutput("response_count"),
-        showcase = bsicons::bs_icon("clipboard-data")
-      )
-    ),
+    # bslib::layout_columns(
+    #   bslib::value_box(
+    #     id = ns("properties_value_box"),
+    #     title = "Properties",
+    #     value = shiny::textOutput(ns("properties_count")),
+    #     showcase = bsicons::bs_icon("building")
+    #   ),
+    #   bslib::value_box(
+    #     id = ns("competitors_value_box"),
+    #     title = "Competitors",
+    #     value = shiny::textOutput("competitor_count"),
+    #     showcase = bsicons::bs_icon("graph-up")
+    #   ),
+    #   bslib::value_box(
+    #     id = ns("surveys_value_box"),
+    #     title = "Survey Responses",
+    #     value = shiny::textOutput("response_count"),
+    #     showcase = bsicons::bs_icon("clipboard-data")
+    #   )
+    # ),
 
     # progress ----------------------------------------------------------------
-    bslib::card(
-      bslib::card_header(icon_text("percent", "Progress")),
-      bslib::card_body(
-        shinyWidgets::progressBar(
-          ns("total_progress"),
-          value = 0,
-          total = 100,
-          display_pct = TRUE,
-          striped = TRUE,
-          title = "Total Progress"
-        )
-      )
-    ),
+    # bslib::card(
+    #   bslib::card_header(icon_text("percent", "Progress")),
+    #   bslib::card_body(
+    #     shinyWidgets::progressBar(
+    #       ns("total_progress"),
+    #       value = 0,
+    #       total = 100,
+    #       display_pct = TRUE,
+    #       striped = TRUE,
+    #       title = "Total Progress"
+    #     )
+    #   )
+    # ),
     bslib::navset_card_tab(
       id = ns("survey_tabs"),
-      title = "GMH Communities - Leasing Market Survey Sections",
+      # title = "GMH Communities - Leasing Market Survey Sections",
       sidebar = bslib::sidebar(
         title = icon_text("filter", "Filters"),
         width = 300,
         shiny::selectizeInput(
           ns("property"),
-          label = icon_text("building", "Select Property"),
-          choices = app_choices$properties,
-          selected = app_choices$properties[["1047 Commonwealth Avenue"]]
+          label = icon_text("building", "Property"),
+          # choices = app_choices$properties,
+          choices = get_default_app_choices('properties'),
+          selected = get_default_app_choices('properties')[["1047 Commonwealth Avenue"]]
         ),
         shiny::selectizeInput(
           ns("competitor"),
-          label = icon_text("building", "Select Competitor"),
-          choices = app_choices$competitors[[1]]
+          label = icon_text("building", "Competitor"),
+          # choices = app_choices$competitors[[1]]
+          choices = get_default_app_choices('competitors')
         ),
         shiny::dateRangeInput(
           ns("leasing_week"),
@@ -153,6 +155,18 @@ mod_survey_forms_ui <- function(id) {
         title = "Rents",
         value = ns("rents"),
         mod_survey_rents_ui(ns("rents"))
+      ),
+      bslib::card_footer(
+        htmltools::tags$small(
+          style = 'float: right;',
+          shiny::actionButton(
+            ns('edit_survey_section'),
+            'Edit',
+            icon = shiny::icon('edit'),
+            style = 'width: auto;',
+            class = 'btn-sm btn-primary'
+          )
+        )
       )
     )
   )
@@ -196,34 +210,44 @@ mod_survey_forms_server <- function(
       db_metrics <- shiny::reactive({ db_read_survey_metrics(pool) })
 
       # value boxes -------------------------------------------------------------
-      output$properties_count <- shiny::renderText({
-        shiny::req(db_metrics())
-        db_metrics()$total_properties
-      })
-
-      output$competitor_count <- shiny::renderText({
-        shiny::req(db_metrics())
-        db_metrics()$total_competitors
-      })
-
-      output$response_count <- shiny::renderText({
-        shiny::req(db_metrics())
-        db_metrics()$total_responses
-      })
+      # output$properties_count <- shiny::renderText({
+      #   shiny::req(db_metrics())
+      #   db_metrics()$total_properties
+      # })
+      #
+      # output$competitor_count <- shiny::renderText({
+      #   shiny::req(db_metrics())
+      #   db_metrics()$total_competitors
+      # })
+      #
+      # output$response_count <- shiny::renderText({
+      #   shiny::req(db_metrics())
+      #   db_metrics()$total_responses
+      # })
 
       # progress bars ----------------------------------------------------------
-      output$total_progress <- shinyWidgets::updateProgressBar(
-        session,
-        ns("total_progress"),
-        value = 80
-      )
+      # output$total_progress <- shinyWidgets::updateProgressBar(
+      #   session,
+      #   ns("total_progress"),
+      #   value = 80
+      # )
 
+      # New Survey Trigger ####
+      shiny::observeEvent(session$userData$add_survey_trigger(), {
+        new_survey_info <- session$userData$add_survey_trigger()
+        # session$userData$add_survey_trigger(NULL)
+
+        shinyjs::click('edit_survey_section')
+      })
 
       # sub-modules -------------------------------------------------------------
 
       property_summary_data <- mod_survey_property_summary_server(
-        ns("property_summary"),
-        pool = pool
+        "property_summary",
+        pool = pool,
+        edit = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
       leasing_summary_data <- mod_survey_leasing_summary_server(
