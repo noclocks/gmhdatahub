@@ -19,6 +19,8 @@ source("data-raw/scripts/survey.R")
 usethis::use_data(
   app_choices_lst,
   survey_choices_lst,
+  property_summary_inputs_tbl,
+  leasing_summary_inputs_tbl,
   gmh_competitors_lst,
   gmh_competitors_tbl,
   gmh_partners_tbl,
