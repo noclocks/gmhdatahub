@@ -50,6 +50,27 @@ get_shiny_user_id <- function(session = shiny::getDefaultReactiveDomain()) {
 
 }
 
+get_user_id_by_email <- function(pool, email) {
+
+  check_db_conn(pool)
+
+  db_emails <- db_read_tbl(pool, "auth.users") |>
+    dplyr::pull("email") |>
+    unique()
+
+  if (!(email %in% db_emails)) {
+    cli::cli_abort(
+      "Provided {.arg email} not found in database. Please provide a valid email."
+    )
+  }
+
+  db_read_tbl(pool, "auth.users") |>
+    dplyr::filter(.data$email == .env$email) |>
+    dplyr::pull("user_id")
+
+}
+
+
 # # check if inside a shiny app
 #     if (!is.null(shiny::getDefaultReactiveDomain())) {
 #       session <- shiny::getDefaultReactiveDomain()

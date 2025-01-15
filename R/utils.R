@@ -103,3 +103,29 @@ get_survey_choices <- function(section, type) {
   type <- rlang::arg_match0(type, names(survey_choices_lst[[section]]))
   survey_choices_lst[[section]][[type]]
 }
+
+get_property_name_by_id <- function(property_id) {
+
+  valid_property_ids <- get_default_app_choices("properties")
+  if (!property_id %in% valid_property_ids) {
+    cli::cli_abort("{.arg property_id} is not a valid property ID.")
+  }
+
+  names(
+    get_default_app_choices("properties")
+  )[which(get_default_app_choices("properties") == property_id)]
+
+}
+
+get_property_id_by_name <- function(property_name) {
+
+  valid_property_names <- names(get_default_app_choices("properties"))
+  if (!property_name %in% valid_property_names) {
+    cli::cli_abort("{.arg property_name} is not a valid property name.")
+  }
+
+  get_default_app_choices("properties")[[property_name]]
+
+}
+
+
