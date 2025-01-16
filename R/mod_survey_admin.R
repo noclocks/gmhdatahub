@@ -47,69 +47,95 @@ mod_survey_admin_ui <- function(id) {
 
   htmltools::tagList(
     bslib::page_fluid(
-      bslib::layout_column_wrap(
-        width = 1/3,
-        bslib::value_box(
-          title = "Total Properties",
-          value = shiny::textOutput(ns("val_properties")),
-          showcase = bsicons::bs_icon("buildings"),
-          theme = "primary"
+      bslib::card(
+        bslib::card_header(
+          class = "d-flex justify-content-between align-items-center",
+          htmltools::tags$h2("Survey Administration", class = "m-0"),
+          htmltools::tags$div(
+            class = "form-check form-switch",
+            htmltools::tags$input(
+              class = "form-check-input",
+              type = "checkbox",
+              id = ns("toggle_metrics"),
+              checked = "checked",
+              style = "cursor: pointer;"
+            ),
+            htmltools::tags$label(
+              class = "form-check-label",
+              `for` = ns("toggle_metrics"),
+              htmltools::tags$span(bsicons::bs_icon("eye-fill"), "Show Metrics")
+            )
+          )
         ),
-        bslib::value_box(
-          title = "Total Competitors",
-          value = shiny::textOutput(ns("val_competitors")),
-          showcase = bsicons::bs_icon("building"),
-          theme = "primary"
-        ),
-        bslib::value_box(
-          title = "Total Surveys",
-          value = shiny::textOutput(ns("val_surveys")),
-          showcase = bsicons::bs_icon("clipboard"),
-          theme = "primary"
+        htmltools::tags$div(
+          id = ns("value_boxes"),
+          class = "my-4",
+          bslib::layout_column_wrap(
+            width = 1/3,
+            bslib::value_box(
+              title = "Total Properties",
+              value = shiny::textOutput(ns("val_properties")),
+              showcase = bsicons::bs_icon("buildings"),
+              theme = "primary",
+              class = "shadow-sm"
+            ),
+            bslib::value_box(
+              title = "Total Competitors",
+              value = shiny::textOutput(ns("val_competitors")),
+              showcase = bsicons::bs_icon("building"),
+              theme = "primary",
+              class = "shadow-sm"
+            ),
+            bslib::value_box(
+              title = "Total Surveys",
+              value = shiny::textOutput(ns("val_surveys")),
+              showcase = bsicons::bs_icon("clipboard"),
+              theme = "primary",
+              class = "shadow-sm"
+            )
+          )
         )
       ),
-      bslib::layout_column_wrap(
-        width = 1/3,
-        actionButton(ns("add_property"), "Add New Property", icon = shiny::icon("plus"), class = "btn-primary"),
-        actionButton(ns("add_competitor"), "Add New Competitor", icon = shiny::icon("plus"), class = "btn-primary"),
-        actionButton(ns("create_survey"), "Create New Survey", icon = shiny::icon("plus"), class = "btn-primary")
+      # actions section
+      bslib::card(
+        bslib::card_header("Actions"),
+        bslib::card_body(
+          htmltools::tags$span(
+            class = "help-block",
+            style = "align: center;",
+            htmltools::tags$p(
+              shiny::icon("info-circle"),
+              "Use the buttons below to add new properties, competitors, or create a new survey."
+            )
+          ),
+          bslib::layout_column_wrap(
+            width = 1/3,
+            shiny::actionButton(ns("add_property"), "Add New Property", icon = shiny::icon("plus"), class = "btn-primary"),
+            shiny::actionButton(ns("add_competitor"), "Add New Competitor", icon = shiny::icon("plus"), class = "btn-primary"),
+            shiny::actionButton(ns("create_survey"), "Create New Survey", icon = shiny::icon("plus"), class = "btn-success")
+          )
+        )
       ),
+
+      # navset card
       bslib::navset_card_underline(
         id = ns("nav"),
         title = htmltools::tags$span(bsicons::bs_icon("clipboard"), "Survey Admin"),
         bslib::nav_panel(
           title = icon_text("dashboard", "Overview"),
-          bslib::layout_column_wrap(
-            width = 1/2,
-            bslib::card(
-              bslib::card_header("Properties and Competitors"),
-              bslib::card_body(
-                reactable::reactableOutput(ns("properties_table"))
-              )
-            ),
+          bslib::layout_columns(
+            col_widths = c(4, 8),
             bslib::card(
               bslib::card_header("Survey Status"),
               bslib::card_body(
-                # reactable::reactableOutput(ns("survey_status_table"))
+                reactable::reactableOutput(ns("survey_status_table"))
               )
-            )
-          ),
-          bslib::layout_column_wrap(
-            width = 1,
+            ),
             bslib::card(
-              bslib::card_header("Survey Timeline"),
+              bslib::card_header("Property Map"),
               bslib::card_body(
-                # plotly::plotlyOutput(ns("survey_timeline"))
+                leaflet::leafletOutput(ns("property_map"))
               )
-            )
-          )
-        ),
-        bslib::nav_panel(
-          title = icon_text("map", "Property Map"),
-          bslib::card(
-            bslib::card_header("Property Map"),
-            bslib::card_body(
-              leaflet::leafletOutput(ns("property_map"))
             )
           )
         ),
@@ -165,6 +191,31 @@ mod_survey_admin_server <- function(
 
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_admin_server()")
+
+      # check for logged in user
+      user <- session$userData$user
+
+      if (is.null(user)) {
+        user <- list(
+          user_id = 1,
+          user_email = "jimmy.briggs@noclocks.dev",
+          user_name = "Jimmy Briggs"
+        )
+      } else {
+        if (shiny::is.reactive(user)) {
+          user <- user()
+        } else {
+          user <- as.list(user)
+        }
+      }
+
+      shiny::observeEvent(input$toggle_metrics, {
+        if (!input$toggle_metrics) {
+          shinyjs::hide("value_boxes", anim = TRUE)
+        } else {
+          shinyjs::show("value_boxes", anim = TRUE)
+        }
+      })
 
       # Reactive values and observers
       properties_data <- shiny::reactive({
@@ -230,11 +281,139 @@ mod_survey_admin_server <- function(
       shiny::observeEvent(input$add_competitor, {
         # show_add_competitor_modal()
       })
+
       shiny::observeEvent(input$create_survey, {
-        # show_create_survey_modal()
+
+        shiny::showModal(
+          shiny::modalDialog(
+            title = "Create New Survey",
+            easyClose = TRUE,
+            htmltools::tagList(
+              shiny::selectInput(
+                ns("survey_property"),
+                "Select a GMH Property:",
+                choices = get_default_app_choices("properties"),
+                selected = NULL
+              ),
+              shiny::checkboxInput(
+                ns("use_current_leasing_week"),
+                "Use Current Leasing Week?",
+                value = TRUE
+              ),
+              shiny::dateInput(
+                ns("survey_leasing_week"),
+                "Survey Date:",
+                value = get_leasing_week_start_date()
+              ),
+              shiny::textInput(
+                ns("survey_user"),
+                "Current User Email:",
+                value = user$user_email
+              )
+            ),
+            footer = htmltools::tagList(
+              shiny::modalButton("Cancel"),
+              shiny::actionButton(ns("confirm_survey_init"), "Initialize")
+            )
+          )
+        )
+
+        # initialize validator
+        iv <- shinyvalidate::InputValidator$new()
+        req_inputs <- c("survey_property", "survey_leasing_week", "survey_user")
+        validation_msgs <- c(
+          "Please select a property.",
+          "Please select a leasing week.",
+          "Please enter a user."
+        )
+        purrr::walk2(
+          req_inputs,
+          validation_msgs,
+          function(input_id, validation_msg) {
+            iv$add_rule(
+              input_id,
+              shinyvalidate::sv_required(message = validation_msg)
+            )
+          }
+        )
+
+        iv$add_rule(
+          "survey_user",
+          shinyvalidate::sv_email(message = "Please enter a valid email address.")
+        )
+
+        # observe leasing week check box to update date input
+        shiny::observeEvent(input$use_current_leasing_week, {
+          if (input$use_current_leasing_week) {
+            shiny::updateDateInput(
+              session,
+              "survey_leasing_week",
+              value = get_leasing_week_start_date()
+            )
+            shinyjs::disable("survey_leasing_week")
+          } else {
+            shinyjs::enable("survey_leasing_week")
+          }
+        })
+
+        # survey data reactive
+        survey_data <- shiny::reactive({
+          shiny::req(
+            input$survey_property,
+            input$survey_leasing_week,
+            input$survey_user
+          )
+
+          user_id <- get_user_id_by_email(pool = pool, email = input$survey_user)
+          property_name <- get_property_name_by_id(property_id = input$survey_property)
+
+          tibble::tibble(
+            property_id = input$survey_property,
+            leasing_week = input$survey_leasing_week,
+            user_id = user_id,
+            user_email = input$survey_user,
+            property_name = property_name,
+            survey_date = Sys.Date(),
+            survey_status = "Initialized"
+          )
+        })
+
+        close <- function() {
+          shiny::removeModal()
+          iv$disable()
+        }
+
+        # observe confirm/submit button to create new survey and remove the modal
+        shiny::observeEvent(input$confirm_survey_init, {
+          iv$enable()
+          valid_inputs <- iv$is_valid()
+          if (valid_inputs) {
+            new_survey <- survey_data()
+            browser()
+            db_mkt_insert_tbl(pool, "mkt.surveys", new_survey)
+            close()
+            shiny::showNotification(
+              "Survey initialized successfully.",
+              type = "message"
+            )
+          } else {
+            shiny::showNotification(
+              "Please correct the errors before continuing.",
+              type = "warning"
+            )
+          }
+        })
+
+        shiny::observeEvent(input$cancel_survey_init, {
+          close()
+          shiny::showNotification(
+            "Survey initialization cancelled.",
+            type = "message"
+          )
+        })
       })
 
-      output$properties_table <- reactable::renderReactable({
+      output$survey_status_table <- reactable::renderReactable({
 
         properties_data <- properties_data()
         survey_data <- survey_data()
@@ -274,10 +453,6 @@ mod_survey_admin_server <- function(
         tbl_survey_properties_competitors(combined_data)
       })
 
-      output$survey_status_table <- reactable::renderReactable({
-        # tbl_survey_status(survey_data())
-      })
-
       output$property_map <- leaflet::renderLeaflet({
 
         properties <- map_data()$properties
@@ -289,10 +464,6 @@ mod_survey_admin_server <- function(
           competitors = competitors,
           universities = universities
         )
-      })
-
-      output$survey_timeline <- plotly::renderPlotly({
-        # plot_survey_timeline(survey_data())
       })
 
       return(
@@ -329,6 +500,7 @@ mod_survey_admin_demo <- function() {
       title = "Survey Admin",
       value = "survey_admin",
       icon = bsicons::bs_icon("house"),
+      shinyjs::useShinyjs(),
       mod_survey_admin_ui("demo")
     )
   )
@@ -341,118 +513,141 @@ mod_survey_admin_demo <- function() {
   shiny::shinyApp(ui, server)
 }
 
-# utilities ---------------------------------------------------------------
+# modals ------------------------------------------------------------------
 
+mod_survey_init_ui <- function(id) {
 
-# bslib::navset_card_underline(
-#   id = ns("survey_admin_nav"),
-#   title = htmltools::tags$span(bsicons::bs_icon("clipboard"), "Survey Admin"),
-#   footer = NULL,
-#
-#   bslib::nav_panel(
-#     title = "Properties Overview",
-#     icon = bsicons::bs_icon("buildings"),
-#     value = ns("properties_overview"),
-#
-#     bslib::layout_columns(
-#       col_widths = c(8, 4),
-#       bslib::card(
-#         bslib::card_header("Properties & Competitors"),
-#         bslib::card_body(
-#           reactable::reactableOutput(ns("properties_competitors_table")) |>
-#             with_loader()
-#         )
-#       ),
-#       bslib::card(
-#         bslib::card_header("Map"),
-#         bslib::card_body(
-#           leaflet::leafletOutput(ns("properties_map")) |>
-#             with_loader()
-#         )
-#       )
-#     )
-#   ),
-#
-#   bslib::nav_panel(
-#     title = "Survey Status",
-#     icon = bsicons::bs_icon("clipboard"),
-#     value = ns("survey_status"),
-#
-#
-#
-#   )
-#   bslib::layout_columns(
-#     col_widths = c(12),
-#     bslib::card(
-#       full_screen = TRUE,
-#
-#     )
-#   )
-# ),
-#
-#
-#
-# # actions
-# bslib::card(
-#   bslib::card_header("Actions"),
-#   bslib::card_body(
-#     shiny::actionButton(
-#       ns("new_property"),
-#       "Add New Property",
-#       icon = shiny::icon("plus"),
-#       class = "btn-success"
-#     ),
-#     shiny::actionButton(
-#       ns("new_competitor"),
-#       "Add New Competitor",
-#       icon = shiny::icon("plus"),
-#       class = "btn-primary"
-#     ),
-#     shiny::actionButton(
-#       ns("new_survey"),
-#       "Log Weekly Data",
-#       icon = shiny::icon("plus"),
-#       class = "btn-info"
-#     )
-#   )
-# ),
-# # nav card for survey admin
-#
-#
-# bslib::nav_panel(
-#   title = "Charts",
-#   value = ns("charts"),
-#   icon = bsicons::bs_icon("bar-chart"),
-#   bslib::layout_columns(
-#     col_widths = c(6, 6),
-#     bslib::card(
-#       full_screen = TRUE,
-#       bslib::card_body(
-#         apexcharter::apexchartOutput(ns("survey_rate_adjustments_chart")) |>
-#           with_loader()
-#       )
-#     ),
-#     bslib::card(
-#       full_screen = TRUE,
-#       bslib::card_body(
-#         apexcharter::apexchartOutput(ns("survey_market_velocity_chart")) |>
-#           with_loader()
-#       )
-#     )
-#   )
-# ),
-# bslib::nav_panel(
-#   title = "Survey Data",
-#   value = ns("survey_data"),
-#   icon = bsicons::bs_icon("file-text"),
-#   bslib::card(
-#     full_screen = TRUE,
-#     bslib::card_body(
-#       reactable::reactableOutput(ns("survey_data_table")) |>
-#         with_loader()
-#     )
-#   )
-# )
-#
-#   )
-# )
+  ns <- shiny::NS(id)
+
+  htmltools::tagList(
+    shiny::selectInput(
+      ns("survey_property"),
+      "Select a GMH Property:",
+      choices = get_default_app_choices("properties"),
+      selected = NULL
+    ),
+    shiny::checkboxInput(
+      ns("use_current_leasing_week"),
+      "Use Current Leasing Week?",
+      value = TRUE
+    ),
+    shiny::dateInput(
+      ns("survey_leasing_week"),
+      "Survey Date:",
+      value = get_leasing_week_start_date()
+    ),
+    shiny::textInput(
+      ns("survey_user"),
+      "Current User Email:",
+      value = NULL
+    )
+  )
+
+}
+
+mod_survey_init_server <- function(id, pool = NULL) {
+
+  shiny::moduleServer(
+    id,
+    function(input, output, session) {
+
+      if (is.null(pool)) pool <- session$userData$pool
+      check_db_conn(pool)
+      ns <- session$ns
+      cli::cat_rule("[Module]: mod_survey_admin_survey_init_modal_server()")
+
+      # initialize validator
+      iv <- shinyvalidate::InputValidator$new()
+      req_inputs <- c("survey_property", "survey_leasing_week", "survey_user")
+      validation_msgs <- c(
+        "Please select a property.",
+        "Please select a leasing week.",
+        "Please enter a user."
+      )
+      purrr::walk2(
+        req_inputs,
+        validation_msgs,
+        function(input_id, validation_msg) {
+          iv$add_rule(
+            input_id,
+            shinyvalidate::sv_required(message = validation_msg)
+          )
+        }
+      )
+
+      iv$add_rule(
+        "survey_user",
+        shinyvalidate::sv_email(message = "Please enter a valid email address.")
+      )
+
+      # observe leasing week check box to update date input
+      shiny::observeEvent(input$use_current_leasing_week, {
+        if (input$use_current_leasing_week) {
+          shiny::updateDateInput(
+            session,
+            "survey_leasing_week",
+            value = get_leasing_week_start_date()
+          )
+          shinyjs::disable("survey_leasing_week")
+        } else {
+          shinyjs::enable("survey_leasing_week")
+        }
+      })
+
+      # survey data reactive
+      survey_data <- shiny::reactive({
+        shiny::req(
+          input$survey_property,
+          input$survey_leasing_week,
+          input$survey_user
+        )
+
+        user_id <- get_user_id_by_email(pool, input$survey_user)
+        property_name <- get_property_name_by_id(pool, input$survey_property)
+
+        tibble::tibble(
+          property_id = input$survey_property,
+          leasing_week = input$survey_leasing_week,
+          user_id = user_id,
+          user_email = input$survey_user,
+          property_name = property_name,
+          survey_date = Sys.Date(),
+          survey_status = "Initialized"
+        )
+      })
+
+      close <- function() {
+        shiny::removeModal()
+        iv$disable()
+      }
+
+      # observe confirm/submit button to create new survey and remove the modal
+      shiny::observeEvent(input$confirm_survey_init, {
+        iv$enable()
+        valid_inputs <- iv$is_valid()
+        if (valid_inputs) {
+          new_survey <- survey_data()
+          db_mkt_insert_tbl(pool, "mkt.surveys", new_survey)
+          close()
+          shiny::showNotification(
+            "Survey initialized successfully.",
+            type = "message"
+          )
+        } else {
+          shiny::showNotification(
+            "Please correct the errors before continuing.",
+            type = "warning"
+          )
+        }
+      })
+
+      shiny::observeEvent(input$cancel_survey_init, {
+        close()
+      })
+
+      return(list(survey_data = survey_data))
+
+    }
+  )
+}
+
