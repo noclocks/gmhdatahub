@@ -218,6 +218,7 @@ enrich_property_data <- function(
     gmaps_api_key = get_gmaps_config("api_key")
 ) {
 
+  names <- property_data$marketing_name
   addresses <- property_data$address
 
   gmaps_data_lst <- purrr::map(addresses, purrr::safely(get_gmaps_data)) |>
