@@ -1,0 +1,310 @@
+TableGroup "GMH Schema" [color: #1E69FD] {
+  "gmh"."segments"
+  "gmh"."partners"
+  "gmh"."portfolios"
+  "gmh"."locations"
+  "gmh"."properties"
+  "gmh"."competitors"
+  "gmh"."universities"
+  "gmh"."model_beds"
+
+  Note: '''
+  The `gmh` schema represents the business domain housing GMH-specific data.
+  '''
+}
+
+TableGroup "Survey Schema" [color: #5cb85c] {
+  "survey"."users"
+  "survey"."properties"
+  "survey.competitors"
+  "survey"."leasing_weeks"
+  "survey"."surveys"
+  "survey"."sections"
+  "survey"."survey_sections"
+  "survey"."property_summary"
+  "survey"."leasing_summary"
+
+  Note: '''
+  The `survey` schema represents the Leasing Market Survey data model.
+  '''
+}
+
+Table "gmh"."segments" {
+  "segment_id" INTEGER [pk, increment, note: 'Unique identifier for the segment.']
+  "segment_name" TEXT [unique, not null, note: 'Name of the segment.']
+  "segment_description" TEXT [note: 'Description of the segment.']
+  "segment_url" TEXT [note: 'URL for the segment.']
+  "segment_logo_url" TEXT [note: 'Logo URL for the segment.']
+  "segment_banner_url" TEXT [note: 'Banner URL for the segment.']
+  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the segment was created.']
+  Note: 'Segments represent high-level GMH business units or divisions.'
+}
+
+Table "gmh"."partners" {
+  "partner_id" INTEGER [pk, not null, increment, note: 'Unique identifier for the partner.']
+  "partner_name" TEXT [not null, note: 'Name of the partner.']
+  "partner_type" TEXT [not null, default: 'Equity Partner', note: 'Type of partner (Equity Partner or Owner).']
+  "partner_description" TEXT [default: 'No Description', note: 'Description of the partner.']
+  "partner_url" TEXT [note: 'URL for the partner.']
+  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the partner was created.']
+  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the partner was last updated.']
+  Note: 'Partners represent external (or internal) investment or ownership entities.'
+}
+
+Table "gmh"."portfolios" {
+  "portfolio_id" INTEGER [pk, not null, increment, note: 'Unique identifier for the portfolio.']
+  "portfolio_name" TEXT [unique, not null, note: 'Name of the portfolio.']
+  "portfolio_type" TEXT [not null, default: 'Equity Partner', note: 'Type of portfolio (Equity Partner or Owner).']
+  "portfolio_description" TEXT [default: 'No Description', note: 'Description of the portfolio.']
+  "segment_id" INT [not null, note: 'Segment ID for the portfolio.']
+  "partner_id" INT [not null, note: 'Partner ID for the portfolio.']
+  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the portfolio was created.']
+  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the portfolio was last updated.']
+  Note: 'Portfolios represent a collection of properties owned or managed by a partner.'
+}
+
+Table "gmh"."locations" {
+  "location_id" INTEGER [pk, increment, note: 'Unique identifier for the location.']
+  "location_name" TEXT [not null, note: 'Name of the location.']
+  "address" TEXT [not null, note: 'Street address of the location.']
+  "city" TEXT [not null, note: 'City of the location.']
+  "state" TEXT [not null, note: 'State of the location.']
+  "postal_code" TEXT [not null, note: 'Postal code of the location.']
+  "country" TEXT [not null, default: 'USA', note: 'Country of the location.']
+  "latitude" DECIMAL(9,6) [note: 'Latitude of the location.']
+  "longitude" DECIMAL(9,6) [note: 'Longitude of the location.']
+  "geom" GEOMETRY(Point,4326) [note: 'PostGIS geometry point for the location.']
+  "phone_number" TEXT [note: 'Phone number of the location.']
+  "email" TEXT [note: 'Email address of the location.']
+  "website" TEXT [note: 'Website URL of the location.']
+  "image_url" TEXT [note: 'Image URL of the location.']
+  "rating" DECIMAL(2,1) [note: 'Rating of the location.']
+  "gmaps_url" TEXT [note: 'Google Maps URL of the location.']
+  "gmaps_place_id" TEXT [note: 'Google Maps Place ID of the location.']
+  "gmaps_rating" DECIMAL(2,1) [note: 'Google Maps rating of the location.']
+  "gmaps_reviews_count" INT [note: 'Google Maps reviews count of the location.']
+  "gmaps_place_types" "TEXT[]" [note: 'Google Maps place types of the location.']
+  "map_layer" TEXT [note: 'Map layer of the location.']
+  "map_marker_icon" TEXT [note: 'Map marker icon of the location.']
+  "map_marker_color" TEXT [note: 'Map marker color of the location.']
+  "map_popup_html" TEXT [note: 'Map popup HTML of the location.']
+  "is_active" BOOLEAN [not null, default: TRUE, note: 'Is the location active?']
+  "created_at" TIMESTAMPTZ [not null, default: `NOW()`, note: 'Timestamp when the location was created.']
+  "updated_at" TIMESTAMPTZ [not null, default: `NOW()`, note: 'Timestamp when the location was last updated.']
+  Note: 'Locations consolidated into a central table for all address/coordinate data.'
+}
+
+Table "gmh"."properties" {
+  "property_id" INTEGER [pk, note: 'Unique identifier for the property.']
+  "property_name" TEXT [not null, note: 'Name of the property.']
+  "property_type" TEXT [not null, default: 'Apartment', note: 'Type of property (Apartment, Office, Retail, etc.).']
+  "property_status" TEXT [not null, default: 'Active', note: 'Status of the property (Active, Inactive, etc.).']
+  "property_description" TEXT [note: 'Description of the property.']
+  "property_url" TEXT [note: 'URL for the property.']
+  "is_active" BOOLEAN [default: TRUE, note: 'Is the property active?']
+  "portfolio_id" INT [not null, note: 'Portfolio ID for the property.']
+  "location_id" INT [not null, note: 'Location ID for the property.']
+  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the property was created.']
+  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the property was last updated.']
+  Note: 'Properties represent individual apartment communities.'
+}
+
+Table "gmh"."competitors" {
+  "competitor_id" INTEGER [pk, not null, increment, note: 'Unique identifier for the competitor.']
+  "competitor_name" TEXT [not null, note: 'Name of the competitor.']
+  "competitor_url" TEXT [note: 'URL for the competitor.']
+  "property_id" INTEGER [not null, note: 'Property ID for the competitor.']
+  "location_id" INTEGER [note: 'Location ID for the competitor.']
+  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the competitor was created.']
+  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the competitor was last updated.']
+  Note: 'Competitors represent other apartment communities in the area.'
+}
+
+Table "gmh"."universities" {
+  "university_id" INTEGER [pk, not null, increment, note: 'Unique identifier for the university.']
+  "university_name" TEXT [not null, note: 'Name of the university.']
+  "university_address" TEXT [not null, note: 'Address of the university.']
+  "university_url" TEXT [note: 'URL for the university.']
+  "property_id" INT [not null, note: 'Property ID for the university.']
+  "location_id" INT [note: 'Location ID for the university.']
+  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the university was created.']
+  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the university was last updated.']
+  Note: 'Universities represent local colleges or universities.'
+}
+
+Table "gmh"."model_beds" {
+  "property_id" INTEGER [pk, note: 'Property ID for the model beds.']
+  "model_bed_count" INT [default: 0, note: 'Number of model beds for the property.']
+  "notes" TEXT [note: 'Notes for the model beds.']
+  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the model beds were last updated.']
+  Note: 'Model beds represent the number of beds representing models for each property.'
+}
+
+Ref:"gmh"."segments"."segment_id" < "gmh"."portfolios"."segment_id"
+Ref:"gmh"."partners"."partner_id" < "gmh"."portfolios"."partner_id"
+Ref:"gmh"."portfolios"."portfolio_id" < "gmh"."properties"."portfolio_id"
+Ref:"gmh"."locations"."location_id" < "gmh"."properties"."location_id"
+Ref:"gmh"."properties"."property_id" < "gmh"."competitors"."property_id"
+Ref:"gmh"."locations"."location_id" < "gmh"."competitors"."location_id"
+Ref:"gmh"."properties"."property_id" < "gmh"."universities"."property_id"
+Ref:"gmh"."locations"."location_id" < "gmh"."universities"."location_id"
+Ref:"gmh"."properties"."property_id" < "gmh"."model_beds"."property_id" [delete: cascade]
+
+Table "survey"."users" {
+  "user_id" UUID [pk, default: `gen_random_uuid()`, note: 'Unique identifier for the user']
+  "user_email" TEXT [unique, not null, note: 'Email address for the user']
+  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Date and time the user was created']
+  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Date and time the user was last updated']
+  Note: 'Survey Users'
+}
+
+Table "survey"."properties" {
+  "property_id" INTEGER [pk, note: 'Unique identifier for the property']
+  "property_name" TEXT [unique, not null, note: 'Name of the property']
+  "property_type" TEXT [note: 'Type of property (Student, Conventional, Affordable, Innovative)']
+  "property_website" TEXT [note: 'Website URL for the property']
+  "property_address" TEXT [note: 'Address of the property']
+  "property_phone" TEXT [note: 'Phone number for the property']
+  "property_email" TEXT [note: 'Email address for the property']
+  "property_image_url" TEXT [note: 'URL for an image of the property']
+  "property_description" TEXT [note: 'Description of the property']
+  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Date and time the property was created']
+  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Date and time the property was last updated']
+  Note: 'Survey Properties'
+}
+
+Table "survey"."competitors" {
+  "competitor_id" INTEGER [pk, increment, note: 'Unique identifier for the competitor']
+  "property_id" INTEGER [not null, note: 'Identifier for the property associated with the competitor']
+  "competitor_name" TEXT [not null, note: 'Name of the competitor']
+  "competitor_website" TEXT [note: 'Website URL for the competitor']
+  "competitor_address" TEXT [note: 'Address of the competitor']
+  "competitor_image_url" TEXT [note: 'URL for an image of the competitor']
+  "competitor_description" TEXT [note: 'Description of the competitor']
+  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Date and time the competitor was created']
+  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Date and time the competitor was last updated']
+  Note: 'Survey Competitors'
+}
+
+Table "survey"."leasing_weeks" {
+  "leasing_week_id" INTEGER [pk, increment, note: 'Unique identifier for the leasing week']
+  "leasing_week_start_date" DATE [not null, note: 'Start date of the leasing week']
+  "leasing_week_end_date" DATE [not null, note: 'End date of the leasing week']
+  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Date and time the leasing week was created']
+  Note: 'Leasing Weeks'
+}
+
+Table "survey"."surveys" {
+  "survey_id" INTEGER [pk, increment, note: 'Unique identifier for the survey']
+  "property_id" INTEGER [note: 'Identifier for the property associated with the survey']
+  "competitor_id" INTEGER [note: 'Identifier for the competitor associated with the survey']
+  "leasing_week_id" INTEGER [not null, note: 'Identifier for the leasing week associated with the survey']
+  "user_id" UUID [not null, note: 'Identifier for the user who created the survey']
+  "survey_date" DATE [not null, default: `CURRENT_DATE`, note: 'Date of the survey']
+  "survey_status" TEXT [not null, default: 'Initialized', note: 'Status of the survey (Initialized, Draft, Submitted, Approved, Complete)']
+  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Date and time the survey was created']
+  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Date and time the survey was last updated']
+  Note: 'Market Surveys'
+}
+
+Table "survey"."sections" {
+  "section_id" INTEGER [pk, increment, note: 'Unique identifier for the section']
+  "section_name" TEXT [not null, note: 'Name of the section']
+  "section_description" TEXT [note: 'Description of the section']
+  "updated_weekly" BOOLEAN [not null, note: 'Flag indicating if the section is updated weekly']
+  "is_required" BOOLEAN [not null, default: TRUE, note: 'Flag indicating if the section is required']
+  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Date and time the section was created']
+  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Date and time the section was last updated']
+  Note: 'Survey Sections'
+}
+
+Table "survey"."survey_sections" {
+  "survey_id" INTEGER [not null, note: 'Identifier for the survey associated with the section']
+  "section_id" INTEGER [not null, note: 'Identifier for the section associated with the survey']
+  "survey_section_status" TEXT [not null, note: 'Status of the survey section (Not Started, In Progress, Completed)']
+  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Date and time the survey section was created']
+  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Date and time the survey section was last updated']
+
+  Indexes {
+    (survey_id, section_id) [pk]
+  }
+  Note: 'Survey Sections'
+}
+
+Table "survey"."property_summary" {
+  "survey_id" INTEGER [not null, note: 'Identifier for the survey associated with the property summary']
+  "property_id" INTEGER [note: 'Identifier for the property associated with the property summary']
+  "competitor_id" INTEGER [note: 'Identifier for the competitor associated with the property summary']
+  "property_name" TEXT [not null, note: 'Name of the property']
+  "property_website" TEXT [note: 'Website URL for the property']
+  "property_address" TEXT [note: 'Address of the property']
+  "property_phone" TEXT [note: 'Phone number for the property']
+  "property_developer" TEXT [note: 'Developer of the property']
+  "property_manager" TEXT [note: 'Manager of the property']
+  "property_owner" TEXT [note: 'Owner of the property']
+  "property_type" TEXT [note: 'Type of property (Student, Conventional, Affordable, Innovative)']
+  "property_rating" NUMERIC(2,1) [note: 'Rating of the property (1-5)']
+  "property_status" TEXT [note: 'Status of the property (New Construction, Operational, Undergoing Renovation)']
+  "comp_status" TEXT [note: 'Competitor status (Subject Property, Tier 1, Tier 2)']
+  "year_built" INTEGER [note: 'Year the property was built']
+  "most_recent_sale" DATE [note: 'Date of the most recent sale']
+  "distance_from_campus" NUMERIC(3,1) [note: 'Distance from campus in miles']
+  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Date and time the property summary was created']
+  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Date and time the property summary was last updated']
+  "created_by" UUID
+  "updated_by" UUID
+
+  Indexes {
+    (survey_id, property_name) [pk]
+  }
+  Note: 'Property Summary'
+}
+
+Table "survey"."leasing_summary" {
+  "survey_id" INTEGER [not null, note: 'Identifier for the survey associated with the leasing summary']
+  "property_id" INTEGER [note: 'Identifier for the property associated with the leasing summary']
+  "competitor_id" INTEGER [note: 'Identifier for the competitor associated with the leasing summary']
+  "leasing_week_id" INTEGER [not null, note: 'Identifier for the leasing week associated with the leasing summary']
+  "property_name" TEXT [not null, note: 'Name of the property']
+  "reporting_cycle" TEXT [default: 'Monday-Sunday', note: 'Reporting cycle for the leasing summary']
+  "lease_launch_date" DATE [note: 'Date of the lease launch']
+  "renewal_launch_date" DATE [note: 'Date of the renewal launch']
+  "current_occupancy" NUMERIC(6,3) [note: 'Current occupancy percentage']
+  "prior_year_occupancy" NUMERIC(6,3) [note: 'Prior year occupancy percentage']
+  "current_pre_lease" NUMERIC(6,3) [note: 'Current pre-lease percentage']
+  "last_year_pre_lease" NUMERIC(6,3) [note: 'Last year pre-lease percentage']
+  "total_renewals" INTEGER [note: 'Total number of renewals']
+  "total_new_leases" INTEGER [note: 'Total number of new leases']
+  "weekly_leases" INTEGER [note: 'Number of weekly leases']
+  "weekly_traffic" INTEGER [note: 'Number of weekly traffic']
+  "current_incentive" TEXT [default: 'None', note: 'Current incentive offered']
+  "incentive_amount" NUMERIC(10,2) [note: 'Amount of the incentive']
+  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Date and time the leasing summary was created']
+  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Date and time the leasing summary was last updated']
+  "created_by" UUID
+  "updated_by" UUID
+
+  Indexes {
+    (survey_id, leasing_week_id, property_name) [pk]
+  }
+  Note: 'Leasing Summary'
+}
+
+Ref:"survey"."properties"."property_id" < "survey"."competitors"."property_id"
+Ref:"survey"."properties"."property_id" < "survey"."surveys"."property_id" [delete: cascade]
+Ref:"survey"."competitors"."competitor_id" < "survey"."surveys"."competitor_id"
+Ref:"survey"."leasing_weeks"."leasing_week_id" < "survey"."surveys"."leasing_week_id"
+Ref:"survey"."users"."user_id" < "survey"."surveys"."user_id" [delete: set null]
+Ref:"survey"."surveys"."survey_id" < "survey"."survey_sections"."survey_id"
+Ref:"survey"."sections"."section_id" < "survey"."survey_sections"."section_id"
+Ref:"survey"."surveys"."survey_id" < "survey"."property_summary"."survey_id"
+Ref:"survey"."properties"."property_id" < "survey"."property_summary"."property_id"
+Ref:"survey"."competitors"."competitor_id" < "survey"."property_summary"."competitor_id"
+Ref:"survey"."users"."user_id" < "survey"."property_summary"."created_by"
+Ref:"survey"."users"."user_id" < "survey"."property_summary"."updated_by"
+Ref:"survey"."surveys"."survey_id" < "survey"."leasing_summary"."survey_id"
+Ref:"survey"."properties"."property_id" < "survey"."leasing_summary"."property_id"
+Ref:"survey"."competitors"."competitor_id" < "survey"."leasing_summary"."competitor_id"
+Ref:"survey"."leasing_weeks"."leasing_week_id" < "survey"."leasing_summary"."leasing_week_id"
+Ref:"survey"."users"."user_id" < "survey"."leasing_summary"."created_by"
+Ref:"survey"."users"."user_id" < "survey"."leasing_summary"."updated_by"

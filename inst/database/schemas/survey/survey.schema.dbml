@@ -1,139 +1,3 @@
-TableGroup "GMH Schema" [color: #1E69FD] {
-  "gmh"."segments"
-  "gmh"."partners"
-  "gmh"."portfolios"
-  "gmh"."locations"
-  "gmh"."properties"
-  "gmh"."competitors"
-  "gmh"."universities"
-  "gmh"."model_beds"
-
-  Note: '''
-  The `gmh` schema represents the business domain housing GMH-specific data.
-  '''
-}
-
-Table "gmh"."segments" {
-  "segment_id" INTEGER [pk, increment, note: 'Unique identifier for the segment.']
-  "segment_name" TEXT [unique, not null, note: 'Name of the segment.']
-  "segment_description" TEXT [note: 'Description of the segment.']
-  "segment_url" TEXT [note: 'URL for the segment.']
-  "segment_logo_url" TEXT [note: 'Logo URL for the segment.']
-  "segment_banner_url" TEXT [note: 'Banner URL for the segment.']
-  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the segment was created.']
-  Note: 'Segments represent high-level GMH business units or divisions.'
-}
-
-Table "gmh"."partners" {
-  "partner_id" INTEGER [pk, not null, increment, note: 'Unique identifier for the partner.']
-  "partner_name" TEXT [not null, note: 'Name of the partner.']
-  "partner_type" TEXT [not null, default: 'Equity Partner', note: 'Type of partner (Equity Partner or Owner).']
-  "partner_description" TEXT [default: 'No Description', note: 'Description of the partner.']
-  "partner_url" TEXT [note: 'URL for the partner.']
-  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the partner was created.']
-  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the partner was last updated.']
-  Note: 'Partners represent external (or internal) investment or ownership entities.'
-}
-
-Table "gmh"."portfolios" {
-  "portfolio_id" INTEGER [pk, not null, increment, note: 'Unique identifier for the portfolio.']
-  "portfolio_name" TEXT [unique, not null, note: 'Name of the portfolio.']
-  "portfolio_type" TEXT [not null, default: 'Equity Partner', note: 'Type of portfolio (Equity Partner or Owner).']
-  "portfolio_description" TEXT [default: 'No Description', note: 'Description of the portfolio.']
-  "segment_id" INT [not null, note: 'Segment ID for the portfolio.']
-  "partner_id" INT [not null, note: 'Partner ID for the portfolio.']
-  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the portfolio was created.']
-  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the portfolio was last updated.']
-  Note: 'Portfolios represent a collection of properties owned or managed by a partner.'
-}
-
-Table "gmh"."locations" {
-  "location_id" INTEGER [pk, increment, note: 'Unique identifier for the location.']
-  "location_name" TEXT [not null, note: 'Name of the location.']
-  "address" TEXT [not null, note: 'Street address of the location.']
-  "city" TEXT [not null, note: 'City of the location.']
-  "state" TEXT [not null, note: 'State of the location.']
-  "postal_code" TEXT [not null, note: 'Postal code of the location.']
-  "country" TEXT [not null, default: 'USA', note: 'Country of the location.']
-  "latitude" DECIMAL(9,6) [note: 'Latitude of the location.']
-  "longitude" DECIMAL(9,6) [note: 'Longitude of the location.']
-  "geom" GEOMETRY(Point,4326) [note: 'PostGIS geometry point for the location.']
-  "phone_number" TEXT [note: 'Phone number of the location.']
-  "email" TEXT [note: 'Email address of the location.']
-  "website" TEXT [note: 'Website URL of the location.']
-  "image_url" TEXT [note: 'Image URL of the location.']
-  "rating" DECIMAL(2,1) [note: 'Rating of the location.']
-  "gmaps_url" TEXT [note: 'Google Maps URL of the location.']
-  "gmaps_place_id" TEXT [note: 'Google Maps Place ID of the location.']
-  "gmaps_rating" DECIMAL(2,1) [note: 'Google Maps rating of the location.']
-  "gmaps_reviews_count" INT [note: 'Google Maps reviews count of the location.']
-  "gmaps_place_types" "TEXT[]" [note: 'Google Maps place types of the location.']
-  "map_layer" TEXT [note: 'Map layer of the location.']
-  "map_marker_icon" TEXT [note: 'Map marker icon of the location.']
-  "map_marker_color" TEXT [note: 'Map marker color of the location.']
-  "map_popup_html" TEXT [note: 'Map popup HTML of the location.']
-  "is_active" BOOLEAN [not null, default: TRUE, note: 'Is the location active?']
-  "created_at" TIMESTAMPTZ [not null, default: `NOW()`, note: 'Timestamp when the location was created.']
-  "updated_at" TIMESTAMPTZ [not null, default: `NOW()`, note: 'Timestamp when the location was last updated.']
-  Note: 'Locations consolidated into a central table for all address/coordinate data.'
-}
-
-Table "gmh"."properties" {
-  "property_id" INTEGER [pk, note: 'Unique identifier for the property.']
-  "property_name" TEXT [not null, note: 'Name of the property.']
-  "property_type" TEXT [not null, default: 'Apartment', note: 'Type of property (Apartment, Office, Retail, etc.).']
-  "property_status" TEXT [not null, default: 'Active', note: 'Status of the property (Active, Inactive, etc.).']
-  "property_description" TEXT [note: 'Description of the property.']
-  "property_url" TEXT [note: 'URL for the property.']
-  "is_active" BOOLEAN [default: TRUE, note: 'Is the property active?']
-  "portfolio_id" INT [not null, note: 'Portfolio ID for the property.']
-  "location_id" INT [not null, note: 'Location ID for the property.']
-  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the property was created.']
-  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the property was last updated.']
-  Note: 'Properties represent individual apartment communities.'
-}
-
-Table "gmh"."competitors" {
-  "competitor_id" INTEGER [pk, not null, increment, note: 'Unique identifier for the competitor.']
-  "competitor_name" TEXT [not null, note: 'Name of the competitor.']
-  "competitor_url" TEXT [note: 'URL for the competitor.']
-  "property_id" INTEGER [not null, note: 'Property ID for the competitor.']
-  "location_id" INTEGER [note: 'Location ID for the competitor.']
-  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the competitor was created.']
-  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the competitor was last updated.']
-  Note: 'Competitors represent other apartment communities in the area.'
-}
-
-Table "gmh"."universities" {
-  "university_id" INTEGER [pk, not null, increment, note: 'Unique identifier for the university.']
-  "university_name" TEXT [not null, note: 'Name of the university.']
-  "university_address" TEXT [not null, note: 'Address of the university.']
-  "university_url" TEXT [note: 'URL for the university.']
-  "property_id" INT [not null, note: 'Property ID for the university.']
-  "location_id" INT [note: 'Location ID for the university.']
-  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the university was created.']
-  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the university was last updated.']
-  Note: 'Universities represent local colleges or universities.'
-}
-
-Table "gmh"."model_beds" {
-  "property_id" INTEGER [pk, note: 'Property ID for the model beds.']
-  "model_bed_count" INT [default: 0, note: 'Number of model beds for the property.']
-  "notes" TEXT [note: 'Notes for the model beds.']
-  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the model beds were last updated.']
-  Note: 'Model beds represent the number of beds representing models for each property.'
-}
-
-Ref:"gmh"."segments"."segment_id" < "gmh"."portfolios"."segment_id"
-Ref:"gmh"."partners"."partner_id" < "gmh"."portfolios"."partner_id"
-Ref:"gmh"."portfolios"."portfolio_id" < "gmh"."properties"."portfolio_id"
-Ref:"gmh"."locations"."location_id" < "gmh"."properties"."location_id"
-Ref:"gmh"."properties"."property_id" < "gmh"."competitors"."property_id"
-Ref:"gmh"."locations"."location_id" < "gmh"."competitors"."location_id"
-Ref:"gmh"."properties"."property_id" < "gmh"."universities"."property_id"
-Ref:"gmh"."locations"."location_id" < "gmh"."universities"."location_id"
-Ref:"gmh"."properties"."property_id" < "gmh"."model_beds"."property_id" [delete: cascade]
-
 TableGroup "Survey Schema" [color: #5cb85c] {
   "survey"."users"
   "survey"."properties"
@@ -291,20 +155,37 @@ Table "survey"."leasing_summary" {
 }
 
 Ref:"survey"."properties"."property_id" < "survey"."competitors"."property_id"
+
 Ref:"survey"."properties"."property_id" < "survey"."surveys"."property_id" [delete: cascade]
+
 Ref:"survey"."competitors"."competitor_id" < "survey"."surveys"."competitor_id"
+
 Ref:"survey"."leasing_weeks"."leasing_week_id" < "survey"."surveys"."leasing_week_id"
+
 Ref:"survey"."users"."user_id" < "survey"."surveys"."user_id" [delete: set null]
+
 Ref:"survey"."surveys"."survey_id" < "survey"."survey_sections"."survey_id"
+
 Ref:"survey"."sections"."section_id" < "survey"."survey_sections"."section_id"
+
 Ref:"survey"."surveys"."survey_id" < "survey"."property_summary"."survey_id"
+
 Ref:"survey"."properties"."property_id" < "survey"."property_summary"."property_id"
+
 Ref:"survey"."competitors"."competitor_id" < "survey"."property_summary"."competitor_id"
+
 Ref:"survey"."users"."user_id" < "survey"."property_summary"."created_by"
+
 Ref:"survey"."users"."user_id" < "survey"."property_summary"."updated_by"
+
 Ref:"survey"."surveys"."survey_id" < "survey"."leasing_summary"."survey_id"
+
 Ref:"survey"."properties"."property_id" < "survey"."leasing_summary"."property_id"
+
 Ref:"survey"."competitors"."competitor_id" < "survey"."leasing_summary"."competitor_id"
+
 Ref:"survey"."leasing_weeks"."leasing_week_id" < "survey"."leasing_summary"."leasing_week_id"
+
 Ref:"survey"."users"."user_id" < "survey"."leasing_summary"."created_by"
+
 Ref:"survey"."users"."user_id" < "survey"."leasing_summary"."updated_by"
