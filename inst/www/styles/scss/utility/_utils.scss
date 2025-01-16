@@ -1,0 +1,27 @@
+@import "../theme/colors";
+
+html {
+  .cursor-pointer { cursor: pointer; }
+
+  .bg-light-grey { background-color: get-color(light-grey); }
+  .bg-brand-blue { background-color: get-color(brand-blue); }
+  .bg-pale-blue { background-color: get-color(pale-blue); }
+  .bg-mid-blue { background-color: get-color(mid-blue); }
+  .bg-light-blue { background-color: get-color(light-blue); }
+  .bg-dark-green { background-color: get-color(dark-green); }
+  .bg-light-green { background-color: get-color(light-green); }
+  .bg-orange { background-color: get-color(orange); }
+  .bg-light-orange { background-color: get-color(light-orange); }
+
+  .text-light-grey { color: get-color(light-grey); }
+  .text-mid-grey { color: get-color(mid-grey); }
+  .text-mid-blue { color: get-color(mid-blue) !important; }
+
+  hr { background-color: get-color(mid-grey); }
+  .w-8 { width: 8rem; }
+
+  h4 {
+    font-weight: 600;
+    font-size: 1.2em;
+  }
+}

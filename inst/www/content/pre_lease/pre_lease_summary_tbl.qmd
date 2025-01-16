@@ -1,0 +1,20 @@
+---
+title: "Pre-Lease Summary Table"
+output:
+  html_document:
+    keep_md: true
+---
+
+## Data Structure
+
+The **Pre-Lease Summary Table** contains 23 columns with information on each
+property, including:
+
+- **Property Name**
+- **Investment Partner**
+- **Total Beds**
+- **Model Beds**
+- **Current Occupied**
+- **Current Occupancy**
+
+

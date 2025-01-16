@@ -1,0 +1,28 @@
+.hover-dropdown {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hover-dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: map-get($colors, white);
+  font-size: 0.95em;
+  border: 1px solid rgba(0, 0, 0, 0.175);
+  border-radius: 0.375rem;
+  z-index: 1;
+}
+
+.hover-dropdown-content .custom-item {
+  color: map-get($colors, black);
+  padding: 12px 16px;
+  display: block;
+}
+
+.hover-dropdown:hover .hover-dropdown-content {
+  display: block;
+}
