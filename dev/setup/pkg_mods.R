@@ -27,3 +27,4 @@ use_module("survey_utilities")
 use_module("survey_notes")
 use_module("survey_rents")
 
+use_module("wizard")
