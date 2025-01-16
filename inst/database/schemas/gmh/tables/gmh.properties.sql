@@ -6,7 +6,7 @@ CREATE TABLE gmh.properties (
   property_type        TEXT NOT NULL DEFAULT 'Apartment',
   property_status      TEXT NOT NULL DEFAULT 'Active',
   property_description TEXT,
-  property_url         TEXT,
+  property_website     TEXT,
   portfolio_id         INTEGER NOT NULL REFERENCES gmh.portfolios(portfolio_id),
   location_id          INTEGER NOT NULL REFERENCES gmh.locations(location_id),
   created_at           TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,

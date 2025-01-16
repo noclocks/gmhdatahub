@@ -5,6 +5,8 @@ DROP TABLE IF EXISTS gmh.locations CASCADE;
 CREATE TABLE IF NOT EXISTS gmh.locations (
     location_id         INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     location_name       TEXT NOT NULL,
+    entity_type         TEXT NOT NULL CHECK (location_type IN ('property', 'competitor', 'university')),
+    entity_id           INTEGER NOT NULL,
     address             TEXT NOT NULL,
     city                TEXT NOT NULL,
     state               TEXT NOT NULL,
@@ -28,7 +30,8 @@ CREATE TABLE IF NOT EXISTS gmh.locations (
     map_popup_html      TEXT,
     is_active           BOOLEAN NOT NULL DEFAULT TRUE,
     created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (entity_type, entity_id)
 );
 
 COMMENT ON TABLE gmh.locations IS 'Locations consolidated into a central table for all address/coordinate data.';

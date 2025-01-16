@@ -7,6 +7,15 @@
 #
 #  ------------------------------------------------------------------------
 
+commonwealth_id <- get_property_id_by_name("1047 Commonwealth Avenue")
+
+gmh_competitors_tbl <- tibble::tibble(
+  competitor_id = c(1, 2, 3),
+  competitor_name = c("1330 Boylston", "Van Ness", "Bower"),
+  competitor_website = c("https://www.1330boylston.com", "https://www.vanness.com", "https://www.bower.com"),
+  property_id = rep(commonwealth_id, 3)
+)
+
 commonwealth_id <- entrata_properties_lst[["1047 Commonwealth Avenue"]]
 
 gmh_competitors_tbl <- tibble::tibble(

@@ -7,6 +7,9 @@
 #
 #  ------------------------------------------------------------------------
 
+source("data-raw/R/utils_locations.R")
+
+pool <- db_connect()
 
 # get entrata properties
 entrata_property_data <- db_read_tbl(pool, "entrata.properties")
@@ -166,3 +169,5 @@ pool::dbAppendTable(
   value = db_mkt_entrata_properties_to_add,
   overwrite = FALSE
 )
+
+x <- get_gmaps_data("The Courts at Spring Mill Station")
