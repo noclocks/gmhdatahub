@@ -78,6 +78,10 @@ check_db_conn <- function(
 
 }
 
+#' @rdname check_db_conn
+#' @export
+check_db_pool <- check_db_conn
+
 
 # table exists ------------------------------------------------------------
 
