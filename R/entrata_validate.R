@@ -5,7 +5,7 @@ validate_entrata_endpoint <- function(
     call = rlang::caller_env()
 ) {
 
-  if (!(endpoint %in% .entrata_endpoints)) {
+  if (!(endpoint %in% entrata_endpoints_lst)) {
     cli::cli_abort(
       c(
         "Invalid Entrata API Endpoint Provided: {.arg {arg}}",
@@ -25,7 +25,7 @@ validate_entrata_method_name <- function(
   call = rlang::caller_env()
 ) {
 
-  if (!(method_name %in% .entrata_method_names)) {
+  if (!(method_name %in% entrata_methods_tbl$method_name)) {
     cli::cli_abort(
       c(
         "Invalid {.arg method_name} provided: {.field {method_name}}.\n",
@@ -163,7 +163,7 @@ validate_entrata_report_name <- function(
     call = rlang::caller_env()
 ) {
 
-  if (!(report_name %in% .entrata_report_names)) {
+  if (!(report_name %in% entrata_report_names_lst)) {
     cli::cli_abort(
       c(
         "Invalid Entrata Report Name Provided: {.arg {arg}}",
@@ -216,6 +216,21 @@ validate_entrata_period_type <- function(
   call = rlang::caller_env()
 ) {
 
+  .period_types <- c(
+    "date",
+    "daterange",
+    "today",
+    "yesterday",
+    "currentwk",
+    "lastwk",
+    "currentcm",
+    "priorcm",
+    "currentcq",
+    "priorcq",
+    "currentcyr",
+    "priorcyr"
+  )
+
   if (!period_type %in% .period_types) {
     cli::cli_abort(
       c(
@@ -230,19 +245,4 @@ validate_entrata_period_type <- function(
 
 }
 
-.entrata_method_names <- entrata_methods_tbl$method_name
 
-.entrata_period_types <- c(
-  "date",
-  "daterange",
-  "today",
-  "yesterday",
-  "currentwk",
-  "lastwk",
-  "currentcm",
-  "priorcm",
-  "currentcq",
-  "priorcq",
-  "currentcyr",
-  "priorcyr"
-)
