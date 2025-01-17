@@ -234,12 +234,7 @@ mod_survey_property_summary_server <- function(
 ) {
 
   # validation of reactives
-  if (is.null(selected_property_id)) {
-    property_id <- db_read_tbl(pool, "mkt.properties", collect = FALSE) |>
-      dplyr::filter(.data$is_competitor == FALSE) |>
-      dplyr::pull("property_id")
-    selected_property_id <- shiny::reactive({ property_id })
-  }
+  if (!is.null(selected_property_id)) stopifnot(shiny::is.reactive(selected_property_id))
 
   shiny::moduleServer(
     id,
@@ -249,10 +244,15 @@ mod_survey_property_summary_server <- function(
       cli::cat_rule("[Module]: mod_survey_property_summary_server()")
 
       # check database connection
-      if (is.null(pool)) pool <- session$userData$pool
+      if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
       check_db_conn(pool)
 
-      stopifnot(shiny::is.reactive(selected_property_id))
+      if (is.null(selected_property_id)) {
+        property_id <- db_read_tbl(pool, "mkt.properties", collect = FALSE) |>
+          dplyr::filter(.data$is_competitor == FALSE) |>
+          dplyr::pull("property_id")
+        selected_property_id <- shiny::reactive({ property_id })
+      }
 
       db_refresh_trigger <- shiny::reactiveVal(0)
 

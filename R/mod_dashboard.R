@@ -46,120 +46,122 @@ mod_dashboard_ui <- function(id) {
 
   ns <- shiny::NS(id)
 
-  bslib::navset_card_underline(
-    id = ns("nav"),
-    bslib::nav_panel(
-      title = icon_text("dashboard", "Overview"),
-      bslib::page_fluid(
-        bslib::card(
-          full_screen = TRUE,
-          reactable::reactableOutput(ns("pre_lease_summary_table")) |>
-            with_loader()
+  htmltools::tagList(
+    bslib::navset_card_underline(
+      id = ns("nav"),
+      bslib::nav_panel(
+        title = icon_text("dashboard", "Overview"),
+        bslib::page_fluid(
+          bslib::card(
+            full_screen = TRUE,
+            reactable::reactableOutput(ns("pre_lease_summary_table")) |>
+              with_loader()
+          )
         )
-      )
-    ),
-    bslib::nav_panel(
-      title = icon_text("bar-chart", "Charts"),
-      bslib::page_fluid(
-        bslib::layout_sidebar(
-          sidebar = bslib::sidebar(
-            shiny::selectInput(
-              ns("metric"),
-              "Metric",
-              choices = c("Leases" = "leases", "Renewals" = "renewals", "Pre-Lease %" = "prelease"),
-              selected = "leases"
-            ),
-            shiny::sliderInput(
-              ns("occupancy_target"),
-              "Occupancy Target %",
-              min = 0,
-              max = 1,
-              value = 0.95,
-              step = 0.05,
-              ticks = TRUE,
-              post = "%"
-            ),
-            shiny::radioButtons(
-              ns("group_by"),
-              "Group By",
-              choices = c("Property" = "property", "Investment Partner" = "partner"),
-              selected = "property"
-            )
-          ),
-          bslib::layout_columns(
-            bslib::card(
-              full_screen = TRUE,
-              apexcharter::apexchartOutput(
-                ns("yoy_variance_chart"),
-                height = "400px"
-              )
-            )
-          ),
-          bslib::layout_columns(
-            col_widths = c(6, 6),
-            bslib::card(
-              full_screen = TRUE,
-              apexcharter::apexchartOutput(
-                ns("current_vs_prior_chart"),
-                height = "400px"
+      ),
+      bslib::nav_panel(
+        title = icon_text("bar-chart", "Charts"),
+        bslib::page_fluid(
+          bslib::layout_sidebar(
+            sidebar = bslib::sidebar(
+              shiny::selectInput(
+                ns("metric"),
+                "Metric",
+                choices = c("Leases" = "leases", "Renewals" = "renewals", "Pre-Lease %" = "prelease"),
+                selected = "leases"
+              ),
+              shiny::sliderInput(
+                ns("occupancy_target"),
+                "Occupancy Target %",
+                min = 0,
+                max = 1,
+                value = 0.95,
+                step = 0.05,
+                ticks = TRUE,
+                post = "%"
+              ),
+              shiny::radioButtons(
+                ns("group_by"),
+                "Group By",
+                choices = c("Property" = "property", "Investment Partner" = "partner"),
+                selected = "property"
               )
             ),
-            bslib::card(
-              full_screen = TRUE,
-              apexcharter::apexchartOutput(
-                ns("occupancy_chart"),
-                height = "400px"
-              )
-            )
-          ),
-          bslib::layout_columns(
-            col_widths = c(6, 6),
-            bslib::card(
-              full_screen = TRUE,
-              apexcharter::apexchartOutput(
-                ns("velocity_chart"),
-                height = "400px"
+            bslib::layout_columns(
+              bslib::card(
+                full_screen = TRUE,
+                apexcharter::apexchartOutput(
+                  ns("yoy_variance_chart"),
+                  height = "400px"
+                )
               )
             ),
-            bslib::card(
-              full_screen = TRUE,
-              apexcharter::apexchartOutput(
-                ns("pre_lease_rates_chart"),
-                height = "400px"
-              )
-            )
-          ),
-          bslib::layout_columns(
-            col_widths = c(6, 6),
-            bslib::card(
-              full_screen = TRUE,
-              apexcharter::apexchartOutput(
-                ns("partner_distribution_chart"),
-                height = "400px"
-              )
-            ),
-            bslib::card(
-              full_screen = TRUE,
-              apexcharter::apexchartOutput(
-                ns("portfolio_summary_chart"),
-                height = "400px"
-              )
-            )
-          ),
-          bslib::layout_columns(
-            col_widths = c(6, 6),
-            bslib::card(
-              full_screen = TRUE,
-              apexcharter::apexchartOutput(
-                ns("weekly_activity_chart"),
-                height = "400px"
+            bslib::layout_columns(
+              col_widths = c(6, 6),
+              bslib::card(
+                full_screen = TRUE,
+                apexcharter::apexchartOutput(
+                  ns("current_vs_prior_chart"),
+                  height = "400px"
+                )
+              ),
+              bslib::card(
+                full_screen = TRUE,
+                apexcharter::apexchartOutput(
+                  ns("occupancy_chart"),
+                  height = "400px"
+                )
               )
             ),
-            bslib::card(
-              full_screen = TRUE,
-              apexcharter::apexchartOutput(
-                ns("weekly_leasing_breakdown_chart"),
-                height = "400px"
+            bslib::layout_columns(
+              col_widths = c(6, 6),
+              bslib::card(
+                full_screen = TRUE,
+                apexcharter::apexchartOutput(
+                  ns("velocity_chart"),
+                  height = "400px"
+                )
+              ),
+              bslib::card(
+                full_screen = TRUE,
+                apexcharter::apexchartOutput(
+                  ns("pre_lease_rates_chart"),
+                  height = "400px"
+                )
+              )
+            ),
+            bslib::layout_columns(
+              col_widths = c(6, 6),
+              bslib::card(
+                full_screen = TRUE,
+                apexcharter::apexchartOutput(
+                  ns("partner_distribution_chart"),
+                  height = "400px"
+                )
+              ),
+              bslib::card(
+                full_screen = TRUE,
+                apexcharter::apexchartOutput(
+                  ns("portfolio_summary_chart"),
+                  height = "400px"
+                )
+              )
+            ),
+            bslib::layout_columns(
+              col_widths = c(6, 6),
+              bslib::card(
+                full_screen = TRUE,
+                apexcharter::apexchartOutput(
+                  ns("weekly_activity_chart"),
+                  height = "400px"
+                )
+              ),
+              bslib::card(
+                full_screen = TRUE,
+                apexcharter::apexchartOutput(
+                  ns("weekly_leasing_breakdown_chart"),
+                  height = "400px"
+                )
               )
             )
           )
@@ -183,16 +185,16 @@ mod_dashboard_server <- function(
   global_filters = NULL
 ) {
 
-  # check database connection
-  if (is.null(pool)) pool <- session$userData$pool
-  check_db_conn(pool)
-
   shiny::moduleServer(
     id,
     function(input, output, session) {
 
       ns <- session$ns
       cli::cat_rule("[Module]: mod_dashboard_server()")
+
+      # check database connection
+      if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
+      check_db_conn(pool)
 
       summary_data <- shiny::reactive({
         db_read_gmh_pre_lease_summary_tbl(
