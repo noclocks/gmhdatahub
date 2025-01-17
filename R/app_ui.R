@@ -9,6 +9,8 @@
 
 #' Shiny App UI
 #'
+#' @family **Shiny App**
+#'
 #' @description
 #' This is the main UI function for the Shiny application.
 #'
@@ -23,15 +25,18 @@
 #' @importFrom shiny actionLink
 #' @importFrom htmltools tagList tags
 #' @importFrom bsicons bs_icon
-app_ui <- function(req) {
+#'
+#' @examplesIf interactive()
+#' shiny::shinyApp(ui = app_ui, server = app_server)
+app_ui <- function(req = NULL) {
 
-  force(req)
-
-  http_method <- req$REQUEST_METHOD
-  path_info <- req$PATH_INFO
-
-  if (http_method == "GET" && path_info == "/health") {
-    return(app_healthcheck())
+  if (!is.null(req)) {
+    force(req)
+    http_method <- req$REQUEST_METHOD
+    path_info <- req$PATH_INFO
+    if (http_method == "GET" && path_info == "/health") {
+      return(app_healthcheck())
+    }
   }
 
   htmltools::tagList(
