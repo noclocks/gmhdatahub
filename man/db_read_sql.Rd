@@ -4,10 +4,10 @@
 \alias{db_read_sql}
 \title{Read and Execute SQL File}
 \usage{
-db_read_sql(conn, sql_file, ...)
+db_read_sql(pool, sql_file, ...)
 }
 \arguments{
-\item{conn}{A database connection object.}
+\item{pool}{A database connection pool object.}
 
 \item{sql_file}{Path to the SQL file.}
 
@@ -17,5 +17,5 @@ db_read_sql(conn, sql_file, ...)
 The result of the SQL execution.
 }
 \description{
-This function reads an SQL file and executes the SQL code on the database connection.
+This function reads an SQL file and executes the SQL code on the database poolection.
 }

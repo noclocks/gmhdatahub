@@ -8,7 +8,7 @@
 \usage{
 get_db_config(
   key = NULL,
-  file = Sys.getenv("R_CONFIG_FILE", "config.yml"),
+  file = Sys.getenv("R_CONFIG_FILE", pkg_sys("config/config.yml")),
   config = Sys.getenv("R_CONFIG_ACTIVE", "default")
 )
 

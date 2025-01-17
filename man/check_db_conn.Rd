@@ -2,9 +2,12 @@
 % Please edit documentation in R/db_check.R
 \name{check_db_conn}
 \alias{check_db_conn}
+\alias{check_db_pool}
 \title{Check Database Connection}
 \usage{
 check_db_conn(conn, arg = rlang::caller_arg(conn), call = rlang::caller_env())
+
+check_db_pool(conn, arg = rlang::caller_arg(conn), call = rlang::caller_env())
 }
 \arguments{
 \item{conn}{A database connection object.}
