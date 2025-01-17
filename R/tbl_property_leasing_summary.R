@@ -1,4 +1,4 @@
-tbl_property_summary <- function(data, ...) {
+tbl_property_leasing_summary <- function(data, ...) {
 
   req_cols <- c(
     "property_name",

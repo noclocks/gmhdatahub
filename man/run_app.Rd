@@ -5,8 +5,6 @@
 \title{Run the Shiny Application}
 \usage{
 run_app(
-  ui = app_ui,
-  server = app_server,
   port = 8080,
   host = "0.0.0.0",
   on_start = NULL,
@@ -17,8 +15,6 @@ run_app(
 )
 }
 \arguments{
-\item{ui, server}{The UI and server functions.}
-
 \item{port, host}{The port and host to run the app on.}
 
 \item{on_start}{A function to run when the app starts.}
@@ -30,6 +26,8 @@ run_app(
 \item{ui_pattern}{A regular expression to match the UI.}
 
 \item{...}{Additional arguments to pass to \code{shiny::shinyApp}.}
+
+\item{ui, server}{The UI and server functions.}
 }
 \value{
 Runs the shiny app.

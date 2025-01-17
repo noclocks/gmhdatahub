@@ -7,12 +7,13 @@
 #
 #  ------------------------------------------------------------------------
 
-gmh_partners_tbl <- tibble::tibble(
-  partner_id = c(1, 2, 3, 4, 5, 6, 7),
-  partner_name = c("CBRE", "AGC", "JHU", "AEW", "Principal", "CRG and Canyon", "Medistar Student Housing LLC"),
-  partner_type = rep("Equity Partner", 7),
-  partner_description = c("CBRE Properties", "AGC Properties", "JHU Properties", "AEW Properties", "Principal Properties", "CRG and Canyon Properties", "Medistar Student Housing LLC Properties"),
-  partner_url = c("https://www.cbre.com", "https://www.agc.com", "https://www.jhu.com", "https://www.aew.com", "https://www.principal.com", "https://www.crg.com", "https://www.medistar.com")
+gmh_partners_tbl <- readr::read_csv(
+  "data-raw/data/working/gmh/gmh_partners.csv",
+  col_types = readr::cols(
+    .default = readr::col_character(),
+    partner_id = readr::col_integer()
+  )
 )
 
-gmh_partners_lst <- unique(gmh_partners_tbl$partner_name)
+gmh_partners_lst <- as.list(gmh_partners_tbl$partner_id) |>
+  setNames(gmh_partners_tbl$partner_name)

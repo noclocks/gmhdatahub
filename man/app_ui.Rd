@@ -4,7 +4,7 @@
 \alias{app_ui}
 \title{Shiny App UI}
 \usage{
-app_ui(req)
+app_ui(req = NULL)
 }
 \arguments{
 \item{req}{(internal) The request object.}
@@ -15,3 +15,13 @@ The UI for the Shiny application.
 \description{
 This is the main UI function for the Shiny application.
 }
+\examples{
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+shiny::shinyApp(ui = app_ui, server = app_server)
+\dontshow{\}) # examplesIf}
+}
+\seealso{
+Other \strong{Shiny App}: 
+\code{\link{app_server}()}
+}
+\concept{\strong{Shiny App}}

@@ -27,8 +27,6 @@
 #'
 #' @importFrom shiny shinyApp
 run_app <- function(
-  ui = app_ui,
-  server = app_server,
   port = 8080,
   host = "0.0.0.0",
   on_start = NULL,
@@ -37,20 +35,16 @@ run_app <- function(
   ui_pattern = ".*",
   ...
 ) {
-
   # run app
   shiny::shinyApp(
-    ui = ui,
-    server = server,
+    ui = app_ui,
+    server = app_server,
     onStart = on_start,
     options = options,
     enableBookmarking = enable_bookmarking,
     uiPattern = ui_pattern,
     ...
   )
-
-
-
 }
 
 #' Set Shiny App Options

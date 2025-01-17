@@ -41,7 +41,7 @@ NULL
 #' @importFrom rlang arg_match
 get_db_config <- function(
     key = NULL,
-    file = Sys.getenv("R_CONFIG_FILE", "config.yml"),
+    file = Sys.getenv("R_CONFIG_FILE", pkg_sys("config/config.yml")),
     config = Sys.getenv("R_CONFIG_ACTIVE", "default")
 ) {
 

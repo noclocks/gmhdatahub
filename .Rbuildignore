@@ -14,3 +14,10 @@ _\.new\.png$
 ^\.editorconfig$
 ^codemeta\.json$
 ^config\.yml$
+^\.github$
+^\.dockerignore$
+^Dockerfile$
+^Makefile$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

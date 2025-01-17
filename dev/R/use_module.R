@@ -1,32 +1,17 @@
-use_module <- function(name) {
+
+if (!exists("use_template")) {
+  source("dev/R/use_template.R")
+}
+
+use_module <- function(name, test = FALSE) {
   use_template("dev/templates/module.template.R", paste0("R/mod_", name, ".R"), data = list(name = name), open = TRUE)
-}
-
-read_utf8 <- function(path, n = -1L) {
-  base::readLines(path, n = n, encoding = "UTF-8", warn = FALSE)
-}
-
-render_template <- function(template_path, data = list()) {
-  strsplit(whisker::whisker.render(read_utf8(template_path), data), "\n")[[1]]
-}
-
-use_template <- function(template, save_as, data = list(), ignore = FALSE, open = FALSE) {
-
-  if (is.list(data) && length(data) > 0 && !is.null(data[["name"]])) {
-    name <- data[["name"]]
-    data[["title"]] <- snakecase::to_title_case(name)
+  if (test) {
+    use_template("dev/templates/test-module.template.R", paste0("tests/testthat/test-mod_", name, ".R"), data = list(name = name), open = TRUE)
   }
-
-  data[["author"]] <- whoami::fullname()
-  data[["date"]] <- format(Sys.Date(), "%Y-%m-%d")
-
-  content <- render_template(template, data)
-  new <- usethis::write_over(save_as, content)
-  if (ignore) {
-    usethis::use_build_ignore(save_as)
-  }
-  if (open && new) {
-    file.edit(save_as)
-  }
-  invisible(new)
 }
+
+use_module_test <- function(name) {
+  use_template("dev/templates/test-module.template.R", paste0("tests/testthat/test-mod_", name, ".R"), data = list(name = name), open = TRUE)
+}
+
+

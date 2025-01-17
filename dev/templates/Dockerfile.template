@@ -1,0 +1,41 @@
+# syntax=docker/dockerfile:1
+
+FROM rocker/r-ver:latest AS base
+FROM base AS build
+
+{{sysreqs_install_cmd}}
+
+RUN Rscript -e 'install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))'
+RUN mkdir /build
+ADD . ./build
+WORKDIR /build
+RUN Rscript -e 'pak::local_install(ask = FALSE)'
+WORKDIR /
+RUN rm -rf /build
+
+FROM base AS final
+
+COPY --from=build --chown=shiny /usr/local/lib/R/site-library /usr/local/lib/R/site-library
+COPY --from=build --chown=shiny /usr/local/lib/R/library /usr/local/lib/R/library
+
+ARG USER=shiny
+ARG UID=10001
+ARG PORT=8080
+ARG CONFIG="production"
+
+RUN adduser \
+  --disabled-password \
+  --gecos "" \
+  --home "/nonexistent" \
+  --shell "/sbin/nologin" \
+  --no-create-home \
+  --uid "${UID}" \
+  "${USER}"
+
+USER ${USER}
+
+EXPOSE ${PORT}
+
+ENV R_CONFIG_ACTIVE="${CONFIG}"
+
+CMD [ "R", "-e", "library(gmhdatahub);gmhdatahub::run_app(host = '0.0.0.0', port = ${PORT})" ]

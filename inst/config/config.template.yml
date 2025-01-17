@@ -9,6 +9,8 @@ default:
     base_url: "<BASE_URL>"
     app_name: "<APP_NAME>"
     api_key: "<API_KEY>"
+    is_invite_required: "<IS_INVITE_REQUIRED>"
+    is_email_verification_required: "<IS_EMAIL_VERIFICATION_REQUIRED>"
   sentry:
     enabled: "<ENABLED>"
     dsn: "<DSN>"
@@ -29,6 +31,21 @@ default:
     dbname: "<DBNAME>"
     user: "<USER>"
     password: "<PASSWORD>"
+  gcp:
+    project_id: "<PROJECT_ID>"
+    project_name: "<PROJECT_NAME>"
+    artifact_registry_repo: "<ARTIFACT_REGISTRY_REPO>"
+    compute_service_account: "<COMPUTE_SERVICE_ACCOUNT>"
+    compute_service_account_key: "<COMPUTE_SERVICE_ACCOUNT_KEY>"
+    oauth_client_id: "<OAUTH_CLIENT_ID>"
+    oauth_client_secret: "<OAUTH_CLIENT_SECRET>"
+    oauth_key: "<OAUTH_KEY>"
+    cloud_storage_service_account: "<CLOUD_STORAGE_SERVICE_ACCOUNT>"
+    cloud_storage_uri: "<CLOUD_STORAGE_URI>"
+    cloud_storage_access_key: "<CLOUD_STORAGE_ACCESS_KEY>"
+    cloud_storage_access_secret: "<CLOUD_STORAGE_ACCESS_SECRET>"
+    storage_bucket_images: "<STORAGE_BUCKET_IMAGES>"
+    storage_bucket_images_url: "<STORAGE_BUCKET_IMAGES_URL>"
   gmaps:
     api_key: "<API_KEY>"
     signing_secret: "<SIGNING_SECRET>"
@@ -50,4 +67,18 @@ default:
     removebg_api_key: "<REMOVEBG_API_KEY>"
     swaggerhub_api_key: "<SWAGGERHUB_API_KEY>"
     plausible_api_key: "<PLAUSIBLE_API_KEY>"
+
+development:
+  sentry:
+    enabled: "<ENABLED>"
+
+production:
+  auth:
+    is_invite_required: "<IS_INVITE_REQUIRED>"
+    is_email_verification_required: "<IS_EMAIL_VERIFICATION_REQUIRED>"
+  sentry:
+    enabled: "<ENABLED>"
+  db:
+    dbname: "<DBNAME>"
+    uri: "<URI>"
 

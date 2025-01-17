@@ -1,0 +1,95 @@
+@import "../theme/colors";
+@import "../theme/spacing";
+
+// Sidebar Container
+#sidebar-container {
+  min-height: 100vh;
+  width: 12rem;
+  padding: 0;
+  border-right: 1px solid get-color(light-grey);
+  background-color: get-color(pale-blue);
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  transition: width 0.3s ease;
+
+  &.sidebar-expanded {
+    width: 12rem;
+  }
+
+  &.sidebar-collapsed {
+    width: 3rem;
+    .sidebar-menu-item,
+    .sidebar-label {
+      text-align: center;
+    }
+  }
+}
+
+// Sidebar Header (optional, for branding/logo)
+.sidebar-header {
+  padding: get-padding(medium);
+  font-size: 1.5em;
+  font-weight: bold;
+  color: get-color(color-dark);
+  text-align: center;
+}
+
+// Sidebar Menu
+.sidebar-menu {
+  flex-grow: 1;
+  width: 100%;
+  padding: get-padding(small) 0;
+  display: flex;
+  flex-direction: column;
+
+  .sidebar-menu-item {
+    padding: get-padding(small) get-padding(medium);
+    color: get-color(mid-grey);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+
+    &:hover {
+      background-color: get-color(light-grey);
+      color: get-color(brand-blue);
+    }
+
+    &.active-sidebar {
+      border-left: 3px solid get-color(warning);
+      background-color: get-color(super-light-grey);
+      color: get-color(black);
+    }
+  }
+}
+
+// Sidebar Footer (optional, for links or logout)
+.sidebar-footer {
+  padding: get-padding(medium);
+  width: 100%;
+  text-align: center;
+  color: get-color(mid-grey);
+  border-top: 1px solid get-color(light-grey);
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  #sidebar-container {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    position: relative;
+    border-right: none;
+    border-bottom: 1px solid get-color(light-grey);
+  }
+
+  .sidebar-menu-item {
+    padding: get-padding(small);
+    flex-grow: 1;
+    text-align: center;
+    border-left: none;
+  }
+}

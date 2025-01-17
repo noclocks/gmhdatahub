@@ -59,10 +59,10 @@ add_external_resources <- function() {
   )
 
   htmltools::tags$head(
-    golem::bundle_resources(
-      path = pkg_sys("www"),
-      app_title = app_info("name")
-    ),
+    # golem::bundle_resources(
+    #   path = pkg_sys("www"),
+    #   app_title = app_info("name")
+    # ),
 
     shinyjs::useShinyjs(),
     waiter::use_waiter(),

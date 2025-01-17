@@ -30,8 +30,8 @@ app_theme_ui <- function() {
 
   bslib::bs_theme(
     version = 5,
-    preset = "shiny",
-    primary = gmh_colors("primary")
+    primary = gmh_colors("primary"),
+    "enable-shadows" = TRUE
   )
 
 }

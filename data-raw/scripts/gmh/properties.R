@@ -7,44 +7,19 @@
 #
 #  ------------------------------------------------------------------------
 
-# gmh_property_types <- c(
-#   "Student",
-#   "Conventional",
-#   "Affordable",
-#   "Innovative"
-# )
-#
-# gmh_property_statuses <- c(
-#   "Operational",
-#   "New Construction",
-#   "Undergoing Renovations"
-# )
-#
-# gmh_product_types <- c(
-#   "High-Rise",
-#   "Mid-Rise",
-#   "Wrap",
-#   "Garden",
-#   "Cottage",
-#   "Single Family Residence"
-# )
-#
-# gmh_comp_statuses <- c(
-#   "Subject Property",
-#   "Tier 1",
-#   "Tier 2"
-# )
-#
-# gmh_reporting_cycles <- c(
-#   "Saturday - Friday",
-#   "Sunday - Monday",
-#   "Monday - Sunday"
-# )
-#
-# gmh_incentives <- c(
-#   "None",
-#   "Gift Card",
-#   "Monthly Concession",
-#   "One-Time Concession",
-#   "Other"
-# )
+gmh_properties_tbl <- readr::read_csv(
+  "data-raw/data/working/gmh/gmh_properties.csv",
+  col_types = list(
+    .default = readr::col_character(),
+    property_id = readr::col_integer(),
+    year_built = readr::col_integer(),
+    parent_property_id = readr::col_integer(),
+    segment_id = readr::col_integer(),
+    portfolio_id = readr::col_integer(),
+    partner_id = readr::col_integer()
+  )
+)
+
+gmh_properties_lst <- as.list(gmh_properties_tbl$property_id) |>
+  setNames(gmh_properties_tbl$property_name)
+

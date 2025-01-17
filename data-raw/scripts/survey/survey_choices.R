@@ -36,9 +36,9 @@ survey_choices_lst <- list(
   ),
   leasing_summary = list(
     reporting_cycle = c(
-      "Saturday - Friday",
-      "Sunday - Monday",
-      "Monday - Sunday"
+      "Saturday-Friday",
+      "Sunday-Monday",
+      "Monday-Sunday"
     ),
     current_incentive = c(
       "None",

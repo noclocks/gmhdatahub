@@ -1,4 +1,28 @@
 
+#  ------------------------------------------------------------------------
+#
+# Title : Shiny App Server
+#    By : Jimmy Briggs
+#  Date : 2025-01-17
+#
+#  ------------------------------------------------------------------------
+
+#' Shiny App Server
+#'
+#' @family **Shiny App**
+#'
+#' @description
+#' This is the main server function for the Shiny application.
+#'
+#' @param input,output,session The input, output, and session functions.
+#'
+#' @returns
+#' The server for the Shiny application.
+#'
+#' @export
+#'
+#' @importFrom waiter waiter_hide
+#' @importFrom shiny reactive
 app_server <- function(input, output, session) {
 
   # initialize database connection pool

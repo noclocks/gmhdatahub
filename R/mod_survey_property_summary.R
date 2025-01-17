@@ -49,22 +49,18 @@ mod_survey_property_summary_ui <- function(id) {
   htmltools::tagList(
     bslib::card(
       full_screen = TRUE,
-      class = "property-card",
+      style = "overflow-y: visible;",
+      class = "property-card shadow-sm",
       bslib::card_header(
         class = "d-flex justify-content-between align-items-center",
         htmltools::tags$h3(
           class = "m-0",
           shiny::textOutput(ns("property_name_title"))
-        ),
-        shiny::actionButton(
-          ns("edit"),
-          "Edit",
-          icon = shiny::icon("edit"),
-          class = "btn-sm btn-primary"
         )
       ),
       bslib::card_body(
-        class = "p-0",
+        class = "pt-3 pb-0",
+        style = "overflow-y: visible;",
         bslib::layout_columns(
           col_widths = c(4, 4, 4),
           gap = "1rem",
@@ -72,14 +68,21 @@ mod_survey_property_summary_ui <- function(id) {
           # image card display
           bslib::card(
             full_screen = TRUE,
-            bslib::card_header("Property Image"),
+            bslib::card_header(
+              class = "d-flex justify-content-between align-items-center",
+              htmltools::tags$h3(
+                class = "m-0",
+                "Property Image"
+              )
+            ),
             bslib::card_body(
+              style = "overflow-y: visible;",
               htmltools::tags$div(
                 class = "position-relative",
                 shiny::uiOutput(ns("property_image_card"))
               ),
               htmltools::tags$h3(
-                class = "mb-2",
+                class = "mt-3 mb-2 fw-bold",
                 shiny::textOutput(ns("property_name"))
               ),
               shiny::uiOutput(ns("rating_stars")),
@@ -103,31 +106,79 @@ mod_survey_property_summary_ui <- function(id) {
 
           # property information card
           bslib::card(
-            full_screen = TRUE,
-            bslib::card_header("Property Information"),
+            # full_screen = TRUE,
+            bslib::card_header(
+              class = "d-flex justify-content-between align-items-center",
+              htmltools::tags$h3(
+                class = "m-0",
+                "Property Information"
+              ),
+              shiny::actionButton(
+                ns("edit"),
+                "Edit",
+                icon = shiny::icon("edit"),
+                class = "btn-sm btn-primary"
+              )
+            ),
             bslib::card_body(
-              p(icon("building"), strong(" Developer: "), textOutput(ns("developer"), inline = TRUE)),
-              p(icon("user-tie"), strong(" Manager: "), textOutput(ns("manager"), inline = TRUE)),
-              p(icon("user"), strong(" Owner: "), textOutput(ns("owner"), inline = TRUE)),
-              p(icon("home"), strong(" Type: "), textOutput(ns("type"), inline = TRUE)),
-              p(icon("info-circle"), strong(" Status: "), textOutput(ns("status"), inline = TRUE)),
-              p(icon("chart-line"), strong(" Comp Status: "), textOutput(ns("comp_status"), inline = TRUE)),
-              p(icon("calendar-alt"), strong(" Year Built: "), textOutput(ns("year_built"), inline = TRUE)),
-              p(icon("money-bill-wave"), strong(" Last Sale: "), textOutput(ns("last_sale"), inline = TRUE)),
-              p(icon("route"), strong(" Distance: "), textOutput(ns("distance"), inline = TRUE))
+              # Use icons or bold labels
+              htmltools::tags$p(
+                bsicons::bs_icon("buildings"),
+                htmltools::tags$strong(" Developer: "),
+                shiny::textOutput(ns("developer"), inline = TRUE)
+              ),
+              htmltools::tags$p(
+                bsicons::bs_icon("person-workspace"),
+                htmltools::tags$strong(" Manager: "),
+                shiny::textOutput(ns("manager"), inline = TRUE)
+              ),
+              htmltools::tags$p(
+                bsicons::bs_icon("people"),
+                htmltools::tags$strong(" Owner: "),
+                shiny::textOutput(ns("owner"), inline = TRUE)
+              ),
+              htmltools::tags$p(
+                bsicons::bs_icon("house"),
+                htmltools::tags$strong(" Type: "),
+                shiny::textOutput(ns("type"), inline = TRUE)
+              ),
+              htmltools::tags$p(
+                bsicons::bs_icon("info-circle"),
+                htmltools::tags$strong(" Status: "),
+                shiny::textOutput(ns("status"), inline = TRUE)
+              ),
+              htmltools::tags$p(
+                bsicons::bs_icon("graph-up"),
+                htmltools::tags$strong(" Comp Status: "),
+                shiny::textOutput(ns("comp_status"), inline = TRUE)
+              ),
+              htmltools::tags$p(
+                bsicons::bs_icon("calendar2-date"),
+                htmltools::tags$strong(" Year Built: "),
+                shiny::textOutput(ns("year_built"), inline = TRUE)
+              ),
+              htmltools::tags$p(
+                bsicons::bs_icon("cash-stack"),
+                htmltools::tags$strong(" Last Sale: "),
+                shiny::textOutput(ns("last_sale"), inline = TRUE)
+              ),
+              htmltools::tags$p(
+                bsicons::bs_icon("geo-alt"),
+                htmltools::tags$strong(" Distance: "),
+                shiny::textOutput(ns("distance"), inline = TRUE)
+              )
             ),
             bslib::card_footer(
-              htmltools::tags$span(
-                htmltools::tags$small(
-                  class = "text-muted text-center",
-                  "Click the 'Edit' button to make changes."
-                ),
-                shiny::actionButton(
-                  ns("refresh"),
-                  "Refresh Data",
-                  icon = shiny::icon("sync"),
-                  class = "btn-sm btn-outline-primary"
-                )
+              class = "bg-light",
+              htmltools::tags$small(
+                class = "text-muted",
+                "Need to update info? Click 'Edit'."
+              ),
+              shiny::actionButton(
+                ns("refresh"),
+                "Refresh Data",
+                icon = shiny::icon("sync"),
+                class = "btn-sm btn-outline-primary float-end"
               )
             )
           ),
@@ -135,11 +186,18 @@ mod_survey_property_summary_ui <- function(id) {
           # property map card
           bslib::card(
             full_screen = TRUE,
-            max_height = "300px",
-            bslib::card_header("Property Map"),
+            min_height = "300px",
+            bslib::card_header(
+              class = "d-flex justify-content-between align-items-center",
+              htmltools::tags$h3(
+                class = "m-0",
+                "Property Map"
+              )
+            ),
             bslib::card_body(
               class = "p-0",
-              leaflet::leafletOutput(ns("property_map"), height = 300),
+              leaflet::leafletOutput(ns("property_map"), height = 800) |>
+                with_loader(),
               htmltools::tags$small(
                 "Click the marker for more information."
               )
@@ -149,13 +207,13 @@ mod_survey_property_summary_ui <- function(id) {
       ),
       # footer with last updated at timestamp & refresh button
       bslib::card_footer(
-        class = "text-muted text-center",
+        class = "text-muted d-flex justify-content-between align-items-center",
         htmltools::tags$small(
-          "Last Updated: ",
-          htmltools::tags$span(
-            class = "fw-bold",
-            shiny::textOutput(ns("last_updated_at"))
-          )
+          "Last Updated:"
+        ),
+        htmltools::tags$span(
+          class = "fw-bold",
+          shiny::textOutput(ns("last_updated_at"), inline = TRUE)
         )
       )
     )
@@ -175,19 +233,8 @@ mod_survey_property_summary_server <- function(
   selected_property_id = NULL
 ) {
 
-  # check database connection
-  if (is.null(pool)) pool <- db_connect()
-  check_db_conn(pool)
-
   # validation of reactives
-  if (is.null(selected_property_id)) {
-    property_id <- db_read_tbl(pool, "mkt.properties", collect = FALSE) |>
-      dplyr::filter(.data$is_competitor == FALSE) |>
-      dplyr::pull("property_id")
-    selected_property_id <- shiny::reactive({ property_id })
-  }
-
-  stopifnot(shiny::is.reactive(selected_property_id))
+  if (!is.null(selected_property_id)) stopifnot(shiny::is.reactive(selected_property_id))
 
   shiny::moduleServer(
     id,
@@ -196,18 +243,53 @@ mod_survey_property_summary_server <- function(
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_property_summary_server()")
 
+      # check database connection
+      if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
+      check_db_conn(pool)
+
+      if (is.null(selected_property_id)) {
+        property_id <- db_read_tbl(pool, "mkt.properties", collect = FALSE) |>
+          dplyr::filter(.data$is_competitor == FALSE) |>
+          dplyr::pull("property_id")
+        selected_property_id <- shiny::reactive({ property_id })
+      }
+
       db_refresh_trigger <- shiny::reactiveVal(0)
+
+      iv <- property_summary_validator()
 
       # property data
       property_data <- reactive({
-        shiny::req(selected_property_id())
+        shiny::req(selected_property_id(), db_refresh_trigger())
         property_id <- selected_property_id()
         db_read_mkt_property_summary(pool, property_id)
       }) |>
         shiny::bindEvent(selected_property_id(), db_refresh_trigger())
 
+      # if property data is empty notify user and launch modal form
+      shiny::observe({
+        shiny::req(property_data())
+        if (nrow(property_data()) == 0) {
+          shiny::showNotification(
+            "No Survey Data Found for the Selected Property",
+            type = "error"
+          )
+          iv$initialize()
+          shinyjs::click("edit")
+          shinyjs::enable("save_changes")
+        }
+      })
+
       property_map_data <- reactive({
         db_read_mkt_locations(pool, property_data()$property_id)
+      })
+
+      shiny::observeEvent(input$refresh, {
+        db_refresh_trigger(db_refresh_trigger() + 1)
+        shiny::showNotification(
+          "Data Refreshed",
+          type = "default"
+        )
       })
 
       # inputs data
@@ -239,27 +321,36 @@ mod_survey_property_summary_server <- function(
         paste0(name, " (", id, ")")
       })
 
-      output$property_image_card <- renderUI({
+      output$property_image_card <- shiny::renderUI({
+
         data <- property_data()
         img_src <- data$property_image
+        if (is.na(img_src)) { img_src <- "https://placehold.co/600x400.png" }
 
         bslib::card_image(
           src = img_src,
           alt = "Property Image",
           href = data$website,
-          height = "auto",
-          width = "100%"
+          height = "400px",
+          width = "auto"
         )
       })
 
-      output$rating_stars <- renderUI({
+      output$rating_stars <- shiny::renderUI({
         rating <- property_data()$property_rating
         stars <- lapply(1:5, function(i) {
           if (i <= rating) icon("star", class = "text-warning")
           else if (i - 0.5 == rating) icon("star-half-alt", class = "text-warning")
           else icon("star", class = "text-muted")
         })
-        div(class = "d-flex", stars)
+        htmltools::tags$div(
+          class = "d-flex",
+          stars,
+          htmltools::tags$span(
+            class = "ms-2",
+            paste0(rating, "/5")
+          )
+        )
       })
 
       output$property_map <- leaflet::renderLeaflet({
@@ -276,6 +367,20 @@ mod_survey_property_summary_server <- function(
             lat = latitude,
             popup = map_data$map_popup_html
           )
+      })
+
+      shiny::observe({
+        shiny::req(property_map_data())
+        map_data <- property_map_data()
+        leaflet::leafletProxy("property_map") |>
+          leaflet::clearPopups() |>
+          leaflet::addPopups(
+            lng = map_data$longitude,
+            lat = map_data$latitude,
+            popup = map_data$map_popup_html
+          )
+          # TODO: set view up some so full popup is in the view
+
       })
 
       output$property_name <- shiny::renderText({ property_data()$property_name })
@@ -300,6 +405,38 @@ mod_survey_property_summary_server <- function(
 
       shiny::observeEvent(input$edit, {
         data <- property_data()
+
+        iv$initialize()
+        iv$enable()
+
+        if (nrow(data) == 0) {
+          prop_id <- selected_property_id()
+          gmh_property_data <- db_read_tbl(pool, "gmh.properties", collect = FALSE) |>
+            dplyr::filter(property_id == prop_id) |>
+            dplyr::collect()
+          gmh_location_data <- db_read_tbl(pool, "gmh.locations", collect = FALSE) |>
+            dplyr::filter(.data$location_name %in% gmh_property_data$property_name) |>
+            dplyr::collect()
+          data <- tibble::tibble(
+            property_id = prop_id,
+            property_name = gmh_property_data$property_name,
+            website = gmh_property_data$property_url,
+            address = gmh_location_data$address,
+            phone_number = gmh_location_data$phone_number,
+            property_image = gmh_location_data$image_url,
+            developer = "",
+            manager = "",
+            owner = "",
+            property_type = get_survey_choices("property_summary", "property_type")[[1]],
+            property_rating = gmh_location_data$gmaps_rating,
+            property_status = get_survey_choices("property_summary", "property_status")[[1]],
+            comp_status = get_survey_choices("property_summary", "comp_status")[[1]],
+            year_built = 1970,
+            most_recent_sale = as.Date("1900-01-01"),
+            distance_from_campus = 0
+          )
+        }
+
         shiny::showModal(
           shiny::modalDialog(
             title = "Edit Property",
@@ -308,23 +445,47 @@ mod_survey_property_summary_server <- function(
               col_widths = c(6, 6),
               bslib::card(
                 bslib::card_body(
-                  shiny::textInput(session$ns("property_name_input"), "Property Name", value = data$property_name),
-                  shiny::textInput(session$ns("website_input"), "Website URL", value = data$website),
-                  shiny::textInput(session$ns("address_input"), "Address", value = data$address),
-                  shiny::textInput(session$ns("phone_input"), "Phone Number", value = data$phone_number),
-                  radioButtons(
+                  shiny::textInput(
+                    session$ns("property_name_input"),
+                    "Property Name",
+                    value = data$property_name
+                  ),
+                  shiny::textInput(
+                    session$ns("website_input"),
+                    "Website URL",
+                    value = data$website
+                  ),
+                  shiny::textInput(
+                    session$ns("address_input"),
+                    "Address",
+                    value = data$address
+                  ),
+                  shiny::textInput(
+                    session$ns("phone_input"),
+                    "Phone Number",
+                    value = data$phone_number
+                  ),
+                  shiny::radioButtons(
                     session$ns("image_input_type"),
                     "Image Input Type",
                     choices = c("URL" = "url", "File Upload" = "file"),
                     selected = "url"
                   ),
-                  conditionalPanel(
+                  shiny::conditionalPanel(
                     condition = sprintf("input['%s'] == 'url'", session$ns("image_input_type")),
-                    textInput(session$ns("image_url_input"), "Image URL", value = data$property_image)
+                    shiny::textInput(
+                      session$ns("image_url_input"),
+                      "Image URL",
+                      value = data$property_image
+                    )
                   ),
-                  conditionalPanel(
+                  shiny::conditionalPanel(
                     condition = sprintf("input['%s'] == 'file'", session$ns("image_input_type")),
-                    shiny::fileInput(session$ns("image_file"), "Upload Image", accept = c('image/png', 'image/jpeg', 'image/gif'))
+                    shiny::fileInput(
+                      session$ns("image_file"),
+                      "Upload Image",
+                      accept = c('image/png', 'image/jpeg', 'image/gif')
+                    )
                   )
                 )
               ),
@@ -341,16 +502,30 @@ mod_survey_property_summary_server <- function(
                     "Rating",
                     min = 0,
                     max = 5,
-                    value = data$property_rating,
+                    value = data$property_rating %||% 0,
                     step = 0.5
                   ),
-                  selectInput(session$ns("status_input"), "Status",
-                              choices = c("New Construction", "Operational", "Undergoing Renovation"),
-                              selected = data$property_status),
-                  numericInput(session$ns("year_built_input"), "Year Built",
-                               value = data$year_built, min = 1900, max = 2023),
-                  sliderInput(session$ns("distance_input"), "Distance (miles)",
-                              min = 0, max = 10, value = data$distance_from_campus, step = 0.1)
+                  shiny::selectInput(
+                    session$ns("status_input"),
+                    "Status",
+                    choices = c("New Construction", "Operational", "Undergoing Renovation"),
+                    selected = data$property_status
+                  ),
+                  shiny::numericInput(
+                    session$ns("year_built_input"),
+                    "Year Built",
+                    value = data$year_built,
+                    min = 1900,
+                    max = 2023
+                  ),
+                  shiny::sliderInput(
+                    session$ns("distance_input"),
+                    "Distance (miles)",
+                    min = 0,
+                    max = 10,
+                    value = data$distance_from_campus,
+                    step = 0.1
+                  )
                 )
               )
             ),
@@ -376,28 +551,26 @@ mod_survey_property_summary_server <- function(
         req(input_data())
         original_data <- property_data()
         new_values <- input_data()
-
-        # Only show fields that have changed and have non-NULL values
-        changes <- list()
-        for (field in names(new_values)) {
-          if (!is.null(new_values[[field]]) &&
-              !isTRUE(all.equal(new_values[[field]], original_data[[field]]))) {
-            changes[[field]] <- list(
-              old = original_data[[field]],
-              new = new_values[[field]]
-            )
+        if (nrow(original_data) == 0) {
+          changes <- "new"
+        } else {
+          changes <- list()
+          for (field in names(new_values)) {
+            if (!is.null(new_values[[field]]) && !isTRUE(all.equal(new_values[[field]], original_data[[field]]))) {
+              changes[[field]] <- list(
+                old = original_data[[field]],
+                new = new_values[[field]]
+              )
+            }
           }
         }
-
-        changes
+        return(changes)
       })
 
       shiny::observe({
         req(changes())
         if (length(changes()) > 0) {
           shinyjs::enable("save_changes")
-        } else {
-          shinyjs::disable("save_changes")
         }
       })
 
@@ -408,6 +581,14 @@ mod_survey_property_summary_server <- function(
 
         if (length(changes_data) == 0) {
           return(p("No changes made"))
+        }
+
+        if (changes_data == "new") {
+          return(
+            strong(
+              p("New property being added", style = "color: #007bff;")
+            )
+          )
         }
 
         # Create the change preview UI
@@ -449,7 +630,7 @@ mod_survey_property_summary_server <- function(
         )
 
         # Example DB update (replace with your actual logic)
-        db_update_property(
+        db_update_mkt_property_summary(
           pool        = pool,
           property_id = pid,
           new_values  = new_values
@@ -457,7 +638,6 @@ mod_survey_property_summary_server <- function(
 
         # Trigger a refresh of the property data
         db_refresh_trigger(db_refresh_trigger() + 1)
-
         shiny::removeModal()
       })
 
@@ -485,8 +665,6 @@ mod_survey_property_summary_demo <- function(pool = NULL) {
 
   pkgload::load_all()
 
-  if (is.null(pool)) pool <- db_connect()
-
   ui <- bslib::page_navbar(
     title = "Demo: Survey Property Summary",
     window_title = "Demo: Survey Property Summary",
@@ -503,6 +681,7 @@ mod_survey_property_summary_demo <- function(pool = NULL) {
   )
 
   server <- function(input, output, session) {
+    if (is.null(pool)) pool <- db_connect()
     mod_survey_property_summary_server("demo", pool = pool)
   }
 
@@ -511,41 +690,3 @@ mod_survey_property_summary_demo <- function(pool = NULL) {
 
 # utilities ---------------------------------------------------------------
 
-
-db_update_property <- function(pool, property_id, new_values) {
-
-  check_db_conn(pool)
-
-  conn <- pool::poolCheckout(pool)
-  on.exit(pool::poolReturn(conn))
-
-  tryCatch({
-    dbx::dbxUpsert(
-      conn,
-      DBI::SQL("mkt.property_summary"),
-      records = new_values,
-      where_cols = c("property_id"),
-      skip_existing = FALSE
-    )
-    cli::cli_alert_success(
-      "Successfully updated property details."
-    )
-    shiny::showNotification(
-      "Successfully updated property details.",
-      duration = 500,
-      type = "default"
-    )
-  }, error = function(e) {
-    cli::cli_alert_danger(
-      "Failed to update property details: {.error {e$message}}"
-    )
-    shiny::showNotification(
-      "Failed to update property details.",
-      duration = 500,
-      type = "error"
-    )
-  })
-
-  return(invisible(new_values))
-
-}
