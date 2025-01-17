@@ -289,6 +289,9 @@ noclocksr::cfg_init(cfg = cfg)
 noclocksr::cfg_hooks_init()
 usethis::use_build_ignore("config.yml")
 
+usethis::use_build_ignore(".dockerignore")
+usethis::use_build_ignore("Dockerfile")
+
 # data --------------------------------------------------------------------
 
 usethis::use_data_raw("internal")

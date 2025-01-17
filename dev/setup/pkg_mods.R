@@ -28,3 +28,23 @@ use_module("survey_notes")
 use_module("survey_rents")
 
 use_module("wizard")
+
+use_module_test("home")
+use_module_test("dashboard")
+
+use_module_test("properties")
+use_module_test("property_units")
+use_module_test("leases")
+use_module_test("floorplans")
+use_module_test("residents")
+
+use_module_test("pre_lease")
+use_module_test("box_score")
+use_module_test("performance")
+
+use_module_test("survey_admin")
+use_module_test("survey_forms")
+use_module_test("survey_insights")
+
+use_module_test("survey_property_summary")
+use_module_test("survey_leasing_summary")
