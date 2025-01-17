@@ -11,7 +11,6 @@ Containers</a> · <a href="https://datahub.gmhcommunities.com">Live
 App</a>
 </p>
 <p align="center">
-<img src="man/figures/gmh-logo.svg" width="200px" height="auto" alt="GMH Logo"/>
 <img src="man/figures/noclocks-logo.svg" width="200px" height="auto" alt="No Clocks Logo"/>
 </p>
 <p align="center">
