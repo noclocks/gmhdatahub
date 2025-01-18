@@ -48,7 +48,7 @@ NULL
 #' @rdname app_sidebar
 #' @export
 #' @importFrom bsicons bs_icon
-#' @importFrom bslib sidebar accordion accordion_panel
+#' @importFrom bslib sidebar accordion accordion_panel input_task_button
 #' @importFrom htmltools tags
 #' @importFrom shiny NS
 app_sidebar_ui <- function(id) {
