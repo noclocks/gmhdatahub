@@ -8,6 +8,7 @@
 
 ## Bug Fixes
 
+- Fixes ([6f1aea7](https://github.com/noclocks/gmhdatahub/commit/6f1aea759153b812d1ea4c27966ef3c977812276))  - (Jimmy Briggs)
 - Fix shiny session checks ([26e93f7](https://github.com/noclocks/gmhdatahub/commit/26e93f7ff5a87e6a20e36fd69210ef3cdf0d9fe5))  - (Jimmy Briggs)
 - Fix indentation ([2232322](https://github.com/noclocks/gmhdatahub/commit/223232261b648f61e361bbea1fabb13857a920ac))  - (Jimmy Briggs)
 - Remove full_screen card ([10f6464](https://github.com/noclocks/gmhdatahub/commit/10f6464c2f2e606988cd0bc8287fa7bbff1e3faf))  - (Jimmy Briggs)
@@ -34,6 +35,7 @@
 
 ## Features
 
+- Update pkgdown gha ([a7f1131](https://github.com/noclocks/gmhdatahub/commit/a7f1131519f22084f2c70f5f40160a8bd4998b33))  - (Jimmy Briggs)
 - Update wordlist ([f9ab16e](https://github.com/noclocks/gmhdatahub/commit/f9ab16e807e4c9e717b21800baccdb0a16169740))  - (Jimmy Briggs)
 - Add github docker workflow ([0e2e792](https://github.com/noclocks/gmhdatahub/commit/0e2e792b3a33c09572ab652dbc613c16a77ba929))  - (Jimmy Briggs)
 - Add gcp docker workflow ([a4f9134](https://github.com/noclocks/gmhdatahub/commit/a4f913443b06c88d0151df2a88c1b9ad8dd54ced))  - (Jimmy Briggs)
