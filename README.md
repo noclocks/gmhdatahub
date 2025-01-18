@@ -44,21 +44,19 @@ App</a>
 <!-- badges: start -->
 
 [![Automate
-Changelog](https://github.com/noclocks/gmhleasr/actions/workflows/changelog.yml/badge.svg)](https://github.com/noclocks/gmhleasr/actions/workflows/changelog.yml)
+Changelog](https://github.com/noclocks/gmhdatahub/actions/workflows/changelog.yml/badge.svg)](https://github.com/noclocks/gmhdatahub/actions/workflows/changelog.yml)
 [![Code
-Style](https://github.com/noclocks/gmhleasr/actions/workflows/style.yml/badge.svg)](https://github.com/noclocks/gmhleasr/actions/workflows/style.yml)
-[![Lint](https://github.com/noclocks/gmhleasr/actions/workflows/lint.yml/badge.svg)](https://github.com/noclocks/gmhleasr/actions/workflows/lint.yml)
+Style](https://github.com/noclocks/gmhdatahub/actions/workflows/style.yml/badge.svg)](https://github.com/noclocks/gmhdatahub/actions/workflows/style.yml)
+[![Lint](https://github.com/noclocks/gmhdatahub/actions/workflows/lint.yml/badge.svg)](https://github.com/noclocks/gmhdatahub/actions/workflows/lint.yml)
 [![Document
-(Roxygen)](https://github.com/noclocks/gmhleasr/actions/workflows/roxygen.yml/badge.svg)](https://github.com/noclocks/gmhleasr/actions/workflows/roxygen.yml)
-[![pkgdown](https://github.com/noclocks/gmhleasr/actions/workflows/pkgdown.yml/badge.svg)](https://github.com/noclocks/gmhleasr/actions/workflows/pkgdown.yml)
-[![Pkgdown
-Multi](https://github.com/noclocks/gmhleasr/actions/workflows/pkgdown-multi.yml/badge.svg)](https://github.com/noclocks/gmhleasr/actions/workflows/pkgdown-multi.yml)
-[![Dependabot
-Updates](https://github.com/noclocks/gmhleasr/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/noclocks/gmhleasr/actions/workflows/dependabot/dependabot-updates)
+(Roxygen)](https://github.com/noclocks/gmhdatahub/actions/workflows/roxygen.yml/badge.svg)](https://github.com/noclocks/gmhdatahub/actions/workflows/roxygen.yml)
+[![pkgdown](https://github.com/noclocks/gmhdatahub/actions/workflows/pkgdown.yml/badge.svg)](https://github.com/noclocks/gmhdatahub/actions/workflows/pkgdown.yml)
 [![R CMD
-Check](https://github.com/noclocks/gmhleasr/actions/workflows/check.yml/badge.svg?branch=main)](https://github.com/noclocks/gmhleasr/actions/workflows/check.yml)
+Check](https://github.com/noclocks/gmhdatahub/actions/workflows/check.yml/badge.svg?branch=main)](https://github.com/noclocks/gmhdatahub/actions/workflows/check.yml)
 [![Test
 Coverage](https://codecov.io/gh/noclocks/gmhdatahub/graph/badge.svg)](https://app.codecov.io/gh/noclocks/gmhdatahub)
+[![Dependabot
+Updates](https://github.com/noclocks/gmhdatahub/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/noclocks/gmhdatahub/actions/workflows/dependabot/dependabot-updates)
 <!-- badges: end -->
 
 ## Overview
