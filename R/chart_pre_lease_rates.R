@@ -1,5 +1,4 @@
 chart_pre_lease_rates <- function(data, id = NULL, ...) {
-
   validate_col_names(
     data,
     c(
@@ -65,5 +64,4 @@ chart_pre_lease_rates <- function(data, id = NULL, ...) {
     apexcharter::ax_colors(c(chart_colors("primary"), chart_colors("secondary"))) |>
     apexcharter::ax_stroke(width = 2) |>
     apexcharter::ax_legend(position = "top")
-
 }

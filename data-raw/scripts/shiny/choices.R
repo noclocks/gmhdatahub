@@ -1,4 +1,3 @@
-
 if (!exists("entrata_properties_lst")) source("data-raw/scripts/entrata/properties.R")
 if (!exists("gmh_portfolios_lst")) source("data-raw/scripts/gmh/portfolios.R")
 if (!exists("gmh_competitors_lst")) source("data-raw/scripts/gmh/competitors.R")

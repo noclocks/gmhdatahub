@@ -1,5 +1,4 @@
 chart_partner_distribution <- function(data, metric = c("total_beds"), id = NULL, ...) {
-
   validate_col_names(
     data,
     c(
@@ -50,5 +49,4 @@ chart_partner_distribution <- function(data, metric = c("total_beds"), id = NULL
     apexcharter::ax_colors(
       chart_colors(1:5, 8)
     )
-
 }

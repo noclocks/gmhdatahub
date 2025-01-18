@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Survey Leasing Summary Shiny Module
@@ -43,7 +42,6 @@ NULL
 #' @importFrom htmltools tagList tags
 #' @importFrom bslib card
 mod_survey_leasing_summary_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   current_leasing_week <- get_leasing_week_start_date()
@@ -80,7 +78,6 @@ mod_survey_leasing_summary_ui <- function(id) {
           bslib::card_body(
             bslib::layout_columns(
               col_widths = c(6, 6, 6, 6),
-
               bslib::card(
                 bslib::card_header(
                   "Occupancy Statistics"
@@ -112,7 +109,6 @@ mod_survey_leasing_summary_ui <- function(id) {
                   )
                 )
               ),
-
               bslib::card(
                 bslib::card_header(
                   "Important Dates"
@@ -144,7 +140,6 @@ mod_survey_leasing_summary_ui <- function(id) {
                   )
                 )
               ),
-
               bslib::card(
                 bslib::card_header(
                   "Leasing Activity"
@@ -179,7 +174,6 @@ mod_survey_leasing_summary_ui <- function(id) {
                   )
                 )
               ),
-
               bslib::card(
                 bslib::card_header(
                   "Incentives"
@@ -205,7 +199,6 @@ mod_survey_leasing_summary_ui <- function(id) {
       )
     )
   )
-
 }
 
 
@@ -216,18 +209,15 @@ mod_survey_leasing_summary_ui <- function(id) {
 #' @importFrom shiny moduleServer reactive
 #' @importFrom cli cat_rule
 mod_survey_leasing_summary_server <- function(
-  id,
-  pool = NULL,
-  selected_property_id = NULL
-) {
-
+    id,
+    pool = NULL,
+    selected_property_id = NULL) {
   # validation of reactives
   if (!is.null(selected_property_id)) stopifnot(shiny::is.reactive(selected_property_id))
 
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_leasing_summary_server()")
 
@@ -240,7 +230,9 @@ mod_survey_leasing_summary_server <- function(
         property_id <- db_read_tbl(pool, "mkt.properties", collect = FALSE) |>
           dplyr::filter(.data$is_competitor == FALSE) |>
           dplyr::pull("property_id")
-        selected_property_id <- shiny::reactive({ property_id })
+        selected_property_id <- shiny::reactive({
+          property_id
+        })
       }
 
       db_refresh_trigger <- shiny::reactiveVal(0)
@@ -275,23 +267,26 @@ mod_survey_leasing_summary_server <- function(
           max()
       })
 
-      shiny::observeEvent(leasing_data_latest_leasing_week(), {
-        if (leasing_data_latest_leasing_week() != selected_leasing_week()) {
-          shiny::updateDateInput(
-            session,
-            "leasing_week",
-            value = leasing_data_latest_leasing_week()
-          )
-          cli::cli_alert_warning(
-            "Leasing week has been updated to match the selected property's data."
-          )
-          shiny::showNotification(
-            "Leasing week has been updated to match the selected property's data.",
-            duration = 5000,
-            type = "warning"
-          )
-        }
-      }, once = TRUE)
+      shiny::observeEvent(leasing_data_latest_leasing_week(),
+        {
+          if (leasing_data_latest_leasing_week() != selected_leasing_week()) {
+            shiny::updateDateInput(
+              session,
+              "leasing_week",
+              value = leasing_data_latest_leasing_week()
+            )
+            cli::cli_alert_warning(
+              "Leasing week has been updated to match the selected property's data."
+            )
+            shiny::showNotification(
+              "Leasing week has been updated to match the selected property's data.",
+              duration = 5000,
+              type = "warning"
+            )
+          }
+        },
+        once = TRUE
+      )
 
       inputs_data <- shiny::reactive({
         tibble::tibble(
@@ -384,7 +379,6 @@ mod_survey_leasing_summary_server <- function(
 
       # edit
       shiny::observeEvent(input$edit, {
-
         data <- leasing_summary_data()
 
         iv$initialize()
@@ -588,10 +582,11 @@ mod_survey_leasing_summary_server <- function(
           htmltools::tags$div(
             htmltools::tags$p(
               htmltools::tags$strong(
-                paste0(tools::toTitleCase(
-                  gsub("_", " ", field)
-                ),
-                ":"
+                paste0(
+                  tools::toTitleCase(
+                    gsub("_", " ", field)
+                  ),
+                  ":"
                 )
               ),
               htmltools::tags$span(
@@ -654,7 +649,6 @@ mod_survey_leasing_summary_server <- function(
 #' @importFrom bsicons bs_icon
 #' @importFrom shiny shinyApp
 mod_survey_leasing_summary_demo <- function(pool = NULL) {
-
   pkgload::load_all()
 
   ui <- bslib::page_navbar(

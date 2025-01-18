@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Run Shiny App
@@ -27,14 +26,13 @@
 #'
 #' @importFrom shiny shinyApp
 run_app <- function(
-  port = 8080,
-  host = "0.0.0.0",
-  on_start = NULL,
-  options = app_opts(port = port, host = host),
-  enable_bookmarking = NULL,
-  ui_pattern = ".*",
-  ...
-) {
+    port = 8080,
+    host = "0.0.0.0",
+    on_start = NULL,
+    options = app_opts(port = port, host = host),
+    enable_bookmarking = NULL,
+    ui_pattern = ".*",
+    ...) {
   # run app
   shiny::shinyApp(
     ui = app_ui,
@@ -59,7 +57,6 @@ run_app <- function(
 #' @returns
 #' Returns previously set options invisibly.
 app_opts <- function(...) {
-
   # collect user options
   user_options <- list(...)
 

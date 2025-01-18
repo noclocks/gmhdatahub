@@ -2,9 +2,7 @@ chart_weekly_leasing_breakdown <- function(
     data,
     id = NULL,
     height = 500,
-    ...
-) {
-
+    ...) {
   validate_col_names(
     data,
     c(
@@ -65,11 +63,9 @@ chart_weekly_leasing_breakdown <- function(
     apexcharter::ax_colors(
       c(chart_colors("primary"), chart_colors("secondary"))
     )
-
 }
 
 chart_weekly_activity <- function(data, id = NULL, height = 500, ...) {
-
   validate_col_names(
     data,
     c(
@@ -132,11 +128,9 @@ chart_weekly_activity <- function(data, id = NULL, height = 500, ...) {
     apexcharter::ax_colors(
       c(chart_colors(1:3))
     )
-
 }
 
 plot_weekly <- function(data, ...) {
-
   plotly::plot_ly(data) |>
     plotly::add_trace(
       x = ~property_name,
@@ -156,5 +150,4 @@ plot_weekly <- function(data, ...) {
       xaxis = list(title = "", tickangle = 45),
       margin = list(b = 120)
     )
-
 }

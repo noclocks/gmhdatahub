@@ -1,5 +1,4 @@
 db_schema_tbl_name <- function(schema = NULL, tbl_name) {
-
   schemas <- c(
     "public",
     "gmh",

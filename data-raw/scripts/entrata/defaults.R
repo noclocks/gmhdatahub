@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Entrata Defaults
@@ -30,4 +29,3 @@ entrata_default_methods_lst <- list(
   "reports" = "getReportList",
   "vendors" = "getVendors"
 )
-

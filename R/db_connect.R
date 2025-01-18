@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Database Connection
@@ -51,61 +50,60 @@
 #' @importFrom RPostgres Postgres
 #' @importFrom shiny getDefaultReactiveDomain onStop
 db_connect <- function(db_config = get_db_config(), user_id = NULL) {
-
   validate_db_config(db_config)
 
   if (is.null(user_id)) {
     user_id <- get_shiny_user_id() %||% 1
   }
 
-  tryCatch({
-    conn <- pool::dbPool(
-      drv = RPostgres::Postgres(),
-      dbname = db_config$dbname,
-      host = db_config$host,
-      port = db_config$port,
-      user = db_config$user,
-      password = db_config$password,
-      maxSize = db_config$max_size %||% 10,  # Default to 10 connections
-      minSize = db_config$min_size %||% 1,   # Default to 1 connection
-      idleTimeout = db_config$idle_timeout %||% 60000, # Default to 60 seconds
-      onCreate = function(conn) {
-        pool::dbExecute(conn, glue::glue("SET SESSION {DBI::SQL('app.user_id')} = '{user_id}';"))
+  tryCatch(
+    {
+      conn <- pool::dbPool(
+        drv = RPostgres::Postgres(),
+        dbname = db_config$dbname,
+        host = db_config$host,
+        port = db_config$port,
+        user = db_config$user,
+        password = db_config$password,
+        maxSize = db_config$max_size %||% 10, # Default to 10 connections
+        minSize = db_config$min_size %||% 1, # Default to 1 connection
+        idleTimeout = db_config$idle_timeout %||% 60000, # Default to 60 seconds
+        onCreate = function(conn) {
+          pool::dbExecute(conn, glue::glue("SET SESSION {DBI::SQL('app.user_id')} = '{user_id}';"))
+        }
+      )
+
+      shiny_session <- shiny::getDefaultReactiveDomain()
+
+      if (!is.null(shiny_session)) {
+        shiny::onStop(
+          fun = function() {
+            pool::poolClose(conn)
+          },
+          session = shiny_session
+        )
+
+        shiny_session$userData$db_pool <- conn
+        shiny_session$userData$db_user_id <- user_id
       }
-    )
 
-    shiny_session <- shiny::getDefaultReactiveDomain()
+      options("db.pool" = conn)
 
-    if (!is.null(shiny_session)) {
-      shiny::onStop(
-        fun = function() {
-          pool::poolClose(conn)
-        },
-        session = shiny_session
+      cli::cli_alert_info("Connected to Database: {db_config$dbname} on {db_config$host}.")
+
+      return(conn)
+    },
+    error = function(e) {
+      cli::cli_abort(
+        c(
+          "Failed to connect to the database.",
+          "Details: {conditionMessage(e)}",
+          "i" = "Check if the database server is reachable and credentials are correct.",
+          "i" = "Ensure that the database is configured to accept connections from this host."
+        )
       )
-
-      shiny_session$userData$db_pool <- conn
-      shiny_session$userData$db_user_id <- user_id
     }
-
-    options("db.pool" = conn)
-
-    cli::cli_alert_info("Connected to Database: {db_config$dbname} on {db_config$host}.")
-
-    return(conn)
-
-  }, error = function(e) {
-    cli::cli_abort(
-      c(
-        "Failed to connect to the database.",
-        "Details: {conditionMessage(e)}",
-        "i" = "Check if the database server is reachable and credentials are correct.",
-        "i" = "Ensure that the database is configured to accept connections from this host."
-      )
-    )
-
-  })
-
+  )
 }
 
 #' @rdname db_connect
@@ -146,7 +144,6 @@ db_return <- function(conn) {
 #' @importFrom cli cli_abort
 #' @importFrom shiny getDefaultReactiveDomain
 get_db_conn <- function() {
-
   if (env_in_shiny_session()) {
     conn <- shiny::getDefaultReactiveDomain()$userData$db_pool
     return(conn)
@@ -163,7 +160,3 @@ get_db_conn <- function() {
   }
   return(conn)
 }
-
-
-
-

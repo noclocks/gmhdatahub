@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : App Assets
@@ -11,14 +10,14 @@ app_preloader_ui <- function() {
   htmltools::tagList(
     waiter::waiter_show_on_load(
       html = shiny::tags$div(
-        style = 'display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; height: 50vh;',
+        style = "display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; height: 50vh;",
         shiny::tags$img(
           src = "www/logo.svg",
           height = "150px",
-          style = 'background: #FFFFFF; border: 3px solid black; border-radius: 6px; padding: 0.5%;'
+          style = "background: #FFFFFF; border: 3px solid black; border-radius: 6px; padding: 0.5%;"
         ),
         waiter::spin_puzzle(),
-        shiny::tags$h3('Initializing Data Hub...')
+        shiny::tags$h3("Initializing Data Hub...")
       ),
       color = "#0E2B4C"
     )
@@ -35,7 +34,6 @@ app_logo <- function() {
 }
 
 app_favicon <- function(path = "www/favicon.ico") {
-
   favicon_mime_type <- mime::guess_type(
     path,
     mime_extra = c("ico" = "image/x-icon")
@@ -48,11 +46,9 @@ app_favicon <- function(path = "www/favicon.ico") {
       href = path
     )
   )
-
 }
 
 add_external_resources <- function() {
-
   shiny::addResourcePath(
     prefix = "www",
     directoryPath = pkg_sys("www")
@@ -68,11 +64,7 @@ add_external_resources <- function() {
     waiter::use_waiter(),
     fontawesome::fa_html_dependency(),
     rintrojs::introjsUI(),
-
     app_favicon(),
     app_preloader_ui()
   )
-
 }
-
-

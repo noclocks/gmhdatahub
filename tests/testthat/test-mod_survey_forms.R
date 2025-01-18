@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Survey Forms Shiny Module Tests
@@ -11,7 +10,6 @@
 # server ------------------------------------------------------------------
 
 test_that("mod_survey_forms_server", {
-
   shiny::testServer(
     mod_survey_forms_server,
     args = list(),
@@ -28,19 +26,18 @@ test_that("mod_survey_forms_server", {
       )
     }
   )
-
 })
 
 
 # UI ----------------------------------------------------------------------
 
 test_that("mod_survey_forms_ui", {
-
   ui <- mod_survey_forms_ui("test")
   expect_shinytaglist(ui)
   fmls <- formals(mod_survey_forms_ui)
-  for (i in c("id")) { expect_true(i %in% names(fmls)) }
-
+  for (i in c("id")) {
+    expect_true(i %in% names(fmls))
+  }
 })
 
 

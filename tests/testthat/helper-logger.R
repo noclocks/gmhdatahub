@@ -1,5 +1,4 @@
 test_logger <- function(start = NULL, end = NULL, msg) {
-
   if (is.null(start) & is.null(end)) {
     cat("\n")
     logger::log_info("{msg}")
@@ -15,5 +14,4 @@ test_logger <- function(start = NULL, end = NULL, msg) {
     cat("\n")
     logger::log_info("\n[ END {end} = {msg}]")
   }
-
 }

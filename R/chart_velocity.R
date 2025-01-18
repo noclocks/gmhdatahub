@@ -1,5 +1,4 @@
 chart_velocity_comparison <- function(data, id = NULL, ...) {
-
   validate_col_names(
     data,
     c(
@@ -69,11 +68,9 @@ chart_velocity_comparison <- function(data, id = NULL, ...) {
     apexcharter::ax_grid(
       show = TRUE
     )
-
 }
 
 plot_velocity <- function(data, ...) {
-
   plotly::plot_ly(data) |>
     plotly::add_trace(
       x = ~property_name,
@@ -99,5 +96,4 @@ plot_velocity <- function(data, ...) {
       yaxis = list(title = "Velocity % (Beds/Week Needed)"),
       margin = list(b = 120)
     )
-
 }

@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Module Tests
@@ -8,7 +7,6 @@
 #  ------------------------------------------------------------------------
 
 test_that("mod_dashboard_server", {
-
   shiny::testServer(
     mod_dashboard_server,
     args = list(),
@@ -25,14 +23,13 @@ test_that("mod_dashboard_server", {
       )
     }
   )
-
 })
 
 test_that("mod_dashboard_ui", {
-
   ui <- mod_dashboard_ui("test")
   expect_shinytaglist(ui)
   fmls <- formals(mod_dashboard_ui)
-  for (i in c("id")) { expect_true(i %in% names(fmls)) }
-
+  for (i in c("id")) {
+    expect_true(i %in% names(fmls))
+  }
 })

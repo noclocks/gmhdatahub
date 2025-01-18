@@ -1,5 +1,4 @@
 map_survey_locations <- function(properties = NULL, competitors = NULL, universities = NULL) {
-
   merged_data <- dplyr::bind_rows(
     properties,
     competitors,
@@ -8,8 +7,8 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
 
   if (nrow(merged_data) == 0) {
     return(leaflet::leaflet() |>
-             leaflet::addProviderTiles(leaflet::providers$CartoDB.Positron) |>
-             leaflet::setView(lng = -98.35, lat = 39.5, zoom = 4))
+      leaflet::addProviderTiles(leaflet::providers$CartoDB.Positron) |>
+      leaflet::setView(lng = -98.35, lat = 39.5, zoom = 4))
   }
 
   if (nrow(competitors) == 0) {
@@ -47,7 +46,6 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
     leaflet::addProviderTiles(leaflet::providers$CartoDB.Positron)
 
   if (nrow(properties) > 0) {
-
     hold <- hold |>
       leaflet::addAwesomeMarkers(
         lng = ~longitude,
@@ -73,7 +71,6 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
   }
 
   if (!is.null(competitors) && nrow(competitors) > 0) {
-
     hold <- hold |>
       leaflet::addAwesomeMarkers(
         lng = ~longitude,
@@ -96,11 +93,9 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
         ),
         data = competitors
       )
-
   }
 
   if (!is.null(universities) && nrow(universities) > 0) {
-
     hold <- hold |>
       leaflet::addAwesomeMarkers(
         lng = ~longitude,
@@ -123,7 +118,6 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
         ),
         data = universities
       )
-
   }
 
   hold |>
@@ -149,7 +143,6 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
       lat = center$lat,
       zoom = zoom
     )
-
 }
 
 

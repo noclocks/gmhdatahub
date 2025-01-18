@@ -1,9 +1,7 @@
 get_gmaps_config <- function(
     key = NULL,
     file = Sys.getenv("R_CONFIG_FILE", "config.yml"),
-    config = Sys.getenv("R_CONFIG_ACTIVE", "default")
-) {
-
+    config = Sys.getenv("R_CONFIG_ACTIVE", "default")) {
   # normalize path to config file
   file <- normalizePath(file, mustWork = FALSE)
 
@@ -18,22 +16,25 @@ get_gmaps_config <- function(
   }
 
   # attempt to read the configuration file
-  cfg <- tryCatch({
-    config::get(
-      value = "gmaps",
-      file = file,
-      config = config
-    )
-  }, error = function(e) {
-    cli::cli_abort(
-      c(
-        "Error reading configuration file {.field {basename(file)}}.",
-        "Ensure the file contains an {.code {gmaps}} configuration block for ",
-        " the {.field {config}} configuration.",
-        "Error: {.error_message {e}}"
+  cfg <- tryCatch(
+    {
+      config::get(
+        value = "gmaps",
+        file = file,
+        config = config
       )
-    )
-  })
+    },
+    error = function(e) {
+      cli::cli_abort(
+        c(
+          "Error reading configuration file {.field {basename(file)}}.",
+          "Ensure the file contains an {.code {gmaps}} configuration block for ",
+          " the {.field {config}} configuration.",
+          "Error: {.error_message {e}}"
+        )
+      )
+    }
+  )
 
   keys <- names(cfg)
 
@@ -43,5 +44,4 @@ get_gmaps_config <- function(
   }
 
   return(cfg)
-
 }

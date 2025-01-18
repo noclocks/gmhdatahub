@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Shiny App UI
@@ -29,7 +28,6 @@
 #' @examplesIf interactive()
 #' shiny::shinyApp(ui = app_ui, server = app_server)
 app_ui <- function(req = NULL) {
-
   if (!is.null(req)) {
     force(req)
     http_method <- req$REQUEST_METHOD
@@ -46,29 +44,24 @@ app_ui <- function(req = NULL) {
       lang = "en",
       window_title = "GMH DataHub",
       position = "static-top",
-
       header = app_header_ui(),
       theme = app_theme_ui(),
       title = app_title_ui(),
       sidebar = app_sidebar_ui("sidebar"),
       footer = app_footer_ui(),
-
       bslib::nav_spacer(),
-
       bslib::nav_panel(
         title = "Home",
         value = "home",
         icon = bsicons::bs_icon("house"),
         mod_home_ui("home")
       ),
-
       bslib::nav_panel(
         title = "Dashboard",
         value = "dashboard",
         icon = bsicons::bs_icon("speedometer2"),
         mod_dashboard_ui("dashboard")
       ),
-
       bslib::nav_menu(
         title = "Data",
         value = "data",
@@ -104,7 +97,6 @@ app_ui <- function(req = NULL) {
           mod_residents_ui("residents")
         )
       ),
-
       bslib::nav_menu(
         title = "Reports",
         value = "reports",
@@ -128,7 +120,6 @@ app_ui <- function(req = NULL) {
           mod_performance_ui("performance")
         )
       ),
-
       bslib::nav_menu(
         title = "Market Survey",
         value = "market_survey",
@@ -152,11 +143,8 @@ app_ui <- function(req = NULL) {
           mod_survey_insights_ui("survey_insights")
         )
       ),
-
       bslib::nav_spacer(),
-
       bslib::nav_item(bslib::input_dark_mode(id = "dark_mode", mode = "light")),
-
       bslib::nav_menu(
         title = "Links",
         align = "right",
@@ -176,7 +164,6 @@ app_ui <- function(req = NULL) {
           )
         )
       ),
-
       bslib::nav_menu(
         title = "Contact",
         align = "right",
@@ -245,11 +232,11 @@ app_title_ui <- function() {
 
 app_footer_ui <- function() {
   tags$footer(
-    class = "footer py-3",  # Removed mt-auto and bg-light classes
+    class = "footer py-3", # Removed mt-auto and bg-light classes
     tags$div(
       class = "container",
       tags$span(
-        "© 2024 GMH DataHub"  # Removed text-muted class
+        "© 2024 GMH DataHub" # Removed text-muted class
       )
     )
   )

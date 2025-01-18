@@ -1,5 +1,4 @@
 chart_yoy_variance <- function(data, by = c("property", "partner"), id = NULL, ...) {
-
   by <- match.arg(by)
 
   validate_col_names(
@@ -12,7 +11,6 @@ chart_yoy_variance <- function(data, by = c("property", "partner"), id = NULL, .
   )
 
   if (by == "property") {
-
     aes_x <- "property_name"
     chart_subtitle <- "Year-Over-Year Variance by Property"
     x_axis_title <- "Property"
@@ -20,7 +18,6 @@ chart_yoy_variance <- function(data, by = c("property", "partner"), id = NULL, .
 
     chart_data <- dplyr::select(data, property_name, yoy_variance_percent) |>
       dplyr::arrange(dplyr::desc(abs(yoy_variance_percent)))
-
   } else {
     aes_x <- "investment_partner"
     chart_subtitle <- "Year-Over-Year Variance by Investment Partner"
@@ -67,7 +64,6 @@ chart_yoy_variance <- function(data, by = c("property", "partner"), id = NULL, .
       labels = list(
         formatter = apexcharter::format_num(".0%")
       ),
-
     ) |>
     apexcharter::ax_plotOptions(
       bar = list(
@@ -97,5 +93,4 @@ chart_yoy_variance <- function(data, by = c("property", "partner"), id = NULL, .
     apexcharter::ax_legend(
       show = FALSE
     )
-
 }

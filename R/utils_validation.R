@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Validation Utilities
@@ -8,9 +7,7 @@
 #  ------------------------------------------------------------------------
 
 set_validation_rules <- function(iv, section) {
-
-  switch(
-    section,
+  switch(section,
     "Property Summary" = {
       input_ids <- property_summary_inputs_tbl$id
       required_inputs <- property_summary_inputs_tbl |>
@@ -72,11 +69,9 @@ set_validation_rules <- function(iv, section) {
       return(iv)
     }
   )
-
 }
 
 intro_validator <- function() {
-
   if (is.null(shiny::getDefaultReactiveDomain())) {
     cli::cli_abort(
       "This function must be called within a valid shiny session."
@@ -85,11 +80,9 @@ intro_validator <- function() {
 
   iv <- shinyvalidate::InputValidator$new()
   iv$add_rule("survey_user", shinyvalidate::sv_email())
-
 }
 
 property_summary_validator <- function() {
-
   if (is.null(shiny::getDefaultReactiveDomain())) {
     cli::cli_abort(
       "This function must be called within a valid shiny session."
@@ -128,12 +121,10 @@ property_summary_validator <- function() {
   iv$add_rule("property_rating", shinyvalidate::sv_gt(0, "Rating must be greater than 0."))
 
   return(iv)
-
 }
 
 
 leasing_summary_validator <- function() {
-
   if (is.null(shiny::getDefaultReactiveDomain())) {
     cli::cli_abort(
       "This function must be called within a valid shiny session."
@@ -173,5 +164,4 @@ leasing_summary_validator <- function() {
   iv$add_rule("incentive_amount", shinyvalidate::sv_numeric())
 
   return(iv)
-
 }

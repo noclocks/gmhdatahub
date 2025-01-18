@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Database Configuration
@@ -42,9 +41,7 @@ NULL
 get_db_config <- function(
     key = NULL,
     file = Sys.getenv("R_CONFIG_FILE", pkg_sys("config/config.yml")),
-    config = Sys.getenv("R_CONFIG_ACTIVE", "default")
-) {
-
+    config = Sys.getenv("R_CONFIG_ACTIVE", "default")) {
   # normalize path to config file
   file <- normalizePath(file, mustWork = FALSE)
 
@@ -59,22 +56,25 @@ get_db_config <- function(
   }
 
   # attempt to read the configuration file
-  cfg <- tryCatch({
-    config::get(
-      value = "db",
-      file = file,
-      config = config
-    )
-  }, error = function(e) {
-    cli::cli_abort(
-      c(
-        "Error reading configuration file {.field {basename(file)}}.",
-        "Ensure the file contains a {.code db} configuration block for ",
-        " the {.field {config}} configuration.",
-        "Error: {.error_message {e}}"
+  cfg <- tryCatch(
+    {
+      config::get(
+        value = "db",
+        file = file,
+        config = config
       )
-    )
-  })
+    },
+    error = function(e) {
+      cli::cli_abort(
+        c(
+          "Error reading configuration file {.field {basename(file)}}.",
+          "Ensure the file contains a {.code db} configuration block for ",
+          " the {.field {config}} configuration.",
+          "Error: {.error_message {e}}"
+        )
+      )
+    }
+  )
 
   keys <- names(cfg)
 
@@ -84,7 +84,6 @@ get_db_config <- function(
   }
 
   return(cfg)
-
 }
 
 #' @rdname db_config

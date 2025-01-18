@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Entrata Data Preparation Scripts
@@ -30,5 +29,3 @@ rm(list = setdiff(ls(), c(grep("_tbl|_lst|_tbls", ls(), value = TRUE), "entrata_
 
 cli::cli_alert_success("Entrata data preparation completed successfully and generated the following objects:")
 cli::cli_ul(ls())
-
-

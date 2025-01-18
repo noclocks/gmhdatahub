@@ -38,7 +38,6 @@ create_leasing_calendar <- function(start_year = 2023, num_years = 3) {
           difftime(date, leasing_season_start_date, units = "weeks")
         )
       ) + 1,
-
       leasing_weeks_left_to_lease = ceiling(
         as.numeric(
           difftime(leasing_season_end_date, date, units = "weeks")

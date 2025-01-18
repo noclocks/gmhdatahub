@@ -1,9 +1,7 @@
 chart_current_vs_prior <- function(data, metric = c("leases", "renewals", "prelease"), id = NULL, ...) {
-
   metric <- match.arg(metric)
 
-  req_cols <- switch(
-    metric,
+  req_cols <- switch(metric,
     leases = c("property_name", "current_total_leases", "prior_total_leases"),
     renewals = c("property_name", "current_total_renewals", "prior_total_renewals"),
     prelease = c("property_name", "current_preleased_percent", "prior_preleased_percent")
@@ -11,15 +9,13 @@ chart_current_vs_prior <- function(data, metric = c("leases", "renewals", "prele
 
   validate_col_names(data, req_cols)
 
-  title <- switch(
-    metric,
+  title <- switch(metric,
     leases = "Current vs Prior Total Leases",
     renewals = "Current vs Prior Total Renewals",
     prelease = "Current vs Prior Preleased Percent"
   )
 
-  subtitle <- switch(
-    metric,
+  subtitle <- switch(metric,
     leases = "Comparison of current and prior total leases by property.",
     renewals = "Comparison of current and prior total renewals by property.",
     prelease = "Comparison of current and prior pre-leased percent by property."
@@ -27,8 +23,7 @@ chart_current_vs_prior <- function(data, metric = c("leases", "renewals", "prele
 
   x_axis_title <- "Property Name"
 
-  y_axis_title <- switch(
-    metric,
+  y_axis_title <- switch(metric,
     leases = "Number of Leases",
     renewals = "Number of Renewals",
     prelease = "Pre-Lease Percent"

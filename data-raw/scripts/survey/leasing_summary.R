@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Leasing Summary
@@ -42,9 +41,9 @@ leasing_summary_inputs_tbl <- leasing_summary_inputs <- tibble::tibble(
     "data_last_updated"
   ),
   type = c(
-    "mc",      # Reporting Cycle
-    "date",    # Lease Launch Date
-    "date",    # Renewal Launch Date
+    "mc", # Reporting Cycle
+    "date", # Lease Launch Date
+    "date", # Renewal Launch Date
     "numeric", # Current Occupancy
     "numeric", # Prior Year Occupancy
     "numeric", # Current Pre-Lease
@@ -53,9 +52,9 @@ leasing_summary_inputs_tbl <- leasing_summary_inputs <- tibble::tibble(
     "numeric", # Total New Leases
     "numeric", # Total Weekly Leases
     "numeric", # Total Weekly Traffic
-    "mc",      # Current Incentive
+    "mc", # Current Incentive
     "numeric", # Incentive Amount
-    "date"     # Data Last Updated
+    "date" # Data Last Updated
   ),
   label = c(
     "Reporting Cycle",
@@ -74,20 +73,20 @@ leasing_summary_inputs_tbl <- leasing_summary_inputs <- tibble::tibble(
     "Data Last Updated"
   ),
   required = c(
-    TRUE,  # Reporting Cycle
-    TRUE,  # Lease Launch Date
-    TRUE,  # Renewal Launch Date
-    TRUE,  # Current Occupancy
-    TRUE,  # Prior Year Occupancy
-    TRUE,  # Current Pre-Lease
-    TRUE,  # Prior Year Pre-Lease
-    TRUE,  # Total Renewals
-    TRUE,  # Total New Leases
-    TRUE,  # Total Weekly Leases
-    TRUE,  # Total Weekly Traffic
-    TRUE,  # Current Incentive
-    TRUE,  # Incentive Amount
-    TRUE   # Data Last Updated
+    TRUE, # Reporting Cycle
+    TRUE, # Lease Launch Date
+    TRUE, # Renewal Launch Date
+    TRUE, # Current Occupancy
+    TRUE, # Prior Year Occupancy
+    TRUE, # Current Pre-Lease
+    TRUE, # Prior Year Pre-Lease
+    TRUE, # Total Renewals
+    TRUE, # Total New Leases
+    TRUE, # Total Weekly Leases
+    TRUE, # Total Weekly Traffic
+    TRUE, # Current Incentive
+    TRUE, # Incentive Amount
+    TRUE # Data Last Updated
   ),
   help = c(
     "The reporting cycle for the current leasing summary.",
@@ -108,19 +107,19 @@ leasing_summary_inputs_tbl <- leasing_summary_inputs <- tibble::tibble(
   choices = NULL,
   default = c(
     "Monday-Sunday", # Reporting Cycle
-    NA,              # Lease Launch Date
-    NA,              # Renewal Launch Date
-    NA,              # Current Occupancy
-    NA,              # Prior Year Occupancy
-    NA,              # Current Pre-Lease
-    NA,              # Prior Year Pre-Lease
-    NA,              # Total Renewals
-    NA,              # Total New Leases
-    NA,              # Total Weekly Leases
-    NA,              # Total Weekly Traffic
-    "None",          # Current Incentive
-    "0",                # Incentive Amount,
-    NA               # Data Last Updated
+    NA, # Lease Launch Date
+    NA, # Renewal Launch Date
+    NA, # Current Occupancy
+    NA, # Prior Year Occupancy
+    NA, # Current Pre-Lease
+    NA, # Prior Year Pre-Lease
+    NA, # Total Renewals
+    NA, # Total New Leases
+    NA, # Total Weekly Leases
+    NA, # Total Weekly Traffic
+    "None", # Current Incentive
+    "0", # Incentive Amount,
+    NA # Data Last Updated
   ),
   icon = c(
     "calendar", # Reporting Cycle
@@ -136,7 +135,7 @@ leasing_summary_inputs_tbl <- leasing_summary_inputs <- tibble::tibble(
     "chart-line", # Total Weekly Traffic
     "chart-line", # Current Incentive
     "chart-line", # Incentive Amount
-    "calendar"   # Data Last Updated
+    "calendar" # Data Last Updated
   ),
   placeholder = c(
     "Select a reporting cycle...",

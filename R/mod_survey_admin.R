@@ -42,7 +42,6 @@ NULL
 #' @importFrom htmltools tagList tags
 #' @importFrom bslib card
 mod_survey_admin_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   htmltools::tagList(
@@ -71,7 +70,7 @@ mod_survey_admin_ui <- function(id) {
           id = ns("value_boxes"),
           class = "my-4",
           bslib::layout_column_wrap(
-            width = 1/3,
+            width = 1 / 3,
             bslib::value_box(
               title = "Total Properties",
               value = shiny::textOutput(ns("val_properties")),
@@ -109,7 +108,7 @@ mod_survey_admin_ui <- function(id) {
             )
           ),
           bslib::layout_column_wrap(
-            width = 1/3,
+            width = 1 / 3,
             shiny::actionButton(ns("add_property"), "Add New Property", icon = shiny::icon("plus"), class = "btn-primary"),
             shiny::actionButton(ns("add_competitor"), "Add New Competitor", icon = shiny::icon("plus"), class = "btn-primary"),
             shiny::actionButton(ns("create_survey"), "Create New Survey", icon = shiny::icon("plus"), class = "btn-success")
@@ -146,7 +145,7 @@ mod_survey_admin_ui <- function(id) {
         bslib::nav_panel(
           title = icon_text("chart-line", "Survey Charts"),
           bslib::layout_column_wrap(
-            width = 1/2,
+            width = 1 / 2,
             bslib::card(
               bslib::card_header("Survey Rate Adjustments"),
               bslib::card_body(
@@ -164,7 +163,6 @@ mod_survey_admin_ui <- function(id) {
       )
     )
   )
-
 }
 
 
@@ -175,11 +173,9 @@ mod_survey_admin_ui <- function(id) {
 #' @importFrom shiny moduleServer reactive
 #' @importFrom cli cat_rule
 mod_survey_admin_server <- function(
-  id,
-  pool = NULL,
-  global_filters = NULL
-) {
-
+    id,
+    pool = NULL,
+    global_filters = NULL) {
   # validation of reactives
   if (!is.null(global_filters)) {
     stopifnot(shiny::is.reactive(global_filters))
@@ -188,7 +184,6 @@ mod_survey_admin_server <- function(
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_admin_server()")
 
@@ -273,7 +268,6 @@ mod_survey_admin_server <- function(
               .data$survey_status
             )
           )
-
       })
 
       map_data <- shiny::reactive({
@@ -350,7 +344,6 @@ mod_survey_admin_server <- function(
 
       # output - property map
       output$property_map <- leaflet::renderLeaflet({
-
         properties <- map_data()$properties
         competitors <- map_data()$competitors
         universities <- map_data()$universities
@@ -374,7 +367,6 @@ mod_survey_admin_server <- function(
       })
 
       shiny::observeEvent(input$create_survey, {
-
         shiny::showModal(
           shiny::modalDialog(
             title = "Create New Survey",
@@ -480,11 +472,9 @@ mod_survey_admin_server <- function(
           valid_inputs <- iv$is_valid()
 
           if (valid_inputs) {
-
             new_survey <- survey_data()
 
             tryCatch({
-
               gmh_property_data <- db_read_tbl(pool, "gmh.properties")
 
               new_property <- gmh_property_data |>
@@ -506,7 +496,6 @@ mod_survey_admin_server <- function(
                 )
 
               pool::poolWithTransaction(pool, function(conn) {
-
                 DBI::dbAppendTable(
                   conn = conn,
                   name = DBI::SQL("survey.properties"),
@@ -518,7 +507,6 @@ mod_survey_admin_server <- function(
                   name = DBI::SQL("survey.surveys"),
                   value = new_survey
                 )
-
               })
 
               cli::cli_alert_success(
@@ -529,7 +517,6 @@ mod_survey_admin_server <- function(
                 "Survey initialized successfully.",
                 type = "message"
               )
-
             }, error = function(e) {
               cli::cli_alert_danger(
                 "Error initializing survey. {.error {e$message}}"
@@ -579,7 +566,6 @@ mod_survey_admin_server <- function(
 #' @importFrom bsicons bs_icon
 #' @importFrom shiny shinyApp
 mod_survey_admin_demo <- function() {
-
   pkgload::load_all()
 
   ui <- bslib::page_navbar(
@@ -608,7 +594,6 @@ mod_survey_admin_demo <- function() {
 # modals ------------------------------------------------------------------
 
 mod_survey_init_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   htmltools::tagList(
@@ -634,15 +619,12 @@ mod_survey_init_ui <- function(id) {
       value = NULL
     )
   )
-
 }
 
 mod_survey_init_server <- function(id, pool = NULL) {
-
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       if (is.null(pool)) pool <- session$userData$pool
       check_db_conn(pool)
       ns <- session$ns
@@ -738,8 +720,6 @@ mod_survey_init_server <- function(id, pool = NULL) {
       })
 
       return(list(survey_data = survey_data))
-
     }
   )
 }
-

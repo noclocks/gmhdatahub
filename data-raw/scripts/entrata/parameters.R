@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Entrata Method Parameters
@@ -794,5 +793,3 @@ entrata_params_tbl <- entrata_params_lst |>
     dplyr::desc(required),
     parameter
   )
-
-

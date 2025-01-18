@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : zzz.R - Package .onLoad / .onAttach
@@ -33,7 +32,6 @@
     appender = logger::appender_stdout,
     namespace = "gmhcommunities"
   )
-
 } # nocov end
 
 .onAttach <- function(libname, pkgname) {
@@ -45,4 +43,3 @@
   shiny::removeResourcePath("www")
   Sys.unsetenv("R_CONFIG_FILE")
 }
-

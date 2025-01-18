@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : GMH Properties
@@ -20,4 +19,3 @@ gmh_properties_tbl <- readr::read_csv(
 
 gmh_properties_lst <- as.list(gmh_properties_tbl$property_id) |>
   setNames(gmh_properties_tbl$property_name)
-

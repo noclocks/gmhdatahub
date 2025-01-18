@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Survey Parking Shiny Module
@@ -43,13 +42,10 @@ NULL
 #' @importFrom htmltools tagList tags
 #' @importFrom bslib card
 mod_survey_parking_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   htmltools::tagList(
-    bslib::card(
-
-    )
+    bslib::card()
   )
 }
 
@@ -61,11 +57,9 @@ mod_survey_parking_ui <- function(id) {
 #' @importFrom shiny moduleServer reactive
 #' @importFrom cli cat_rule
 mod_survey_parking_server <- function(
-  id,
-  pool = NULL,
-  global_filters = NULL
-) {
-
+    id,
+    pool = NULL,
+    global_filters = NULL) {
   # check database connection
   if (is.null(pool)) pool <- db_connect()
   check_db_conn(pool)
@@ -78,7 +72,6 @@ mod_survey_parking_server <- function(
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_parking_server()")
 
@@ -100,7 +93,6 @@ mod_survey_parking_server <- function(
 #' @importFrom bsicons bs_icon
 #' @importFrom shiny shinyApp
 mod_survey_parking_demo <- function() {
-
   pkgload::load_all()
 
   ui <- bslib::page_navbar(
@@ -125,4 +117,3 @@ mod_survey_parking_demo <- function() {
 }
 
 # utilities ---------------------------------------------------------------
-

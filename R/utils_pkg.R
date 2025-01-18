@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Package Utilities
@@ -18,4 +17,6 @@
 #'
 #' @examples
 #' pkg_sys("extdata", "data.csv")
-pkg_sys <- function(...) { system.file(..., package = "gmhdatahub") }
+pkg_sys <- function(...) {
+  system.file(..., package = "gmhdatahub")
+}

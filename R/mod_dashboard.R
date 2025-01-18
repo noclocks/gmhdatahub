@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Dashboard Shiny Module
@@ -43,7 +42,6 @@ NULL
 #' @importFrom htmltools tagList tags
 #' @importFrom bslib card
 mod_dashboard_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   htmltools::tagList(
@@ -169,7 +167,6 @@ mod_dashboard_ui <- function(id) {
       )
     )
   )
-
 }
 
 
@@ -180,15 +177,12 @@ mod_dashboard_ui <- function(id) {
 #' @importFrom shiny moduleServer reactive
 #' @importFrom cli cat_rule
 mod_dashboard_server <- function(
-  id,
-  pool = NULL,
-  global_filters = NULL
-) {
-
+    id,
+    pool = NULL,
+    global_filters = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cat_rule("[Module]: mod_dashboard_server()")
 
@@ -291,7 +285,6 @@ mod_dashboard_server <- function(
 #' @importFrom bsicons bs_icon
 #' @importFrom shiny shinyApp
 mod_dashboard_demo <- function() {
-
   pkgload::load_all()
 
   ui <- bslib::page_navbar(
@@ -314,5 +307,3 @@ mod_dashboard_demo <- function() {
 
   shiny::shinyApp(ui, server)
 }
-
-

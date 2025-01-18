@@ -1,10 +1,8 @@
 tbl_survey_locations <- function(
-  locations = NULL,
-  properties = NULL,
-  competitors = NULL,
-  universities = NULL
-) {
-
+    locations = NULL,
+    properties = NULL,
+    competitors = NULL,
+    universities = NULL) {
   # validate inputs
   validate_tbl_survey_locations(locations, properties, competitors, universities)
 
@@ -18,5 +16,4 @@ tbl_survey_locations <- function(
 
   # return survey locations table
   survey_locations
-
 }

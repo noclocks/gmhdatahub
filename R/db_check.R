@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Database Checks
@@ -29,14 +28,14 @@
 check_db_conn <- function(
     conn,
     arg = rlang::caller_arg(conn),
-    call = rlang::caller_env()
-) {
-
+    call = rlang::caller_env()) {
   is_dbi <- inherits(conn, "PqConnection")
   is_pool <- inherits(conn, "Pool")
   is_rstudio_conn <- inherits(conn, "connConnection")
 
-  if (is_rstudio_conn) { return(invisible(conn)) }
+  if (is_rstudio_conn) {
+    return(invisible(conn))
+  }
 
   if (!is_dbi && !is_pool) {
     cli::cli_abort(
@@ -75,7 +74,6 @@ check_db_conn <- function(
   }
 
   return(invisible(conn))
-
 }
 
 #' @rdname check_db_conn
@@ -102,17 +100,14 @@ check_db_pool <- check_db_conn
 #' @importFrom DBI dbExistsTable
 #' @importFrom pool dbExistsTable
 db_tbl_exists <- function(conn, tbl_name, in_schema = NULL) {
-
   check_db_conn(conn)
 
   schema_tbl_name <- db_schema_tbl_name(in_schema, tbl_name)
 
-  func <- switch(
-    class(conn)[[1]],
+  func <- switch(class(conn)[[1]],
     "PqConnection" = DBI::dbExistsTable,
     "Pool" = pool::dbExistsTable
   )
 
   return(func(conn, schema_tbl_name))
-
 }

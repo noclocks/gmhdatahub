@@ -1,5 +1,4 @@
 parse_unit_types <- function(resp_properties) {
-
   purrr::map_dfr(resp_properties, function(x) {
     tibble::tibble(
       property_id = x$id,
@@ -7,11 +6,9 @@ parse_unit_types <- function(resp_properties) {
       unit_type_name = purrr::map_chr(x$unitTypes$unitType, "name")
     )
   })
-
 }
 
 safe_unnest <- function(data, id_col, path, names) {
-
   data |>
     dplyr::select(
       {{ id_col }},
@@ -25,5 +22,4 @@ safe_unnest <- function(data, id_col, path, names) {
     dplyr::select(
       tidyselect::all_of(names)
     )
-
 }

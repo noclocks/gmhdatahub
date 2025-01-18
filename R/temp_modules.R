@@ -61,4 +61,3 @@ mod_performance_ui <- function(id) {
     "Performance metrics"
   )
 }
-

@@ -1,10 +1,7 @@
-
 validate_entrata_endpoint <- function(
     endpoint,
     arg = rlang::caller_arg(endpoint),
-    call = rlang::caller_env()
-) {
-
+    call = rlang::caller_env()) {
   if (!(endpoint %in% entrata_endpoints_lst)) {
     cli::cli_abort(
       c(
@@ -16,15 +13,12 @@ validate_entrata_endpoint <- function(
   }
 
   return(invisible())
-
 }
 
 validate_entrata_method_name <- function(
-  method_name,
-  arg = rlang::caller_arg(method_name),
-  call = rlang::caller_env()
-) {
-
+    method_name,
+    arg = rlang::caller_arg(method_name),
+    call = rlang::caller_env()) {
   if (!(method_name %in% entrata_methods_tbl$method_name)) {
     cli::cli_abort(
       c(
@@ -36,16 +30,13 @@ validate_entrata_method_name <- function(
   }
 
   return(invisible())
-
 }
 
 validate_entrata_method_version <- function(
-  method_name,
-  method_version,
-  arg = rlang::caller_arg(method_version),
-  call = rlang::caller_env()
-) {
-
+    method_name,
+    method_version,
+    arg = rlang::caller_arg(method_version),
+    call = rlang::caller_env()) {
   validate_entrata_method_name(method_name, call = call)
   default_version <- entrata_method_versions_lst[[method_name]]
   valid_versions <- if (default_version == "r3") {
@@ -67,7 +58,6 @@ validate_entrata_method_version <- function(
   }
 
   return(invisible())
-
 }
 
 validate_entrata_method_params <- function(
@@ -76,15 +66,15 @@ validate_entrata_method_params <- function(
     method_params,
     method_version = get_default_entrata_method_version(endpoint, method_name),
     arg = rlang::caller_arg(method_params),
-    call = rlang::caller_env()
-) {
-
+    call = rlang::caller_env()) {
   stopifnot(rlang::is_list(method_params) && rlang::is_named(method_params))
   validate_entrata_method_name(endpoint, method_name)
 
   params_tbl <- entrata_params_tbl |>
-    dplyr::filter(.data$endpoint == .env$endpoint,
-                  .data$method == .env$method_name)
+    dplyr::filter(
+      .data$endpoint == .env$endpoint,
+      .data$method == .env$method_name
+    )
 
   valid_params <- entrata_method_params[[endpoint]][[method_name]]
 
@@ -99,7 +89,6 @@ validate_entrata_method_params <- function(
   }
 
   for (param in names(method_params)) {
-
     # check if param is valid
     if (!(param %in% names(valid_params))) {
       cli::cli_alert_warning(
@@ -129,7 +118,6 @@ validate_entrata_method_params <- function(
     }
 
     if (!is.null(param_value)) {
-
       validate_entrata_method_param_type(param, param_value, call = call)
 
       if (param_type == "character") {
@@ -150,19 +138,14 @@ validate_entrata_method_params <- function(
           call = call
         )
       }
-
     }
-
   }
-
 }
 
 validate_entrata_report_name <- function(
     report_name,
     arg = rlang::caller_arg(report_name),
-    call = rlang::caller_env()
-) {
-
+    call = rlang::caller_env()) {
   if (!(report_name %in% entrata_report_names_lst)) {
     cli::cli_abort(
       c(
@@ -174,16 +157,13 @@ validate_entrata_report_name <- function(
   }
 
   return(invisible())
-
 }
 
 validate_entrata_report_version <- function(
-  report_name,
-  report_version,
-  arg = rlang::caller_arg(report_version),
-  call = rlang::caller_env()
-) {
-
+    report_name,
+    report_version,
+    arg = rlang::caller_arg(report_version),
+    call = rlang::caller_env()) {
   validate_entrata_report_name(report_name, call = call)
   default_version <- entrata_report_versions_lst[[report_name]]
   valid_versions <- if (default_version == "r3") {
@@ -205,17 +185,14 @@ validate_entrata_report_version <- function(
   }
 
   return(invisible())
-
 }
 
 validate_entrata_property_id <- function(property_id) { }
 
 validate_entrata_period_type <- function(
-  period_type,
-  arg = rlang::caller_arg(period_type),
-  call = rlang::caller_env()
-) {
-
+    period_type,
+    arg = rlang::caller_arg(period_type),
+    call = rlang::caller_env()) {
   .period_types <- c(
     "date",
     "daterange",
@@ -242,7 +219,4 @@ validate_entrata_period_type <- function(
   }
 
   return(invisible())
-
 }
-
-

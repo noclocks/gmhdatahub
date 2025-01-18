@@ -1,5 +1,4 @@
 tbl_property_leasing_summary <- function(data, ...) {
-
   req_cols <- c(
     "property_name",
     "total_beds",
@@ -36,5 +35,4 @@ tbl_property_leasing_summary <- function(data, ...) {
     reactablefmtr::add_title("Pre-Lease Property Summary") |>
     reactablefmtr::add_subtitle("Summary of Leasing Metrics by Property") |>
     reactablefmtr::add_source(source = "Entrata API", font_style = "italic", font_color = "gray")
-
 }

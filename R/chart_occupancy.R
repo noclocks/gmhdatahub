@@ -1,5 +1,4 @@
 chart_occupancy <- function(data, target = 0.9, by = c("property", "partner"), id = NULL, ...) {
-
   by <- match.arg(by)
 
   validate_col_names(
@@ -29,7 +28,6 @@ chart_occupancy <- function(data, target = 0.9, by = c("property", "partner"), i
     )
 
   if (by == "partner") {
-
     chart_data <- chart_data |>
       dplyr::group_by(investment_partner) |>
       dplyr::summarize(
@@ -41,14 +39,11 @@ chart_occupancy <- function(data, target = 0.9, by = c("property", "partner"), i
     chart_xaxis_title <- "Investment Partners"
     chart_xaxis_categories <- unique(chart_data$investment_partner)
     aes_x <- "investment_partner"
-
   } else {
-
     chart_subtitle <- "Current Occupancy Rates by Property"
     chart_xaxis_title <- "Property Name"
     chart_xaxis_categories <- unique(chart_data$property_name)
     aes_x <- "property_name"
-
   }
 
   chart_data <- dplyr::rename(

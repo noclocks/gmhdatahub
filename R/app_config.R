@@ -1,6 +1,4 @@
-
 app_info <- function(...) {
-
   info <- list(
     name = "gmhdatahub",
     title = "GMH Data Hub",
@@ -17,7 +15,6 @@ app_info <- function(...) {
   } else {
     return(info[[...]])
   }
-
 }
 
 #' Access files in the current app
@@ -45,18 +42,17 @@ app_sys <- function(...) {
 #'
 #' @noRd
 get_golem_config <- function(
-  value,
-  config = Sys.getenv(
-    "GOLEM_CONFIG_ACTIVE",
-    Sys.getenv(
-      "R_CONFIG_ACTIVE",
-      "default"
-    )
-  ),
-  use_parent = TRUE,
-  # Modify this if your config file is somewhere else
-  file = app_sys("golem-config.yml")
-) {
+    value,
+    config = Sys.getenv(
+      "GOLEM_CONFIG_ACTIVE",
+      Sys.getenv(
+        "R_CONFIG_ACTIVE",
+        "default"
+      )
+    ),
+    use_parent = TRUE,
+    # Modify this if your config file is somewhere else
+    file = app_sys("golem-config.yml")) {
   config::get(
     value = value,
     config = config,
