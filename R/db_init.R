@@ -14,14 +14,17 @@ db_run_sql <- function(sql_file, pool) {
   num_statements <- length(sql)
   cli::cli_alert_info("Discovered {.field {num_statements}} SQL statements in {.path {sql_file}}")
   purrr::walk(sql, function(sql) {
-    tryCatch({
-      cli::cli_alert_info("Executing SQL statement:\n{.pre {sql}}")
-      pool::dbExecute(pool, sql)
-      cli::cli_alert_success("Successfully executed SQL statement.")
-    }, error = function(e) {
-      cli::cli_alert_danger("Failed to execute SQL statement:\n\n{.pre {sql}}")
-      cli::cli_alert_danger("Error message:\n\n{.pre {e$message}}")
-    })
+    tryCatch(
+      {
+        cli::cli_alert_info("Executing SQL statement:\n{.pre {sql}}")
+        pool::dbExecute(pool, sql)
+        cli::cli_alert_success("Successfully executed SQL statement.")
+      },
+      error = function(e) {
+        cli::cli_alert_danger("Failed to execute SQL statement:\n\n{.pre {sql}}")
+        cli::cli_alert_danger("Error message:\n\n{.pre {e$message}}")
+      }
+    )
   })
 }
 
@@ -37,18 +40,21 @@ db_seed_tbl <- function(pool, tbl_name, tbl_data) {
   if (!tbl_exists) {
     cli::cli_abort("Table {.field {tbl_name}} does not exist.")
   }
-  tryCatch({
-    cli::cli_alert_info("Seeding table {.field {tbl_name}}.")
-    pool::dbWriteTable(pool, DBI::SQL(tbl_name), tbl_data, append = TRUE, row.names = FALSE)
-    cli::cli_alert_success("Table {.field {tbl_name}} seeded.")
-  }, error = function(e) {
-    cli::cli_abort(
-      c(
-        "Failed to seed table {.field {tbl_name}}.",
-        "Error: {.error_msg {e$message}}"
+  tryCatch(
+    {
+      cli::cli_alert_info("Seeding table {.field {tbl_name}}.")
+      pool::dbWriteTable(pool, DBI::SQL(tbl_name), tbl_data, append = TRUE, row.names = FALSE)
+      cli::cli_alert_success("Table {.field {tbl_name}} seeded.")
+    },
+    error = function(e) {
+      cli::cli_abort(
+        c(
+          "Failed to seed table {.field {tbl_name}}.",
+          "Error: {.error_msg {e$message}}"
+        )
       )
-    )
-  })
+    }
+  )
 }
 
 db_create_tbl <- function(tbl, pool, overwrite = FALSE) {
@@ -58,17 +64,20 @@ db_create_tbl <- function(tbl, pool, overwrite = FALSE) {
   if (tbl_exists) {
     if (overwrite) {
       cli::cli_alert_warning("Overwriting table {.field {tbl}}.")
-      tryCatch({
-        pool::dbRemoveTable(pool, DBI::SQL(tbl))
-        cli::cli_alert_success("Table {.field {tbl}} removed.")
-      }, error = function(e) {
-        cli::cli_abort(
-          c(
-            "Failed to remove table {.field {tbl}}.",
-            "Error: {.error_msg {e$message}}"
+      tryCatch(
+        {
+          pool::dbRemoveTable(pool, DBI::SQL(tbl))
+          cli::cli_alert_success("Table {.field {tbl}} removed.")
+        },
+        error = function(e) {
+          cli::cli_abort(
+            c(
+              "Failed to remove table {.field {tbl}}.",
+              "Error: {.error_msg {e$message}}"
+            )
           )
-        )
-      })
+        }
+      )
     } else {
       cli::cli_abort("Table already exists. Use `overwrite = TRUE` to overwrite.")
     }
@@ -78,7 +87,6 @@ db_create_tbl <- function(tbl, pool, overwrite = FALSE) {
     cli::cli_alert_info("Creating table {.field {tbl}}.")
     pool::dbWriteTable(pool, DBI::SQL(tbl), value = get(tbl))
   })
-
 }
 
 db_read_tbl <- function(pool, tbl_name, collect = TRUE) {
@@ -95,7 +103,9 @@ db_read_tbl <- function(pool, tbl_name, collect = TRUE) {
     schema_tbl <- tbl_name
   }
   hold <- dplyr::tbl(pool, schema_tbl)
-  if (!collect) return(hold)
+  if (!collect) {
+    return(hold)
+  }
   dplyr::collect(hold)
 }
 

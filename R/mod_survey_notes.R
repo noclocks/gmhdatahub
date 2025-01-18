@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Survey Notes Section Module
@@ -84,8 +83,7 @@ create_note_card <- function(note, ns) {
         },
         htmltools::tags$span(
           class = paste0("badge bg-", status_colors[note$status]),
-          shiny::icon(switch(
-            note$status,
+          shiny::icon(switch(note$status,
             "pending" = "clock",
             "in_progress" = "spinner",
             "completed" = "check",
@@ -104,25 +102,28 @@ create_note_card <- function(note, ns) {
         class = "d-flex gap-2 justify-content-end",
         bslib::tooltip(
           shiny::actionButton(ns(paste0("edit_", note$id)),
-                       label = "",
-                       icon = shiny::icon("edit"),
-                       class = "btn-sm btn-outline-primary"),
+            label = "",
+            icon = shiny::icon("edit"),
+            class = "btn-sm btn-outline-primary"
+          ),
           "Edit note"
         ),
         if (note$status != "completed") {
           bslib::tooltip(
             shiny::actionButton(ns(paste0("complete_", note$id)),
-                         label = "",
-                         icon = shiny::icon("check"),
-                         class = "btn-sm btn-outline-success"),
+              label = "",
+              icon = shiny::icon("check"),
+              class = "btn-sm btn-outline-success"
+            ),
             "Mark as complete"
           )
         },
         bslib::tooltip(
           shiny::actionButton(ns(paste0("delete_", note$id)),
-                       label = "",
-                       icon = shiny::icon("trash"),
-                       class = "btn-sm btn-outline-danger"),
+            label = "",
+            icon = shiny::icon("trash"),
+            class = "btn-sm btn-outline-danger"
+          ),
           "Delete note"
         )
       )
@@ -137,12 +138,11 @@ create_note_card <- function(note, ns) {
 #' @importFrom htmltools tagList tags
 #' @importFrom shiny NS textOutput actionButton icon selectInput uiOutput
 mod_survey_notes_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   htmltools::tagList(
     bslib::layout_column_wrap(
-      width = 1/4,
+      width = 1 / 4,
       bslib::value_box(
         "Total Notes",
         shiny::textOutput(ns("total_notes")),
@@ -308,36 +308,43 @@ mod_survey_notes_server <- function(id, pool = NULL, global_filters = NULL) {
         title = "Add New Note",
         size = "l",
         bslib::layout_column_wrap(
-          width = 1/2,
+          width = 1 / 2,
           shiny::selectInput(session$ns("note_type"),
-                             "Note Type",
-                             choices = c("Leasing Notes", "Property Notes")),
+            "Note Type",
+            choices = c("Leasing Notes", "Property Notes")
+          ),
           shiny::selectInput(session$ns("property"),
-                             "Property",
-                             choices = c("Building A", "Building B", "Building C"))
+            "Property",
+            choices = c("Building A", "Building B", "Building C")
+          )
         ),
         shiny::textInput(session$ns("tags"),
-                         "Tags",
-                         placeholder = "urgent, follow-up, maintenance"),
+          "Tags",
+          placeholder = "urgent, follow-up, maintenance"
+        ),
         bslib::layout_column_wrap(
-          width = 1/2,
+          width = 1 / 2,
           shiny::checkboxInput(session$ns("is_actionable"),
-                               "Contains Actionable Information",
-                               value = FALSE),
+            "Contains Actionable Information",
+            value = FALSE
+          ),
           shiny::selectInput(session$ns("status"),
-                             "Status",
-                             choices = c("pending", "in_progress", "completed", "cancelled"))
+            "Status",
+            choices = c("pending", "in_progress", "completed", "cancelled")
+          )
         ),
         shiny::textAreaInput(session$ns("note_text"),
-                             "Note Content",
-                             width = "100%",
-                             height = "150px",
-                             resize = "vertical"),
+          "Note Content",
+          width = "100%",
+          height = "150px",
+          resize = "vertical"
+        ),
         footer = htmltools::tagList(
           shiny::actionButton(session$ns("submit_note"),
-                              "Submit Note",
-                              icon = shiny::icon("plus"),
-                              class = "btn-primary"),
+            "Submit Note",
+            icon = shiny::icon("plus"),
+            class = "btn-primary"
+          ),
           shiny::modalButton("Cancel")
         ),
         easyClose = TRUE
@@ -357,18 +364,22 @@ mod_survey_notes_server <- function(id, pool = NULL, global_filters = NULL) {
               title = "Edit Note",
               size = "l",
               shiny::textAreaInput(session$ns("edit_text"), "Note Content",
-                                   value = current_note$text,
-                                   height = "150px"),
+                value = current_note$text,
+                height = "150px"
+              ),
               shiny::textInput(session$ns("edit_tags"), "Tags (comma-separated)",
-                               value = current_note$tags),
+                value = current_note$tags
+              ),
               shiny::selectInput(session$ns("edit_status"), "Status",
-                                 choices = c("pending", "in_progress", "completed", "cancelled"),
-                                 selected = current_note$status),
+                choices = c("pending", "in_progress", "completed", "cancelled"),
+                selected = current_note$status
+              ),
               footer = tagList(
                 shiny::actionButton(session$ns("save_edit"),
-                                    label = "Save Changes",
-                                    class = "btn-primary",
-                                    icon = icon("save")),
+                  label = "Save Changes",
+                  class = "btn-primary",
+                  icon = icon("save")
+                ),
                 shiny::modalButton("Cancel")
               ),
               easyClose = TRUE
@@ -420,8 +431,9 @@ mod_survey_notes_server <- function(id, pool = NULL, global_filters = NULL) {
               "Are you sure you want to delete this note?",
               footer = tagList(
                 shiny::actionButton(session$ns(paste0("confirm_delete_", note_id)),
-                                    "Delete",
-                                    class = "btn-danger"),
+                  "Delete",
+                  class = "btn-danger"
+                ),
                 shiny::modalButton("Cancel")
               ),
               easyClose = TRUE
@@ -441,7 +453,7 @@ mod_survey_notes_server <- function(id, pool = NULL, global_filters = NULL) {
 
     # Render notes display
     output$notes_display <- shiny::renderUI({
-      notes <- filtered_notes()  # Use filtered notes instead of all notes
+      notes <- filtered_notes() # Use filtered notes instead of all notes
 
       if (nrow(notes) == 0) {
         return(
@@ -451,7 +463,8 @@ mod_survey_notes_server <- function(id, pool = NULL, global_filters = NULL) {
               shiny::icon("notebook"),
               htmltools::tags$p("No notes have been submitted yet.")
             )
-          ))
+          )
+        )
       }
 
       # Sort notes by timestamp (most recent first)

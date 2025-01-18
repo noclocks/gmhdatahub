@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Wizard Shiny Module
@@ -43,7 +42,6 @@ NULL
 #' @importFrom htmltools tagList tags
 #' @importFrom bslib card
 mod_wizard_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   htmltools::tagList(
@@ -76,7 +74,6 @@ mod_wizard_ui <- function(id) {
           htmltools::tags$hr(),
           shiny::uiOutput(ns("body"))
         ),
-
         bslib::card_footer(
           htmltools::tags$div(
             class = "d-flex justify-content-between",
@@ -96,15 +93,12 @@ mod_wizard_ui <- function(id) {
 #' @importFrom shiny moduleServer reactive
 #' @importFrom cli cat_rule
 mod_wizard_server <- function(
-  id,
-  pool = NULL,
-  selected_property_id = NULL
-) {
-
+    id,
+    pool = NULL,
+    selected_property_id = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       # check database connection
       if (is.null(pool)) pool <- session$userData$pool
       check_db_conn(pool)
@@ -158,8 +152,7 @@ mod_wizard_server <- function(
       shiny::observeEvent(input$next_btn, {
         iv$enable()
         if (iv$is_valid()) {
-          section_data <- switch(
-            current_section(),
+          section_data <- switch(current_section(),
             "1" = get_intro_data(input),
             "2" = get_property_summary_data(input),
             "3" = get_leasing_summary_data(input),
@@ -209,11 +202,14 @@ mod_wizard_server <- function(
       })
 
       shiny::observeEvent(input$submit_btn, {
-        tryCatch({
-          shiny::showModal(render_submission_modal(ns))
-        }, error = function(e) {
-          shiny::showNotification("Error during submission. Please try again.", type = "error")
-        })
+        tryCatch(
+          {
+            shiny::showModal(render_submission_modal(ns))
+          },
+          error = function(e) {
+            shiny::showNotification("Error during submission. Please try again.", type = "error")
+          }
+        )
       })
 
       shiny::observeEvent(input$confirm_submit, {
@@ -260,7 +256,6 @@ mod_wizard_server <- function(
 #' @importFrom bsicons bs_icon
 #' @importFrom shiny shinyApp
 mod_wizard_demo <- function() {
-
   pkgload::load_all()
 
   shiny::addResourcePath(
@@ -314,8 +309,7 @@ wizard_sections <- function() {
 }
 
 render_wizard_body <- function(current_section, ns) {
-  switch(
-    current_section,
+  switch(current_section,
     "Introduction" = intro_ui(ns),
     "Property Summary" = property_summary_ui(ns),
     "Leasing Summary" = leasing_summary_ui(ns),
@@ -386,11 +380,9 @@ render_submision_modal <- function(ns) {
 }
 
 set_validation_rules <- function(iv, section) {
-
   section <- as.character(section)
 
-  switch(
-    section,
+  switch(section,
     "1" = {
       iv_1 <- shinyvalidate::InputValidator$new()
       iv_1$add_rule("survey_property", shinyvalidate::sv_required(message = "Property is required."))
@@ -472,7 +464,6 @@ set_validation_rules <- function(iv, section) {
       return(iv)
     }
   )
-
 }
 
 
@@ -504,7 +495,6 @@ intro_ui <- function(ns) {
 }
 
 property_summary_ui <- function(ns) {
-
   htmltools::tagList(
     bslib::layout_columns(
       col_widths = c(6, 6),
@@ -521,7 +511,7 @@ property_summary_ui <- function(ns) {
           ),
           shiny::conditionalPanel(
             condition = sprintf("input['%s'] == 'file'", ns("image_input_type")),
-            shiny::fileInput(ns("property_image_file"), "Upload Image", accept = c('image/png', 'image/jpeg', 'image/gif'))
+            shiny::fileInput(ns("property_image_file"), "Upload Image", accept = c("image/png", "image/jpeg", "image/gif"))
           )
         )
       ),
@@ -567,7 +557,6 @@ property_summary_ui <- function(ns) {
 }
 
 leasing_summary_ui <- function(ns) {
-
   htmltools::tagList(
     bslib::layout_columns(
       col_widths = c(6, 6),
@@ -670,7 +659,6 @@ leasing_summary_ui <- function(ns) {
       )
     )
   )
-
 }
 
 short_term_leases_ui <- function(ns) {
@@ -755,8 +743,7 @@ get_property_summary_data <- function(input) {
     property_website = input$property_website,
     property_address = input$property_address,
     property_phone = input$property_phone,
-    property_image = switch(
-      input$image_type,
+    property_image = switch(input$image_type,
       "url" = input$property_image_url,
       "file" = input$property_image_file$datapath
     ),

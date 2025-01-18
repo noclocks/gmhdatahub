@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Property Summary
@@ -140,7 +139,7 @@ property_summary_inputs_tbl <- tibble::tibble(
     # Year Built
     "date",
     # Most Recent Sale Date
-    "numeric"  # Distance to Campus
+    "numeric" # Distance to Campus
   ),
   required = c(
     TRUE,
@@ -171,7 +170,7 @@ property_summary_inputs_tbl <- tibble::tibble(
     # Year Built
     FALSE,
     # Most Recent Sale Date
-    TRUE   # Distance to Campus
+    TRUE # Distance to Campus
   ),
   choices = NULL,
   default = c(
@@ -203,7 +202,7 @@ property_summary_inputs_tbl <- tibble::tibble(
     # Year Built
     NA,
     # Most Recent Sale Date
-    NA  # Distance to Campus
+    NA # Distance to Campus
   )
 ) |>
   dplyr::mutate(

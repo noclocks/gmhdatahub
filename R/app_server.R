@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Shiny App Server
@@ -24,7 +23,6 @@
 #' @importFrom waiter waiter_hide
 #' @importFrom shiny reactive
 app_server <- function(input, output, session) {
-
   # initialize database connection pool
   pool <- db_connect()
   session$userData$pool <- pool
@@ -58,7 +56,4 @@ app_server <- function(input, output, session) {
   mod_survey_admin_data <- mod_survey_admin_server("survey_admin", pool = pool, global_filters = global_filters)
   mod_survey_forms_data <- mod_survey_forms_server("survey_forms", pool = pool, global_filters = global_filters)
   mod_survey_insights_data <- mod_survey_insights_server("survey_insights", pool = pool, global_filters = global_filters)
-
-
-
 }

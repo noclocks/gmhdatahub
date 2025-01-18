@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Entrata Properties
@@ -24,7 +23,7 @@ entrata_properties_tbl <- resp_properties_json |>
     id <- purrr::pluck(x, "PropertyID")
     out <- list(name = name, id = id)
   }) |>
-  purrr::map_dfr(~tibble::tibble(name = .x$name, id = .x$id))
+  purrr::map_dfr(~ tibble::tibble(name = .x$name, id = .x$id))
 
 entrata_properties_lst <- as.list(entrata_properties_tbl$id) |>
   setNames(entrata_properties_tbl$name)

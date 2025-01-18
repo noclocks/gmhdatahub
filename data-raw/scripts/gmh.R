@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : GMH Data Prep
@@ -12,4 +11,3 @@ source("data-raw/scripts/gmh/properties.R")
 source("data-raw/scripts/gmh/competitors.R")
 source("data-raw/scripts/gmh/partners.R")
 source("data-raw/scripts/gmh/segments.R")
-

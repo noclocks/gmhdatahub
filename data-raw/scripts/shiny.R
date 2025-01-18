@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Shiny Data Prep
@@ -14,4 +13,3 @@ source("data-raw/scripts/shiny/inputs.R")
 source("data-raw/scripts/shiny/tooltips.R")
 
 # cleanup -----------------------------------------------------------------
-

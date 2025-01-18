@@ -1,9 +1,7 @@
 get_gmaps_data <- function(
-  name,
-  address,
-  gmaps_api_key = get_gmaps_config("api_key")
-) {
-
+    name,
+    address,
+    gmaps_api_key = get_gmaps_config("api_key")) {
   googleway::set_key(gmaps_api_key)
 
   query_name <- name
@@ -99,9 +97,7 @@ get_gmaps_data <- function(
 
 enrich_property_data <- function(
     property_data,
-    gmaps_api_key = get_gmaps_config("api_key")
-) {
-
+    gmaps_api_key = get_gmaps_config("api_key")) {
   names <- property_data$marketing_name
   addresses <- property_data$address
 
@@ -136,5 +132,4 @@ enrich_property_data <- function(
       "address" = "original_address"
     )
   )
-
 }

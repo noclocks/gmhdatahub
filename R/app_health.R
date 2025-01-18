@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Shiny App Healthcheck
@@ -49,7 +48,6 @@ parse_req <- function(req) {
 }
 
 with_healthcheck <- function(app) {
-
   app$ui <- function(req) {
     force(req)
     if (req$PATH_INFO == "/health") {
@@ -59,5 +57,4 @@ with_healthcheck <- function(app) {
   }
 
   return(app)
-
 }

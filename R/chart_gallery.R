@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Chart Gallery Module
@@ -10,7 +9,6 @@
 #' Chart Gallery App Module
 
 mod_chart_gallery_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   bslib::page_fluid(
@@ -123,11 +121,9 @@ mod_chart_gallery_ui <- function(id) {
 }
 
 mod_chart_gallery_server <- function(id, pool = NULL) {
-
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cli_rule("[Module]: mod_chart_gallery_server()")
 
@@ -198,10 +194,8 @@ mod_chart_gallery_server <- function(id, pool = NULL) {
         shiny::req(pre_lease_data(), input$group_by)
         chart_yoy_variance(data = pre_lease_data(), by = input$group_by)
       })
-
     }
   )
-
 }
 
 mod_chart_gallery_demo <- function() {
@@ -212,5 +206,3 @@ mod_chart_gallery_demo <- function() {
   }
   shiny::shinyApp(ui, server)
 }
-
-

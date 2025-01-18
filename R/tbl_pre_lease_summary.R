@@ -1,5 +1,4 @@
 tbl_pre_lease_summary <- function(summary_data) {
-
   count_cols <- c(
     "property_name",
     "investment_partner"
@@ -173,7 +172,7 @@ tbl_pre_lease_summary <- function(summary_data) {
       aggregate = reactable::JS("function(values) { return values.reduce((a, b) => a + b, 0) / values.length }"),
       cell = reactablefmtr::gauge_chart(
         data = summary_data,
-        fill_color = "#173d6b",,
+        fill_color = "#173d6b", ,
         show_min_max = FALSE,
         tooltip = TRUE,
         number_fmt = scales::percent
@@ -255,14 +254,18 @@ tbl_pre_lease_summary <- function(summary_data) {
     ),
     reactable::colGroup(
       name = "Current Year",
-      columns = c("current_occupied", "current_occupancy", "current_total_new",
-                  "current_total_renewals", "current_total_leases", "current_preleased_percent"),
+      columns = c(
+        "current_occupied", "current_occupancy", "current_total_new",
+        "current_total_renewals", "current_total_leases", "current_preleased_percent"
+      ),
       headerStyle = list(borderRight = "2px solid #173d6b")
     ),
     reactable::colGroup(
       name = "Prior Year",
-      columns = c("prior_total_new", "prior_total_renewals", "prior_total_leases",
-                  "prior_preleased_percent"),
+      columns = c(
+        "prior_total_new", "prior_total_renewals", "prior_total_leases",
+        "prior_preleased_percent"
+      ),
       headerStyle = list(borderRight = "2px solid #173d6b")
     ),
     reactable::colGroup(
@@ -357,7 +360,6 @@ pre_lease_reactable_theme <- function() {
 }
 
 calculate_pre_lease_summary_totals <- function(summary_data) {
-
   sum_cols <- c(
     "total_beds",
     "model_beds",
@@ -400,7 +402,6 @@ calculate_pre_lease_summary_totals <- function(summary_data) {
 }
 
 empty_pre_lease_summary_data <- function() {
-
   tibble::tibble(
     report_date = as.Date(logical(0)),
     property_id = integer(0),
@@ -429,5 +430,4 @@ empty_pre_lease_summary_data <- function() {
     vel_95 = numeric(0),
     vel_100 = numeric(0),
   )
-
 }

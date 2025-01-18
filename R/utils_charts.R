@@ -1,5 +1,4 @@
 chart_colors <- function(...) {
-
   colors <- c(
     "primary" = "#0e2b4c",
     "secondary" = "#18BC9C",

@@ -1,10 +1,8 @@
-
 get_entrata_config <- function() {
   config::get("entrata")
 }
 
 entrata_base_request <- function() {
-
   # get config
   entrata_config <- get_entrata_config()
 
@@ -19,7 +17,6 @@ entrata_base_request <- function() {
       `Content-Type` = "application/json; charset=utf-8",
       `Accept` = "application/json"
     )
-
 }
 
 entrata_properties_request <- function() {
@@ -76,24 +73,30 @@ entrata_req_perform_save <- function(req, path = "data-raw/cache/entrata/respons
 
   # Handle response
   if (perform || !fs::file_exists(response_file_qs)) {
-    tryCatch({
-      resp <- req |> httr2::req_perform(path = response_file)
-      qs2::qs_save(resp, response_file_qs)
-      logger::log_info("Response saved to file: {response_file}")
-      return(resp)
-    }, error = function(e) {
-      logger::log_error("Error performing request: {e$message}")
-      stop(e)
-    })
+    tryCatch(
+      {
+        resp <- req |> httr2::req_perform(path = response_file)
+        qs2::qs_save(resp, response_file_qs)
+        logger::log_info("Response saved to file: {response_file}")
+        return(resp)
+      },
+      error = function(e) {
+        logger::log_error("Error performing request: {e$message}")
+        stop(e)
+      }
+    )
   } else {
-    tryCatch({
-      resp <- qs2::qs_read(response_file_qs)
-      logger::log_info("Response read from file: {response_file}")
-      return(resp)
-    }, error = function(e) {
-      logger::log_error("Error reading cached response: {e$message}")
-      stop(e)
-    })
+    tryCatch(
+      {
+        resp <- qs2::qs_read(response_file_qs)
+        logger::log_info("Response read from file: {response_file}")
+        return(resp)
+      },
+      error = function(e) {
+        logger::log_error("Error reading cached response: {e$message}")
+        stop(e)
+      }
+    )
   }
 }
 
@@ -144,7 +147,6 @@ entrata_req_perform_save <- function(req, path = "data-raw/cache/entrata/respons
 # }
 
 entrata_properties_picklist_request <- function(property_ids = NULL) {
-
   if (is.null(property_ids)) {
     property_ids <- get_entrata_properties()$id
   }
@@ -164,7 +166,6 @@ entrata_properties_picklist_request <- function(property_ids = NULL) {
         )
       )
     )
-
 }
 
 entrata_leases_picklist_request <- function() {
@@ -195,7 +196,7 @@ get_entrata_properties <- function() {
       id <- purrr::pluck(x, "PropertyID")
       out <- list(name = name, id = id)
     }) |>
-    purrr::map_dfr(~tibble::tibble(name = .x$name, id = .x$id))
+    purrr::map_dfr(~ tibble::tibble(name = .x$name, id = .x$id))
 }
 
 get_entrata_properties <- memoise::memoise(get_entrata_properties)
@@ -244,13 +245,11 @@ get_entrata_arcodes <- function() {
       is_entrata_disabled = "isEntrataDisabled",
       is_taxable = "isTaxable"
     )
-
 }
 
 get_entrata_arcodes <- memoise::memoise(get_entrata_arcodes)
 
 get_entrata_report_filters <- function(report_name) {
-
   entrata_config <- get_entrata_config()
   resp_report_list <- entrata_base_request() |>
     httr2::req_url_path_append("reports") |>
@@ -281,6 +280,4 @@ get_entrata_report_filters <- function(report_name) {
     report_description = report_description,
     report_filters = report_filters
   )
-
 }
-

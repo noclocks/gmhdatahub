@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Home Shiny Module
@@ -41,7 +40,6 @@ NULL
 #' @importFrom htmltools tagList tags
 #' @importFrom bslib card
 mod_home_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   htmltools::tagList(
@@ -120,12 +118,10 @@ mod_home_ui <- function(id) {
 #' @importFrom shiny moduleServer reactive
 #' @importFrom cli cat_rule
 mod_home_server <- function(
-  id,
-  pool = NULL,
-  global_filters = NULL,
-  navigate_func = NULL
-) {
-
+    id,
+    pool = NULL,
+    global_filters = NULL,
+    navigate_func = NULL) {
   # check database connection
   if (is.null(pool)) pool <- db_connect()
   check_db_conn(pool)
@@ -138,7 +134,6 @@ mod_home_server <- function(
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cat_rule("[Module]: mod_home_server()")
 
@@ -181,7 +176,6 @@ mod_home_server <- function(
 #' @importFrom bsicons bs_icon
 #' @importFrom shiny shinyApp
 mod_home_demo <- function() {
-
   pkgload::load_all()
 
   ui <- bslib::page_navbar(
@@ -206,4 +200,3 @@ mod_home_demo <- function() {
 }
 
 # utilities ---------------------------------------------------------------
-

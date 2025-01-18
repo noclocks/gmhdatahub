@@ -1,4 +1,3 @@
-
 #' Survey Status Table
 #'
 #' @description
@@ -18,7 +17,6 @@
 #' @importFrom reactable reactable
 #' @importFrom reactablefmtr merge_column pill_buttons
 tbl_survey_status <- function(data) {
-
   validate_col_names(
     data,
     c(
@@ -102,5 +100,4 @@ tbl_survey_status <- function(data) {
       status_colors = reactable::colDef(show = FALSE)
     )
   )
-
 }

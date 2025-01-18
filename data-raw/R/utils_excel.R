@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Excel Data Preparation Utilities
@@ -23,7 +22,6 @@ get_xl_sheets <- function(xl_file) {
 }
 
 read_xl_global_summary_tbl <- function(xl_file, ...) {
-
   global_summary_tbl_col_specs <- list(
     "property_name" = "text",
     "total_beds" = "numeric",
@@ -180,7 +178,6 @@ read_xl_global_summary_tbl <- function(xl_file, ...) {
       "data" = global_summary_tbl
     )
   )
-
 }
 
 
@@ -251,9 +248,7 @@ get_xl_summary_tbl_ranges <- function(
     xl_cells,
     start_cell = "A9",
     stop_cell_col = "O",
-    stop_cell_row_offset = -1
-) {
-
+    stop_cell_row_offset = -1) {
   xl_cells |>
     dplyr::select(sheet, address, row, col, character) |>
     dplyr::filter(
@@ -295,9 +290,7 @@ get_details_tbl_ranges <- function(
     xl_cells,
     start_cell_offset = 4,
     stop_cell_col = "O",
-    stop_cell_row_offset = -1
-) {
-
+    stop_cell_row_offset = -1) {
   xl_cells |>
     dplyr::select(sheet, address, row, col, character) |>
     dplyr::filter(
@@ -335,9 +328,8 @@ get_details_tbl_ranges <- function(
 # read excel ranges -------------------------------------------------------
 
 read_excel_ranges <- function(file, sheets, ranges, col_specs) {
-
   col_names <- names(col_specs)
-  col_types <- purrr::map_chr(col_specs, ~ .x)
+  col_types <- purrr::map_chr(col_specs, ~.x)
 
   purrr::map_dfr(
     sheets,
@@ -354,7 +346,6 @@ read_excel_ranges <- function(file, sheets, ranges, col_specs) {
 }
 
 read_raw_market_survey_data <- function(wb_path, sheet, property_id, property_name, leasing_week, ...) {
-
   args <- list(
     property_detail = list(
       range = "X1",
@@ -768,11 +759,9 @@ read_raw_market_survey_data <- function(wb_path, sheet, property_id, property_na
         "rents"
       )
     )
-
 }
 
 get_property_data_for_csv <- function(property, data_lst = market_survey_data_by_property) {
-
   property_data <- purrr::pluck(
     data_lst,
     property
@@ -899,16 +888,13 @@ get_property_data_for_csv <- function(property, data_lst = market_survey_data_by
       average_rents_by_unit_type_file = average_rents_by_unit_type_file
     )
   )
-
 }
 
 save_market_survey_csvs <- function(
     data_by_property,
     csv_dir = "data-raw/data/working",
     nest_folders_by_property = TRUE,
-    nest_folders_by_section = TRUE
-) {
-
+    nest_folders_by_section = TRUE) {
   if (!dir.exists(csv_dir)) {
     dir.create(csv_dir, recursive = TRUE)
   }
@@ -916,7 +902,6 @@ save_market_survey_csvs <- function(
   purrr::walk(
     names(data_by_property),
     function(x) {
-
       property <- x
 
       csv_dir <- if (nest_folders_by_property) {
@@ -1016,11 +1001,8 @@ save_market_survey_csvs <- function(
       readr::write_csv(average_rents_by_unit_type_data, file.path(csv_dir, average_rents_by_unit_type_file))
 
       cli::cli_alert_info("Saved data for property {.field {property}} to path: {.path {csv_dir}}")
-
     }
   )
 
   cli::cli_alert_info("Saved all market survey data to csvs at path: {.path {csv_dir}}")
-
 }
-

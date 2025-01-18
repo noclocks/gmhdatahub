@@ -1,6 +1,4 @@
-
 gmh_colors <- function(...) {
-
   colors <- c(
     primary = "#0e2b4c",
     secondary = "#6c757d",
@@ -23,15 +21,12 @@ gmh_colors <- function(...) {
     requested_colors <- unlist(dots)
     return(unname(unlist(colors[requested_colors])))
   }
-
 }
 
 app_theme_ui <- function() {
-
   bslib::bs_theme(
     version = 5,
     primary = gmh_colors("primary"),
     "enable-shadows" = TRUE
   )
-
 }

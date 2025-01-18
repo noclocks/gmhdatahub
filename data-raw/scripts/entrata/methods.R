@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Entrata Methods
@@ -182,5 +181,3 @@ entrata_methods_tbl <- tibble::enframe(
   value = "method_name"
 ) |>
   tidyr::unnest_longer("method_name")
-
-

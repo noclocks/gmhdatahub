@@ -1,5 +1,3 @@
-
-
 reports_specs <- list(
   "getReportList" = list(
     main = tibblify::tspec_df(

@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Home Shiny Module Tests
@@ -11,7 +10,6 @@
 # server ------------------------------------------------------------------
 
 test_that("mod_home_server", {
-
   shiny::testServer(
     mod_home_server,
     args = list(),
@@ -28,28 +26,25 @@ test_that("mod_home_server", {
       )
     }
   )
-
 })
 
 
 # UI ----------------------------------------------------------------------
 
 test_that("mod_home_ui", {
-
   ui <- mod_home_ui("test")
   expect_shinytaglist(ui)
   fmls <- formals(mod_home_ui)
-  for (i in c("id")) { expect_true(i %in% names(fmls)) }
-
+  for (i in c("id")) {
+    expect_true(i %in% names(fmls))
+  }
 })
 
 
 # demo --------------------------------------------------------------------
 
 test_that("mod_home_demo", {
-
   demo <- mod_home_demo()
   expect_no_error(demo)
   expect_s3_class(demo, "shiny.appobj")
-
 })

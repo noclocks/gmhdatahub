@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Survey Property Summary Shiny Module
@@ -43,7 +42,6 @@ NULL
 #' @importFrom htmltools tagList tags
 #' @importFrom bslib card
 mod_survey_property_summary_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   htmltools::tagList(
@@ -228,18 +226,15 @@ mod_survey_property_summary_ui <- function(id) {
 #' @importFrom shiny moduleServer reactive
 #' @importFrom cli cat_rule
 mod_survey_property_summary_server <- function(
-  id,
-  pool = NULL,
-  selected_property_id = NULL
-) {
-
+    id,
+    pool = NULL,
+    selected_property_id = NULL) {
   # validation of reactives
   if (!is.null(selected_property_id)) stopifnot(shiny::is.reactive(selected_property_id))
 
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_property_summary_server()")
 
@@ -251,7 +246,9 @@ mod_survey_property_summary_server <- function(
         property_id <- db_read_tbl(pool, "mkt.properties", collect = FALSE) |>
           dplyr::filter(.data$is_competitor == FALSE) |>
           dplyr::pull("property_id")
-        selected_property_id <- shiny::reactive({ property_id })
+        selected_property_id <- shiny::reactive({
+          property_id
+        })
       }
 
       db_refresh_trigger <- shiny::reactiveVal(0)
@@ -322,10 +319,11 @@ mod_survey_property_summary_server <- function(
       })
 
       output$property_image_card <- shiny::renderUI({
-
         data <- property_data()
         img_src <- data$property_image
-        if (is.na(img_src)) { img_src <- "https://placehold.co/600x400.png" }
+        if (is.na(img_src)) {
+          img_src <- "https://placehold.co/600x400.png"
+        }
 
         bslib::card_image(
           src = img_src,
@@ -339,9 +337,13 @@ mod_survey_property_summary_server <- function(
       output$rating_stars <- shiny::renderUI({
         rating <- property_data()$property_rating
         stars <- lapply(1:5, function(i) {
-          if (i <= rating) icon("star", class = "text-warning")
-          else if (i - 0.5 == rating) icon("star-half-alt", class = "text-warning")
-          else icon("star", class = "text-muted")
+          if (i <= rating) {
+            icon("star", class = "text-warning")
+          } else if (i - 0.5 == rating) {
+            icon("star-half-alt", class = "text-warning")
+          } else {
+            icon("star", class = "text-muted")
+          }
         })
         htmltools::tags$div(
           class = "d-flex",
@@ -379,21 +381,42 @@ mod_survey_property_summary_server <- function(
             lat = map_data$latitude,
             popup = map_data$map_popup_html
           )
-          # TODO: set view up some so full popup is in the view
-
+        # TODO: set view up some so full popup is in the view
       })
 
-      output$property_name <- shiny::renderText({ property_data()$property_name })
-      output$website_url   <- shiny::renderText({ property_data()$website })
-      output$address       <- shiny::renderText({ property_data()$address })
-      output$phone         <- shiny::renderText({ property_data()$phone_number })
-      output$developer     <- shiny::renderText({ property_data()$developer })
-      output$manager       <- shiny::renderText({ property_data()$manager })
-      output$owner         <- shiny::renderText({ property_data()$owner })
-      output$type          <- shiny::renderText({ property_data()$property_type })
-      output$status        <- shiny::renderText({ property_data()$property_status })
-      output$comp_status   <- shiny::renderText({ property_data()$comp_status })
-      output$year_built    <- shiny::renderText({ property_data()$year_built })
+      output$property_name <- shiny::renderText({
+        property_data()$property_name
+      })
+      output$website_url <- shiny::renderText({
+        property_data()$website
+      })
+      output$address <- shiny::renderText({
+        property_data()$address
+      })
+      output$phone <- shiny::renderText({
+        property_data()$phone_number
+      })
+      output$developer <- shiny::renderText({
+        property_data()$developer
+      })
+      output$manager <- shiny::renderText({
+        property_data()$manager
+      })
+      output$owner <- shiny::renderText({
+        property_data()$owner
+      })
+      output$type <- shiny::renderText({
+        property_data()$property_type
+      })
+      output$status <- shiny::renderText({
+        property_data()$property_status
+      })
+      output$comp_status <- shiny::renderText({
+        property_data()$comp_status
+      })
+      output$year_built <- shiny::renderText({
+        property_data()$year_built
+      })
 
       output$last_sale <- shiny::renderText({
         format(property_data()$most_recent_sale, "%B %Y")
@@ -484,7 +507,7 @@ mod_survey_property_summary_server <- function(
                     shiny::fileInput(
                       session$ns("image_file"),
                       "Upload Image",
-                      accept = c('image/png', 'image/jpeg', 'image/gif')
+                      accept = c("image/png", "image/jpeg", "image/gif")
                     )
                   )
                 )
@@ -544,7 +567,8 @@ mod_survey_property_summary_server <- function(
               modalButton("Cancel")
             ),
             easyClose = TRUE
-          ))
+          )
+        )
       })
 
       changes <- shiny::reactive({
@@ -607,25 +631,24 @@ mod_survey_property_summary_server <- function(
       })
 
       shiny::observeEvent(input$save_changes, {
-
         pd <- property_data()
         pid <- selected_property_id()
 
         new_values <- tibble::tibble(
-          property_id         = pid,
-          property_name       = input$property_name_input,
-          website             = input$website_input,
-          address             = input$address_input,
-          phone_number        = input$phone_input,
-          developer           = input$developer_input,
-          manager             = input$manager_input,
-          owner               = input$owner_input,
-          property_type       = input$type_input,
-          property_rating     = input$rating_input,
-          property_status     = input$status_input,
-          comp_status         = input$comp_status_input,
-          year_built          = input$year_built_input,
-          most_recent_sale    = input$last_sale_input,
+          property_id = pid,
+          property_name = input$property_name_input,
+          website = input$website_input,
+          address = input$address_input,
+          phone_number = input$phone_input,
+          developer = input$developer_input,
+          manager = input$manager_input,
+          owner = input$owner_input,
+          property_type = input$type_input,
+          property_rating = input$rating_input,
+          property_status = input$status_input,
+          comp_status = input$comp_status_input,
+          year_built = input$year_built_input,
+          most_recent_sale = input$last_sale_input,
           distance_from_campus = input$distance_input
         )
 
@@ -647,7 +670,6 @@ mod_survey_property_summary_server <- function(
           selected_property_id = selected_property_id
         )
       )
-
     }
   )
 }
@@ -662,7 +684,6 @@ mod_survey_property_summary_server <- function(
 #' @importFrom bsicons bs_icon
 #' @importFrom shiny shinyApp
 mod_survey_property_summary_demo <- function(pool = NULL) {
-
   pkgload::load_all()
 
   ui <- bslib::page_navbar(
@@ -689,4 +710,3 @@ mod_survey_property_summary_demo <- function(pool = NULL) {
 }
 
 # utilities ---------------------------------------------------------------
-

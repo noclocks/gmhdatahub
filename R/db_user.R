@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Manage Database Connection User Setting
@@ -8,17 +7,12 @@
 #  ------------------------------------------------------------------------
 
 db_set_user_id <- function(conn, user_id) {
-
   check_db_conn(conn)
 
   qry <- glue::glue_sql("SELECT `public`.`set_user_id`({`user_id`})", .con = conn, user_id = user_id)
-
-
-
 }
 
 db_get_user_id <- function(conn) {
-
   check_db_conn(conn)
 
   user_id <- DBI::dbGetQuery(
@@ -27,12 +21,10 @@ db_get_user_id <- function(conn) {
   )
 
   return(user_id)
-
 }
 
 
 get_shiny_user_id <- function(session = shiny::getDefaultReactiveDomain()) {
-
   user_id <- if (!is.null(session)) {
     purrr::pluck(session, "userData", "user_id")
   } else {
@@ -47,11 +39,9 @@ get_shiny_user_id <- function(session = shiny::getDefaultReactiveDomain()) {
   }
 
   return(user_id)
-
 }
 
 get_user_id_by_email <- function(pool, email) {
-
   check_db_conn(pool)
 
   db_emails <- db_read_tbl(pool, "survey.users") |>
@@ -67,7 +57,6 @@ get_user_id_by_email <- function(pool, email) {
   db_read_tbl(pool, "survey.users") |>
     dplyr::filter(.data$user_email == .env$email) |>
     dplyr::pull("user_id")
-
 }
 
 

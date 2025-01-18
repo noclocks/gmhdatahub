@@ -1,5 +1,4 @@
 gmaps_properties_map_embed_iframe <- function(width = "100%", height = "500px") {
-
   url <- "https://www.google.com/maps/d/embed?mid=19tP5Bf66khGcrNnqTBsk879W2fS-u7U&ehbc=2E312F"
 
   htmltools::tags$iframe(
@@ -7,11 +6,9 @@ gmaps_properties_map_embed_iframe <- function(width = "100%", height = "500px") 
     width = width,
     height = height
   )
-
 }
 
 get_city_from_address <- function(address) {
-
   address_parts <- stringr::str_split(address, ", ") |> unlist()
 
   if (length(address_parts) == 4) {
@@ -19,11 +16,9 @@ get_city_from_address <- function(address) {
   } else {
     return(NA)
   }
-
 }
 
 get_postal_code_from_address <- function(address) {
-
   address_parts <- stringr::str_split(address, ", ") |> unlist()
 
   if (length(address_parts) == 4) {
@@ -31,7 +26,6 @@ get_postal_code_from_address <- function(address) {
   } else {
     return(NA)
   }
-
 }
 
 # GIS utilities -----------------------------------------------------------
@@ -59,9 +53,7 @@ get_postal_code_from_address <- function(address) {
 #' geocode_address("1600 Amphitheatre Parkway, Mountain View, CA")
 geocode_address <- function(
     address,
-    gmaps_api_key = get_gmaps_config("api_key")
-) {
-
+    gmaps_api_key = get_gmaps_config("api_key")) {
   # ensure has gmaps api key registered
   if (!ggmap::has_google_key()) {
     if (is.null(gmaps_api_key)) {
@@ -72,26 +64,20 @@ geocode_address <- function(
 
   # geocode address
   ggmap::geocode(address)
-
 }
 
 get_gmaps_place_id <- function(
     address,
-    gmaps_api_key = get_gmaps_config("api_key")
-) {
-
+    gmaps_api_key = get_gmaps_config("api_key")) {
   googleway::set_key(gmaps_api_key)
 
   googleway::google_geocode(address) |>
     purrr::pluck("results", "place_id", 1)
-
 }
 
 get_gmaps_rating <- function(
     place_id,
-    gmaps_api_key = get_gmaps_config("api_key")
-) {
-
+    gmaps_api_key = get_gmaps_config("api_key")) {
   base_url <- "https://maps.googleapis.com/maps/api/place/details/json"
 
   req <- httr2::request(base_url) |>
@@ -113,15 +99,12 @@ get_gmaps_rating <- function(
       rating = rating,
       num_ratings = num_ratings
     )
-
   )
 }
 
 get_gmaps_data <- function(
     address,
-    gmaps_api_key = get_gmaps_config("api_key")
-) {
-
+    gmaps_api_key = get_gmaps_config("api_key")) {
   googleway::set_key(gmaps_api_key)
 
   query <- paste0("place at ", address)
@@ -215,9 +198,7 @@ get_gmaps_data <- function(
 
 enrich_property_data <- function(
     property_data,
-    gmaps_api_key = get_gmaps_config("api_key")
-) {
-
+    gmaps_api_key = get_gmaps_config("api_key")) {
   names <- property_data$marketing_name
   addresses <- property_data$address
 
@@ -247,7 +228,6 @@ enrich_property_data <- function(
     gmaps_info,
     by = c("address" = "original_address")
   )
-
 }
 
 parse_address <- function(address) {
@@ -282,9 +262,7 @@ create_map_popup <- function(
     manager = NULL,
     owner = NULL,
     image_src = NULL,
-    ...
-) {
-
+    ...) {
   location_type <- match.arg(location_type) |>
     stringr::str_to_title()
 
@@ -424,5 +402,3 @@ prepare_property_locations_data <- function(enriched_data) {
 #   )
 #
 # }
-
-

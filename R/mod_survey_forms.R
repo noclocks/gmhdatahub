@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Survey Forms Shiny Module
@@ -43,92 +42,91 @@ NULL
 #' @importFrom htmltools tagList tags
 #' @importFrom bslib card
 mod_survey_forms_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   htmltools::tagList(
     bslib::page_fluid(
 
-    # progress ----------------------------------------------------------------
-    bslib::card(
-      bslib::card_header(icon_text("percent", "Progress")),
-      bslib::card_body(
-        shinyWidgets::progressBar(
-          ns("total_progress"),
-          value = 0,
-          total = 100,
-          display_pct = TRUE,
-          striped = TRUE,
-          title = "Total Progress"
+      # progress ----------------------------------------------------------------
+      bslib::card(
+        bslib::card_header(icon_text("percent", "Progress")),
+        bslib::card_body(
+          shinyWidgets::progressBar(
+            ns("total_progress"),
+            value = 0,
+            total = 100,
+            display_pct = TRUE,
+            striped = TRUE,
+            title = "Total Progress"
+          )
+        )
+      ),
+      bslib::navset_card_tab(
+        id = ns("survey_tabs"),
+        title = "GMH Communities - Leasing Market Survey Sections",
+        sidebar = bslib::sidebar(
+          title = icon_text("filter", "Filters"),
+          width = 300,
+          shiny::selectizeInput(
+            ns("property"),
+            label = icon_text("building", "Select Property"),
+            choices = app_choices_lst$properties,
+            selected = app_choices_lst$properties[["1047 Commonwealth Avenue"]]
+          ),
+          shiny::selectizeInput(
+            ns("competitor"),
+            label = icon_text("building", "Select Competitor"),
+            choices = c("None" = "none")
+          ) |>
+            shinyjs::disabled()
+        ),
+        bslib::nav_panel(
+          title = "Property Summary",
+          value = ns("nav_property_summary"),
+          mod_survey_property_summary_ui(ns("property_summary"))
+        ),
+        bslib::nav_panel(
+          title = "Leasing Summary",
+          value = ns("nav_leasing_summary"),
+          mod_survey_leasing_summary_ui(ns("leasing_summary"))
+        ),
+        bslib::nav_panel(
+          title = "Short Term Leases",
+          value = ns("nav_short_term_leases"),
+          mod_survey_short_term_leases_ui(ns("short_term_leases"))
+        ),
+        bslib::nav_panel(
+          title = "Fees",
+          value = ns("nav_fees"),
+          mod_survey_fees_ui(ns("fees"))
+        ),
+        bslib::nav_panel(
+          title = "Amenities",
+          value = ns("nav_amenities"),
+          mod_survey_amenities_ui(ns("amenities"))
+        ),
+        bslib::nav_panel(
+          title = "Parking",
+          value = ns("nav_parking"),
+          mod_survey_parking_ui(ns("parking"))
+        ),
+        bslib::nav_panel(
+          title = "Utilities",
+          value = ns("nav_utilities"),
+          mod_survey_utilities_ui(ns("utilities"))
+        ),
+        bslib::nav_panel(
+          title = "Notes",
+          value = ns("nav_notes"),
+          mod_survey_notes_ui(ns("notes"))
+        ),
+        bslib::nav_panel(
+          title = "Rents",
+          value = ns("nav_rents"),
+          mod_survey_rents_ui(ns("rents"))
         )
       )
-    ),
-    bslib::navset_card_tab(
-      id = ns("survey_tabs"),
-      title = "GMH Communities - Leasing Market Survey Sections",
-      sidebar = bslib::sidebar(
-        title = icon_text("filter", "Filters"),
-        width = 300,
-        shiny::selectizeInput(
-          ns("property"),
-          label = icon_text("building", "Select Property"),
-          choices = app_choices_lst$properties,
-          selected = app_choices_lst$properties[["1047 Commonwealth Avenue"]]
-        ),
-        shiny::selectizeInput(
-          ns("competitor"),
-          label = icon_text("building", "Select Competitor"),
-          choices = c("None" = "none")
-        ) |>
-          shinyjs::disabled()
-      ),
-      bslib::nav_panel(
-        title = "Property Summary",
-        value = ns("nav_property_summary"),
-        mod_survey_property_summary_ui(ns("property_summary"))
-      ),
-      bslib::nav_panel(
-        title = "Leasing Summary",
-        value = ns("nav_leasing_summary"),
-        mod_survey_leasing_summary_ui(ns("leasing_summary"))
-      ),
-      bslib::nav_panel(
-        title = "Short Term Leases",
-        value = ns("nav_short_term_leases"),
-        mod_survey_short_term_leases_ui(ns("short_term_leases"))
-      ),
-      bslib::nav_panel(
-        title = "Fees",
-        value = ns("nav_fees"),
-        mod_survey_fees_ui(ns("fees"))
-      ),
-      bslib::nav_panel(
-        title = "Amenities",
-        value = ns("nav_amenities"),
-        mod_survey_amenities_ui(ns("amenities"))
-      ),
-      bslib::nav_panel(
-        title = "Parking",
-        value = ns("nav_parking"),
-        mod_survey_parking_ui(ns("parking"))
-      ),
-      bslib::nav_panel(
-        title = "Utilities",
-        value = ns("nav_utilities"),
-        mod_survey_utilities_ui(ns("utilities"))
-      ),
-      bslib::nav_panel(
-        title = "Notes",
-        value = ns("nav_notes"),
-        mod_survey_notes_ui(ns("notes"))
-      ),
-      bslib::nav_panel(
-        title = "Rents",
-        value = ns("nav_rents"),
-        mod_survey_rents_ui(ns("rents"))
-      )
     )
-  )
   )
 }
 
@@ -140,11 +138,9 @@ mod_survey_forms_ui <- function(id) {
 #' @importFrom shiny moduleServer reactive
 #' @importFrom cli cat_rule
 mod_survey_forms_server <- function(
-  id,
-  pool = NULL,
-  global_filters = NULL
-) {
-
+    id,
+    pool = NULL,
+    global_filters = NULL) {
   # check database connection
   if (is.null(pool)) pool <- db_connect()
   check_db_conn(pool)
@@ -157,7 +153,6 @@ mod_survey_forms_server <- function(
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_forms_server()")
 
@@ -209,7 +204,9 @@ mod_survey_forms_server <- function(
       })
 
       # reactive values ---------------------------------------------------------
-      db_metrics <- shiny::reactive({ db_read_survey_metrics(pool) })
+      db_metrics <- shiny::reactive({
+        db_read_survey_metrics(pool)
+      })
 
       # progress bars ----------------------------------------------------------
       output$total_progress <- shinyWidgets::updateProgressBar(
@@ -299,7 +296,6 @@ mod_survey_forms_server <- function(
 #' @importFrom bsicons bs_icon
 #' @importFrom shiny shinyApp
 mod_survey_forms_demo <- function() {
-
   pkgload::load_all()
 
   ui <- bslib::page_navbar(
@@ -324,4 +320,3 @@ mod_survey_forms_demo <- function() {
 }
 
 # utilities ---------------------------------------------------------------
-

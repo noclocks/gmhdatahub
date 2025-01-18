@@ -118,7 +118,6 @@ NULL
 #'
 #' @export
 create_leasing_calendar <- function(start_year = 2023, num_years = 3) {
-
   leasing_season_end <- function(year) {
     lubridate::ymd(paste0(year, "-08-01"))
   }
@@ -199,8 +198,7 @@ NULL
 #' @export
 get_leasing_week <- function(
     as_of_date = Sys.Date(),
-    week_start = "Monday"
-) {
+    week_start = "Monday") {
   as_of_date <- coerce_date(as_of_date)
   start <- get_leasing_week_start_date(as_of_date, week_start)
   end <- get_leasing_week_end_date(as_of_date, week_start)
@@ -212,8 +210,7 @@ get_leasing_week <- function(
 #' @importFrom lubridate floor_date
 get_leasing_week_start_date <- function(
     as_of_date = Sys.Date(),
-    week_start = "Monday"
-) {
+    week_start = "Monday") {
   as_of_date <- coerce_date(as_of_date)
   lubridate::floor_date(as_of_date, unit = "week", week_start = week_start)
 }
@@ -223,8 +220,7 @@ get_leasing_week_start_date <- function(
 #' @importFrom lubridate ceiling_date
 get_leasing_week_end_date <- function(
     as_of_date = Sys.Date(),
-    week_start = "Monday"
-) {
+    week_start = "Monday") {
   as_of_date <- coerce_date(as_of_date)
   lubridate::ceiling_date(as_of_date, unit = "week", week_start = week_start) - 1
 }
@@ -663,9 +659,7 @@ entrata_period <- function(
     period_start_date = NULL,
     period_end_date = NULL,
     period_date = NULL,
-    report_date = Sys.Date()
-) {
-
+    report_date = Sys.Date()) {
   validate_entrata_period_type(period_type)
 
   if (period_type == "daterange") {
@@ -682,6 +676,4 @@ entrata_period <- function(
       period_date <- report_date
     }
   }
-
 }
-

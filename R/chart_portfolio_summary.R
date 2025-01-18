@@ -1,6 +1,4 @@
-
 chart_portfolio_summary <- function(data, ...) {
-
   validate_col_names(
     data,
     c(
@@ -66,5 +64,4 @@ chart_portfolio_summary <- function(data, ...) {
     ) |>
     apexcharter::ax_stroke(width = 2) |>
     apexcharter::ax_markers(size = 5)
-
 }

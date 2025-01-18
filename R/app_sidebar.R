@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Shiny App Sidebar Module
@@ -52,7 +51,6 @@ NULL
 #' @importFrom htmltools tags
 #' @importFrom shiny NS
 app_sidebar_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   bslib::sidebar(
@@ -62,7 +60,6 @@ app_sidebar_ui <- function(id) {
 
     # mod_sidebar_user_profile_ui(ns("user")),
     mod_sidebar_filters_ui(ns("filters")),
-
     bslib::input_task_button(
       id = ns("refresh"),
       label = "Refresh Data",
@@ -71,15 +68,12 @@ app_sidebar_ui <- function(id) {
       auto_reset = TRUE
     )
   )
-
 }
 
 app_sidebar_server <- function(id) {
-
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cat_rule("[Module]: app_sidear_server()")
 
@@ -87,16 +81,13 @@ app_sidebar_server <- function(id) {
       filters <- mod_sidebar_filters_server("filters")
 
       return(list(global_filters = filters))
-
     }
   )
-
 }
 
 
 
 mod_sidebar_filters_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   # get the default choices/values
@@ -168,13 +159,11 @@ mod_sidebar_filters_server <- function(id) {
           leasing_week = input$leasing_week
         )
       })
-
     }
   )
 }
 
 mod_sidebar_user_profile_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   bslib::card(
@@ -187,7 +176,6 @@ mod_sidebar_user_profile_ui <- function(id) {
       htmltools::tags$p(shiny::textOutput(ns("user_email")))
     )
   )
-
 }
 
 mod_sidebar_user_profile_server <- function(id) {
@@ -207,4 +195,3 @@ mod_sidebar_user_profile_server <- function(id) {
     }
   )
 }
-

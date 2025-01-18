@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Database Creation
@@ -27,9 +26,7 @@ db_create_tbl <- function(
     tbl,
     schema,
     df,
-    ...
-) {
-
+    ...) {
   check_db_conn(conn)
 
   schema <- rlang::arg_match0(
@@ -48,16 +45,18 @@ db_create_tbl <- function(
     return(invisible())
   }
 
-  tryCatch({
-    DBI::dbWriteTable(conn, tbl, df, schema = schema, ...)
-    cli::cli_alert_success("Successfully created {.field {schema_tbl}}.")
-  }, error = function(e) {
-    cli::cli_alert_danger(
-      c(
-        "Failed to create table: {.field {schema_tbl}}.\n",
-        "Error: {.error {conditionMessage(e)}}"
+  tryCatch(
+    {
+      DBI::dbWriteTable(conn, tbl, df, schema = schema, ...)
+      cli::cli_alert_success("Successfully created {.field {schema_tbl}}.")
+    },
+    error = function(e) {
+      cli::cli_alert_danger(
+        c(
+          "Failed to create table: {.field {schema_tbl}}.\n",
+          "Error: {.error {conditionMessage(e)}}"
+        )
       )
-    )
-  })
-
+    }
+  )
 }
