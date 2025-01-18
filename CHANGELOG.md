@@ -8,6 +8,7 @@
 
 ## Bug Fixes
 
+- Missing imports ([d3ea3ed](https://github.com/noclocks/gmhdatahub/commit/d3ea3edcf604af9a255a5b9d7f7b09bd1c732418))  - (Jimmy Briggs)
 - Fixes ([6f1aea7](https://github.com/noclocks/gmhdatahub/commit/6f1aea759153b812d1ea4c27966ef3c977812276))  - (Jimmy Briggs)
 - Fix shiny session checks ([26e93f7](https://github.com/noclocks/gmhdatahub/commit/26e93f7ff5a87e6a20e36fd69210ef3cdf0d9fe5))  - (Jimmy Briggs)
 - Fix indentation ([2232322](https://github.com/noclocks/gmhdatahub/commit/223232261b648f61e361bbea1fabb13857a920ac))  - (Jimmy Briggs)
