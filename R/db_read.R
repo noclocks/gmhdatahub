@@ -75,7 +75,7 @@ db_read_gmh_partners <- function(pool, collect = TRUE) {
 
   check_db_pool(pool)
 
-  db_read_tbl(pool, "investment_partners", schema = "gmh", collect = collect)
+  db_read_tbl(pool, "gmh.partners", collect = collect)
 
 }
 
