@@ -8,6 +8,7 @@
 
 ## Bug Fixes
 
+- Fix shiny session checks ([26e93f7](https://github.com/noclocks/gmhdatahub/commit/26e93f7ff5a87e6a20e36fd69210ef3cdf0d9fe5))  - (Jimmy Briggs)
 - Fix indentation ([2232322](https://github.com/noclocks/gmhdatahub/commit/223232261b648f61e361bbea1fabb13857a920ac))  - (Jimmy Briggs)
 - Remove full_screen card ([10f6464](https://github.com/noclocks/gmhdatahub/commit/10f6464c2f2e606988cd0bc8287fa7bbff1e3faf))  - (Jimmy Briggs)
 - Fix issues with module namespaces and temp_modules ([9d4cac8](https://github.com/noclocks/gmhdatahub/commit/9d4cac8ea5ec12f51276c4d65b9f77de9c1ecc7b))  - (Jimmy Briggs)
@@ -22,6 +23,7 @@
 
 ## Documentation
 
+- Pkgdown & roxygen ([11832bf](https://github.com/noclocks/gmhdatahub/commit/11832bfabcfe6ce478277727a38102ae0c164976))  - (Jimmy Briggs)
 - Roxygen ([c2a19b2](https://github.com/noclocks/gmhdatahub/commit/c2a19b26bed7acee63f9fe36752c9db6bbc18447))  - (Jimmy Briggs)
 - Readme badges ([6b77ca0](https://github.com/noclocks/gmhdatahub/commit/6b77ca072209e76c1f210f80b1e6b8f94e9330e6))  - (Jimmy Briggs)
 - Initialize changelog file ([e695985](https://github.com/noclocks/gmhdatahub/commit/e695985115c39614c2338bd75ff7c2d432a20860))  - (Jimmy Briggs)
@@ -32,6 +34,7 @@
 
 ## Features
 
+- Update wordlist ([f9ab16e](https://github.com/noclocks/gmhdatahub/commit/f9ab16e807e4c9e717b21800baccdb0a16169740))  - (Jimmy Briggs)
 - Add github docker workflow ([0e2e792](https://github.com/noclocks/gmhdatahub/commit/0e2e792b3a33c09572ab652dbc613c16a77ba929))  - (Jimmy Briggs)
 - Add gcp docker workflow ([a4f9134](https://github.com/noclocks/gmhdatahub/commit/a4f913443b06c88d0151df2a88c1b9ad8dd54ced))  - (Jimmy Briggs)
 - Add R package workflows ([9c51f5d](https://github.com/noclocks/gmhdatahub/commit/9c51f5da85d3013039d9a26e208b0286c3335b56))  - (Jimmy Briggs)
