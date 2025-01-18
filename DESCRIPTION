@@ -81,7 +81,6 @@ Config/gcp/needs: gargle, googleCloudRunner, googleCloudStorageR,
     googleCloudAuthR, config
 Config/npm/needs: npm
 Config/pkgdown/needs: pkgdown, testdown, gitdown, covrpage
-Config/python/needs: reticulate
 Config/tests/needs: testthat (>= 3.0.0), spelling, shinytest2, httptest2,
     httr2, shinyloadtest, shinybg
 Config/testthat/edition: 3
