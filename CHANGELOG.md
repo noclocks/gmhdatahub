@@ -25,6 +25,7 @@
 
 ## Documentation
 
+- Badges ([f6606ed](https://github.com/noclocks/gmhdatahub/commit/f6606ed79457e51128b6fafa21ba88cd6cb290fa))  - (Jimmy Briggs)
 - Pkgdown & roxygen ([11832bf](https://github.com/noclocks/gmhdatahub/commit/11832bfabcfe6ce478277727a38102ae0c164976))  - (Jimmy Briggs)
 - Roxygen ([c2a19b2](https://github.com/noclocks/gmhdatahub/commit/c2a19b26bed7acee63f9fe36752c9db6bbc18447))  - (Jimmy Briggs)
 - Readme badges ([6b77ca0](https://github.com/noclocks/gmhdatahub/commit/6b77ca072209e76c1f210f80b1e6b8f94e9330e6))  - (Jimmy Briggs)
