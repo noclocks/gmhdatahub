@@ -64,19 +64,14 @@ gmh_properties_tbl_prep <- tibble::tibble(
   dplyr::select(
     property_id,
     property_name,
+    parent_property_id,
     property_type,
     property_status,
     property_website,
     property_email,
     property_phone_number,
     property_address,
-    street:country,
-    year_built,
     property_description,
-    short_description,
-    long_description,
-    parent_property_id,
-    segment_id,
     portfolio_id,
     partner_id
   )

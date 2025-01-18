@@ -12,9 +12,7 @@ gmh_properties_tbl <- readr::read_csv(
   col_types = list(
     .default = readr::col_character(),
     property_id = readr::col_integer(),
-    year_built = readr::col_integer(),
     parent_property_id = readr::col_integer(),
-    segment_id = readr::col_integer(),
     portfolio_id = readr::col_integer(),
     partner_id = readr::col_integer()
   )

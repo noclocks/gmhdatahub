@@ -3,10 +3,14 @@ DROP TABLE IF EXISTS gmh.portfolios CASCADE;
 CREATE TABLE IF NOT EXISTS gmh.portfolios (
   portfolio_id          INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   portfolio_name        TEXT NOT NULL UNIQUE,
-  portfolio_type        TEXT NOT NULL DEFAULT 'Equity Partner',  -- or 'Owner'
+  portfolio_full_name   TEXT,
+  portfolio_type        TEXT NOT NULL DEFAULT 'Equity Partner',
   portfolio_description TEXT DEFAULT 'No Description',
-  segment_id            INT NOT NULL REFERENCES gmh.segments(segment_id),
-  partner_id            INT NOT NULL REFERENCES gmh.partners(partner_id),
+  portfolio_status      TEXT DEFAULT 'Active',
+  portfolio_website     TEXT,
+  portfolio_logo_url    TEXT,
+  portfolio_icon_url    TEXT,
+  partner_id            INTEGER NOT NULL REFERENCES gmh.partners(partner_id),
   created_at            TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   updated_at            TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
@@ -16,15 +20,10 @@ COMMENT ON COLUMN gmh.portfolios.portfolio_id IS 'Unique identifier for the port
 COMMENT ON COLUMN gmh.portfolios.portfolio_name IS 'Name of the portfolio.';
 COMMENT ON COLUMN gmh.portfolios.portfolio_type IS 'Type of portfolio (Equity Partner or Owner).';
 COMMENT ON COLUMN gmh.portfolios.portfolio_description IS 'Description of the portfolio.';
-COMMENT ON COLUMN gmh.portfolios.segment_id IS 'Segment ID for the portfolio.';
+COMMENT ON COLUMN gmh.portfolios.portfolio_status IS 'Status of the portfolio.';
+COMMENT ON COLUMN gmh.portfolios.portfolio_website IS 'URL for the portfolio.';
+COMMENT ON COLUMN gmh.portfolios.portfolio_logo_url IS 'Logo URL for the portfolio.';
+COMMENT ON COLUMN gmh.portfolios.portfolio_icon_url IS 'Icon URL for the portfolio.';
 COMMENT ON COLUMN gmh.portfolios.partner_id IS 'Partner ID for the portfolio.';
 COMMENT ON COLUMN gmh.portfolios.created_at IS 'Timestamp when the portfolio was created.';
 COMMENT ON COLUMN gmh.portfolios.updated_at IS 'Timestamp when the portfolio was last updated.';
-
-INSERT INTO gmh.portfolios (portfolio_name, portfolio_type, portfolio_description, segment_id, partner_id)
-VALUES ('AGC', 'Equity Partner', 'AGC Properties', 1, 2),
-       ('CBRE', 'Equity Partner', 'CBRE Properties', ),
-       ('Equity Partner Portfolio 2', 'Equity Partner', 'Equity Partner Portfolio 2 Description', 3, 3),
-       ('Owner Portfolio 2', 'Owner', 'Owner Portfolio 2 Description', 4, 4),
-       ('Equity Partner Portfolio 3', 'Equity Partner', 'Equity Partner Portfolio 3 Description', 5, 5),
-       ('Owner Portfolio 3', 'Owner', 'Owner Portfolio 3 Description', 6, 6);
