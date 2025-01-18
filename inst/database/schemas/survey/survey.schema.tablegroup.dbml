@@ -1,0 +1,15 @@
+TableGroup "Survey Schema" [color: #5cb85c] {
+  "survey"."users"
+  "survey"."properties"
+  "survey"."competitors"
+  "survey"."leasing_weeks"
+  "survey"."surveys"
+  "survey"."sections"
+  "survey"."survey_sections"
+  "survey"."property_summary"
+  "survey"."leasing_summary"
+
+  Note: '''
+  The `survey` schema represents the Leasing Market Survey data model.
+  '''
+}

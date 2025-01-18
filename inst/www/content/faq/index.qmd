@@ -1,0 +1,36 @@
+---
+format: markdown
+---
+
+# Frequently Asked Questions (FAQ)
+
+## What is the GMH Leasing Dashboard?
+
+The GMH Leasing Dashboard is a web application that provides a comprehensive overview of the leasing performance
+of GMH Community's leasing properties and portfolios.
+
+The dashboard is designed to help GMH Leasing executives make data-driven decisions to optimize the performance of
+their properties.
+
+## How do I access the GMH Leasing Dashboard?
+
+The GMH Leasing Dashboard is accessible through a web browser. To access the dashboard, navigate to the URL provided
+by your GMH Leasing administrator.
+
+## What features are included in the GMH Leasing Dashboard?
+
+The Leasing Dashboard includes the following features:
+
+- **Dashboard**: A high-level overview of key performance indicators for the leasing portfolio.
+- **Reports**: Detailed reports on leasing performance, occupancy rates, and revenue.
+- **Properties**: Information on individual properties, including occupancy rates, leasing status, and revenue.
+
+## How do I navigate the GMH Leasing Dashboard?
+
+The GMH Leasing Dashboard is designed to be user-friendly and intuitive. To navigate the dashboard, use the menu
+options at the top of the screen to access different sections of the application.
+
+## How do I view reports in the GMH Leasing Dashboard?
+
+To view reports in the GMH Leasing Dashboard, navigate to the "Reports" section of the application. From there, you
+can select the type of report you would like to view and customize the report parameters to suit your needs.

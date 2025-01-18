@@ -7,7 +7,7 @@
 #
 #  ------------------------------------------------------------------------
 
-entrata_endpoints <- c(
+entrata_endpoints_lst <- c(
   "status",
   "applications",
   "arcodes",

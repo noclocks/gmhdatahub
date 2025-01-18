@@ -23,13 +23,13 @@
 #'
 #' @importFrom pool dbExecute
 #' @importFrom readr read_file
-db_read_sql <- function(conn, sql_file, ...) {
+db_read_sql <- function(pool, sql_file, ...) {
 
-  check_db_conn(conn)
+  check_db_pool(pool)
 
   sql <- readr::read_file(sql_file)
 
-  pool::dbExecute(conn, sql, ...)
+  pool::dbExecute(pool, sql, ...)
 
 }
 
@@ -63,36 +63,83 @@ db_read_gmh_pre_lease_summary_tbl <- function(
 
 }
 
-db_read_gmh_model_beds <- function(conn, collect = TRUE) {
+db_read_gmh_model_beds <- function(pool, collect = TRUE) {
 
-  check_db_conn(conn)
+  check_db_pool(pool)
 
-  db_read_tbl(conn, "model_beds", schema = "gmh", collect = collect)
-
-}
-
-db_read_gmh_partners <- function(conn, collect = TRUE) {
-
-  check_db_conn(conn)
-
-  db_read_tbl(conn, "investment_partners", schema = "gmh", collect = collect)
+  db_read_tbl(pool, tbl_name = "gmh.model_beds", collect = collect)
 
 }
 
-db_read_gmh_locations <- function(conn, collect = TRUE) {
+db_read_gmh_partners <- function(pool, collect = TRUE) {
 
-  check_db_conn(conn)
+  check_db_pool(pool)
 
-  db_read_tbl(conn, "locations", schema = "gmh", collect = collect)
+  db_read_tbl(pool, "investment_partners", schema = "gmh", collect = collect)
+
+}
+
+db_read_gmh_locations <- function(pool, collect = TRUE) {
+  check_db_pool(pool)
+  db_read_tbl(pool, "gmh.locations", collect = collect)
+}
+
+db_read_gmh_map_data <- function(pool, collect = TRUE) {
+  check_db_pool(pool)
+  locations <- db_read_tbl(pool, "gmh.locations", collect = FALSE)
+
+}
+
+db_read_gmh_property_summary <- function(pool, property_ids = NULL) {
+
+  check_db_pool(pool)
+
+  hold <- db_read_tbl(pool, "gmh.property_summary", collect = FALSE)
+
+  if (!is.null(property_ids)) {
+    hold <- dplyr::filter(hold, property_id %in% property_ids)
+  }
+
+  if (!collect) {
+    return(hold)
+  }
+
+  dplyr::collect(hold)
+
+}
+
+db_read_gmh_universities <- function(pool, collect = TRUE) {
+  check_db_pool(pool)
+  db_read_tbl(pool, "gmh.universities", collect = collect)
+}
+
+db_read_university_locations <- function(pool, collect = TRUE) {
+  check_db_pool(pool)
+
+  locs <- db_read_tbl(pool, "gmh.locations", collect = FALSE) |>
+    dplyr::filter(.data$map_layer == "universities") |>
+    dplyr::select(
+      "university_name" = "location_name",
+      dplyr::everything(),
+      -c("geom", "created_at", "updated_at", "is_active", "location_id")
+    )
+
+  hold <- db_read_tbl(pool, "gmh.universities", collect = FALSE) |>
+    dplyr::select(-c("created_at", "updated_at")) |>
+    dplyr::left_join(locs, by = c("university_name"))
+
+  if (collect) { return(dplyr::collect(hold)) }
+
+  return(hold)
 
 }
 
 db_read_survey_metrics <- function(pool) {
 
-  check_db_conn(pool)
+  check_db_pool(pool)
 
-  conn <- pool::poolCheckout(pool)
-  on.exit(pool::poolReturn(conn), add = TRUE)
+  pool <- pool::poolCheckout(pool)
+  on.exit(pool::poolReturn(pool), add = TRUE)
 
   tryCatch({
 
@@ -100,46 +147,46 @@ db_read_survey_metrics <- function(pool) {
       "SELECT COUNT(*) AS count FROM {`schema`}.{`tbl`}",
       schema = "mkt",
       tbl = "properties",
-      .con = conn
+      .con = pool
     )
 
     total_competitors_qry <- glue::glue_sql(
       "SELECT COUNT(*) AS count FROM {`schema`}.{`tbl`}",
       schema = "mkt",
       tbl = "competitors",
-      .con = conn
+      .con = pool
     )
 
     total_surveys_qry <- glue::glue_sql(
       "SELECT COUNT(*) AS count FROM {`schema`}.{`tbl`}",
       schema = "mkt",
       tbl = "surveys",
-      .con = conn
+      .con = pool
     )
 
     total_responses_qry <- glue::glue_sql(
       "SELECT COUNT(*) AS count FROM {`schema`}.{`tbl`}",
       schema = "mkt",
       tbl = "responses",
-      .con = conn
+      .con = pool
     )
 
-    total_properties <- DBI::dbGetQuery(conn, total_properties_qry) |>
+    total_properties <- DBI::dbGetQuery(pool, total_properties_qry) |>
       dplyr::pull("count") |>
       purrr::pluck(1) |>
       as.integer()
 
-    total_competitors <- DBI::dbGetQuery(conn, total_competitors_qry) |>
+    total_competitors <- DBI::dbGetQuery(pool, total_competitors_qry) |>
       dplyr::pull("count") |>
       purrr::pluck(1) |>
       as.integer()
 
-    total_surveys <- DBI::dbGetQuery(conn, total_surveys_qry) |>
+    total_surveys <- DBI::dbGetQuery(pool, total_surveys_qry) |>
       dplyr::pull("count") |>
       purrr::pluck(1) |>
       as.integer()
 
-    total_responses <- DBI::dbGetQuery(conn, total_responses_qry) |>
+    total_responses <- DBI::dbGetQuery(pool, total_responses_qry) |>
       dplyr::pull("count") |>
       purrr::pluck(1) |>
       as.integer()
@@ -177,21 +224,64 @@ db_read_survey_metrics <- function(pool) {
 
 }
 
-db_read_mkt_property_summary <- function(pool, property_id) {
+db_read_mkt_property_summary <- function(pool, property_id = NULL) {
 
-  check_db_conn(pool)
+  check_db_pool(pool)
 
-  db_read_tbl(pool, "mkt.property_summary", collect = FALSE) |>
-    dplyr::filter(.data$property_id == as.character(.env$property_id)) |>
-    dplyr::collect()
+  hold <- db_read_tbl(pool, "mkt.property_summary", collect = FALSE)
+
+  if (!is.null(property_id)) {
+    prop_ids <- hold |> dplyr::pull("property_id") |> unique()
+    if (!property_id %in% prop_ids) {
+      cli::cli_alert_warning("No data found for the specified property ID: {.field {property_id}}.")
+    }
+    hold <- dplyr::filter(hold, .data$property_id == as.character(.env$property_id))
+  }
+
+  dplyr::collect(hold)
 
 }
 
+db_read_mkt_leasing_summary <- function(pool, property_id = NULL, leasing_week = NULL) {
+
+  check_db_pool(pool)
+
+  hold <- db_read_tbl(pool, "mkt.leasing_summary", collect = FALSE)
+
+  if (!is.null(property_id)) {
+    prop_ids <- hold |> dplyr::pull("property_id") |> unique()
+    if (!property_id %in% prop_ids) {
+      cli::cli_alert_warning("No data found for the specified property ID: {.field {property_id}}.")
+    } else {
+      hold <- dplyr::filter(hold, .data$property_id == .env$property_id)
+    }
+  }
+
+  if (!is.null(leasing_week)) {
+    leasing_week_dates <- hold |> dplyr::pull("leasing_week") |> unique()
+    if (!leasing_week %in% leasing_week_dates) {
+      cli::cli_alert_warning("No data found for the specified leasing week: {.field {leasing_week}}.")
+    } else {
+      hold <- dplyr::filter(hold, .data$leasing_week == .env$leasing_week)
+    }
+  }
+
+  dplyr::collect(hold)
+
+}
+
+db_read_gmh_leasing_calendar <- function(pool, date_key = Sys.Date()) {
+  check_db_pool(pool)
+  date_key <- format(date_key, "%Y-%m-%d")
+  db_read_tbl(pool, "gmh.leasing_calendar", collect = FALSE) |>
+    dplyr::filter(.data$date_key == .env$date_key) |>
+    dplyr::collect()
+}
 
 
 db_read_mkt_locations <- function(pool, property_ids = NULL) {
 
-  check_db_conn(pool)
+  check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "mkt.locations", collect = FALSE)
 
@@ -205,7 +295,7 @@ db_read_mkt_locations <- function(pool, property_ids = NULL) {
 
 db_read_home_metrics <- function(pool, report_date = NULL, property_ids = NULL) {
 
-  check_db_conn(pool)
+  check_db_pool(pool)
 
   tbl <- dplyr::tbl(pool, I("entrata.pre_lease_summary"))
   tbl_report_date <- max(dplyr::pull(tbl, "report_date"), na.rm = TRUE)
@@ -277,11 +367,38 @@ db_read_home_metrics <- function(pool, report_date = NULL, property_ids = NULL) 
 
 }
 
-db_get_recent_activity_logs <- function(pool, ...) {
+db_read_recent_activity_logs <- function(pool, ...) {
 
-  check_db_conn(pool)
+  check_db_pool(pool)
 
   dplyr::tbl(pool, I("logs.recent_activity")) |>
     dplyr::arrange(dplyr::desc(created_at))
+
+}
+
+db_read_survey_property_ids <- function(pool, ...) {
+
+  db_read_tbl(pool, "mkt.properties", collect = FALSE) |>
+    dplyr::filter(.data$is_competitor == FALSE) |>
+    dplyr::pull("property_id")
+
+}
+
+get_leasing_week_id_by_date <- function(pool, date) {
+
+  check_db_pool(pool)
+
+  leasing_week_start_date <- get_leasing_week_start_date(date)
+
+  valid_leasing_weeks <- db_read_tbl(pool, "survey.leasing_weeks") |>
+    dplyr::pull("leasing_week_start_date")
+
+  if (!leasing_week_start_date %in% valid_leasing_weeks) {
+    cli::cli_abort("{.arg date} is not a valid leasing week start date.")
+  }
+
+  db_read_tbl(pool, "survey.leasing_weeks") |>
+    dplyr::filter(.data$leasing_week_start_date == .env$leasing_week_start_date) |>
+    dplyr::pull("leasing_week_id")
 
 }

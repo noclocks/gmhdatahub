@@ -55,7 +55,7 @@ chart_current_vs_prior <- function(data, metric = c("leases", "renewals", "prele
 
   hold <- apexcharter::apex(
     data = chart_data,
-    mapping = aes(
+    mapping = apexcharter::aes(
       x = property_name,
       y = value,
       fill = type
@@ -79,7 +79,12 @@ chart_current_vs_prior <- function(data, metric = c("leases", "renewals", "prele
   if (metric %in% c("leases", "renewals")) {
     out <- hold |>
       apexcharter::ax_yaxis(
-        title = list(text = y_axis_title)
+        title = list(text = y_axis_title),
+        labels = list(
+          formatter = apexcharter::JS(
+            "function(val) {return val.toFixed(0)}"
+          )
+        )
       )
   } else {
     out <- hold |>

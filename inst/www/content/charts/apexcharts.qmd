@@ -1,0 +1,42 @@
+---
+output:
+  html_document:
+    keep_md: true
+---
+
+## Chart Features <img src="https://apexcharts.com/media/apexcharts-logo.png" width="auto" height="100" align="right" />
+
+***
+
+The provided charts come with a number of features that can be used to enhance the user experience.
+
+These features include:
+
+- **Zooming** - The ability to zoom in on a specific area of the chart.
+- **Panning** - The ability to pan across the chart.
+- **Data Point Highlighting** - The ability to highlight specific data points.
+- **Data Point Selection** - The ability to select specific data points.
+- **Data Point Filtering** - The ability to filter out specific data points.
+- **Data Point Annotations** - The ability to add annotations to specific data points.
+
+***
+
+<center>
+
+*Charts displayed using [ApexCharts.js](https://apexcharts.com/) and the [apexcharter R package](https://davidgohel.github.io/apexcharter/).*
+
+</center>
+
+***
+
+<center>
+<img src="images/apexcharts-example.png" width="auto" height="200px" align="center" />
+</center>
+
+***
+
+<span>
+<img src="images/gmh.svg" style="float: left; width: 40%; height: 80px; margin-right: 10px;"/>
+<img src="images/noclocks.svg" style="float: right; width: 40%; height: 80px;"/>
+</span>
+

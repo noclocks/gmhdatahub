@@ -10,7 +10,7 @@
 
 # default methods by endpoint ---------------------------------------------
 
-entrata_default_methods <- list(
+entrata_default_methods_lst <- list(
   "status" = "getStatus",
   "applications" = "getCompanyApplications",
   "arcodes" = "getArCodes",

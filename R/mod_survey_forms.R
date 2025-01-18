@@ -47,27 +47,7 @@ mod_survey_forms_ui <- function(id) {
   ns <- shiny::NS(id)
 
   htmltools::tagList(
-
-    bslib::layout_columns(
-      bslib::value_box(
-        id = ns("properties_value_box"),
-        title = "Properties",
-        value = shiny::textOutput(ns("properties_count")),
-        showcase = bsicons::bs_icon("building")
-      ),
-      bslib::value_box(
-        id = ns("competitors_value_box"),
-        title = "Competitors",
-        value = shiny::textOutput("competitor_count"),
-        showcase = bsicons::bs_icon("graph-up")
-      ),
-      bslib::value_box(
-        id = ns("surveys_value_box"),
-        title = "Survey Responses",
-        value = shiny::textOutput("response_count"),
-        showcase = bsicons::bs_icon("clipboard-data")
-      )
-    ),
+    bslib::page_fluid(
 
     # progress ----------------------------------------------------------------
     bslib::card(
@@ -92,69 +72,63 @@ mod_survey_forms_ui <- function(id) {
         shiny::selectizeInput(
           ns("property"),
           label = icon_text("building", "Select Property"),
-          choices = app_choices$properties,
-          selected = app_choices$properties[["1047 Commonwealth Avenue"]]
+          choices = app_choices_lst$properties,
+          selected = app_choices_lst$properties[["1047 Commonwealth Avenue"]]
         ),
         shiny::selectizeInput(
           ns("competitor"),
           label = icon_text("building", "Select Competitor"),
-          choices = app_choices$competitors[[1]]
-        ),
-        shiny::dateRangeInput(
-          ns("leasing_week"),
-          label = icon_text("calendar", "Leasing Week"),
-          start = get_leasing_week_start_date(),
-          end = get_leasing_week_end_date(),
-          weekstart = 1,
-          format = "yyyy-mm-dd"
-        )
+          choices = c("None" = "none")
+        ) |>
+          shinyjs::disabled()
       ),
       bslib::nav_panel(
         title = "Property Summary",
-        value = ns("property_summary"),
+        value = ns("nav_property_summary"),
         mod_survey_property_summary_ui(ns("property_summary"))
       ),
       bslib::nav_panel(
         title = "Leasing Summary",
-        value = ns("leasing_summary"),
+        value = ns("nav_leasing_summary"),
         mod_survey_leasing_summary_ui(ns("leasing_summary"))
       ),
       bslib::nav_panel(
         title = "Short Term Leases",
-        value = ns("short_term_leases"),
+        value = ns("nav_short_term_leases"),
         mod_survey_short_term_leases_ui(ns("short_term_leases"))
       ),
       bslib::nav_panel(
         title = "Fees",
-        value = ns("fees"),
+        value = ns("nav_fees"),
         mod_survey_fees_ui(ns("fees"))
       ),
       bslib::nav_panel(
         title = "Amenities",
-        value = ns("amenities"),
+        value = ns("nav_amenities"),
         mod_survey_amenities_ui(ns("amenities"))
       ),
       bslib::nav_panel(
         title = "Parking",
-        value = ns("parking"),
+        value = ns("nav_parking"),
         mod_survey_parking_ui(ns("parking"))
       ),
       bslib::nav_panel(
         title = "Utilities",
-        value = ns("utilities"),
+        value = ns("nav_utilities"),
         mod_survey_utilities_ui(ns("utilities"))
       ),
       bslib::nav_panel(
         title = "Notes",
-        value = ns("notes"),
+        value = ns("nav_notes"),
         mod_survey_notes_ui(ns("notes"))
       ),
       bslib::nav_panel(
         title = "Rents",
-        value = ns("rents"),
+        value = ns("nav_rents"),
         mod_survey_rents_ui(ns("rents"))
       )
     )
+  )
   )
 }
 
@@ -178,11 +152,6 @@ mod_survey_forms_server <- function(
   # validation of reactives
   if (!is.null(global_filters)) {
     stopifnot(shiny::is.reactive(global_filters))
-  } else {
-    global_filters <- shiny::reactiveValues(
-      properties = "739085",
-      leasing_week = get_leasing_week()
-    )
   }
 
   shiny::moduleServer(
@@ -192,93 +161,120 @@ mod_survey_forms_server <- function(
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_forms_server()")
 
+      # selected tab ------------------------------------------------------------
+      selected_tab <- shiny::reactive({
+        shiny::req(input$survey_tabs)
+        input$survey_tabs
+      })
+
+      shiny::observeEvent(selected_tab(), {
+
+      })
+
+      # selected property / competitor ------------------------------------------
+      selected_property_id <- shiny::reactiveVal(NULL)
+
+      # competitors -------------------------------------------------------------
+      properties_with_competitors <- db_read_tbl(pool, "mkt.property_competitors") |>
+        dplyr::pull("property_id") |>
+        unique()
+
+      shiny::observeEvent(input$property, {
+        if (input$property %in% properties_with_competitors) {
+          shinyjs::enable("competitor")
+          shiny::updateSelectizeInput(
+            session,
+            "competitor",
+            choices = c("None" = "none", unlist(app_choices_lst$competitors[[input$property]])),
+            selected = "none"
+          )
+        } else {
+          shiny::updateSelectizeInput(
+            session,
+            "competitor",
+            choices = c("None" = "none"),
+            selected = "none"
+          )
+          shinyjs::disable("competitor")
+        }
+      })
+
+      shiny::observe({
+        shiny::req(input$property, input$competitor)
+        if (input$competitor != "none") {
+          selected_property_id(input$competitor)
+        } else {
+          selected_property_id(input$property)
+        }
+      })
+
       # reactive values ---------------------------------------------------------
       db_metrics <- shiny::reactive({ db_read_survey_metrics(pool) })
-
-      # value boxes -------------------------------------------------------------
-      output$properties_count <- shiny::renderText({
-        shiny::req(db_metrics())
-        db_metrics()$total_properties
-      })
-
-      output$competitor_count <- shiny::renderText({
-        shiny::req(db_metrics())
-        db_metrics()$total_competitors
-      })
-
-      output$response_count <- shiny::renderText({
-        shiny::req(db_metrics())
-        db_metrics()$total_responses
-      })
 
       # progress bars ----------------------------------------------------------
       output$total_progress <- shinyWidgets::updateProgressBar(
         session,
         ns("total_progress"),
-        value = 80
+        value = 80 # TODO
       )
 
-
       # sub-modules -------------------------------------------------------------
-
       property_summary_data <- mod_survey_property_summary_server(
-        ns("property_summary"),
-        pool = pool
+        "property_summary",
+        pool = pool,
+        selected_property_id = selected_property_id
       )
 
       leasing_summary_data <- mod_survey_leasing_summary_server(
-        ns("leasing_summary"),
+        "leasing_summary",
         pool = pool,
-        global_filters = global_filters
+        selected_property_id = selected_property_id
       )
 
       short_term_leases_data <- mod_survey_short_term_leases_server(
-        ns("short_term_leases"),
+        "short_term_leases",
         pool = pool,
         global_filters = global_filters
       )
 
       fees_data <- mod_survey_fees_server(
-        ns("fees"),
+        "fees",
         pool = pool,
         global_filters = global_filters
       )
 
       amenities_data <- mod_survey_amenities_server(
-        ns("amenities"),
+        "amenities",
         pool = pool,
         global_filters = global_filters
       )
 
       parking_data <- mod_survey_parking_server(
-        ns("parking"),
+        "parking",
         pool = pool,
         global_filters = global_filters
       )
 
       utilities_data <- mod_survey_utilities_server(
-        ns("utilities"),
+        "utilities",
         pool = pool,
         global_filters = global_filters
       )
 
       notes_data <- mod_survey_notes_server(
-        ns("notes"),
+        "notes",
         pool = pool,
         global_filters = global_filters
       )
 
       rents_data <- mod_survey_rents_server(
-        ns("rents"),
+        "rents",
         pool = pool,
         global_filters = global_filters
       )
 
       return(
         list(
-          # reactive values
-          db_metrics = db_metrics,
-          # sub-modules
           property_summary_data = property_summary_data,
           leasing_summary_data = leasing_summary_data,
           short_term_leases_data = short_term_leases_data,

@@ -1,7 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^data-raw$
-dev_history.R
 ^dev$
 $run_dev.*
 ^.here$
@@ -14,3 +13,19 @@ _\.new\.png$
 ^\.editorconfig$
 ^codemeta\.json$
 ^config\.yml$
+^\.github$
+^\.dockerignore$
+^Dockerfile$
+^Makefile$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^compose\.yml$
+^\.gitignore$
+^app\.R$
+^*\.lnk$
+^\.ai$
+^\.vscode$
+^\.devcontainer$
+^pkg\.lock$
+^CHANGELOG\.md$

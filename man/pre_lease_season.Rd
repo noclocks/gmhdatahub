@@ -5,6 +5,7 @@
 \alias{get_pre_lease_year}
 \alias{get_pre_lease_season}
 \alias{get_pre_lease_season_start_date}
+\alias{get_entrata_custom_pre_lease_date}
 \title{Pre-Lease Season and Leasing Cycle}
 \usage{
 get_pre_lease_year(as_of_date = Sys.Date())
@@ -12,6 +13,8 @@ get_pre_lease_year(as_of_date = Sys.Date())
 get_pre_lease_season(as_of_date = Sys.Date())
 
 get_pre_lease_season_start_date(as_of_date = Sys.Date())
+
+get_entrata_custom_pre_lease_date(as_of_date = Sys.Date())
 }
 \arguments{
 \item{as_of_date}{Date to use as the reference point for deriving other dates from.

@@ -60,7 +60,7 @@ app_sidebar_ui <- function(id) {
     title = "GMH Data Hub",
     open = FALSE,
 
-    mod_sidebar_user_profile_ui(ns("user")),
+    # mod_sidebar_user_profile_ui(ns("user")),
     mod_sidebar_filters_ui(ns("filters")),
 
     bslib::input_task_button(
@@ -83,14 +83,94 @@ app_sidebar_server <- function(id) {
       ns <- session$ns
       cli::cat_rule("[Module]: app_sidear_server()")
 
-      user_profile <- mod_sidebar_user_profile_server("user")
+      # user_profile <- mod_sidebar_user_profile_server("user")
       filters <- mod_sidebar_filters_server("filters")
 
-      return(list(user_profile = user_profile, global_filters = filters))
+      return(list(global_filters = filters))
 
     }
   )
 
+}
+
+
+
+mod_sidebar_filters_ui <- function(id) {
+
+  ns <- shiny::NS(id)
+
+  # get the default choices/values
+  default_leasing_week_period <- get_leasing_week()
+  default_leasing_week_minmax <- c(
+    get_pre_lease_season_start_date() - lubridate::years(1),
+    Sys.Date()
+  )
+  default_portfolios <- get_default_app_choices("portfolios")
+  default_properties <- get_default_app_choices("properties")
+
+  bslib::accordion(
+    bslib::accordion_panel(
+      "Filters",
+      icon = bsicons::bs_icon("funnel"),
+      shiny::selectizeInput(
+        ns("portfolios"),
+        label = "Investment Portfolio:",
+        choices = default_portfolios,
+        selected = default_portfolios,
+        multiple = TRUE,
+        options = list(
+          plugins = "remove_button",
+          closeAfterSelect = TRUE
+        )
+      ),
+      shiny::selectInput(
+        ns("properties"),
+        label = "Properties:",
+        choices = default_properties,
+        selected = default_properties[1],
+        multiple = TRUE
+      ),
+      shiny::dateRangeInput(
+        ns("leasing_week"),
+        label = "Leasing Week:",
+        start = default_leasing_week_period$start,
+        end = default_leasing_week_period$end,
+        min = default_leasing_week_minmax[1],
+        max = default_leasing_week_minmax[2],
+        format = "yyyy-mm-dd",
+        startview = "month",
+        weekstart = 1,
+        separator = " - "
+      )
+    )
+  )
+}
+
+mod_sidebar_filters_server <- function(id) {
+  moduleServer(
+    id,
+    function(input, output, session) {
+      ns <- session$ns
+
+      filts <- shiny::reactive({
+        shiny::req(
+          input$portfolios,
+          input$properties,
+          input$leasing_week
+        )
+
+        leasing_week_start <- lubridate::as_date(input$leasing_week[1])
+        leasing_week_end <- lubridate::as_date(input$leasing_week[2])
+
+        list(
+          portfolios = input$portfolios,
+          properties = input$properties,
+          leasing_week = input$leasing_week
+        )
+      })
+
+    }
+  )
 }
 
 mod_sidebar_user_profile_ui <- function(id) {
@@ -128,128 +208,3 @@ mod_sidebar_user_profile_server <- function(id) {
   )
 }
 
-mod_sidebar_filters_ui <- function(id) {
-
-  ns <- shiny::NS(id)
-
-  # get the default choices/values
-  default_leasing_week_period <- get_leasing_week()
-  default_leasing_week_minmax <- c(
-    get_pre_lease_season_start_date() - lubridate::years(1),
-    Sys.Date()
-  )
-  default_portfolios <- get_default_app_choices("portfolios")
-  default_properties <- get_default_app_choices("properties")
-
-  bslib::accordion(
-    bslib::accordion_panel(
-      "Filters",
-      icon = bsicons::bs_icon("funnel"),
-      shiny::selectizeInput(
-        ns("portfolios"),
-        label = "Investment Portfolio:",
-        choices = default_portfolios,
-        selected = default_portfolios,
-        multiple = TRUE,
-        options = list(
-          plugins = "remove_button",
-          closeAfterSelect = TRUE
-        )
-      ),
-      shiny::selectizeInput(
-        ns("properties"),
-        label = "Properties:",
-        choices = default_properties,
-        selected = default_properties,
-        multiple = TRUE,
-        options = list(
-          plugins = "remove_button",
-          closeAfterSelect = TRUE
-        )
-      ),
-      shiny::dateRangeInput(
-        ns("leasing_week"),
-        label = "Leasing Week:",
-        start = default_leasing_week_period$start,
-        end = default_leasing_week_period$end,
-        min = default_leasing_week_minmax[1],
-        max = default_leasing_week_minmax[2],
-        format = "yyyy-mm-dd",
-        startview = "month",
-        weekstart = 1,
-        separator = " - "
-      )
-    )
-  )
-}
-
-mod_sidebar_filters_server <- function(id) {
-  moduleServer(
-    id,
-    function(input, output, session) {
-      ns <- session$ns
-
-      filts <- shiny::reactive({
-        shiny::req(
-          input$portfolios,
-          input$properties,
-          input$leasing_week
-        )
-
-        leasing_week_start <- lubridate::as_date(input$leasing_week[1])
-        leasing_week_end <- lubridate::as_date(input$leasing_week[2])
-
-        # week # should be based on the leasing season/year which starts on 8/1,
-        # not 1/1:
-        leasing_week_number <-
-
-        list(
-          portfolios = input$portfolios,
-          properties = input$properties,
-          leasing_week = input$leasing_week
-        )
-      })
-
-    }
-  )
-}
-
-
-
-
-# filters <- list(
-#   shinyWidgets::pickerInput(
-#     ns("portfolio"),
-#     label = icon_text("building", "Portfolio"),
-#     choices = ,
-#     selected = app_choices$portfolios,
-#     multiple = TRUE,
-#     options = shinyWidgets::pickerOptions(
-#       actionsBox = TRUE
-#     )
-#   ),
-#   shinyWidgets::pickerInput(
-#     ns("properties"),
-#     label = icon_text("building", "Properties", .function = shiny::icon),
-#     choices = app_choices$properties,
-#     selected = app_choices$properties,
-#     multiple = TRUE,
-#     options = shinyWidgets::pickerOptions(
-#       actionsBox = TRUE,
-#       header = "Select Properties",
-#       liveSearch = TRUE
-#     )
-#   ),
-#   shinyWidgets::airDatepickerInput(
-#     ns("leasing_week"),
-#     label = icon_text("calendar-alt", "Leasing Week", .function = shiny::icon),
-#     value = initial_value,
-#     range = TRUE,
-#     firstDay = 1,
-#     autoClose = TRUE,
-#     todayButton = TRUE,
-#     disabledDaysOfWeek = c(2, 3, 4, 5, 6),
-#     maxDate = Sys.Date(),
-#     addon = "none"
-#   )
-# )

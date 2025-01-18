@@ -23,21 +23,8 @@ source("data-raw/scripts/entrata/charge_codes.R")
 
 # cleanup -----------------------------------------------------------------
 
-rm(
-  entrata_config,
-  csv_path,
-  get_entrata_properties,
-  assign_versions,
-  entrata_base_request,
-  entrata_leases_picklist_request,
-  entrata_properties_picklist_request,
-  entrata_properties_request,
-  entrata_req_perform,
-  entrata_req_perform_save,
-  get_entrata_config,
-  get_entrata_report_filters,
-  get_entrata_arcodes
-)
+# remove everything but _tbl and _lst
+rm(list = setdiff(ls(), c(grep("_tbl|_lst|_tbls", ls(), value = TRUE), "entrata_config")))
 
 # inform ------------------------------------------------------------------
 

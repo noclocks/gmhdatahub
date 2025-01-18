@@ -1,0 +1,46 @@
+@import "../theme/colors";
+@import "../theme/spacing";
+
+// Tabs layout styles
+.nav-tabs {
+  border: 0;
+
+  .nav-link {
+    border: 0;
+    color: get-color(mid-grey);
+    padding: get-padding(small);
+
+    &.active {
+      border-bottom: 2px solid get-color(black);
+      color: get-color(black);
+    }
+
+    &:hover {
+      color: get-color(brand-blue);
+      text-decoration: none;
+    }
+  }
+}
+
+// For larger tabs
+.big-tabs {
+  line-height: 1.1em;
+  padding: get-padding(medium);
+
+  .nav-link {
+    padding: get-padding(medium);
+    font-size: 1.1em;
+
+    &.active {
+      border-bottom: 2px solid get-color(brand-blue);
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .nav-tabs .nav-link {
+    font-size: 0.9em;
+    padding: get-padding(small);
+  }
+}

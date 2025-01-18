@@ -1,0 +1,17 @@
+/* CSS Styles for the Property Summary Card */
+
+.edit-mode {
+  display: none;
+}
+
+.display-mode {
+  display: block;
+}
+
+.editing .edit-mode {
+  display: block;
+}
+
+.editing .display-mode {
+  display: none;
+}

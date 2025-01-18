@@ -94,19 +94,36 @@ parse_request <- function(req) {
 }
 
 get_default_app_choices <- function(type) {
+  type <- rlang::arg_match0(type, names(app_choices_lst))
+  app_choices_lst[[type]]
+}
 
-  type <- rlang::arg_match(
-    type,
-    c("properties", "portfolios", "reports", "competitors", "partners", "charts", "tables")
-  )
+get_survey_choices <- function(section, type) {
+  section <- rlang::arg_match0(section, names(survey_choices_lst))
+  type <- rlang::arg_match0(type, names(survey_choices_lst[[section]]))
+  survey_choices_lst[[section]][[type]]
+}
 
-  switch(
-    type,
-    properties = app_choices$properties,
-    portfolios = app_choices$portfolios,
-    reports = app_choices$reports,
-    competitors = app_choices$competitors,
-    partners = app_choices$partners
-  )
+get_property_name_by_id <- function(property_id) {
+
+  valid_property_ids <- get_default_app_choices("properties")
+  if (!property_id %in% valid_property_ids) {
+    cli::cli_abort("{.arg property_id} is not a valid property ID.")
+  }
+
+  names(
+    get_default_app_choices("properties")
+  )[which(get_default_app_choices("properties") == property_id)]
+
+}
+
+get_property_id_by_name <- function(property_name) {
+
+  valid_property_names <- names(get_default_app_choices("properties"))
+  if (!property_name %in% valid_property_names) {
+    cli::cli_abort("{.arg property_name} is not a valid property name.")
+  }
+
+  get_default_app_choices("properties")[[property_name]]
 
 }

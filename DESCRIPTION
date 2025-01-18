@@ -11,39 +11,83 @@ Description: Provides a Shiny dashboard and API client for interactingwith
     GMH Communities leasing data via the Entrata API. Includesfunctions
     for API authentication, data retrieval, and datavisualization.
 License: MIT + file LICENSE
-Imports: 
+Depends:
+    R (>= 4.1)
+Imports:
+    apexcharter,
     bsicons,
     bslib,
     cli,
     config,
+    DBI,
+    dbplyr,
+    dbx,
     dplyr,
     fontawesome,
-    golem,
+    fs,
+    ggmap,
+    glue,
+    googleway,
     htmltools,
+    httr2,
+    jsonlite,
+    leaflet,
+    logger,
     lubridate,
     mime,
     pkgload,
+    plotly,
+    pool,
+    purrr,
+    reactable,
+    reactablefmtr,
+    readr,
     rintrojs,
     rlang,
+    RPostgres,
+    scales,
     shiny,
     shinycustomloader,
     shinyjs,
+    shinyvalidate,
+    shinyWidgets,
+    stringr,
+    tibble,
+    tidyr,
+    tidyselect,
+    tools,
     waiter,
     withr
-Suggests: 
+Suggests:
     httptest2,
+    httpuv,
     knitr,
+    pingr,
     rmarkdown,
+    shinybg,
     shinytest2,
     spelling,
     testthat (>= 3.0.0)
-VignetteBuilder: 
+VignetteBuilder:
     knitr
+Remotes:
+    kcuilla/reactablefmtr,
+    tiledb-inc/shinybg
+Config/coverage/needs: covr covrpage
+Config/database/needs: config, DBI, pool, dbx, dplyr, dbplyr, RPostgres
+Config/docker/needs: dockerfiler
+Config/excel/needs: openxlsx2, readxl, writexl, cellranger
+Config/gcp/needs: gargle, googleCloudRunner, googleCloudStorageR,
+    googleCloudAuthR, config
+Config/npm/needs: npm
+Config/pkgdown/needs: pkgdown, testdown, gitdown, covrpage
+Config/python/needs: reticulate
+Config/tests/needs: testthat (>= 3.0.0), spelling, shinytest2, httptest2,
+    httr2, shinyloadtest, shinybg
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 Encoding: UTF-8
 Language: en-US
+LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-Depends: 
-    R (>= 3.5)

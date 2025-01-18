@@ -1,5 +1,4 @@
--- Schema: gmh
--- Table: manual_model_beds
+DROP TABLE IF EXISTS gmh.model_beds CASCADE;
 
 CREATE TABLE gmh.model_beds (
     property_id      INTEGER PRIMARY KEY REFERENCES gmh.properties(property_id) ON DELETE CASCADE,

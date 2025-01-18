@@ -1,0 +1,3 @@
+INSERT INTO survey.property_summary (survey_id, property_id, property_name, property_website, property_address, property_phone, property_developer, property_manager, property_owner, property_type, property_rating, property_status, comp_status, year_built, most_recent_sale, distance_from_campus, created_by)
+VALUES
+    (1, 739085, '1047 Commonwealth Avenue', 'https://www.1047commonwealth.com/', '1047 Commonwealth Ave, Boston, MA, 02215', '+16173510288', 'BPDA', 'GMH Communities', 'AGC + GMH Communities', 'Student', 2.5, 'Operational', 'Subject Property', 2017, '2019-01-01', 2.5, (SELECT user_id FROM survey.users WHERE user_email = 'jimmy.briggs@noclocks.dev'));

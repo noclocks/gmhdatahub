@@ -1,0 +1,49 @@
+@import "../theme/colors";
+@import "../theme/spacing";
+
+// Full-page layout style
+.big-full-page {
+  min-height: 100vh;
+  padding: get-padding(medium);
+  background-color: get-color(super-light-grey);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+// Container styles
+.page-container {
+  width: 100%;
+  max-width: 1200px;
+  padding: get-padding(large);
+  margin: auto;
+  background-color: get-color(white);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+
+  @media (max-width: 768px) {
+    padding: get-padding(medium);
+  }
+}
+
+// Title styling for pages
+.page-title {
+  font-size: 2em;
+  font-weight: bold;
+  color: get-color(color-dark);
+  margin-bottom: get-margin(medium);
+  text-align: center;
+}
+
+// Content section style
+.page-content {
+  flex-grow: 1;
+  padding: get-padding(medium);
+  color: get-color(mid-grey);
+
+  // Responsive adjustment for smaller screens
+  @media (max-width: 768px) {
+    padding: get-padding(small);
+  }
+}

@@ -28,7 +28,7 @@ chart_velocity_comparison <- function(data, id = NULL, ...) {
 
   apexcharter::apex(
     data = chart_data,
-    mapping = aes(
+    mapping = apexcharter::aes(
       x = property_name,
       y = value,
       fill = velocity_type

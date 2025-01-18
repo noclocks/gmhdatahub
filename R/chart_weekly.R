@@ -35,7 +35,7 @@ chart_weekly_leasing_breakdown <- function(
 
   apexcharter::apex(
     data = chart_data,
-    mapping = aes(
+    mapping = apexcharter::aes(
       x = property_name,
       y = value,
       fill = type
@@ -103,7 +103,7 @@ chart_weekly_activity <- function(data, id = NULL, height = 500, ...) {
 
   apexcharter::apex(
     data = chart_data,
-    mapping = aes(
+    mapping = apexcharter::aes(
       x = property_name,
       y = value,
       group = metric

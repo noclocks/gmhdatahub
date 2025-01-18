@@ -33,7 +33,7 @@ chart_pre_lease_rates <- function(data, id = NULL, ...) {
   apexcharter::apex(
     data = chart_data,
     type = "line",
-    mapping = aes(
+    mapping = apexcharter::aes(
       x = property_name,
       y = preleased_percent,
       group = period,

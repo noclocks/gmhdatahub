@@ -1,5 +1,13 @@
 
-survey_section_choices_lst <- list(
+#  ------------------------------------------------------------------------
+#
+# Title : Market Survey Choices (by section)
+#    By : Jimmy Briggs
+#  Date : 2025-01-13
+#
+#  ------------------------------------------------------------------------
+
+survey_choices_lst <- list(
   property_summary = list(
     property_type = c(
       "Student",
@@ -28,9 +36,9 @@ survey_section_choices_lst <- list(
   ),
   leasing_summary = list(
     reporting_cycle = c(
-      "Saturday - Friday",
-      "Sunday - Monday",
-      "Monday - Sunday"
+      "Saturday-Friday",
+      "Sunday-Monday",
+      "Monday-Sunday"
     ),
     current_incentive = c(
       "None",

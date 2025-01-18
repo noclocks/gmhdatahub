@@ -1,0 +1,27 @@
+@import "../theme/colors";
+
+.navbar {
+  border-bottom: 2px solid get-color(brand-blue);
+
+  .dropdown-toggle::after {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    content: "\f078";
+    border-top: none;
+    vertical-align: 0;
+  }
+
+  .dropdown-menu.show {
+    left: -7rem;
+    background-color: get-color(white);
+  }
+
+  .nav-tabs .nav-link {
+    color: get-color(mid-grey);
+
+    &.active {
+      color: get-color(black);
+      border-bottom: 1px solid get-color(black);
+    }
+  }
+}

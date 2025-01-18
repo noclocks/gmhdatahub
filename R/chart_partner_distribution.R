@@ -26,7 +26,7 @@ chart_partner_distribution <- function(data, metric = c("total_beds"), id = NULL
 
   apexcharter::apex(
     data = chart_data,
-    mapping = aes(
+    mapping = apexcharter::aes(
       x = investment_partner,
       y = total_beds
     ),

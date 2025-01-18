@@ -41,7 +41,7 @@ chart_portfolio_summary <- function(data, ...) {
 
   apexcharter::apex(
     data = chart_data,
-    mapping = aes(
+    mapping = apexcharter::aes(
       x = metric,
       y = value,
       group = investment_partner

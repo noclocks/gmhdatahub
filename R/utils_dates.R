@@ -87,6 +87,79 @@
 #' [weekly_period], [date_formatting], [month_dates]
 NULL
 
+
+# leasing calendar --------------------------------------------------------
+
+#' Create a Leasing Calendar Schedule Table
+#'
+#' @description
+#' This function generates a leasing calendar schedule table for a given
+#' start year and number of years. The leasing season is defined as starting
+#' on September 1st and ending on August 1st of the following year.
+#'
+#' The table includes the following columns:
+#'
+#' - `date`: The date in the sequence.
+#' - `calendar_year`: The calendar year of the date.
+#' - `leasing_year`: The leasing year corresponding to the date.
+#' - `leasing_season_end_date`: The end date of the leasing season for the leasing year.
+#' - `leasing_season_start_date`: The start date of the leasing season for the leasing year.
+#' - `leasing_week`: The week number within the leasing season.
+#' - `weeks_left_to_lease`: The number of weeks left to lease until the end of the leasing season.
+#' - `is_current_leasing_season`: A logical indicating if the date is within the current leasing season.
+#'
+#' @param start_year The starting year for the leasing calendar.
+#'   Defaults to 2023.
+#' @param num_years The number of years to generate the leasing calendar for.
+#'   Defaults to 3.
+#'
+#' @returns
+#' A tibble containing the leasing calendar schedule.
+#'
+#' @export
+create_leasing_calendar <- function(start_year = 2023, num_years = 3) {
+
+  leasing_season_end <- function(year) {
+    lubridate::ymd(paste0(year, "-08-01"))
+  }
+
+  leasing_season_start <- function(year) {
+    lubridate::ymd(paste0(year - 1, "-09-01"))
+  }
+
+  date_seq <- tibble::tibble(
+    date = seq.Date(
+      from = leasing_season_start(start_year),
+      to = leasing_season_end(start_year + num_years),
+      by = "day"
+    )
+  ) |>
+    dplyr::mutate(
+      calendar_year = lubridate::year(date),
+      leasing_year = dplyr::if_else(
+        lubridate::month(date) >= 9,
+        calendar_year + 1,
+        calendar_year
+      ),
+      leasing_season_end_date = leasing_season_end(leasing_year),
+      leasing_season_start_date = leasing_season_start(leasing_year),
+      leasing_week = floor(
+        as.numeric(
+          difftime(date, leasing_season_start_date, units = "weeks")
+        )
+      ) + 1,
+      weeks_left_to_lease = ceiling(
+        as.numeric(
+          difftime(leasing_season_end_date, date, units = "weeks")
+        )
+      ),
+      is_current_leasing_season = date >= leasing_season_start_date &
+        date <= leasing_season_end_date
+    )
+
+  return(date_seq)
+}
+
 # leasing week ------------------------------------------------------------
 
 #' Leasing Week
@@ -245,6 +318,14 @@ get_pre_lease_season <- function(as_of_date = Sys.Date()) {
 get_pre_lease_season_start_date <- function(as_of_date = Sys.Date()) {
   pre_lease_year <- get_pre_lease_year(as_of_date)
   lubridate::make_date(year = pre_lease_year, month = 9L, day = 1L)
+}
+
+#' @rdname pre_lease_season
+#' @export
+#' @importFrom lubridate make_date
+get_entrata_custom_pre_lease_date <- function(as_of_date = Sys.Date()) {
+  pre_lease_year <- get_pre_lease_year(as_of_date)
+  lubridate::make_date(year = pre_lease_year, month = 8L, day = 20L)
 }
 
 # leasing period ----------------------------------------------------------
@@ -603,3 +684,4 @@ entrata_period <- function(
   }
 
 }
+
