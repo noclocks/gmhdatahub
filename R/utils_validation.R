@@ -77,7 +77,7 @@ set_validation_rules <- function(iv, section) {
 
 intro_validator <- function() {
 
-  if (!shiny::getDefaultReactiveDomain()) {
+  if (is.null(shiny::getDefaultReactiveDomain())) {
     cli::cli_abort(
       "This function must be called within a valid shiny session."
     )
@@ -90,7 +90,7 @@ intro_validator <- function() {
 
 property_summary_validator <- function() {
 
-  if (!shiny::getDefaultReactiveDomain()) {
+  if (is.null(shiny::getDefaultReactiveDomain())) {
     cli::cli_abort(
       "This function must be called within a valid shiny session."
     )
@@ -134,7 +134,7 @@ property_summary_validator <- function() {
 
 leasing_summary_validator <- function() {
 
-  if (!shiny::getDefaultReactiveDomain()) {
+  if (is.null(shiny::getDefaultReactiveDomain())) {
     cli::cli_abort(
       "This function must be called within a valid shiny session."
     )
