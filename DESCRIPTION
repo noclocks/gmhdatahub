@@ -19,7 +19,7 @@ Depends:
 Imports:
     apexcharter,
     bsicons,
-    bslib,
+    bslib (>= 0.7),
     cli,
     config,
     DBI,
