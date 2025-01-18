@@ -43,6 +43,12 @@ App</a>
 
 <!-- badges: start -->
 
+[![Build Docker Container
+(GCP)](https://github.com/noclocks/gmhdatahub/actions/workflows/docker-gcp.yml/badge.svg)](https://github.com/noclocks/gmhdatahub/actions/workflows/docker-gcp.yml)
+[![Build Docker Container
+(GHCR)](https://github.com/noclocks/gmhdatahub/actions/workflows/docker-ghcr.yml/badge.svg)](https://github.com/noclocks/gmhdatahub/actions/workflows/docker-ghcr.yml)
+[![R CMD
+Check](https://github.com/noclocks/gmhdatahub/actions/workflows/check.yml/badge.svg?branch=main)](https://github.com/noclocks/gmhdatahub/actions/workflows/check.yml)
 [![Automate
 Changelog](https://github.com/noclocks/gmhdatahub/actions/workflows/changelog.yml/badge.svg)](https://github.com/noclocks/gmhdatahub/actions/workflows/changelog.yml)
 [![Code
@@ -51,8 +57,6 @@ Style](https://github.com/noclocks/gmhdatahub/actions/workflows/style.yml/badge.
 [![Document
 (Roxygen)](https://github.com/noclocks/gmhdatahub/actions/workflows/roxygen.yml/badge.svg)](https://github.com/noclocks/gmhdatahub/actions/workflows/roxygen.yml)
 [![pkgdown](https://github.com/noclocks/gmhdatahub/actions/workflows/pkgdown.yml/badge.svg)](https://github.com/noclocks/gmhdatahub/actions/workflows/pkgdown.yml)
-[![R CMD
-Check](https://github.com/noclocks/gmhdatahub/actions/workflows/check.yml/badge.svg?branch=main)](https://github.com/noclocks/gmhdatahub/actions/workflows/check.yml)
 [![Test
 Coverage](https://codecov.io/gh/noclocks/gmhdatahub/graph/badge.svg)](https://app.codecov.io/gh/noclocks/gmhdatahub)
 [![Dependabot
