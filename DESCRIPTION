@@ -11,9 +11,9 @@ Description: Provides a Shiny dashboard and API client for interactingwith
     GMH Communities leasing data via the Entrata API. Includesfunctions
     for API authentication, data retrieval, and datavisualization.
 License: MIT + file LICENSE
-Depends: 
+Depends:
     R (>= 4.1)
-Imports: 
+Imports:
     apexcharter,
     bsicons,
     bslib,
@@ -58,7 +58,7 @@ Imports:
     tools,
     waiter,
     withr
-Suggests: 
+Suggests:
     httptest2,
     httpuv,
     knitr,
@@ -68,10 +68,11 @@ Suggests:
     shinytest2,
     spelling,
     testthat (>= 3.0.0)
-VignetteBuilder: 
+VignetteBuilder:
     knitr
 Remotes:
-    TileDB-Inc/shinybg
+    kcuilla/reactablefmtr,
+    tiledb-inc/shinybg
 Config/coverage/needs: covr covrpage
 Config/database/needs: config, DBI, pool, dbx, dplyr, dbplyr, RPostgres
 Config/docker/needs: dockerfiler
