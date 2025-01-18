@@ -124,17 +124,21 @@ mod_survey_admin_ui <- function(id) {
         bslib::nav_panel(
           title = icon_text("dashboard", "Overview"),
           bslib::layout_columns(
-            col_widths = c(4, 8),
+            col_widths = c(5, 7),
             bslib::card(
-              bslib::card_header("Survey Status"),
+              bslib::card_header(icon_text("clipboard", "Survey Status")),
               bslib::card_body(
-                reactable::reactableOutput(ns("survey_status_table"))
+                reactable::reactableOutput(ns("survey_status_table")) |>
+                  with_loader()
               )
             ),
             bslib::card(
-              bslib::card_header("Property Map"),
+              full_screen = TRUE,
+              class = "p-0",
+              bslib::card_header(icon_text("map", "Property Map")),
               bslib::card_body(
-                leaflet::leafletOutput(ns("property_map"))
+                leaflet::leafletOutput(ns("property_map"), height = "600px") |>
+                  with_loader()
               )
             )
           )
@@ -176,10 +180,6 @@ mod_survey_admin_server <- function(
   global_filters = NULL
 ) {
 
-  # check database connection
-  if (is.null(pool)) pool <- db_connect()
-  check_db_conn(pool)
-
   # validation of reactives
   if (!is.null(global_filters)) {
     stopifnot(shiny::is.reactive(global_filters))
@@ -191,6 +191,10 @@ mod_survey_admin_server <- function(
 
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_admin_server()")
+
+      # check database connection
+      if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
+      check_db_conn(pool)
 
       # check for logged in user
       user <- session$userData$user
@@ -219,40 +223,84 @@ mod_survey_admin_server <- function(
 
       # Reactive values and observers
       properties_data <- shiny::reactive({
-        shiny::req(pool)
-        db_read_tbl(pool, "mkt.properties")
+        db_read_tbl(pool, "survey.properties")
+      })
+
+      competitors_data <- shiny::reactive({
+        db_read_tbl(pool, "survey.competitors")
       })
 
       survey_data <- shiny::reactive({
-        shiny::req(pool)
-        db_read_tbl(pool, "mkt.surveys")
+        db_read_tbl(pool, "survey.surveys")
       })
 
       universities_data <- shiny::reactive({
-        shiny::req(pool)
-        unis <- db_read_tbl(pool, "mkt.universities")
-        locs <- db_read_tbl(pool, "mkt.university_locations")
-        dplyr::left_join(
-          unis,
-          locs,
-          by = c("university_id" = "university_id")
-        ) |>
-          dplyr::select(-coordinates)
+        db_read_university_locations(pool)
+      })
+
+      table_data <- shiny::reactive({
+        shiny::req(properties_data(), competitors_data(), survey_data())
+
+        properties_data <- properties_data()
+        competitors_data <- competitors_data()
+        survey_data <- survey_data()
+
+        property_surveys <- survey_data |>
+          dplyr::filter(property_id %in% properties_data$property_id) |>
+          dplyr::mutate(type = "Property")
+
+        competitor_surveys <- survey_data |>
+          dplyr::filter(competitor_id %in% competitors_data$competitor_id) |>
+          dplyr::mutate(type = "Competitor")
+
+        combined_data <- property_surveys |>
+          dplyr::bind_rows(competitor_surveys) |>
+          dplyr::left_join(
+            properties_data,
+            by = c("property_id" = "property_id")
+          ) |>
+          dplyr::left_join(
+            competitors_data,
+            by = c("competitor_id" = "competitor_id")
+          ) |>
+          dplyr::transmute(
+            name = dplyr::coalesce(property_name, competitor_name),
+            type = type,
+            last_survey_date = survey_date,
+            survey_status = ifelse(
+              .data$survey_status != "Complete" & difftime(Sys.Date(), .data$survey_date, units = "days") > 7,
+              "Overdue",
+              .data$survey_status
+            )
+          )
+
       })
 
       map_data <- shiny::reactive({
-        shiny::req(pool)
-        properties <- db_read_tbl(pool, "mkt.locations") |>
-          dplyr::filter(.data$is_competitor == FALSE)
-        competitors <- db_read_tbl(pool, "mkt.locations") |>
-          dplyr::filter(.data$is_competitor == TRUE)
-        universities <- universities_data()
+        shiny::req(properties_data(), competitors_data(), universities_data())
 
-        list(
-          properties = properties,
-          competitors = competitors,
-          universities = universities
-        )
+        properties_data <- properties_data()
+        competitors_data <- competitors_data()
+        universities_data <- universities_data()
+
+        hold <- db_read_gmh_locations(pool) |>
+          split(~map_layer)
+
+        hold$properties <- hold$properties |>
+          dplyr::filter(
+            .data$location_name %in% properties_data$property_name
+          )
+
+        hold$competitors <- hold$competitors |>
+          dplyr::rename(competitor_id = location_id) |>
+          dplyr::filter(
+            .data$competitor_id %in% competitors_data$competitor_id
+          )
+
+        hold$universities <- hold$universities |>
+          dplyr::rename(university_id = location_id)
+
+        return(hold)
       })
 
       # Value box outputs
@@ -280,6 +328,49 @@ mod_survey_admin_server <- function(
       })
       shiny::observeEvent(input$add_competitor, {
         # show_add_competitor_modal()
+      })
+
+      # output - survey status
+      output$survey_status_table <- reactable::renderReactable({
+        shiny::req(table_data())
+        tbl_survey_status(table_data())
+      })
+
+      selected_property <- shiny::reactiveVal(NULL)
+
+      shiny::observe({
+        selected <- reactable::getReactableState("survey_status_table", "selected")
+        shiny::req(selected)
+        selected_property_name <- table_data() |>
+          dplyr::filter(dplyr::row_number() == selected) |>
+          dplyr::pull(name)
+        selected_property_id <- get_property_id_by_name(selected_property_name)
+        selected_property(selected_property_id)
+      })
+
+      # output - property map
+      output$property_map <- leaflet::renderLeaflet({
+
+        properties <- map_data()$properties
+        competitors <- map_data()$competitors
+        universities <- map_data()$universities
+
+        if (!is.null(selected_property())) {
+          prop_name <- get_property_name_by_id(selected_property())
+          prop_comps <- competitors_data() |>
+            dplyr::filter(property_id == selected_property()) |>
+            dplyr::pull(competitor_id)
+          properties <- properties |>
+            dplyr::filter(location_name == prop_name)
+          competitors <- competitors |>
+            dplyr::filter(competitor_id %in% prop_comps)
+        }
+
+        map_survey_locations(
+          properties = properties,
+          competitors = competitors,
+          universities = universities
+        )
       })
 
       shiny::observeEvent(input$create_survey, {
@@ -364,15 +455,15 @@ mod_survey_admin_server <- function(
             input$survey_user
           )
 
+          leasing_week_id <- get_leasing_week_id_by_date(pool = pool, input$survey_leasing_week)
           user_id <- get_user_id_by_email(pool = pool, email = input$survey_user)
-          property_name <- get_property_name_by_id(property_id = input$survey_property)
+          # property_name <- get_property_name_by_id(property_id = input$survey_property)
 
           tibble::tibble(
-            property_id = input$survey_property,
-            leasing_week = input$survey_leasing_week,
+            property_id = as.integer(input$survey_property),
+            competitor_id = NA_integer_,
+            leasing_week_id = leasing_week_id,
             user_id = user_id,
-            user_email = input$survey_user,
-            property_name = property_name,
             survey_date = Sys.Date(),
             survey_status = "Initialized"
           )
@@ -387,15 +478,69 @@ mod_survey_admin_server <- function(
         shiny::observeEvent(input$confirm_survey_init, {
           iv$enable()
           valid_inputs <- iv$is_valid()
+
           if (valid_inputs) {
+
             new_survey <- survey_data()
-            browser()
-            db_mkt_insert_tbl(pool, "mkt.surveys", new_survey)
-            close()
-            shiny::showNotification(
-              "Survey initialized successfully.",
-              type = "message"
-            )
+
+            tryCatch({
+
+              gmh_property_data <- db_read_tbl(pool, "gmh.properties")
+
+              new_property <- gmh_property_data |>
+                dplyr::filter(
+                  .data$property_id == new_survey$property_id
+                ) |>
+                dplyr::select(
+                  "property_id",
+                  "property_name",
+                  "property_type",
+                  "property_website",
+                  "property_address",
+                  "property_phone" = "property_phone_number",
+                  "property_email",
+                  "property_description"
+                ) |>
+                dplyr::mutate(
+                  property_image_url = "https://placehold.co/600x400.png"
+                )
+
+              pool::poolWithTransaction(pool, function(conn) {
+
+                DBI::dbAppendTable(
+                  conn = conn,
+                  name = DBI::SQL("survey.properties"),
+                  value = new_property
+                )
+
+                DBI::dbAppendTable(
+                  conn = conn,
+                  name = DBI::SQL("survey.surveys"),
+                  value = new_survey
+                )
+
+              })
+
+              cli::cli_alert_success(
+                "Survey initialized successfully."
+              )
+
+              shiny::showNotification(
+                "Survey initialized successfully.",
+                type = "message"
+              )
+
+            }, error = function(e) {
+              cli::cli_alert_danger(
+                "Error initializing survey. {.error {e$message}}"
+              )
+              shiny::showNotification(
+                "Error initializing survey.",
+                type = "error"
+              )
+            }, finally = {
+              close()
+            })
           } else {
             shiny::showNotification(
               "Please correct the errors before continuing.",
@@ -411,59 +556,6 @@ mod_survey_admin_server <- function(
             type = "message"
           )
         })
-      })
-
-      output$survey_status_table <- reactable::renderReactable({
-
-        properties_data <- properties_data()
-        survey_data <- survey_data()
-        map_data <- map_data()
-
-        combined_data <- properties_data |>
-          dplyr::left_join(
-            survey_data |>
-              dplyr::group_by(property_id) |>
-              dplyr::filter(survey_date == max(survey_date)) |>
-              dplyr::ungroup(),
-            by = "property_id"
-          ) |>
-          dplyr::left_join(
-            map_data$properties |>
-              dplyr::select(property_id, address) |>
-              dplyr::bind_rows(
-                map_data$competitors |>
-                  dplyr::select(property_id, address)
-              ),
-            by = "property_id"
-          ) |>
-          dplyr::transmute(
-            name = property_name,
-            type = ifelse(is_competitor, "Competitor", "Property"),
-            address = address,
-            last_survey_date = survey_date,
-            survey_status = case_when(
-              is.na(survey_date) ~ "Pending",
-              difftime(Sys.Date(), survey_date, units = "days") > 7 ~ "Overdue",
-              TRUE ~ "Complete"
-            ),
-            occupancy = as.numeric(NA),
-            avg_rent = as.numeric(NA)
-          )
-
-        tbl_survey_properties_competitors(combined_data)
-      })
-
-      output$property_map <- leaflet::renderLeaflet({
-
-        properties <- map_data()$properties
-        competitors <- map_data()$competitors
-        universities <- map_data()$universities
-
-        map_survey_locations(
-          properties = properties,
-          competitors = competitors,
-          universities = universities
-        )
       })
 
       return(

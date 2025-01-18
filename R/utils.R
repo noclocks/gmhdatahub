@@ -127,5 +127,3 @@ get_property_id_by_name <- function(property_name) {
   get_default_app_choices("properties")[[property_name]]
 
 }
-
-

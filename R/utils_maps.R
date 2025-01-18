@@ -267,37 +267,162 @@ parse_address <- function(address) {
   )
 }
 
-crete_map_popup <- function(property_data, ...) {
+create_map_popup <- function(
+    name,
+    location_type = c("property", "competitor", "univerity"),
+    property_type = NULL,
+    product_type = NULL,
+    status = NULL,
+    year_built = NULL,
+    rating = NULL,
+    distance_from_campus = NULL,
+    phone_number = NULL,
+    website = NULL,
+    developer = NULL,
+    manager = NULL,
+    owner = NULL,
+    image_src = NULL,
+    ...
+) {
 
-  paste0(
-    "<div style='min-width: 200px;'>",
-    "<h4>", property_data$property_name, "</h4>",
-    "<p><strong>Property Details:</strong><br>",
-    "Type: ", property_data$property_type, " (", property_data$product_type, ")<br>",
-    "Status: ", property_data$property_status, "<br>",
-    "Year Built: ", property_data$year_built, "<br>",
-    "Rating: ", property_data$property_rating, " stars<br>",
-    "Distance from Campus: ", property_data$distance_from_campus, " miles</p>",
+  location_type <- match.arg(location_type) |>
+    stringr::str_to_title()
 
-    "<p><strong>Contact:</strong><br>",
-    "Phone: ", property_data$phone_number, "<br>",
-    "<a href='", property_data$website, "' target='_blank'>Visit Website</a></p>",
+  # Helper function to create detail line if value exists
+  detail_line <- function(label, value) {
+    if (!is.null(value)) glue::glue("{label}: {value}<br>")
+  }
 
-    "<p><strong>Management:</strong><br>",
-    "Developer: ", property_data$developer, "<br>",
-    "Manager: ", manager, "<br>",
-    "Owner: ", owner, "</p>",
-
-    ifelse(property_image != "",
-           paste0("<img src='", property_image,
-                  "' style='max-width: 200px; margin-top: 10px;'>"),
-           ""),
-    "</div>"
+  # Create sections only if they have content
+  property_details <- paste0(
+    detail_line("Type", if (!is.null(property_type) && !is.null(product_type)) {
+      glue::glue("{property_type} ({product_type})")
+    } else {
+      property_type
+    }),
+    detail_line("Status", status),
+    detail_line("Year Built", year_built),
+    detail_line("Rating", if (!is.null(rating)) glue::glue("{rating} Stars")),
+    detail_line("Distance from Campus", if (!is.null(distance_from_campus)) glue::glue("{distance_from_campus} Miles"))
   )
 
+  contact_details <- paste0(
+    detail_line("Phone", phone_number),
+    if (!is.null(website)) glue::glue("<a href='{website}' target='_blank'>Visit Website</a><br>")
+  )
+
+  management_details <- paste0(
+    detail_line("Developer", developer),
+    detail_line("Manager", manager),
+    detail_line("Owner", owner)
+  )
+
+  # Only include sections that have content
+  glue::glue('
+    <div style="min-width: 200px;">
+      <h4>{name}</h4>
+      {if (nchar(property_details) > 0) glue::glue("
+        <p><strong>{location_type} Details:</strong><br>
+        {property_details}</p>
+      ")}
+      {if (nchar(contact_details) > 0) glue::glue("
+        <p><strong>Contact:</strong><br>
+        {contact_details}</p>
+      ")}
+      {if (nchar(management_details) > 0) glue::glue("
+        <p><strong>Management:</strong><br>
+        {management_details}</p>
+      ")}
+      {if (length(image_src) > 0) glue::glue(\'
+        <img src="{image_src}" style="max-width: 200px; margin-top: 10px;">
+      \')}
+    </div>
+  ')
 }
+
 
 
 prepare_property_locations_data <- function(enriched_data) {
 
 }
+
+# create_map_popup <- function(property_data, ...) {
+#
+#   paste0(
+#     "<div style='min-width: 200px;'>",
+#     "<h4>", property_data$property_name, "</h4>",
+#     "<p><strong>Property Details:</strong><br>",
+#     "Type: ", property_data$property_type, " (", property_data$product_type, ")<br>",
+#     "Status: ", property_data$property_status, "<br>",
+#     "Year Built: ", property_data$year_built, "<br>",
+#     "Rating: ", property_data$property_rating, " stars<br>",
+#     "Distance from Campus: ", property_data$distance_from_campus, " miles</p>",
+#
+#     "<p><strong>Contact:</strong><br>",
+#     "Phone: ", property_data$phone_number, "<br>",
+#     "<a href='", property_data$website, "' target='_blank'>Visit Website</a></p>",
+#
+#     "<p><strong>Management:</strong><br>",
+#     "Developer: ", property_data$developer, "<br>",
+#     "Manager: ", manager, "<br>",
+#     "Owner: ", owner, "</p>",
+#
+#     ifelse(property_image != "",
+#            paste0("<img src='", property_image,
+#                   "' style='max-width: 200px; margin-top: 10px;'>"),
+#            ""),
+#     "</div>"
+#   )
+#
+# }
+
+
+# create_map_popup <- function(
+#   name,
+#   location_type = c("property", "competitor", "univerity"),
+#   property_type = NULL,
+#   product_type = NULL,
+#   status = NULL,
+#   year_built = NULL,
+#   rating = NULL,
+#   distance_from_campus = NULL,
+#   phone_number = NULL,
+#   website = NULL,
+#   developer = NULL,
+#   manager = NULL,
+#   owner = NULL,
+#   image_src = NULL,
+#   ...
+# ) {
+#
+#   location_type <- match.arg(location_type) |>
+#     stringr::str_to_title()
+#
+#   glue::glue(
+#     "<div style='min-width: 200px;'>",
+#     "<h4>{name}</h4>",
+#     "<p><strong>{location_type} Details:</strong><br>",
+#     "Type: {property_type} ({product_type})<br>",
+#     "Status: {status}<br>",
+#     "Year Built: {year_built}<br>",
+#     "Rating: {rating} Stars<br>",
+#     "Distance from Campus: {distance_from_campus} Miles</p>",
+#
+#     "<p><strong>Contact:</strong><br>",
+#     "Phone: {phone_number}<br>",
+#     "<a href='{website}' target='_blank'>Visit Website</a></p>",
+#
+#     "<p><strong>Management:</strong><br>",
+#     "Developer: {developer}<br>",
+#     "Manager: {manager}<br>",
+#     "Owner: {owner}</p>",
+#
+#     if (length(image_src) > 0) {
+#       glue::glue("<img src='{image_src}' style='max-width: 200px; margin-top: 10px;'>")
+#     },
+#     "</div>"
+#   )
+#
+# }
+
+

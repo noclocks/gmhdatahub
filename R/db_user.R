@@ -54,8 +54,8 @@ get_user_id_by_email <- function(pool, email) {
 
   check_db_conn(pool)
 
-  db_emails <- db_read_tbl(pool, "auth.users") |>
-    dplyr::pull("email") |>
+  db_emails <- db_read_tbl(pool, "survey.users") |>
+    dplyr::pull("user_email") |>
     unique()
 
   if (!(email %in% db_emails)) {
@@ -64,8 +64,8 @@ get_user_id_by_email <- function(pool, email) {
     )
   }
 
-  db_read_tbl(pool, "auth.users") |>
-    dplyr::filter(.data$email == .env$email) |>
+  db_read_tbl(pool, "survey.users") |>
+    dplyr::filter(.data$user_email == .env$email) |>
     dplyr::pull("user_id")
 
 }

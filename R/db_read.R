@@ -84,6 +84,12 @@ db_read_gmh_locations <- function(pool, collect = TRUE) {
   db_read_tbl(pool, "gmh.locations", collect = collect)
 }
 
+db_read_gmh_map_data <- function(pool, collect = TRUE) {
+  check_db_pool(pool)
+  locations <- db_read_tbl(pool, "gmh.locations", collect = FALSE)
+
+}
+
 db_read_gmh_property_summary <- function(pool, property_ids = NULL) {
 
   check_db_pool(pool)
@@ -105,6 +111,27 @@ db_read_gmh_property_summary <- function(pool, property_ids = NULL) {
 db_read_gmh_universities <- function(pool, collect = TRUE) {
   check_db_pool(pool)
   db_read_tbl(pool, "gmh.universities", collect = collect)
+}
+
+db_read_university_locations <- function(pool, collect = TRUE) {
+  check_db_pool(pool)
+
+  locs <- db_read_tbl(pool, "gmh.locations", collect = FALSE) |>
+    dplyr::filter(.data$map_layer == "universities") |>
+    dplyr::select(
+      "university_name" = "location_name",
+      dplyr::everything(),
+      -c("geom", "created_at", "updated_at", "is_active", "location_id")
+    )
+
+  hold <- db_read_tbl(pool, "gmh.universities", collect = FALSE) |>
+    dplyr::select(-c("created_at", "updated_at")) |>
+    dplyr::left_join(locs, by = c("university_name"))
+
+  if (collect) { return(dplyr::collect(hold)) }
+
+  return(hold)
+
 }
 
 db_read_survey_metrics <- function(pool) {
@@ -354,5 +381,24 @@ db_read_survey_property_ids <- function(pool, ...) {
   db_read_tbl(pool, "mkt.properties", collect = FALSE) |>
     dplyr::filter(.data$is_competitor == FALSE) |>
     dplyr::pull("property_id")
+
+}
+
+get_leasing_week_id_by_date <- function(pool, date) {
+
+  check_db_pool(pool)
+
+  leasing_week_start_date <- get_leasing_week_start_date(date)
+
+  valid_leasing_weeks <- db_read_tbl(pool, "survey.leasing_weeks") |>
+    dplyr::pull("leasing_week_start_date")
+
+  if (!leasing_week_start_date %in% valid_leasing_weeks) {
+    cli::cli_abort("{.arg date} is not a valid leasing week start date.")
+  }
+
+  db_read_tbl(pool, "survey.leasing_weeks") |>
+    dplyr::filter(.data$leasing_week_start_date == .env$leasing_week_start_date) |>
+    dplyr::pull("leasing_week_id")
 
 }
