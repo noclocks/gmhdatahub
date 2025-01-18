@@ -695,7 +695,7 @@ mod_survey_init_server <- function(id, pool = NULL) {
         )
 
         user_id <- get_user_id_by_email(pool, input$survey_user)
-        property_name <- get_property_name_by_id(pool, input$survey_property)
+        property_name <- get_property_name_by_id(input$survey_property)
 
         tibble::tibble(
           property_id = input$survey_property,
