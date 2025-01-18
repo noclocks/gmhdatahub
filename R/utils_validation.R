@@ -75,7 +75,26 @@ set_validation_rules <- function(iv, section) {
 
 }
 
+intro_validator <- function() {
+
+  if (!shiny::getDefaultReactiveDomain()) {
+    cli::cli_abort(
+      "This function must be called within a valid shiny session."
+    )
+  }
+
+  iv <- shinyvalidate::InputValidator$new()
+  iv$add_rule("survey_user", shinyvalidate::sv_email())
+
+}
+
 property_summary_validator <- function() {
+
+  if (!shiny::getDefaultReactiveDomain()) {
+    cli::cli_abort(
+      "This function must be called within a valid shiny session."
+    )
+  }
 
   input_ids <- property_summary_inputs_tbl$id
   required_inputs <- property_summary_inputs_tbl |>
@@ -114,6 +133,12 @@ property_summary_validator <- function() {
 
 
 leasing_summary_validator <- function() {
+
+  if (!shiny::getDefaultReactiveDomain()) {
+    cli::cli_abort(
+      "This function must be called within a valid shiny session."
+    )
+  }
 
   input_ids <- leasing_summary_inputs_tbl$id
   required_inputs <- leasing_summary_inputs_tbl |>
