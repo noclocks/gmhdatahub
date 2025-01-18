@@ -9,7 +9,7 @@ on:
 env:
   PROJECT_ID: 'gmh-communities'
   REGION: 'us-east1'
-  SERVICE: 'gmh-datahub'
+  SERVICE: 'gmhdatahub'
   WORKLOAD_IDENTITY_PROVIDER: 'projects/851121724994/locations/global/workloadIdentityPools/github/providers/github'
 
 jobs:
