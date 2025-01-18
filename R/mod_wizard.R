@@ -80,10 +80,10 @@ mod_wizard_ui <- function(id) {
         bslib::card_footer(
           htmltools::tags$div(
             class = "d-flex justify-content-between",
-            shiny::actionButton(ns("cancel_btn"), "Cancel", class = "btn-danger"),
             shiny::actionButton(ns("prev_btn"), "Previous", class = "btn-secondary"),
-            shiny::actionButton(ns("next_btn"), "Next", class = "btn-primary"),
-            shiny::actionButton(ns("submit_btn"), "Submit", class = "btn-success") |> shinyjs::hidden()
+            shiny::actionButton(ns("cancel_btn"), "Cancel", class = "btn-danger"),
+            shiny::actionButton(ns("submit_btn"), "Submit", class = "btn-success") |> shinyjs::hidden(),
+            shiny::actionButton(ns("next_btn"), "Next", class = "btn-primary")
           )
         )
       )
@@ -114,6 +114,7 @@ mod_wizard_server <- function(
 
       # initialize input validation
       iv <- shinyvalidate::InputValidator$new()
+      iv <- set_validation_rules(iv, 1)
 
       # setup reactive values
       current_section <- shiny::reactiveVal(1)
@@ -144,72 +145,30 @@ mod_wizard_server <- function(
       })
 
       # progress bar
-      shiny::observe({
+      shiny::observeEvent(current_section(), {
         shinyWidgets::updateProgressBar(
           session = session,
           id = "wizard_progress",
           value = (current_section() / total_sections) * 100
         )
-      })
-
-      # validation rules
-      shiny::observe({
-        shiny::req(current_section())
-        set_validation_rules(iv, current_section())
+        iv <- set_validation_rules(iv, current_section())
       })
 
       # navigation logic
       shiny::observeEvent(input$next_btn, {
+        iv$enable()
         if (iv$is_valid()) {
           section_data <- switch(
             current_section(),
-            "1" = list(
-              intro = list(
-                property = input$survey_property,
-                leasing_week = input$survey_leasing_week,
-                user = input$survey_user
-              )
-            ),
-            "2" = list(
-              property_summary = list(
-                property_name = input$property_name,
-                property_website = input$property_website,
-                property_address = input$property_address,
-                property_phone = input$property_phone,
-                property_image = switch(
-                  input$image_type,
-                  "url" = input$property_image_url,
-                  "file" = input$property_image_file$datapath
-                ),
-                property_type = input$property_type,
-                property_rating = input$property_rating,
-                property_status = input$property_status,
-                year_built = input$year_built,
-                distance_to_campus = input$distance_to_campus
-              )
-            ),
-            "3" = list(
-              leasing_summary = list(
-                reporting_cycle = input$reporting_cycle,
-                lease_launch_date = input$lease_launch_date,
-                renewal_launch_date = input$renewal_launch_date,
-                current_occupancy = input$current_occupancy,
-                prior_year_occupancy = input$prior_year_occupancy,
-                current_pre_lease = input$current_pre_lease,
-                last_year_pre_lease = input$last_year_pre_lease,
-                total_renewals = input$total_renewals,
-                total_new_leases = input$total_new_leases,
-                weekly_leases = input$weekly_leases,
-                weekly_traffic = input$weekly_traffic,
-                current_incentive = input$current_incentive,
-                incentive_amount = input$incentive_amount
-              )
-            )
+            "1" = get_intro_data(input),
+            "2" = get_property_summary_data(input),
+            "3" = get_leasing_summary_data(input),
+            "4" = get_short_term_leases_data(input)
           )
           update_wizard_data(section_data)
           current_section(current_section() + 1)
+          iv$disable()
         } else {
-          iv$enable()
           shiny::showNotification("Please fix the highlighted errors before proceeding.", type = "error")
         }
       })
@@ -282,7 +241,8 @@ mod_wizard_server <- function(
         list(
           intro = get_intro_data(input),
           property_summary = get_property_summary_data(input),
-          leasing_summary = get_leasing_summary_data(input)
+          leasing_summary = get_leasing_summary_data(input),
+          short_term_leases = get_short_term_leases_data(input)
         )
       })
 
@@ -358,7 +318,8 @@ render_wizard_body <- function(current_section, ns) {
     current_section,
     "Introduction" = intro_ui(ns),
     "Property Summary" = property_summary_ui(ns),
-    "Leasing Summary" = leasing_summary_ui(ns)
+    "Leasing Summary" = leasing_summary_ui(ns),
+    "Short Term Leases" = short_term_leases_ui(ns)
   )
 }
 
@@ -426,9 +387,20 @@ render_submision_modal <- function(ns) {
 
 set_validation_rules <- function(iv, section) {
 
+  section <- as.character(section)
+
   switch(
     section,
-    "Property Summary" = {
+    "1" = {
+      iv_1 <- shinyvalidate::InputValidator$new()
+      iv_1$add_rule("survey_property", shinyvalidate::sv_required(message = "Property is required."))
+      iv_1$add_rule("survey_leasing_week", shinyvalidate::sv_required(message = "Leasing week is required."))
+      iv_1$add_rule("survey_user", shinyvalidate::sv_required(message = "User email is required."))
+      iv_1$add_rule("survey_user", shinyvalidate::sv_email(message = "Enter a valid email address."))
+      iv$add_validator(iv_1)
+      return(iv)
+    },
+    "2" = {
       input_ids <- property_summary_inputs_tbl$id
       required_inputs <- property_summary_inputs_tbl |>
         dplyr::filter(required == TRUE) |>
@@ -437,12 +409,12 @@ set_validation_rules <- function(iv, section) {
         dplyr::filter(required == TRUE) |>
         dplyr::pull(name) |>
         purrr::map_chr(~ paste0(.x, " is required."))
-      iv <- shinyvalidate::InputValidator$new()
+      iv_2 <- shinyvalidate::InputValidator$new()
       purrr::walk2(
         required_inputs,
         validation_msgs,
         function(input_id, validation_msg) {
-          iv$add_rule(
+          iv_2$add_rule(
             input_id,
             shinyvalidate::sv_required(message = validation_msg)
           )
@@ -450,14 +422,15 @@ set_validation_rules <- function(iv, section) {
       )
       # add regex rules for phone and website
       phone_regex <- "^(?:\\(?[0-9]{3}\\)?[-. ]?[0-9]{3}[-. ]?[0-9]{4})$"
-      iv$add_rule("property_website", shinyvalidate::sv_url(message = "Please enter a valid URL for the property website."))
-      iv$add_rule("property_phone_number", shinyvalidate::sv_regex(phone_regex, "Enter a valid phone number."))
+      iv_2$add_rule("property_website", shinyvalidate::sv_url(message = "Please enter a valid URL for the property website."))
+      iv_2$add_rule("property_phone_number", shinyvalidate::sv_regex(phone_regex, "Enter a valid phone number."))
       # add rules for distance to campus and property rating
-      iv$add_rule("distance_to_campus", shinyvalidate::sv_gt(0, "Distance must be greater than 0."))
-      iv$add_rule("property_rating", shinyvalidate::sv_gt(0, "Rating must be greater than 0."))
+      iv_2$add_rule("distance_to_campus", shinyvalidate::sv_gt(0, "Distance must be greater than 0."))
+      iv_2$add_rule("property_rating", shinyvalidate::sv_gt(0, "Rating must be greater than 0."))
+      iv$add_validator(iv_2)
       return(iv)
     },
-    "Leasing Summary" = {
+    "3" = {
       input_ids <- leasing_summary_inputs_tbl$id
       required_inputs <- leasing_summary_inputs_tbl |>
         dplyr::filter(required == TRUE) |>
@@ -466,26 +439,36 @@ set_validation_rules <- function(iv, section) {
         dplyr::filter(required == TRUE) |>
         dplyr::pull(name) |>
         purrr::map_chr(~ paste0(.x, " is required."))
-      iv <- shinyvalidate::InputValidator$new()
+      iv_3 <- shinyvalidate::InputValidator$new()
       purrr::walk2(
         required_inputs,
         validation_msgs,
         function(input_id, validation_msg) {
-          iv$add_rule(
+          iv_3$add_rule(
             input_id,
             shinyvalidate::sv_required(message = validation_msg)
           )
         }
       )
-      iv$add_rule("current_occupancy", shinyvalidate::sv_between(0, 1))
-      iv$add_rule("last_year_occupancy", shinyvalidate::sv_between(0, 1))
-      iv$add_rule("current_pre_lease", shinyvalidate::sv_between(0, 1))
-      iv$add_rule("last_year_pre_lease", shinyvalidate::sv_between(0, 1))
-      iv$add_rule("total_renewals", shinyvalidate::sv_integer())
-      iv$add_rule("total_new_leases", shinyvalidate::sv_integer())
-      iv$add_rule("total_leases_weekly", shinyvalidate::sv_integer())
-      iv$add_rule("traffic_weekly", shinyvalidate::sv_integer())
-      iv$add_rule("incentive_amount", shinyvalidate::sv_numeric())
+      iv_3$add_rule("current_occupancy", shinyvalidate::sv_between(0, 1))
+      iv_3$add_rule("last_year_occupancy", shinyvalidate::sv_between(0, 1))
+      iv_3$add_rule("current_pre_lease", shinyvalidate::sv_between(0, 1))
+      iv_3$add_rule("last_year_pre_lease", shinyvalidate::sv_between(0, 1))
+      iv_3$add_rule("total_renewals", shinyvalidate::sv_integer())
+      iv_3$add_rule("total_new_leases", shinyvalidate::sv_integer())
+      iv_3$add_rule("total_leases_weekly", shinyvalidate::sv_integer())
+      iv_3$add_rule("traffic_weekly", shinyvalidate::sv_integer())
+      iv_3$add_rule("incentive_amount", shinyvalidate::sv_numeric())
+      iv$add_validator(iv_3)
+      return(iv)
+    },
+    "4" = {
+      iv_4 <- shinyvalidate::InputValidator$new()
+      iv_4$add_rule("five_month_premium", shinyvalidate::sv_gt(0, "Premium must be greater than 0."))
+      iv_4$add_rule("ten_month_premium", shinyvalidate::sv_gt(0, "Premium must be greater than 0."))
+      iv_4$add_rule("five_month_quantity", shinyvalidate::sv_integer())
+      iv_4$add_rule("ten_month_quantity", shinyvalidate::sv_integer())
+      iv$add_validator(iv_4)
       return(iv)
     }
   )
@@ -514,7 +497,8 @@ intro_ui <- function(ns) {
     ),
     shiny::textInput(
       ns("survey_user"),
-      "Current User Email:"
+      "Current User Email:",
+      value = ""
     )
   )
 }
@@ -689,6 +673,73 @@ leasing_summary_ui <- function(ns) {
 
 }
 
+short_term_leases_ui <- function(ns) {
+  htmltools::tagList(
+    bslib::layout_columns(
+      col_widths = c(6, 6),
+      bslib::card(
+        bslib::card_header("5 Month Term"),
+        bslib::card_body(
+          bslib::layout_columns(
+            col_widths = c(4, 4, 4),
+            shiny::checkboxInput(
+              ns("five_month_available"),
+              label = "5 Month Term Available",
+              value = FALSE
+            ),
+            shiny::numericInput(
+              ns("five_month_premium"),
+              label = "5 Month Term Premium",
+              value = 0,
+              min = 0,
+              max = Inf,
+              step = 10
+            ) |> shinyjs::disaled(),
+            shiny::numericInput(
+              ns("five_month_quantity"),
+              label = "5 Month Term Quantity",
+              value = 0,
+              min = 0,
+              max = Inf,
+              step = 1
+            ) |> shinyjs::disaled()
+          )
+        )
+      ),
+      bslib::card(
+        bslib::card_header("10 Month Term"),
+        bslib::card_body(
+          bslib::layout_columns(
+            col_widths = c(4, 4, 4),
+            shiny::checkboxInput(
+              ns("ten_month_available"),
+              label = "10 Month Term Available",
+              value = FALSE
+            ),
+            shiny::numericInput(
+              ns("ten_month_premium"),
+              label = "10 Month Term Premium",
+              value = 0,
+              min = 0,
+              max = Inf,
+              step = 10
+            ) |> shinyjs::disaled(),
+            shiny::numericInput(
+              ns("ten_month_quantity"),
+              label = "10 Month Term Quantity",
+              value = 0,
+              min = 0,
+              max = Inf,
+              step = 1
+            ) |> shinyjs::disaled()
+          )
+        )
+      )
+    )
+  )
+}
+
+
 get_intro_data <- function(input) {
   list(
     property = input$survey_property,
@@ -733,5 +784,16 @@ get_leasing_summary_data <- function(input) {
     current_incentive = input$current_incentive,
     incentive_amount = input$incentive_amount,
     data_last_updated = input$data_last_updated
+  )
+}
+
+get_short_term_leases_data <- function(input) {
+  list(
+    five_month_available = input$five_month_available,
+    five_month_premium = input$five_month_premium,
+    five_month_quantity = input$five_month_quantity,
+    ten_month_available = input$ten_month_available,
+    ten_month_premium = input$ten_month_premium,
+    ten_month_quantity = input$ten_month_quantity
   )
 }

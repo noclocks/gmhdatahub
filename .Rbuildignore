@@ -23,7 +23,6 @@ _\.new\.png$
 ^compose\.yml$
 ^\.gitignore$
 ^app\.R$
-^*\.lnk$
 ^\.ai$
 ^\.vscode$
 ^\.devcontainer$

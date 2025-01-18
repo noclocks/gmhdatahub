@@ -17,5 +17,5 @@ db_read_sql(pool, sql_file, ...)
 The result of the SQL execution.
 }
 \description{
-This function reads an SQL file and executes the SQL code on the database poolection.
+This function reads an SQL file and executes the SQL code on the database connection.
 }

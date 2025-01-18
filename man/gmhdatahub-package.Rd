@@ -8,6 +8,15 @@
 \description{
 Provides a Shiny dashboard and API client for interactingwith GMH Communities leasing data via the Entrata API. Includesfunctions for API authentication, data retrieval, and datavisualization.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/noclocks/gmhdatahub}
+  \item \url{https://docs.noclocks.dev/gmhdatahub/}
+  \item Report bugs at \url{https://github.com/noclocks/gmhdatahub/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Jimmy Briggs \email{jimmy.briggs@jimbrig.com} (\href{https://orcid.org/0000-0002-7489-8787}{ORCID})
 
