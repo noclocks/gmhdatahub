@@ -682,7 +682,7 @@ short_term_leases_ui <- function(ns) {
               min = 0,
               max = Inf,
               step = 10
-            ) |> shinyjs::disaled(),
+            ) |> shinyjs::disabled(),
             shiny::numericInput(
               ns("five_month_quantity"),
               label = "5 Month Term Quantity",
@@ -690,7 +690,7 @@ short_term_leases_ui <- function(ns) {
               min = 0,
               max = Inf,
               step = 1
-            ) |> shinyjs::disaled()
+            ) |> shinyjs::disabled()
           )
         )
       ),
@@ -711,7 +711,7 @@ short_term_leases_ui <- function(ns) {
               min = 0,
               max = Inf,
               step = 10
-            ) |> shinyjs::disaled(),
+            ) |> shinyjs::disabled(),
             shiny::numericInput(
               ns("ten_month_quantity"),
               label = "10 Month Term Quantity",
@@ -719,7 +719,7 @@ short_term_leases_ui <- function(ns) {
               min = 0,
               max = Inf,
               step = 1
-            ) |> shinyjs::disaled()
+            ) |> shinyjs::disabled()
           )
         )
       )
