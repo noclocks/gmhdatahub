@@ -12,7 +12,8 @@ mod_survey_property_summary_ui(id)
 mod_survey_property_summary_server(
   id,
   pool = NULL,
-  selected_property_id = NULL
+  selected_property_id = NULL,
+  edit_survey_section = NULL
 )
 
 mod_survey_property_summary_demo(pool = NULL)
