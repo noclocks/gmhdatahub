@@ -207,12 +207,12 @@ get_leasing_week <- function(
 
 #' @rdname leasing_week
 #' @export
-#' @importFrom lubridate floor_date
+#' @importFrom lubridate floor_date today
 get_leasing_week_start_date <- function(
-    as_of_date = Sys.Date(),
-    week_start = "Monday") {
+    as_of_date = lubridate::today("EST"),
+    week_start = 1) {
   as_of_date <- coerce_date(as_of_date)
-  lubridate::floor_date(as_of_date, unit = "week", week_start = week_start)
+  lubridate::floor_date(as_of_date, unit = "week", week_start = 1)
 }
 
 #' @rdname leasing_week

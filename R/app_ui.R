@@ -44,10 +44,13 @@ app_ui <- function(req = NULL) {
       lang = "en",
       window_title = "GMH DataHub",
       position = "static-top",
-      header = app_header_ui(),
+      # TODO:
+      # remove
+      selected = 'survey_forms',
+      # header = app_header_ui(),
       theme = app_theme_ui(),
       title = app_title_ui(),
-      sidebar = app_sidebar_ui("sidebar"),
+      # sidebar = app_sidebar_ui("sidebar"),
       footer = app_footer_ui(),
       bslib::nav_spacer(),
       bslib::nav_panel(

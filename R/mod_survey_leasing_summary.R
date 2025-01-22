@@ -44,37 +44,37 @@ NULL
 mod_survey_leasing_summary_ui <- function(id) {
   ns <- shiny::NS(id)
 
-  current_leasing_week <- get_leasing_week_start_date()
-  min_leasing_week <- current_leasing_week - lubridate::years(1)
-  max_leasing_week <- get_leasing_week_end_date()
+  # current_leasing_week <- get_leasing_week_start_date()
+  # min_leasing_week <- current_leasing_week - lubridate::years(1)
+  # max_leasing_week <- get_leasing_week_end_date()
 
   htmltools::tagList(
     bslib::page_fluid(
-      bslib::layout_sidebar(
-        sidebar = bslib::sidebar(
-          shiny::dateInput(
-            ns("leasing_week"),
-            label = "Leasing Week",
-            value = NULL,
-            weekstart = 1,
-            min = min_leasing_week,
-            max = max_leasing_week
-          )
-        ),
+      # bslib::layout_sidebar(
+        # sidebar = bslib::sidebar(
+        #   shiny::dateInput(
+        #     ns("leasing_week"),
+        #     label = "Leasing Week",
+        #     value = NULL,
+        #     weekstart = 1,
+        #     min = min_leasing_week,
+        #     max = max_leasing_week
+        #   )
+        # ),
         bslib::card(
-          bslib::card_header(
-            class = "d-flex justify-content-between align-items-center",
-            htmltools::tags$h3(
-              class = "m-0",
-              "Leasing Summary"
-            ),
-            shiny::actionButton(
-              ns("edit"),
-              "Edit",
-              icon = shiny::icon("edit"),
-              class = "btn-sm btn-primary"
-            )
-          ),
+          # bslib::card_header(
+          #   class = "d-flex justify-content-between align-items-center",
+          #   htmltools::tags$h3(
+          #     class = "m-0",
+          #     "Leasing Summary"
+          #   ),
+          #   shiny::actionButton(
+          #     ns("edit"),
+          #     "Edit",
+          #     icon = shiny::icon("edit"),
+          #     class = "btn-sm btn-primary"
+          #   )
+          # ),
           bslib::card_body(
             bslib::layout_columns(
               col_widths = c(6, 6, 6, 6),
@@ -196,7 +196,7 @@ mod_survey_leasing_summary_ui <- function(id) {
             )
           )
         )
-      )
+      # )
     )
   )
 }
@@ -211,7 +211,9 @@ mod_survey_leasing_summary_ui <- function(id) {
 mod_survey_leasing_summary_server <- function(
     id,
     pool = NULL,
-    selected_property_id = NULL) {
+    selected_property_id = NULL,
+    edit_survey_section = NULL
+) {
   # validation of reactives
   if (!is.null(selected_property_id)) stopifnot(shiny::is.reactive(selected_property_id))
 
@@ -239,60 +241,63 @@ mod_survey_leasing_summary_server <- function(
 
       iv <- leasing_summary_validator()
 
-      selected_leasing_week <- shiny::reactive({
-        shiny::req(input$leasing_week)
-        input$leasing_week |> get_leasing_week_start_date()
-      })
+      # selected_leasing_week <- shiny::reactive({
+      #   shiny::req(input$leasing_week)
+      #   input$leasing_week |> get_leasing_week_start_date()
+      # })
 
       leasing_summary_data <- shiny::reactive({
-        shiny::req(pool, selected_property_id(), selected_leasing_week())
+        shiny::req(pool, selected_property_id(), session$userData$leasing_week())
+
         db_read_mkt_leasing_summary(
           pool,
           property_id = selected_property_id(),
-          leasing_week = selected_leasing_week()
+          leasing_week = session$userData$leasing_week()
         )
       }) |>
         shiny::bindEvent(
           selected_property_id(),
-          selected_leasing_week(),
+          session$userData$leasing_week(),
           db_refresh_trigger()
         )
 
-      leasing_data_latest_leasing_week <- shiny::reactive({
-        db_read_mkt_leasing_summary(
-          pool,
-          property_id = selected_property_id()
-        ) |>
-          dplyr::pull("leasing_week") |>
-          max()
-      })
-
-      shiny::observeEvent(leasing_data_latest_leasing_week(),
-        {
-          if (leasing_data_latest_leasing_week() != selected_leasing_week()) {
-            shiny::updateDateInput(
-              session,
-              "leasing_week",
-              value = leasing_data_latest_leasing_week()
-            )
-            cli::cli_alert_warning(
-              "Leasing week has been updated to match the selected property's data."
-            )
-            shiny::showNotification(
-              "Leasing week has been updated to match the selected property's data.",
-              duration = 5000,
-              type = "warning"
-            )
-          }
-        },
-        once = TRUE
-      )
+      # leasing_data_latest_leasing_week <- shiny::reactive({
+      #   browser()
+      #
+      #   db_read_mkt_leasing_summary(
+      #     pool,
+      #     property_id = selected_property_id()
+      #   ) |>
+      #     dplyr::pull("leasing_week") |>
+      #     max()
+      # })
+      #
+      # shiny::observeEvent(leasing_data_latest_leasing_week(),
+      #   {
+      #     if (leasing_data_latest_leasing_week() != session$userData$leasing_week()) {
+      #       shiny::updateDateInput(
+      #         session,
+      #         "leasing_week",
+      #         value = leasing_data_latest_leasing_week()
+      #       )
+      #       cli::cli_alert_warning(
+      #         "Leasing week has been updated to match the selected property's data."
+      #       )
+      #       shiny::showNotification(
+      #         "Leasing week has been updated to match the selected property's data.",
+      #         duration = 5000,
+      #         type = "warning"
+      #       )
+      #     }
+      #   },
+      #   once = TRUE
+      # )
 
       inputs_data <- shiny::reactive({
         tibble::tibble(
           property_id = selected_property_id(),
           property_name = leasing_summary_data()$property_name,
-          leasing_week = selected_leasing_week(),
+          leasing_week = session$userData$leasing_week(),
           reporting_cycle = input$reporting_cycle,
           lease_launch_date = input$lease_launch_date,
           renewal_launch_date = input$renewal_launch_date,
@@ -378,7 +383,12 @@ mod_survey_leasing_summary_server <- function(
       })
 
       # edit
-      shiny::observeEvent(input$edit, {
+      # shiny::observeEvent(input$edit, {
+      shiny::observeEvent(edit_survey_section(), {
+        if (session$userData$selected_survey_tab() != "nav_leasing_summary") {
+          return()
+        }
+
         data <- leasing_summary_data()
 
         iv$initialize()
@@ -386,7 +396,7 @@ mod_survey_leasing_summary_server <- function(
 
         shiny::showModal(
           shiny::modalDialog(
-            title = "Edit Leasing Summary",
+            title = "Leasing Summary",
             size = "l",
             bslib::layout_columns(
               col_widths = c(6, 6),
@@ -400,82 +410,122 @@ mod_survey_leasing_summary_server <- function(
                 shiny::dateInput(
                   ns("lease_launch_date"),
                   "Lease Launch Date",
-                  value = data$lease_launch_date
+                  value = ifelse(
+                    length(data$lease_launch_date) == 0,
+                    lubridate::today(),
+                    data$lease_launch_date
+                  )
                 ),
                 shiny::dateInput(
                   ns("renewal_launch_date"),
                   "Renewal Launch Date",
-                  value = data$renewal_launch_date
+                  value = ifelse(
+                    length(data$renewal_launch_date) == 0,
+                    lubridate::today(),
+                    data$renewal_launch_date
+                  )
                 ),
                 shiny::sliderInput(
                   ns("current_occupancy"),
                   "Current Occupancy %",
                   min = 0,
                   max = 1,
-                  value = round(data$current_occupancy, 2),
                   step = 0.01,
                   ticks = TRUE,
-                  post = "%"
+                  post = "%",
+                  value = ifelse(
+                    length(data$current_occupancy) == 0,
+                    0,
+                    round(data$current_occupancy, 2)
+                  )
                 ),
                 shiny::sliderInput(
                   ns("prior_year_occupancy"),
                   "Prior Year Occupancy %",
                   min = 0,
                   max = 1,
-                  value = round(data$last_year_occupancy, 2),
                   step = 0.01,
                   ticks = TRUE,
-                  post = "%"
+                  post = "%",
+                  value = ifelse(
+                    length(data$last_year_occupancy) == 0,
+                    0,
+                    round(data$last_year_occupancy, 2)
+                  )
                 ),
                 shiny::sliderInput(
                   ns("current_pre_lease"),
                   "Current Pre-Lease %",
                   min = 0,
                   max = 1,
-                  value = round(data$current_pre_lease, 2),
                   step = 0.01,
                   ticks = TRUE,
-                  post = "%"
+                  post = "%",
+                  value = ifelse(
+                    length(data$current_pre_lease) == 0,
+                    0,
+                    round(data$current_pre_lease, 2)
+                  )
                 ),
                 shiny::sliderInput(
                   ns("last_year_pre_lease"),
                   "Prior Year Pre-Lease %",
                   min = 0,
                   max = 1,
-                  value = round(data$last_year_pre_lease, 2),
                   step = 0.01,
                   ticks = TRUE,
-                  post = "%"
+                  post = "%",
+                  value = ifelse(
+                    length(data$last_year_pre_lease) == 0,
+                    0,
+                    round(data$last_year_pre_lease, 2)
+                  )
                 )
               ),
               bslib::card(
                 shiny::numericInput(
                   ns("total_renewals"),
                   "Total Renewals",
-                  value = data$total_renewals,
                   min = 0,
-                  step = 1
+                  step = 1,
+                  value = ifelse(
+                    length(data$total_renewals) == 0,
+                    0,
+                    data$total_renewals
+                  )
                 ),
                 shiny::numericInput(
                   ns("total_new_leases"),
                   "Total New Leases",
-                  value = data$total_new_leases,
                   min = 0,
-                  step = 1
+                  step = 1,
+                  value = ifelse(
+                    length(data$total_new_leases) == 0,
+                    0,
+                    data$total_new_leases
+                  )
                 ),
                 shiny::numericInput(
                   ns("weekly_leases"),
                   "Weekly Leases",
-                  value = data$total_leases_weekly,
                   min = 0,
-                  step = 1
+                  step = 1,
+                  value = ifelse(
+                    length(data$total_leases_weekly) == 0,
+                    0,
+                    data$total_leases_weekly
+                  )
                 ),
                 shiny::numericInput(
                   ns("weekly_traffic"),
                   "Weekly Traffic",
-                  value = data$traffic_weekly,
                   min = 0,
-                  step = 1
+                  step = 1,
+                  value = ifelse(
+                    length(data$traffic_weekly) == 0,
+                    0,
+                    data$traffic_weekly
+                  )
                 ),
                 shiny::selectInput(
                   ns("current_incentive"),
@@ -486,10 +536,14 @@ mod_survey_leasing_summary_server <- function(
                 shiny::numericInput(
                   ns("incentive_amount"),
                   "Incentive Amount",
-                  value = data$incentive_amount,
                   min = 0,
-                  step = 1
-                ) |> shinyjs::disabled(),
+                  step = 1,
+                  value = ifelse(
+                    length(data$incentive_amount) == 0,
+                    0,
+                    data$incentive_amount
+                  )
+                ), # |> shinyjs::disabled(),
                 shiny::dateInput(
                   ns("data_last_updated"),
                   "Data Last Updated",
@@ -497,25 +551,25 @@ mod_survey_leasing_summary_server <- function(
                 ) |> shinyjs::disabled()
               )
             ),
-            bslib::layout_columns(
-              col_widths = c(12),
-              bslib::card(
-                bslib::card_header("Review Changes"),
-                bslib::card_body(
-                  shiny::uiOutput(ns("changes_preview"))
-                )
-              )
-            ),
+            # bslib::layout_columns(
+            #   col_widths = c(12),
+            #   bslib::card(
+            #     bslib::card_header("Review Changes"),
+            #     bslib::card_body(
+            #       shiny::uiOutput(ns("changes_preview"))
+            #     )
+            #   )
+            # ),
             footer = htmltools::tagList(
               shiny::actionButton(
                 ns("save_changes"),
-                "Save Changes",
+                "Save",
                 class = "btn-primary"
-              ) |>
-                shinyjs::disabled(),
+              ), # |>
+                # shinyjs::disabled(),
               shiny::modalButton("Cancel")
-            ),
-            easyClose = TRUE
+            )#,
+            # easyClose = TRUE
           )
         )
       })
@@ -523,105 +577,107 @@ mod_survey_leasing_summary_server <- function(
       shiny::observeEvent(input$current_incentive, {
         if (input$current_incentive != "None") {
           shinyjs::enable("incentive_amount")
-        }
-      })
-
-      changes <- shiny::reactive({
-        shiny::req(inputs_data())
-        original_data <- leasing_summary_data()
-        new_values <- inputs_data()
-        changes <- list()
-        for (field in names(new_values)) {
-          if (!is.null(new_values[[field]]) && !isTRUE(all.equal(new_values[[field]], original_data[[field]]))) {
-            # Format numeric values with 2 decimal places
-            old_value <- if (is.numeric(original_data[[field]])) {
-              round(original_data[[field]], 2)
-            } else {
-              original_data[[field]]
-            }
-            new_value <- if (is.numeric(new_values[[field]])) {
-              round(new_values[[field]], 2)
-            } else {
-              new_values[[field]]
-            }
-            # Only add to changes if the rounded values are different
-            if (!isTRUE(all.equal(old_value, new_value))) {
-              changes[[field]] <- list(
-                old = old_value,
-                new = new_value
-              )
-            }
-          }
-        }
-        changes
-      })
-
-      shiny::observe({
-        shiny::req(changes())
-        if (length(changes()) > 0) {
-          shinyjs::enable("save_changes")
-          shiny::updateDateInput(
-            session,
-            "data_last_updated",
-            value = lubridate::now()
-          )
         } else {
-          shinyjs::disable("save_changes")
+          shinyjs::disable("incentive_amount")
         }
       })
 
-      output$changes_preview <- shiny::renderUI({
-        shiny::req(changes())
-        changes_data <- changes()
-        if (length(changes_data) == 0) {
-          return(
-            htmltools::tags$p("No changes made")
-          )
-        }
-        changes_ui <- lapply(names(changes_data), function(field) {
-          htmltools::tags$div(
-            htmltools::tags$p(
-              htmltools::tags$strong(
-                paste0(
-                  tools::toTitleCase(
-                    gsub("_", " ", field)
-                  ),
-                  ":"
-                )
-              ),
-              htmltools::tags$span(
-                paste(
-                  "Current:",
-                  changes_data[[field]]$old
-                ),
-                style = "color: #666;"
-              ),
-              htmltools::tags$span(
-                "→",
-                style = "margin: 0 10px;"
-              ),
-              htmltools::tags$span(
-                paste(
-                  "New:",
-                  changes_data[[field]]$new
-                ),
-                style = "color: #007bff;"
-              )
-            )
-          )
-        })
-        do.call(htmltools::tagList, changes_ui)
-      })
+      # changes <- shiny::reactive({
+      #   shiny::req(inputs_data())
+      #   original_data <- leasing_summary_data()
+      #   new_values <- inputs_data()
+      #   changes <- list()
+      #   for (field in names(new_values)) {
+      #     if (!is.null(new_values[[field]]) && !isTRUE(all.equal(new_values[[field]], original_data[[field]]))) {
+      #       # Format numeric values with 2 decimal places
+      #       old_value <- if (is.numeric(original_data[[field]])) {
+      #         round(original_data[[field]], 2)
+      #       } else {
+      #         original_data[[field]]
+      #       }
+      #       new_value <- if (is.numeric(new_values[[field]])) {
+      #         round(new_values[[field]], 2)
+      #       } else {
+      #         new_values[[field]]
+      #       }
+      #       # Only add to changes if the rounded values are different
+      #       if (!isTRUE(all.equal(old_value, new_value))) {
+      #         changes[[field]] <- list(
+      #           old = old_value,
+      #           new = new_value
+      #         )
+      #       }
+      #     }
+      #   }
+      #   changes
+      # })
+      #
+      # shiny::observe({
+      #   shiny::req(changes())
+      #   if (length(changes()) > 0) {
+      #     shinyjs::enable("save_changes")
+      #     shiny::updateDateInput(
+      #       session,
+      #       "data_last_updated",
+      #       value = lubridate::now()
+      #     )
+      #   } else {
+      #     shinyjs::disable("save_changes")
+      #   }
+      # })
+      #
+      # output$changes_preview <- shiny::renderUI({
+      #   shiny::req(changes())
+      #   changes_data <- changes()
+      #   if (length(changes_data) == 0) {
+      #     return(
+      #       htmltools::tags$p("No changes made")
+      #     )
+      #   }
+      #   changes_ui <- lapply(names(changes_data), function(field) {
+      #     htmltools::tags$div(
+      #       htmltools::tags$p(
+      #         htmltools::tags$strong(
+      #           paste0(
+      #             tools::toTitleCase(
+      #               gsub("_", " ", field)
+      #             ),
+      #             ":"
+      #           )
+      #         ),
+      #         htmltools::tags$span(
+      #           paste(
+      #             "Current:",
+      #             changes_data[[field]]$old
+      #           ),
+      #           style = "color: #666;"
+      #         ),
+      #         htmltools::tags$span(
+      #           "→",
+      #           style = "margin: 0 10px;"
+      #         ),
+      #         htmltools::tags$span(
+      #           paste(
+      #             "New:",
+      #             changes_data[[field]]$new
+      #           ),
+      #           style = "color: #007bff;"
+      #         )
+      #       )
+      #     )
+      #   })
+      #   do.call(htmltools::tagList, changes_ui)
+      # })
 
       shiny::observeEvent(input$save_changes, {
-        shiny::req(pool, inputs_data(), selected_property_id(), selected_leasing_week())
+        shiny::req(pool, inputs_data(), selected_property_id(), session$userData$leasing_week())
 
         new_values <- inputs_data()
 
         db_update_mkt_leasing_summary(
           pool,
           property_id = selected_property_id(),
-          leasing_week = selected_leasing_week(),
+          leasing_week = session$userData$leasing_week(),
           new_values = new_values
         )
 

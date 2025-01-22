@@ -44,86 +44,107 @@ NULL
 mod_survey_forms_ui <- function(id) {
   ns <- shiny::NS(id)
 
+  current_week_start <- get_leasing_week_start_date()
+
   htmltools::tagList(
     bslib::page_fluid(
 
       # progress ----------------------------------------------------------------
-      bslib::card(
-        bslib::card_header(icon_text("percent", "Progress")),
-        bslib::card_body(
-          shinyWidgets::progressBar(
-            ns("total_progress"),
-            value = 0,
-            total = 100,
-            display_pct = TRUE,
-            striped = TRUE,
-            title = "Total Progress"
-          )
-        )
-      ),
+      # bslib::card(
+      #   bslib::card_header(icon_text("percent", "Progress")),
+      #   bslib::card_body(
+      #     shinyWidgets::progressBar(
+      #       ns("total_progress"),
+      #       value = 0,
+      #       total = 100,
+      #       display_pct = TRUE,
+      #       striped = TRUE,
+      #       title = "Total Progress"
+      #     )
+      #   )
+      # ),
       bslib::navset_card_tab(
         id = ns("survey_tabs"),
-        title = "GMH Communities - Leasing Market Survey Sections",
+        # title = "GMH Communities - Leasing Market Survey Sections",
         sidebar = bslib::sidebar(
           title = icon_text("filter", "Filters"),
           width = 300,
           shiny::selectizeInput(
             ns("property"),
-            label = icon_text("building", "Select Property"),
+            label = icon_text("building", "Property"),
             choices = app_choices_lst$properties,
             selected = app_choices_lst$properties[["1047 Commonwealth Avenue"]]
           ),
           shiny::selectizeInput(
             ns("competitor"),
-            label = icon_text("building", "Select Competitor"),
+            label = icon_text("building", "Competitor"),
             choices = c("None" = "none")
           ) |>
-            shinyjs::disabled()
+            shinyjs::disabled(),
+          shiny::dateInput(
+            ns("leasing_week"),
+            label = icon_text("calendar", "Leasing Week"),
+            value = current_week_start,
+            weekstart = 1,
+            daysofweekdisabled = c(0, 2:6)
+          )
         ),
         bslib::nav_panel(
           title = "Property Summary",
-          value = ns("nav_property_summary"),
+          value = "nav_property_summary",
           mod_survey_property_summary_ui(ns("property_summary"))
         ),
         bslib::nav_panel(
           title = "Leasing Summary",
-          value = ns("nav_leasing_summary"),
+          value = "nav_leasing_summary",
           mod_survey_leasing_summary_ui(ns("leasing_summary"))
         ),
         bslib::nav_panel(
           title = "Short Term Leases",
-          value = ns("nav_short_term_leases"),
+          value = "nav_short_term_leases",
           mod_survey_short_term_leases_ui(ns("short_term_leases"))
         ),
         bslib::nav_panel(
           title = "Fees",
-          value = ns("nav_fees"),
+          value = "nav_fees",
           mod_survey_fees_ui(ns("fees"))
         ),
         bslib::nav_panel(
           title = "Amenities",
-          value = ns("nav_amenities"),
+          value = "nav_amenities",
           mod_survey_amenities_ui(ns("amenities"))
         ),
         bslib::nav_panel(
           title = "Parking",
-          value = ns("nav_parking"),
+          value = "nav_parking",
           mod_survey_parking_ui(ns("parking"))
         ),
         bslib::nav_panel(
           title = "Utilities",
-          value = ns("nav_utilities"),
+          value = "nav_utilities",
           mod_survey_utilities_ui(ns("utilities"))
         ),
         bslib::nav_panel(
           title = "Notes",
-          value = ns("nav_notes"),
+          value = "nav_notes",
           mod_survey_notes_ui(ns("notes"))
         ),
         bslib::nav_panel(
           title = "Rents",
-          value = ns("nav_rents"),
+          value = "nav_rents",
           mod_survey_rents_ui(ns("rents"))
+        ),
+        bslib::card_footer(
+          htmltools::tags$small(
+            style = 'float: right;',
+            shiny::actionButton(
+              ns('edit_survey_section'),
+              'Edit',
+              icon = shiny::icon('edit'),
+              style = 'width: auto;',
+              class = 'btn-sm btn-primary'
+            )
+          )
         )
       )
     )
@@ -157,13 +178,24 @@ mod_survey_forms_server <- function(
       cli::cat_rule("[Module]: mod_survey_forms_server()")
 
       # selected tab ------------------------------------------------------------
-      selected_tab <- shiny::reactive({
-        shiny::req(input$survey_tabs)
-        input$survey_tabs
+      # selected_tab <- shiny::reactive({
+      #   shiny::req(input$survey_tabs)
+      #   input$survey_tabs
+      # })
+      #
+      # shiny::observeEvent(selected_tab(), {
+      #
+      # })
+      session$userData$selected_survey_tab <- shiny::reactiveVal(NULL)
+
+      shiny::observeEvent(input$survey_tabs, {
+        session$userData$selected_survey_tab(input$survey_tabs)
       })
 
-      shiny::observeEvent(selected_tab(), {
+      session$userData$leasing_week <- shiny::reactiveVal(NULL)
 
+      shiny::observeEvent(input$leasing_week, {
+        session$userData$leasing_week(input$leasing_week)
       })
 
       # selected property / competitor ------------------------------------------
@@ -203,29 +235,50 @@ mod_survey_forms_server <- function(
         }
       })
 
+      # Survey Week input ####
+      shiny::observeEvent(input$survey_week, {
+        start_date <- input$survey_week
+
+        leasing_period_start_date <- get_weekly_period_start_date(start_date)
+
+        if (start_date != leasing_period_start_date) {
+          shiny::updateDateInput(
+            session = session,
+            inputId = "survey_week",
+            value = leasing_period_start_date
+          )
+        }
+      })
+
       # reactive values ---------------------------------------------------------
       db_metrics <- shiny::reactive({
         db_read_survey_metrics(pool)
       })
 
       # progress bars ----------------------------------------------------------
-      output$total_progress <- shinyWidgets::updateProgressBar(
-        session,
-        ns("total_progress"),
-        value = 80 # TODO
-      )
+      # output$total_progress <- shinyWidgets::updateProgressBar(
+      #   session,
+      #   ns("total_progress"),
+      #   value = 80 # TODO
+      # )
 
       # sub-modules -------------------------------------------------------------
       property_summary_data <- mod_survey_property_summary_server(
         "property_summary",
         pool = pool,
-        selected_property_id = selected_property_id
+        selected_property_id = selected_property_id,
+        edit = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
       leasing_summary_data <- mod_survey_leasing_summary_server(
         "leasing_summary",
         pool = pool,
-        selected_property_id = selected_property_id
+        selected_property_id = selected_property_id,
+        edit = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
       short_term_leases_data <- mod_survey_short_term_leases_server(

@@ -53,7 +53,7 @@ app_server <- function(input, output, session) {
   mod_floorplans_data <- mod_floorplans_server("floorplans", pool = pool, global_filters = global_filters)
   mod_residents_data <- mod_residents_server("residents", pool = pool, global_filters = global_filters)
 
-  mod_survey_admin_data <- mod_survey_admin_server("survey_admin", pool = pool, global_filters = global_filters)
+  mod_survey_admin_data <- mod_survey_admin_server("survey_admin", pool = pool, global_filters = global_filters, navigate = navigate)
   mod_survey_forms_data <- mod_survey_forms_server("survey_forms", pool = pool, global_filters = global_filters)
   mod_survey_insights_data <- mod_survey_insights_server("survey_insights", pool = pool, global_filters = global_filters)
 }

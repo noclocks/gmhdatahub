@@ -249,10 +249,10 @@ db_read_mkt_leasing_summary <- function(pool, property_id = NULL, leasing_week =
       unique()
     if (!leasing_week %in% leasing_week_dates) {
       cli::cli_alert_warning("No data found for the specified leasing week: {.field {leasing_week}}.")
-    } else {
-      hold <- dplyr::filter(hold, .data$leasing_week == .env$leasing_week)
     }
   }
+
+  hold <- dplyr::filter(hold, .data$leasing_week == .env$leasing_week)
 
   dplyr::collect(hold)
 }
