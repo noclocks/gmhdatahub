@@ -9,7 +9,12 @@
 \usage{
 mod_survey_admin_ui(id)
 
-mod_survey_admin_server(id, pool = NULL, global_filters = NULL)
+mod_survey_admin_server(
+  id,
+  pool = NULL,
+  global_filters = NULL,
+  navigate = NULL
+)
 
 mod_survey_admin_demo()
 }
