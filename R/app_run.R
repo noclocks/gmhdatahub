@@ -28,16 +28,56 @@
 run_app <- function(
     port = 8080,
     host = "0.0.0.0",
+    app_config = config::get(file = system.file('config/config.yml', package = "gmhdatahub")),
     on_start = NULL,
     options = app_opts(port = port, host = host),
     enable_bookmarking = NULL,
     ui_pattern = ".*",
     ...) {
+
+  if (is.character(app_config)) {
+    app_config <- config::get(file = app_config)
+  }
+
+  # Set `noClocksAuthR` API URL conditionally based on environment
+  noClocksAuthR:::set_api_url(
+    api_url = app_config$api_url
+  )
+
   # run app
   shiny::shinyApp(
-    ui = app_ui,
-    server = app_server,
-    onStart = on_start,
+    # ui = app_ui,
+    # server = app_server,
+    # onStart = on_start,
+    ui = noClocksAuthR::secure_ui(
+      ui = app_ui,
+      sign_in_page_ui = custom_sign_in_ui,
+      custom_admin_button_ui = noClocksAuthR::admin_button_ui(
+        align = 'left'
+      )
+    ),
+    server = noClocksAuthR::secure_server(
+      server = app_server,
+      custom_sign_in_server = noClocksAuthR::sign_in_module_2
+    ),
+    onStart = function() {
+      # Configure `sentryR`
+      # sentryR::configure_sentry(
+      #   dsn = app_config$sentry_dsn,
+      #   app_name = app_config$app_name,
+      #   environment = Sys.getenv("R_CONFIG_ACTIVE")
+      # )
+
+      # Configure `noClocksAuthR`
+      noClocksAuthR::noclocksauthr_config(
+        app_name = app_config$app_name,
+        api_key = app_config$api_key,
+        is_invite_required = ifelse(Sys.getenv("R_CONFIG_ACTIVE") == 'production', TRUE, FALSE),
+        # TODO: Uncomment after resolving email issues
+        # is_email_verification_required = ifelse(Sys.getenv("R_CONFIG_ACTIVE") == 'production', TRUE, FALSE),
+        is_email_verification_required = FALSE
+      )
+    },
     options = options,
     enableBookmarking = enable_bookmarking,
     uiPattern = ui_pattern,

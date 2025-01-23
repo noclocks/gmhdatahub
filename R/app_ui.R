@@ -185,18 +185,18 @@ app_ui <- function(req = NULL) {
         align = "right",
         icon = bsicons::bs_icon("person-circle"),
         bslib::nav_item(
-          tags$a(
-            icon("user"),
-            # textOutput("signed_in_as"),
-            "User",
-            href = "#"
+          htmltools::tags$a(
+            shiny::icon("user"),
+            shiny::textOutput("signed_in_as"),
+            href = "#",
+            style = "display: inline-flex; align-items: center; padding: 2.5px 10px; width: 16rem; justify-content: space-between;"
           )
         ),
         bslib::nav_item(
-          actionLink(
+          shiny::actionLink(
             inputId = "auth_logout",
             label = "Logout",
-            icon = icon("sign-out-alt"),
+            icon = shiny::icon("sign-out-alt"),
             style = "display: inline-flex; align-items: center; padding: 2.5px 50px; width: -webkit-fill-available;"
           )
         )

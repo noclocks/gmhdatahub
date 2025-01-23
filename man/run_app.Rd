@@ -7,6 +7,8 @@
 run_app(
   port = 8080,
   host = "0.0.0.0",
+  app_config = config::get(file = system.file("config/config.yml", package =
+    "gmhdatahub")),
   on_start = NULL,
   options = app_opts(port = port, host = host),
   enable_bookmarking = NULL,

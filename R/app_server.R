@@ -20,9 +20,23 @@
 #'
 #' @export
 #'
+#' @importFrom noClocksAuthR sign_out_from_shiny
 #' @importFrom waiter waiter_hide
 #' @importFrom shiny reactive
 app_server <- function(input, output, session) {
+  # `noClocksAuthR` ####
+  # `noClocksAuthR` signed in user
+  output$signed_in_as <- shiny::renderText({
+    session$userData$user()$email
+  })
+
+  # `noClocksAuthR` sign out
+  shiny::observeEvent(input$auth_logout, {
+    noClocksAuthR::sign_out_from_shiny(session)
+    session$reload()
+  })
+
+
   # initialize database connection pool
   pool <- db_connect()
   session$userData$pool <- pool
