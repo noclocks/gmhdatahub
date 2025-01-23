@@ -245,11 +245,12 @@ mod_survey_property_summary_server <- function(
       check_db_conn(pool)
 
       if (is.null(selected_property_id)) {
-        property_id <- db_read_tbl(pool, "mkt.properties", collect = FALSE) |>
-          dplyr::filter(.data$is_competitor == FALSE) |>
-          dplyr::pull("property_id")
+        # property_id <- db_read_tbl(pool, "mkt.properties", collect = FALSE) |>
+        #   dplyr::filter(.data$is_competitor == FALSE) |>
+        #   dplyr::pull("property_id")
         selected_property_id <- shiny::reactive({
-          property_id
+          # property_id
+          session$userData$selected_survey_property()
         })
       }
 
