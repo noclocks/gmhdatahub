@@ -302,13 +302,21 @@ mod_survey_forms_server <- function(
       short_term_leases_data <- mod_survey_short_term_leases_server(
         "short_term_leases",
         pool = pool,
-        global_filters = global_filters
+        global_filters = global_filters,
+        selected_property_id = session$userData$selected_survey_property(),
+        edit = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
       fees_data <- mod_survey_fees_server(
         "fees",
         pool = pool,
-        global_filters = global_filters
+        global_filters = global_filters,
+        selected_property_id = session$userData$selected_survey_property(),
+        edit = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
       amenities_data <- mod_survey_amenities_server(
