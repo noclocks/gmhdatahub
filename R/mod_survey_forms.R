@@ -110,9 +110,14 @@ mod_survey_forms_ui <- function(id) {
           mod_survey_fees_ui(ns("fees"))
         ),
         bslib::nav_panel(
-          title = "Amenities",
-          value = "nav_amenities",
-          mod_survey_amenities_ui(ns("amenities"))
+          title = "Property Amenities",
+          value = "nav_property_amenities",
+          mod_survey_property_amenities_ui(ns("property_amenities"))
+        ),
+        bslib::nav_panel(
+          title = "Unit Amenities",
+          value = "nav_unit_amenities",
+          mod_survey_unit_amenities_ui(ns("unit_amenities"))
         ),
         bslib::nav_panel(
           title = "Parking",
@@ -319,10 +324,24 @@ mod_survey_forms_server <- function(
         })
       )
 
-      amenities_data <- mod_survey_amenities_server(
-        "amenities",
+      property_amenities_data <- mod_survey_property_amenities_server(
+        "property_amenities",
         pool = pool,
-        global_filters = global_filters
+        global_filters = global_filters,
+        selected_property_id = session$userData$selected_survey_property(),
+        edit = shiny::reactive({
+          input$edit_survey_section
+        })
+      )
+
+      unit_amenities_data <- mod_survey_unit_amenities_server(
+        "unit_amenities",
+        pool = pool,
+        global_filters = global_filters,
+        selected_property_id = session$userData$selected_survey_property(),
+        edit = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
       parking_data <- mod_survey_parking_server(
@@ -355,7 +374,8 @@ mod_survey_forms_server <- function(
           leasing_summary_data = leasing_summary_data,
           short_term_leases_data = short_term_leases_data,
           fees_data = fees_data,
-          amenities_data = amenities_data,
+          property_amenities_data = property_amenities_data,
+          unit_amenities_data = unit_amenities_data,
           parking_data = parking_data,
           utilities_data = utilities_data,
           notes_data = notes_data,
