@@ -257,6 +257,68 @@ db_read_mkt_leasing_summary <- function(pool, property_id = NULL, leasing_week =
   dplyr::collect(hold)
 }
 
+db_read_mkt_short_term_leases <- function(pool, property_id = NULL, leasing_week = NULL) {
+  check_db_pool(pool)
+
+  hold <- db_read_tbl(pool, "mkt.short_term_leases", collect = FALSE)
+
+  if (!is.null(property_id)) {
+    prop_ids <- hold |>
+      dplyr::pull("property_id") |>
+      unique()
+    if (!property_id %in% prop_ids) {
+      cli::cli_alert_warning("No data found for the specified property ID: {.field {property_id}}.")
+    } else {
+      hold <- dplyr::filter(hold, .data$property_id == .env$property_id)
+    }
+  }
+
+  if (!is.null(leasing_week)) {
+    leasing_week_dates <- hold |>
+      dplyr::pull("leasing_week") |>
+      unique()
+    if (!leasing_week %in% leasing_week_dates) {
+      cli::cli_alert_warning("No data found for the specified leasing week: {.field {leasing_week}}.")
+    }
+  }
+
+  hold <- dplyr::filter(hold, .data$leasing_week == .env$leasing_week)
+
+  dplyr::collect(hold)
+}
+
+db_read_mkt_fees <- function(pool, property_id = NULL, leasing_week = NULL) {
+  check_db_pool(pool)
+
+  hold <- db_read_tbl(pool, "mkt.fees", collect = FALSE)
+
+  if (!is.null(property_id)) {
+    prop_ids <- hold |>
+      dplyr::pull("property_id") |>
+      unique()
+    if (!property_id %in% prop_ids) {
+      cli::cli_alert_warning("No data found for the specified property ID: {.field {property_id}}.")
+    } else {
+      hold <- dplyr::filter(hold, .data$property_id == .env$property_id)
+    }
+  }
+
+  if (!is.null(leasing_week)) {
+    leasing_week_dates <- hold |>
+      dplyr::pull("leasing_week") |>
+      unique()
+    if (!leasing_week %in% leasing_week_dates) {
+      cli::cli_alert_warning("No data found for the specified leasing week: {.field {leasing_week}}.")
+    }
+  }
+
+  hold <- hold |>
+    dplyr::filter(leasing_week == .env$leasing_week) |>
+    dplyr::select(-property_id, -leasing_week)
+
+  dplyr::collect(hold)
+}
+
 db_read_gmh_leasing_calendar <- function(pool, date_key = Sys.Date()) {
   check_db_pool(pool)
   date_key <- format(date_key, "%Y-%m-%d")
