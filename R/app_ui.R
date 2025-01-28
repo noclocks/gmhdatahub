@@ -148,25 +148,25 @@ app_ui <- function(req = NULL) {
       ),
       bslib::nav_spacer(),
       bslib::nav_item(bslib::input_dark_mode(id = "dark_mode", mode = "light")),
-      bslib::nav_menu(
-        title = "Links",
-        align = "right",
-        icon = bsicons::bs_icon("link-45deg"),
-        bslib::nav_item(
-          tags$a(
-            icon("book"), "Documentation",
-            href = "#",
-            target = "_blank"
-          )
-        ),
-        bslib::nav_item(
-          tags$a(
-            icon("github"), "GitHub",
-            href = "#",
-            target = "_blank"
-          )
-        )
-      ),
+      # bslib::nav_menu(
+      #   title = "Links",
+      #   align = "right",
+      #   icon = bsicons::bs_icon("link-45deg"),
+      #   bslib::nav_item(
+      #     tags$a(
+      #       icon("book"), "Documentation",
+      #       href = "#",
+      #       target = "_blank"
+      #     )
+      #   ),
+      #   bslib::nav_item(
+      #     tags$a(
+      #       icon("github"), "GitHub",
+      #       href = "#",
+      #       target = "_blank"
+      #     )
+      #   )
+      # ),
       bslib::nav_menu(
         title = "Contact",
         align = "right",
