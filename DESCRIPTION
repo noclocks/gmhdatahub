@@ -59,7 +59,6 @@ Imports:
     tibble,
     tidyr,
     tidyselect,
-    tools,
     waiter,
     withr
 Suggests:

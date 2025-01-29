@@ -1,11 +1,20 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:experimental
 
-FROM rocker/r-ver:latest AS base
+ARG R_VERSION="latest"
+ARG USER="shiny"
+ARG CONFIG="default"
+
+ARG UID=10001
+ARG PORT=8080
+
+FROM rocker/r-ver:${R_VERSION} AS base
+
 FROM base AS build
 
 {{sysreqs_install_cmd}}
 
 RUN Rscript -e 'install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))'
+
 RUN mkdir /build
 ADD . ./build
 WORKDIR /build

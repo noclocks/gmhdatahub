@@ -499,7 +499,12 @@ get_leasing_week_id_by_date <- function(pool, date) {
     dplyr::pull("leasing_week_start_date")
 
   if (!leasing_week_start_date %in% valid_leasing_weeks) {
-    cli::cli_abort("{.arg date} is not a valid leasing week start date.")
+    cli::cli_abort(
+      c(
+        "{.arg date} is not a valid leasing week start date. ",
+        "Provided: {.field {date}}."
+      )
+    )
   }
 
   db_read_tbl(pool, "survey.leasing_weeks") |>

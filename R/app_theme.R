@@ -1,3 +1,20 @@
+
+#  ------------------------------------------------------------------------
+#
+# Title : App Assets
+#    By : Jimmy Briggs
+#  Date : 2025-01-27
+#
+#  ------------------------------------------------------------------------
+
+#' GMH Colors
+#'
+#' @param ... A list of colors to return.
+#'
+#' @returns
+#' A list of GMH colors.
+#'
+#' @export
 gmh_colors <- function(...) {
   colors <- c(
     primary = "#0e2b4c",
@@ -12,9 +29,7 @@ gmh_colors <- function(...) {
     black = "#000000",
     gray = "#6c757d"
   )
-
   dots <- list(...)
-
   if (length(dots) == 0) {
     return(colors)
   } else {
@@ -23,6 +38,17 @@ gmh_colors <- function(...) {
   }
 }
 
+#' App Theme
+#'
+#' @description
+#' This function defines the theme for the Shiny application.
+#'
+#' @returns
+#' The theme for the Shiny application.
+#'
+#' @export
+#'
+#' @importFrom bslib bs_theme
 app_theme_ui <- function() {
   bslib::bs_theme(
     version = 5,

@@ -621,14 +621,14 @@ mod_survey_admin_server <- function(
       shiny::observeEvent(input$add_survey, {
         properties <- pool |>
           dplyr::tbl(I("gmh.properties")) |>
-          dplyr::filter(is_disabled == FALSE) |>
-          dplyr::select(entrata_property_id, property_name) |>
+          # dplyr::filter(is_disabled == FALSE) |>
+          dplyr::select(property_id, property_name) |>
           dplyr::collect()
 
         property_choices <- properties |>
           dplyr::pull(property_name)
 
-        property_choies <- setNames(property_choices, properties$entrata_property_id)
+        property_choies <- setNames(property_choices, properties$property_id)
 
         shiny::showModal(
           shiny::modalDialog(
