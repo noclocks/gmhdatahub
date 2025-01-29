@@ -1,3 +1,42 @@
+
+db_update_survey_property_amenities <- function(pool, new_values) {
+
+  check_db_conn(pool)
+
+  conn <- pool::poolCheckout(pool)
+  on.exit(pool::poolReturn(conn))
+
+  tryCatch({
+    dbx::dbxUpsert(
+      conn,
+      DBI::SQL("survey.property_amenities"),
+      records = new_values,
+      where_cols = c("property_id", "property_name", "amenity_id", "amenity_name"),
+      skip_existing = FALSE
+    )
+    cli::cli_alert_success(
+      "Successfully updated property amenities."
+    )
+    shiny::showNotification(
+      "Successfully updated property amenities.",
+      duration = 500,
+      type = "default"
+    )
+  }, error = function(e) {
+    cli::cli_alert_danger(
+      "Failed to update property amenities: {.error {e$message}}"
+    )
+    shiny::showNotification(
+      "Failed to update property amenities.",
+      duration = 500,
+      type = "error"
+    )
+  })
+
+  return(invisible(new_values))
+
+}
+
 db_update_mkt_property_summary <- function(pool, property_id, new_values) {
   check_db_conn(pool)
 
