@@ -165,3 +165,28 @@ leasing_summary_validator <- function() {
 
   return(iv)
 }
+
+validate_phone_regex <- function(phone) {
+  phone_regex <- "^(?:\\(?[0-9]{3}\\)?[-. ]?[0-9]{3}[-. ]?[0-9]{4})$"
+  grepl(phone_regex, phone)
+}
+
+validate_address_regex <- function(address) {
+  address_regex <- "^[0-9]+\\s+([a-zA-Z]+|[a-zA-Z]+\\s[a-zA-Z]+)\\s[a-zA-Z]+"
+  grepl(address_regex, address)
+}
+
+validate_address_geocode <- function(address) {
+  geocode <- tryCatch({
+    geocode_address(address)
+  }, error = function(e) {
+    NULL
+  })
+
+  if (is.null(geocode)) {
+    return(FALSE)
+  } else {
+    return(TRUE)
+  }
+}
+

@@ -7,11 +7,14 @@
 gmh_colors(...)
 }
 \arguments{
-\item{...}{A list of colors to return.}
+\item{...}{The colors to return.}
 }
 \value{
-A list of GMH colors.
+A vector of colors.
 }
 \description{
-GMH Colors
+Function for GMH color palette.
+}
+\examples{
+gmh_colors("primary", "secondary")
 }

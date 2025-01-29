@@ -116,3 +116,20 @@ get_property_id_by_name <- function(property_name) {
 
   get_default_app_choices("properties")[[property_name]]
 }
+
+#' NULL Coalescing Operator
+#'
+#' @description
+#' This function is a wrapper for the NULL coalescing operator:
+#' If x if `NULL`, return y, else return x.
+#'
+#' @param x, y Values to compare.
+#'
+#' @keywords internal
+"%||%" <- function(x, y) {
+  if (is.null(x)) y else x
+}
+
+#' Inverted versions of in
+#' @noRd
+`%notin%` <- Negate(`%in%`)

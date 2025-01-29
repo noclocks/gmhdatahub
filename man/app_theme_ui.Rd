@@ -4,11 +4,56 @@
 \alias{app_theme_ui}
 \title{App Theme}
 \usage{
-app_theme_ui()
+app_theme_ui(preset = "shiny", ...)
+}
+\arguments{
+\item{preset}{The name of a theme preset, either a built-in theme provided by
+bslib or a Bootswatch theme (see \code{\link[bslib:builtin_themes]{builtin_themes()}} and
+\code{\link[bslib:bootswatch_themes]{bootswatch_themes()}} for possible values). This argument takes precedence
+over the \code{bootswatch} argument and only one \code{preset} or \code{bootswatch} can be
+provided. When no \code{bootswatch} theme is specified, and \code{version} is 5 or
+higher, \code{preset} defaults to \code{"shiny"}. To remove the \code{"shiny"} preset,
+provide a value of \code{"bootstrap"} (this value will also work in
+\code{bs_theme_update()} to remove a \code{preset} or \code{bootswatch} theme).}
+
+\item{...}{
+  Arguments passed on to \code{\link[bslib:bs_theme]{bslib::bs_theme}}
+  \describe{
+    \item{\code{version}}{The major version of Bootstrap to use (see \code{\link[bslib:versions]{versions()}}
+for possible values). Defaults to the currently recommended version
+for new projects (currently Bootstrap 5).}
+    \item{\code{bg}}{A color string for the background.}
+    \item{\code{fg}}{A color string for the foreground.}
+    \item{\code{primary}}{A color to be used for hyperlinks, to indicate primary/default
+actions, and to show active selection state in some Bootstrap components.
+Generally a bold, saturated color that contrasts with the theme's base
+colors.}
+    \item{\code{secondary}}{A color for components and messages that don't need to stand
+out. (Not supported in Bootstrap 3.)}
+    \item{\code{success}}{A color for messages that indicate an operation has succeeded.
+Typically green.}
+    \item{\code{info}}{A color for messages that are informative but not critical.
+Typically a shade of blue-green.}
+    \item{\code{warning}}{A color for warning messages. Typically yellow.}
+    \item{\code{danger}}{A color for errors. Typically red.}
+    \item{\code{base_font}}{The default typeface.}
+    \item{\code{code_font}}{The typeface to be used for code. Be sure this is monospace!}
+    \item{\code{heading_font}}{The typeface to be used for heading elements.}
+    \item{\code{font_scale}}{A scalar multiplier to apply to the base font size. For
+example, a value of \code{1.5} scales font sizes to 150\% and a value of \code{0.8}
+scales to 80\%. Must be a positive number.}
+    \item{\code{bootswatch}}{The name of a bootswatch theme (see \code{\link[bslib:bootswatch_themes]{bootswatch_themes()}}
+for possible values). When provided to \code{bs_theme_update()}, any previous
+Bootswatch theme is first removed before the new one is applied (use
+\code{bootswatch = "bootstrap"} to effectively remove the Bootswatch theme).}
+  }}
 }
 \value{
-The theme for the Shiny application.
+A Bootstrap theme generated via \code{\link[bslib:bs_theme]{bslib::bs_theme()}} leveraging the GMH Communities brand assets.
 }
 \description{
-This function defines the theme for the Shiny application.
+This function generates a custom Bootstrap theme for the GMH DataHub Shiny app.
+}
+\seealso{
+\code{\link[=preview_app_theme]{preview_app_theme()}} to preview the theme.
 }

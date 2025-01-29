@@ -6,6 +6,43 @@
 #
 #  ------------------------------------------------------------------------
 
+# add external resources --------------------------------------------------
+
+#' Add External Resources
+#'
+#' @description
+#' Add external resources to the shiny app.
+#'
+#' @returns
+#' Adds external resources to the shiny app.
+#'
+#' @export
+#'
+#' @importFrom shiny addResourcePath
+#' @importFrom shinyjs useShinyjs
+#' @importFrom waiter use_waiter
+#' @importFrom fontawesome fa_html_dependency
+#' @importFrom rintrojs introjsUI
+#' @importFrom htmltools tags
+add_external_resources <- function() {
+  shiny::addResourcePath(
+    prefix = "www",
+    directoryPath = pkg_sys("www")
+  )
+
+  htmltools::tags$head(
+    shiny::useBusyIndicators(),
+    # shinylogs::use_tracking(app_name = app_info("name")),
+    shinyjs::useShinyjs(),
+    waiter::use_waiter(),
+    fontawesome::fa_html_dependency(),
+    rintrojs::introjsUI(),
+    app_favicon(),
+    app_preloader_ui()
+  )
+}
+
+
 app_preloader_ui <- function() {
   htmltools::tagList(
     waiter::waiter_show_on_load(
@@ -48,23 +85,3 @@ app_favicon <- function(path = "www/favicon.ico") {
   )
 }
 
-add_external_resources <- function() {
-  shiny::addResourcePath(
-    prefix = "www",
-    directoryPath = pkg_sys("www")
-  )
-
-  htmltools::tags$head(
-    # golem::bundle_resources(
-    #   path = pkg_sys("www"),
-    #   app_title = app_info("name")
-    # ),
-
-    shinyjs::useShinyjs(),
-    waiter::use_waiter(),
-    fontawesome::fa_html_dependency(),
-    rintrojs::introjsUI(),
-    app_favicon(),
-    app_preloader_ui()
-  )
-}

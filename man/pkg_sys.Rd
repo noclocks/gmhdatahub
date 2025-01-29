@@ -2,19 +2,34 @@
 % Please edit documentation in R/utils_pkg.R
 \name{pkg_sys}
 \alias{pkg_sys}
+\alias{pkg_sys_www}
+\alias{pkg_sys_config}
+\alias{pkg_sys_templates}
+\alias{pkg_sys_extdata}
 \title{Package System File}
 \usage{
 pkg_sys(...)
+
+pkg_sys_www(...)
+
+pkg_sys_config(...)
+
+pkg_sys_templates(...)
+
+pkg_sys_extdata(...)
 }
 \arguments{
-\item{...}{Arguments passed to \code{\link[base:system.file]{base::system.file()}}}
+\item{...}{A character vector of subdirectories and file name.}
 }
 \value{
-The path to the system file.
+A character string of the file path.
 }
 \description{
-Package System File
+This function is a wrapper for the \code{system.file} function. It is used to
+retrieve the path to a file within the package directory.
 }
 \examples{
-pkg_sys("extdata", "data.csv")
+pkg_sys("www", "styles", "css", "styles.min.css")
+pkg_sys("config", "config.yml")
+pkg_sys("extdata")
 }

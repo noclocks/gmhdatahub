@@ -1,21 +1,31 @@
 
 #  ------------------------------------------------------------------------
 #
-# Title : App Assets
+# Title : Shiny App Theme
 #    By : Jimmy Briggs
-#  Date : 2025-01-27
+#  Date : 2024-12-13
 #
 #  ------------------------------------------------------------------------
 
+
+# colors ------------------------------------------------------------------
+
 #' GMH Colors
 #'
-#' @param ... A list of colors to return.
+#' @description
+#' Function for GMH color palette.
+#'
+#' @param ... The colors to return.
 #'
 #' @returns
-#' A list of GMH colors.
+#' A vector of colors.
 #'
 #' @export
+#'
+#' @examples
+#' gmh_colors("primary", "secondary")
 gmh_colors <- function(...) {
+
   colors <- c(
     primary = "#0e2b4c",
     secondary = "#6c757d",
@@ -38,21 +48,128 @@ gmh_colors <- function(...) {
   }
 }
 
+
+# themes ------------------------------------------------------------------
+
 #' App Theme
 #'
 #' @description
-#' This function defines the theme for the Shiny application.
+#' This function generates a custom Bootstrap theme for the GMH DataHub Shiny app.
+#'
+#' @inheritParams bslib::bs_theme
+#' @inheritDotParams bslib::bs_theme
 #'
 #' @returns
-#' The theme for the Shiny application.
+#' A Bootstrap theme generated via [bslib::bs_theme()] leveraging the GMH Communities brand assets.
 #'
 #' @export
 #'
+#' @seealso [preview_app_theme()] to preview the theme.
+#'
 #' @importFrom bslib bs_theme
-app_theme_ui <- function() {
+app_theme_ui <- function(preset = "shiny", ...) {
+
   bslib::bs_theme(
     version = 5,
+    preset = preset,
+    spacer = "1rem",
+    "enable-shadows" = TRUE,
+    bg = gmh_colors("white"),
+    fg = gmh_colors("black"),
     primary = gmh_colors("primary"),
-    "enable-shadows" = TRUE
+    secondary = gmh_colors("secondary"),
+    success = gmh_colors("success"),
+    info = gmh_colors("info"),
+    warning = gmh_colors("warning"),
+    danger = gmh_colors("danger"),
+    light = gmh_colors("light"),
+    dark = gmh_colors("dark"),
+    ...
   )
+
 }
+
+#' Preview App Theme
+#'
+#' @description
+#' This function previews the GMH DataHub Shiny app theme via [bslib::bs_theme_preview()].
+#'
+#' @inheritDotParams bslib::bs_theme_preview
+#'
+#' @returns
+#' A preview of the GMH DataHub Shiny app theme.
+#'
+#' @export
+#'
+#' @importFrom bslib bs_theme_preview
+preview_app_theme <- function(...) {
+
+  bslib::bs_theme_preview(
+    theme = app_theme_ui(),
+    with_themer = TRUE,
+    ...
+  )
+
+}
+
+
+#' Reactable Theme
+#'
+#' @description
+#' This function generates a custom Reactable theme for the GMH DataHub Shiny app.
+#'
+#' @param ... Named arguments to pass to the Reactable theme.
+#'
+#' @returns
+#' A [reactable::reactableTheme()] leveraging the GMH Communities brand assets.
+#'
+#' @export
+#'
+#' @importFrom reactable reactableTheme
+reactable_theme <- function(...) {
+
+  header_style <- list(
+    backgroundColor = gmh_colors("primary"),
+    color = gmh_colors("light"),
+    fontSize = "16px",
+    fontWeight = "bold",
+    "&:hover[aria-sort]" = list(
+      background = "hsl(0, 0%, 96%)"
+    ),
+    "&[aria-sort='ascending'], &[aria-sort='descending']" = list(
+      background = "hsl(0, 0%, 96%)"
+    ),
+    "&[aria-sort='ascending']::after" = list(
+      content = "' ▲'",
+      display = "inline-block"
+    ),
+    "&[aria-sort='descending']::after" = list(
+      content = "' ▼'",
+      display = "inline-block"
+    )
+  )
+
+  reactable::reactableTheme(
+    color = gmh_colors("black"),
+    backgroundColor = gmh_colors("white"),
+    borderColor = gmh_colors("primary"),
+    stripedColor = "#f6f8fa",
+    highlightColor = "#e8eef7",
+    cellPadding = "8px 12px",
+    style = list(fontSize = "0.8rem"),
+    headerStyle = header_style,
+    rowSelectedStyle = list(
+      backgroundColor = "#d3e1f3",
+      boxShadow = "inset 2px 0 0 0 #0e2b4c"
+    ),
+    inputStyle = list(
+      backgroundColor = "#ffffff",
+      color = "#000000",
+      border = "1px solid #0e2b4c"
+    ),
+    searchInputStyle = list(width = "100%"),
+    ...
+  )
+
+}
+
