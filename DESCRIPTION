@@ -1,6 +1,6 @@
 Package: gmhdatahub
 Title: Shiny Dashboard and API Client for GMH Communities Leasing Data
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: c(
     person("Jimmy", "Briggs", , "jimmy.briggs@jimbrig.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-7489-8787")),

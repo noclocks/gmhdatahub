@@ -1,11 +1,9 @@
-# syntax=docker/dockerfile:1
-
-FROM rocker/r-ver:4.3.2
+FROM rocker/r-ver:latest
 
 ARG USER=shiny
 ARG UID=10001
 ARG PORT=8080
-ARG CONFIG="production"
+ARG CONFIG="default"
 
 RUN apt-get update -y -qq && apt-get -y --no-install-recommends install \
   libpq-dev \
