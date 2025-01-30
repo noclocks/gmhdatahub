@@ -327,11 +327,9 @@ mod_survey_forms_server <- function(
       property_amenities_data <- mod_survey_property_amenities_server(
         "property_amenities",
         pool = pool,
-        global_filters = global_filters,
         selected_property_id = session$userData$selected_survey_property(),
-        edit = shiny::reactive({
-          input$edit_survey_section
-        })
+        selected_competitor_id = input$competitor,
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
       unit_amenities_data <- mod_survey_unit_amenities_server(
