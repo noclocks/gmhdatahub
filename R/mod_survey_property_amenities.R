@@ -1,3 +1,4 @@
+
 #  ------------------------------------------------------------------------
 #
 # Title : Survey Amenities Shiny Module
@@ -42,15 +43,32 @@ NULL
 #' @importFrom htmltools tagList tags
 #' @importFrom bslib card
 mod_survey_property_amenities_ui <- function(id) {
+
   ns <- shiny::NS(id)
 
   htmltools::tagList(
-    bslib::card(
-      reactable::reactableOutput(ns('survey_property_amenities_tbl'))
+    bslib::page_fluid(
+      bslib::card(
+        class = "mx-auto",
+        bslib::card_header(
+          class = "bg-primary text-white",
+          htmltools::tags$h2(
+            bsicons::bs_icon("house"),
+            "Property Amenities",
+            class = "mb-2"
+          )
+        ),
+        bslib::card_body(
+          shiny::uiOutput(ns("property_amenities_summary"))
+        ),
+        bslib::card_footer(
+          shiny::textOutput(ns("last_updated"))
+        )
+      )
     )
   )
-}
 
+}
 
 # server ------------------------------------------------------------------
 
@@ -61,274 +79,334 @@ mod_survey_property_amenities_ui <- function(id) {
 mod_survey_property_amenities_server <- function(
     id,
     pool = NULL,
-    global_filters = NULL,
     selected_property_id = NULL,
+    selected_competitor_id = NULL,
     edit_survey_section = NULL
 ) {
-  # check database connection
-  if (is.null(pool)) pool <- db_connect()
-  check_db_conn(pool)
-
-  # validation of reactives
-  if (!is.null(global_filters)) {
-    stopifnot(shiny::is.reactive(global_filters))
-  }
 
   shiny::moduleServer(
     id,
     function(input, output, session) {
+
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_property_amenities_server()")
 
+      # check database connection
+      if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
+      check_db_conn(pool)
+
       # handle selected property ID
       if (is.null(selected_property_id)) {
-        # property_id <- db_read_tbl(pool, "mkt.properties", collect = FALSE) |>
-        #   dplyr::filter(.data$is_competitor == FALSE) |>
-        #   dplyr::pull("property_id")
-        selected_property_id <- shiny::reactive({
-          # property_id
-          session$userData$selected_survey_property()
-        })
+        prop_id <- get_property_id_by_name("1047 Commonwealth Avenue")
+        selected_property_id <- shiny::reactive({ prop_id })
+        selected_property_name <- shiny::reactive({ get_property_name_by_id(prop_id) })
+      }
+
+      # handle selected competitor ID
+      if (!is.null(selected_competitor_id) || !is.null(session$userData$selected_survey_competitor_id)) {
+        comp_id <- selected_competitor_id %||% session$userData$selected_survey_competitor_id
+        selected_competitor_id <- shiny::reactive({ comp_id })
+        selected_property_name <- shiny::reactive({ get_competitor_name_by_id(comp_id) })
       }
 
       db_refresh_trigger <- shiny::reactiveVal(0)
+      iv <- shinyvalidate::InputValidator$new()
 
       property_amentities_data <- shiny::reactive({
-        shiny::req(pool, selected_property_id(), session$userData$leasing_week())
+        shiny::req(pool, selected_property_name())
 
-        # browser()
-
-        db_read_mkt_property_amenities(
-          pool,
-          property_id = selected_property_id(),
-          leasing_week = session$userData$leasing_week()
-        )
+        db_read_tbl(pool, "survey.property_amenities") |>
+          dplyr::filter(.data$property_name == selected_property_name()) |>
+          dplyr::select(
+            property_name,
+            amenity_name,
+            amenity_value
+          )
       })
 
-      output$survey_property_amenities_tbl <- reactable::renderReactable({
-        out <- property_amentities_data() |>
-          janitor::clean_names(
-            case = 'title',
-            use_make_names = FALSE
-          )
+      # Reactive initialization -----------------------------------------------
+      initial_data <- shiny::reactiveVal()
+      input_changes <- shiny::reactiveVal(0)
+      db_refresh_trigger <- shiny::reactiveVal(0)
 
-        if (nrow(out) == 0) {
-          out <- tibble::tribble(
-            ~'Property Amenities', ~'values',
-            'Common Area Rating', 'N/A',
-            'University Shuttle', 'No',
-            'Private Shuttle', 'No',
-            'Limited Access Gates', 'No',
-            'Fitness Center', 'No',
-            'Computer Lounge', 'No',
-            'Game Room', 'No',
-            'Spray Tanning', 'No',
-            'UV Tanning', 'No',
-            'Pool', 'No',
-            'Hot Tub', 'No',
-            '24hr Package System', 'No',
-            'EV Charging Stations', 'No',
-            'Car Sharing Services', 'No',
-            'Smart Vending', 'No',
-            'Mini Market', 'No',
-            'Movie Theatre', 'No',
-            'Co-Working/Study Spaces', 'No',
-            'Free Printing', 'No',
-            'Coffee Bar', 'No',
-            'Retail', 'No',
-            'Sauna/Spa', 'No',
-            'Cycling/Yoga Studio', 'No',
-            'Rentable Guest Suite', 'No',
-            'Wellness Classes', 'No',
-            '24hr Concierge', 'No',
-            'Outdoor Grill Area', 'No',
-            'Sand Volleyball Court', 'No',
-            'Basketball Court', 'No',
-            'Pets Allowed', 'No',
-            'Dog Wash', 'No',
-            'Dog Park', 'No'
-          )
-        }
-
-        # browser()
-
-        reactable::reactable(
-          data = out,
-          defaultPageSize = nrow(out),
-          columns = list(
-            'Property Amenities' = reactable::colDef(
-              name = "Property Amenities"#,
-              # align = "center"
-            ),
-            values = reactable::colDef(
-              name = NA_character_,
-              sortable = FALSE
-              # align = "center"
-            )#,
-            # .default = reactable::colDef(
-            #   align = "center"
-            # )
-          ),
-          # bordered = TRUE,
-          striped = TRUE,
-          highlight = TRUE
-        )
+      # Data handling ---------------------------------------------------------
+      property_amenities_data <- shiny::reactive({
+        shiny::req(pool, selected_property_name())
+        db_read_tbl(pool, "survey.property_amenities") |>
+          dplyr::filter(.data$property_name == selected_property_name()) |>
+          dplyr::select("property_name", "amenity_name", "amenity_value")
       })
 
-      # Edit ####
+      input_data <- shiny::reactive({
+        input_changes()  # Trigger on input changes
+        amenities <- property_amenities$amenity
+
+        purrr::map_df(amenities, ~{
+          tibble::tibble(
+            amenity_name = .x,
+            amenity_value = input[[.x]] %||% FALSE
+          )
+        }) |>
+          dplyr::mutate(property_name = selected_property_name())
+      })
+
+      # Changes tracking ------------------------------------------------------
+      changes <- shiny::reactive({
+        shiny::req(initial_data(), input_data())
+
+        initial <- initial_data() |>
+          dplyr::select(amenity_name, initial = amenity_value)
+
+        current <- input_data() |>
+          dplyr::select(amenity_name, current = amenity_value)
+
+        dplyr::full_join(initial, current, by = "amenity_name") |>
+          dplyr::mutate(
+            old = dplyr::if_else(initial, "Yes", "No"),
+            new = dplyr::if_else(current, "Yes", "No"),
+            changed = initial != current
+          ) |>
+          dplyr::filter(changed) |>
+          dplyr::select(-changed)
+      })
+
+      # Modal handling --------------------------------------------------------
       shiny::observeEvent(edit_survey_section(), {
-        if (session$userData$selected_survey_tab() != "nav_property_amenities") {
-          return()
-        }
+        data <- property_amenities_data()
+        initial_data(data)
 
-        # data <- fees_data()
+        # Create input controls
+        property_amenities_inputs <- lapply(
+          unique(property_amenities$category),
+          function(category) {
+            bslib::accordion_panel(
+              title = category,
+              icon = amenity_section_icons |>
+                dplyr::filter(category == !!category) |>
+                dplyr::pull(icon) |>
+                bsicons::bs_icon(),
+              bslib::layout_column_wrap(
+                style = "padding: 1.5rem; gap: 1rem;",
+                purrr::map(
+                  property_amenities |>
+                    dplyr::filter(category == !!category) |>
+                    dplyr::pull(amenity),
+                  function(amenity) {
+                    current_val <- data |>
+                      dplyr::filter(amenity_name == amenity) |>
+                      dplyr::pull(amenity_value)
 
-        # TODO:
-        #   `iv` (?)
+                    htmltools::tags$div(
+                      class = "d-flex align-items-center bg-light p-2 rounded",
+                      bslib::input_switch(
+                        id = ns(amenity),
+                        label = htmltools::tagList(
+                          bsicons::bs_icon(
+                            property_amenities |>
+                              dplyr::filter(amenity == !!amenity) |>
+                              dplyr::pull(icon)
+                          ),
+                          amenity
+                        ),
+                        value = current_val
+                      )
+                    )
+                  }
+                )
+              )
+            )
+        })
 
+        # Input change observer
+        lapply(
+          property_amenities$amenity,
+          function(amenity) {
+            shiny::observeEvent(input[[amenity]], {
+              input_changes(input_changes() + 1)
+            }, ignoreInit = TRUE)
+          }
+        )
+
+        # Show modal dialog
         shiny::showModal(
           shiny::modalDialog(
-            title = "Property Amenities",
-            size = "m",
-            style = "display: inline-flex; flex-direction: column; align-items: center;",
-            rhandsontable::rHandsontableOutput(ns("modal_property_amenities_table")),
+            title = icon_text("pencil", "Edit Property Amenities"),
+            size = "l",
+            htmltools::tags$div(
+              htmltools::tags$h5("Pending Changes", class = "text-primary"),
+              shiny::tableOutput(ns("changes_preview"))
+            ),
+            htmltools::tags$hr(),
+            bslib::accordion(
+              id = ns("amenities_accordion"),
+              multiple = TRUE,
+              !!!property_amenities_inputs
+            ),
             footer = htmltools::tagList(
-              shiny::actionButton(
-                ns("save_changes"),
-                "Save",
-                class = "btn-primary"
-              ),
-              shiny::modalButton("Cancel")
+              shiny::modalButton("Cancel"),
+              shiny::actionButton(ns("save_changes"), "Save Changes", class = "btn-primary")
             )
           )
         )
       })
 
-      output$modal_property_amenities_table <- rhandsontable::renderRHandsontable({
-        data <- property_amentities_data()
+      # Changes preview -------------------------------------------------------
+      output$changes_preview <- shiny::renderUI({
 
-        # browser()
-
-        if (nrow(data) == 0) {
-          data <- tibble::tribble(
-            ~'Property Amenities', ~'values',
-            'Common Area Rating', 'N/A',
-            'University Shuttle', 'No',
-            'Private Shuttle', 'No',
-            'Limited Access Gates', 'No',
-            'Fitness Center', 'No',
-            'Computer Lounge', 'No',
-            'Game Room', 'No',
-            'Spray Tanning', 'No',
-            'UV Tanning', 'No',
-            'Pool', 'No',
-            'Hot Tub', 'No',
-            '24hr Package System', 'No',
-            'EV Charging Stations', 'No',
-            'Car Sharing Services', 'No',
-            'Smart Vending', 'No',
-            'Mini Market', 'No',
-            'Movie Theatre', 'No',
-            'Co-Working/Study Spaces', 'No',
-            'Free Printing', 'No',
-            'Coffee Bar', 'No',
-            'Retail', 'No',
-            'Sauna/Spa', 'No',
-            'Cycling/Yoga Studio', 'No',
-            'Rentable Guest Suite', 'No',
-            'Wellness Classes', 'No',
-            '24hr Concierge', 'No',
-            'Outdoor Grill Area', 'No',
-            'Sand Volleyball Court', 'No',
-            'Basketball Court', 'No',
-            'Pets Allowed', 'No',
-            'Dog Wash', 'No',
-            'Dog Park', 'No'
+        diff <- changes() |>
+          dplyr::mutate(
+            amenity_name,
+            change = paste0(.data$old, " -> ", .data$new)
           )
+
+        if (nrow(diff) == 0) {
+          return(htmltools::tags$p("No changes detected", class = "text-muted"))
         }
 
-        rhandsontable::rhandsontable(
-          data = data,
-          contextMenu = FALSE,
-          rowHeaders = NULL,
-          colHeaders = c('Property Amenities', ' '),
-          width = 325,
-          # height = height
-        ) |>
-          rhandsontable::hot_cols(
-            colWidths = c(250, 75)
-          ) |>
-          rhandsontable::hot_col(
-            col = 1,
-            readOnly = TRUE,
-            renderer = "
-              function(instance, td, row, col, prop, value, cellProperties) {
-                Handsontable.renderers.TextRenderer.apply(this, arguments);
-
-                // Set text to black
-                td.style.color = 'black';
-              }
-          ") |>
-          rhandsontable::hot_col(
-            col = 2,
-            type = 'autocomplete',
-            source = c('Yes', 'No'),
-            renderer = "
-              function(instance, td, row, col, prop, value, cellProperties) {
-                Handsontable.renderers.TextRenderer.apply(this, arguments);
-
-                if (col === 0) {
-                  // Don't allow editing
-                  cellProperties.readOnly = true;
-                } else if (col === 1) {
-                  cellProperties.type = 'dropdown';
-                  if (row === 0) {
-                    cellProperties.source = ['1', '2', '3', '4', '5', 'N/A'];
-                  }
-                }
-              }"
+        htmltools::tagList(
+          htmltools::tags$p(
+            "The following changes will be applied to the property amenities:",
+            class = "text-muted"
+          ),
+          htmltools::tags$table(
+            class = "table table-sm",
+            htmltools::tags$thead(
+              htmltools::tags$tr(
+                htmltools::tags$th("Amenity"),
+                htmltools::tags$th("Change")
+              )
+            ),
+            htmltools::tags$tbody(
+              lapply(seq_len(nrow(diff)), function(i) {
+                htmltools::tags$tr(
+                  htmltools::tags$td(diff$amenity_name[i]),
+                  htmltools::tags$td(diff$change[i])
+                )
+              })
+            )
           )
+        )
+
       })
 
-      return(
-        list(
-          # reactive values
+
+      # Save handler ----------------------------------------------------------
+      shiny::observeEvent(input$save_changes, {
+
+        new_values <- input_data() |>
+          dplyr::mutate(
+            updated_by = session$userData$user_id %||% "53b1207a-9066-49e4-9fcd-a6f439159759"
+          )
+
+        db_update_survey_property_amenities(
+          pool = pool,
+          new_values = new_values
         )
-      )
-    }
-  )
+
+        db_refresh_trigger(db_refresh_trigger() + 1)
+        shiny::removeModal()
+
+      })
+
+      # Summary display ------------------------------------------------------
+      output$property_amenities_summary <- shiny::renderUI({
+        purrr::map(unique(property_amenities$category), function(category) {
+          amenities <- property_amenities_data() |>
+            dplyr::filter(
+              amenity_value == TRUE,
+              amenity_name %in% (
+                property_amenities |>
+                  dplyr::filter(category == !!category) |>
+                  dplyr::pull(amenity)
+              )
+            )
+
+          htmltools::tagList(
+            htmltools::tags$h3(
+              class = "text-primary mb-2",
+              bsicons::bs_icon(amenity_section_icons |>
+                                 dplyr::filter(category == !!category) |>
+                                 dplyr::pull(icon)),
+              category
+            ),
+            if (nrow(amenities) > 0) {
+              htmltools::tags$div(
+                class = "mb-3",
+                htmltools::tags$p(
+                  glue::glue("{nrow(amenities)} {category} amenities selected"),
+                  class = "text-muted"
+                ),
+                htmltools::tags$div(
+                  class = "d-flex flex-wrap gap-2",
+                  purrr::map(amenities$amenity_name, ~{
+                    htmltools::tags$span(
+                      class = "badge bg-primary",
+                      bsicons::bs_icon(
+                        property_amenities |>
+                          dplyr::filter(amenity == .x) |>
+                          dplyr::pull(icon)
+                      ),
+                      .x
+                    )
+                  })
+                )
+              )
+            } else {
+              htmltools::tags$p("No amenities selected", class = "text-muted")
+            }
+          )
+        })
+      })
+
+      output$last_updated <- shiny::renderText({
+        sprintf("Last updated: %s", format(Sys.time(), "%Y-%m-%d %H:%M:%S"))
+      })
+
+      return(list(
+        property_amenities_data = property_amenities_data,
+        refresh_trigger = db_refresh_trigger
+      ))
+    })
 }
 
 # demo --------------------------------------------------------------------
 
 #' @rdname mod_survey_property_amenities
 #' @export
-#' @importFrom pkgload load_all
-#' @importFrom bslib page_navbar nav_panel
-#' @importFrom bsicons bs_icon
-#' @importFrom shiny shinyApp
 mod_survey_property_amenities_demo <- function() {
+
   pkgload::load_all()
 
   ui <- bslib::page_navbar(
     title = "Demo: Survey Amenities",
     window_title = "Demo: Survey Amenities",
-    theme = app_theme(),
+    theme = app_theme_ui(),
     lang = "en",
     bslib::nav_spacer(),
     bslib::nav_panel(
       title = "Survey Amenities",
       value = "survey_property_amenities",
       icon = bsicons::bs_icon("house"),
-      mod_survey_property_amenities_ui("demo")
+      mod_survey_property_amenities_ui("demo"),
+      shiny::actionButton(
+        'edit_survey_section',
+        'Edit',
+        icon = shiny::icon('edit'),
+        style = 'width: auto;',
+        class = 'btn-sm btn-primary'
+      )
     )
   )
 
   server <- function(input, output, session) {
-    mod_survey_property_amenities_server("demo")
+    pool <- db_connect()
+    edit_survey_section <- shiny::reactive({ input$edit_survey_section })
+    mod_survey_property_amenities_server(
+      "demo",
+      pool = pool,
+      edit_survey_section = edit_survey_section
+    )
   }
 
   shiny::shinyApp(ui, server)
 }
-
-# utilities ---------------------------------------------------------------
