@@ -137,6 +137,26 @@ get_competitor_id_by_name <- function(competitor_name) {
   get_default_app_choices("competitors")[[competitor_name]]
 }
 
+get_amenity_id_by_name <- function(pool, amenity_name) {
+
+  check_db_conn(pool)
+
+  amenity_name <- tolower(amenity_name)
+
+  amenity_id <- survey_amenities_tbl |>
+    dplyr::filter(tolower(.data$amenity_name) == .env$amenity_name) |>
+    dplyr::pull("amenity_id")
+
+  if (length(amenity_id) == 0) {
+    cli::cli_alert_danger(
+      "Amenity not found in database."
+    )
+    return(NULL)
+  }
+
+  return(amenity_id)
+}
+
 #' NULL Coalescing Operator
 #'
 #' @description
