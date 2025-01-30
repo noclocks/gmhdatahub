@@ -40,5 +40,14 @@ INSERT INTO survey.amenities (amenity_type, amenity_category, amenity_name, amen
 INSERT INTO survey.amenities (amenity_type, amenity_category, amenity_name, amenity_icon) VALUES ('Unit', 'Unit Amenities', 'Balconies', 'window');
 INSERT INTO survey.amenities (amenity_type, amenity_category, amenity_name, amenity_icon) VALUES ('Unit', 'Unit Amenities', 'Patios', 'door-open');
 INSERT INTO survey.amenities (amenity_type, amenity_category, amenity_name, amenity_icon) VALUES ('Unit', 'Unit Amenities', 'Backyards', 'tree');
-INSERT INTO survey.amenities (amenity_type, amenity_category, amenity_name, amenity_icon) VALUES ('Unit', 'Unit Amenities', 'TV Included in Rent', 'tv');
-INSERT INTO survey.amenities (amenity_type, amenity_category, amenity_name, amenity_icon) VALUES ('Unit', 'Unit Amenities', 'Furniture Included in Rent', 'lamp');
+INSERT INTO survey.amenities (amenity_type, amenity_category, amenity_name, amenity_icon) VALUES ('Unit', 'TV', 'TV Included in Rent', 'tv');
+INSERT INTO survey.amenities (amenity_type, amenity_category, amenity_name, amenity_icon) VALUES ('Unit', 'TV', 'TV Rentable Rate', 'tv'),
+INSERT INTO survey.amenities (amenity_type, amenity_category, amenity_name, amenity_icon) VALUES ('Unit', 'TV', 'TV Bedroom', 'tv'),
+INSERT INTO survey.amenities (amenity_type, amenity_category, amenity_name, amenity_icon) VALUES ('Unit', 'TV', 'TV Common Area', 'tv'),
+INSERT INTO survey.amenities (amenity_type, amenity_category, amenity_name, amenity_icon) VALUES ('Unit', 'TV', 'Furniture Included in Rent', 'lamp'),
+INSERT INTO survey.amenities (amenity_type, amenity_category, amenity_name, amenity_icon) VALUES ('Unit', 'Furniture', 'Furniture Rentable Rate', 'lamp'),
+INSERT INTO survey.amenities (amenity_type, amenity_category, amenity_name, amenity_icon) VALUES ('Unit', 'Premiums', 'Floor Premiums', 'currency-dollar'),
+INSERT INTO survey.amenities (amenity_type, amenity_category, amenity_name, amenity_icon) VALUES ('Unit', 'Premiums', 'Poolside Premiums', 'currency-dollar'),
+INSERT INTO survey.amenities (amenity_type, amenity_category, amenity_name, amenity_icon) VALUES ('Unit', 'Premiums', 'Top Floor Premiums', 'currency-dollar'),
+INSERT INTO survey.amenities (amenity_type, amenity_category, amenity_name, amenity_icon) VALUES ('Unit', 'Premiums', 'View Premiums', 'currency-dollar'),
+INSERT INTO survey.amenities (amenity_type, amenity_category, amenity_name, amenity_icon) VALUES ('Unit', 'Premiums', 'Other Premiums', 'currency-dollar');

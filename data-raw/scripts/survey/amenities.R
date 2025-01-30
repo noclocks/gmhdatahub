@@ -84,7 +84,7 @@ amenities_data <- dplyr::bind_rows(
       "fire"
     )
   ),
-  # Continue for other categories...
+  # Wellness & Beauty
   tibble::tibble(
     type = "Property",
     category = "Wellness & Beauty",
@@ -160,20 +160,6 @@ amenities_data <- dplyr::bind_rows(
       "door-open",
       "tree"
     )
-  ),
-  # TV Options
-  tibble::tibble(
-    type = "Unit",
-    category = "TV Options",
-    amenity = c("TV Included in Rent"),
-    icon = c("tv")
-  ),
-  # Furniture Options
-  tibble::tibble(
-    type = "Unit",
-    category = "Furniture Options",
-    amenity = c("Furniture Included in Rent"),
-    icon = c("box-seam")
   )
 )
 
@@ -185,15 +171,30 @@ unit_amenities <- amenities_data |>
   dplyr::filter(type == "Unit")
 
 
-unit_amenities_premium_inputs <- tibble::tibble(
-  category = c(rep("TV Rental Rates", 2), rep("Premium Options", 5)),
-  rate_name = c(
-    "Bedroom TV Rate", "Common Area TV Rate",
-    "Floor Premium", "Poolside Premium", "Top Floor Premium",
-    "View Premium", "Other Premium"
-  ),
-  value = 0
-)
+# # TV Options
+# tibble::tibble(
+#   type = "Unit",
+#   category = "TV Options",
+#   amenity = c("TV Included in Rent"),
+#   icon = c("tv")
+# ),
+# # Furniture Options
+# tibble::tibble(
+#   type = "Unit",
+#   category = "Furniture Options",
+#   amenity = c("Furniture Included in Rent"),
+#   icon = c("box-seam")
+# )
+
+# unit_amenities_premium_inputs <- tibble::tibble(
+#   category = c(rep("TV Rental Rates", 2), rep("Premium Options", 5)),
+#   rate_name = c(
+#     "Bedroom TV Rate", "Common Area TV Rate",
+#     "Floor Premium", "Poolside Premium", "Top Floor Premium",
+#     "View Premium", "Other Premium"
+#   ),
+#   value = 0
+# )
 
 # property_amenities_data <- tibble::tibble(
 #   category = rep(
@@ -305,111 +306,86 @@ unit_amenities_premium_inputs <- tibble::tibble(
 # )
 
 
-survey_amenities_tbl <-  tibble::tibble(
-  amenity_id = 1:44,
-  amenity_type = rep(c("Property", "Unit"), c(31L, 13L)),
+survey_amenities_tbl <- tibble::tibble(
+  amenity_id = c(
+    1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 15L, 16L, 17L,
+    18L, 19L, 20L, 21L, 22L, 23L, 24L, 25L, 26L, 27L, 28L, 29L, 30L, 31L, 32L,
+    33L, 34L, 35L, 36L, 37L, 38L, 39L, 40L, 41L, 42L, 54L, 55L, 56L, 57L, 58L,
+    59L, 60L, 61L, 62L, 63L, 64L
+  ),
+  amenity_type = rep(c("Property", "Unit"), c(31L, 22L)),
   amenity_category = rep(
     c(
-      "Transportation",
-      "Fitness & Recreation",
-      "Wellness & Beauty",
-      "Work & Study",
-      "Convenience & Services",
-      "Pet Amenities",
-      "Unit Amenities"
+      "Transportation", "Fitness & Recreation", "Wellness & Beauty", "Work & Study",
+      "Convenience & Services", "Pet Amenities", "Unit Amenities", "TV",
+      "Furniture", "Premiums"
     ),
-    c(5L, 9L, 3L, 3L, 8L, 3L, 13L)
+    c(5L, 9L, 3L, 3L, 8L, 3L, 11L, 5L, 1L, 5L)
   ),
   amenity_name = c(
-    "University Shuttle",
-    "Private Shuttle",
-    "Limited Access Gates",
-    "EV Charging Stations",
-    "Car Sharing Services",
-    "Fitness Center",
-    "Game Room",
-    "Pool",
-    "Hot Tub",
-    "Sauna/Spa",
-    "Cycling/Yoga Studio",
-    "Sand Volleyball Court",
-    "Basketball Court",
-    "Outdoor Grill Area",
-    "Spray Tanning",
-    "UV Tanning",
-    "Wellness Classes",
-    "Computer Lounge",
-    "Co-Working/Study Spaces",
-    "Free Printing",
-    "24hr Package System",
-    "Smart Vending",
-    "Mini Market",
-    "Coffee Bar",
-    "Retail",
-    "Movie Theatre",
-    "Rentable Guest Suite",
-    "24hr Concierge",
-    "Pets Allowed",
-    "Dog Wash",
-    "Dog Park",
-    "Private Bathrooms",
-    "Walk-in Closets",
-    "Washer / Dryer in Unit",
-    "Smart Home Technology",
-    "Smart Bedroom Locks",
-    "Smart Unit Locks",
-    "Energy Efficient Appliances",
-    "Stainless Steel Appliances",
-    "Balconies",
-    "Patios",
-    "Backyards",
-    "TV Included in Rent",
-    "Furniture Included in Rent"
+    "University Shuttle", "Private Shuttle", "Limited Access Gates",
+    "EV Charging Stations", "Car Sharing Services", "Fitness Center", "Game Room",
+    "Pool", "Hot Tub", "Sauna/Spa", "Cycling/Yoga Studio",
+    "Sand Volleyball Court", "Basketball Court", "Outdoor Grill Area",
+    "Spray Tanning", "UV Tanning", "Wellness Classes", "Computer Lounge",
+    "Co-Working/Study Spaces", "Free Printing", "24hr Package System",
+    "Smart Vending", "Mini Market", "Coffee Bar", "Retail", "Movie Theatre",
+    "Rentable Guest Suite", "24hr Concierge", "Pets Allowed", "Dog Wash",
+    "Dog Park", "Private Bathrooms", "Walk-in Closets", "Washer / Dryer in Unit",
+    "Smart Home Technology", "Smart Bedroom Locks", "Smart Unit Locks",
+    "Energy Efficient Appliances", "Stainless Steel Appliances", "Balconies",
+    "Patios", "Backyards", "TV Included in Rent", "TV Rentable Rate",
+    "TV Bedroom", "TV Common Area", "Furniture Included in Rent",
+    "Furniture Rentable Rate", "Floor Premiums", "Poolside Premiums",
+    "Top Floor Premiums", "View Premiums", "Other Premiums"
   ),
   amenity_icon = c(
-    "bus-front",
-    "taxi-front",
-    "door-closed",
-    "plug",
-    "share",
-    "universal-access",
-    "controller",
-    "water",
-    "droplet-half",
-    "moisture",
-    "bicycle",
-    "dribbble",
-    "trophy",
-    "fire",
-    "droplet",
-    "sun",
-    "heart-pulse",
-    "pc-display",
-    "people",
-    "printer",
-    "box-seam",
-    "cart",
-    "shop",
-    "cup-hot",
-    "bag",
-    "film",
-    "house",
-    "person-workspace",
-    "patch-check",
-    "tropical-storm",
-    "tree",
-    "water",
-    "door-open",
-    "infinity",
-    "robot",
-    "key",
-    "key-fill",
-    "lightning",
-    "star",
-    "window",
-    "door-open",
-    "tree",
-    "tv",
-    "lamp"
-  )
+    "bus-front", "taxi-front", "door-closed", "plug", "share", "universal-access",
+    "controller", "water", "droplet-half", "moisture", "bicycle", "dribbble",
+    "trophy", "fire", "droplet", "sun", "heart-pulse", "pc-display", "people",
+    "printer", "box-seam", "cart", "shop", "cup-hot", "bag", "film", "house",
+    "person-workspace", "patch-check", "tropical-storm", "tree", "water",
+    "door-open", "infinity", "robot", "key", "key-fill", "lightning", "star",
+    "window", "door-open", "tree", "tv", "tv", "tv", "tv", "lamp", "lamp",
+    "currency-dollar", "currency-dollar", "currency-dollar", "currency-dollar",
+    "currency-dollar"
+  ),
+  amenity_description = NA_character_,
 )
+
+survey_unit_amenities_tv <- tibble::tibble(
+  amenity_type = "Unit",
+  amenity_category = "TV Options",
+  amenity_name = c("TV Included in Rent", "TV Rentable Rate", "TV Bedroom", "TV Common Area"),
+  amenity_icon = c("tv", "tv", "tv", "tv"),
+  amenity_value = c(0, 0, 0, 0)
+)
+
+survey_unit_amenities_furniture <- tibble::tibble(
+  amenity_type = "Unit",
+  amenity_category = "Furniture Options",
+  amenity_name = c("Furniture Included in Rent", "Furniture Rentable Rate"),
+  amenity_icon = c("box-seam", "box-seam"),
+  amenity_value = c(0, 0)
+)
+
+survey_unit_amenities_premium <- tibble::tibble(
+  amenity_type = "Unit",
+  amenity_category = "Premium Options",
+  amenity_name = c(
+    "Floor Premium",
+    "Poolside Premium",
+    "Top Floor Premium",
+    "View Premium",
+    "Other Premium"
+  ),
+  amenity_icon = c(
+    "currency-dollar",
+    "currency-dollar",
+    "currency-dollar",
+    "currency-dollar",
+    "currency-dollar"
+  ),
+  amenity_value = c(0, 0, 0, 0, 0)
+)
+

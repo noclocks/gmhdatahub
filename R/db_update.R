@@ -1,3 +1,56 @@
+db_update_survey_unit_amenities_rates_premiums <- function(pool, new_values) {
+
+  check_db_conn(pool)
+
+  data <- new_values |>
+    dplyr::mutate(
+      amenity_name = stringr::str_replace(
+        snakecase::to_title_case(.data$amenity_name), "Tv" , "TV"
+      ),
+      property_id = purrr::map_int(.data$property_name, get_property_id_by_name),
+      amenity_id = purrr::map_int(.data$amenity_name, get_amenity_id_by_name),
+      rentable_rate = dplyr::coalesce(.data$rentable_rate, 0),
+      premium = dplyr::coalesce(.data$premium, 0)
+    )
+
+  conn <- pool::poolCheckout(pool)
+  on.exit(pool::poolReturn(conn))
+
+  tryCatch(
+    {
+      dbx::dbxUpsert(
+        conn,
+        DBI::SQL("survey.unit_amenities_rates_premiums"),
+        records = data,
+        where_cols = c("property_name", "amenity_id"),
+        skip_existing = FALSE
+      )
+
+      cli::cli_alert_success(
+        "Successfully updated unit amenities."
+      )
+
+      shiny::showNotification(
+        "Successfully updated unit amenities.",
+        duration = 500,
+        type = "default"
+      )
+    },
+    error = function(e) {
+      cli::cli_alert_danger(
+        "Failed to update unit amenities: {.error {e$message}}"
+      )
+      shiny::showNotification(
+        "Failed to update unit amenities.",
+        duration = 500,
+        type = "error"
+      )
+    }
+  )
+
+  return(invisible(data))
+}
+
 db_update_survey_unit_amenities <- function(pool, new_values) {
 
   check_db_conn(pool)
