@@ -6,35 +6,35 @@
 #
 #  ------------------------------------------------------------------------
 
-#" Shiny App UI
-#"
-#" @family **Shiny App**
-#"
-#" @description
-#" This function generates the core user interface for the GMH DataHub Shiny app.
-#"
-#" @param req (Internal) The initial HTTP request object.
-#"
-#" @returns
-#" The UI for the Shiny application.
-#"
-#" @export
-#"
-#" @seealso
-#" - [app_server()]: Server logic for the Shiny app that complements this UI.
-#" - [app_theme_ui()]: Customized [bslib::bs_theme()] for the Shiny app,
-#"   built leveraging the GMH Communities brand assets.
-#" - [app_assets()]: Functions for managing and including various static assets in a Shiny application.
-#" - [run_app()]: Run the GMH DataHub Shiny app.
-#" - [bslib::page_navbar()]: Create a Bootstrap navbar.
-#"
-#" @importFrom bslib page_navbar nav_spacer nav_panel nav_menu nav_item input_dark_mode
-#" @importFrom shiny actionLink
-#" @importFrom htmltools tagList tags
-#" @importFrom bsicons bs_icon
-#"
-#" @examplesIf interactive()
-#" shiny::shinyApp(ui = app_ui, server = app_server)
+#' Shiny App UI
+#'
+#' @family **Shiny App**
+#'
+#' @description
+#' This function generates the core user interface for the GMH DataHub Shiny app.
+#'
+#' @param req (Internal) The initial HTTP request object.
+#'
+#' @returns
+#' The UI for the Shiny application.
+#'
+#' @export
+#'
+#' @seealso
+#' - [app_server()]: Server logic for the Shiny app that complements this UI.
+#' - [app_theme_ui()]: Customized [bslib::bs_theme()] for the Shiny app,
+#'   built leveraging the GMH Communities brand assets.
+#' - [app_assets()]: Functions for managing and including various static assets in a Shiny application.
+#' - [run_app()]: Run the GMH DataHub Shiny app.
+#' - [bslib::page_navbar()]: Create a Bootstrap navbar.
+#'
+#' @importFrom bslib page_navbar nav_spacer nav_panel nav_menu nav_item input_dark_mode
+#' @importFrom shiny actionLink
+#' @importFrom htmltools tagList tags
+#' @importFrom bsicons bs_icon
+#'
+#' @examplesIf interactive()
+#' shiny::shinyApp(ui = app_ui, server = app_server)
 app_ui <- function(req = NULL) {
 
   force(req)
