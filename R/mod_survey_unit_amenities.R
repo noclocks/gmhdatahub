@@ -61,7 +61,6 @@ mod_survey_unit_amenities_ui <- function(id) {
 mod_survey_unit_amenities_server <- function(
     id,
     pool = NULL,
-    global_filters = NULL,
     selected_property_id = NULL,
     edit_survey_section = NULL
 ) {
