@@ -415,6 +415,63 @@ db_read_mkt_unit_amenities <- function(pool, property_id = NULL, leasing_week = 
   dplyr::collect(hold)
 }
 
+db_read_mkt_parking <- function(pool, property_id = NULL, competitor_id = NULL, leasing_week = NULL) {
+  check_db_pool(pool)
+
+  hold <- db_read_tbl(pool, "survey.parking", collect = FALSE)
+
+  if (!is.null(property_id)) {
+    prop_ids <- hold |>
+      dplyr::pull("property_id") |>
+      unique()
+    if (!property_id %in% prop_ids) {
+      cli::cli_alert_warning("No data found for the specified property ID: {.field {property_id}}.")
+    } else {
+      hold <- dplyr::filter(hold, .data$property_id == .env$property_id)
+
+      if (!is.null(competitor_id)) {
+        comp_ids <- hold |>
+          dplyr::pull("competitor_id") |>
+          unique()
+
+        if (!competitor_id %in% comp_ids) {
+          cli::cli_alert_warning("No data found for the specified competitor ID: {.field {competitor_id}}.")
+        } else {
+          hold <- dplyr::filter(hold, competitor_id == .env$competitor_id)
+        }
+      }
+    }
+  } # else if (!is.null(property_id) && !is.null(competitor_id)) {
+  #   comp_ids <- hold |>
+  #     dplyr::pull("competitor_id") |>
+  #     unique()
+  #
+  #   if (!competitor_id %in% comp_ids) {
+  #     cli::cli_alert_warning("No data found for the specified competitor ID: {.field {competitor_id}}.")
+  #   } else {
+  #     hold <- hold |>
+  #       dplyr::filter(
+  #         competitor_id == .env$competitor_id
+  #       )
+  #   }
+  # }
+
+  # if (!is.null(leasing_week)) {
+  #   leasing_week_dates <- hold |>
+  #     dplyr::pull("leasing_week") |>
+  #     unique()
+  #   if (!leasing_week %in% leasing_week_dates) {
+  #     cli::cli_alert_warning("No data found for the specified leasing week: {.field {leasing_week}}.")
+  #   }
+  # }
+
+  hold <- hold |>
+    dplyr::filter(updated_at == max(updated_at, na.rm = TRUE)) |>
+    dplyr::select(-property_id, -competitor_id, -property_name, -created_at, -updated_at, -created_by, -updated_by)
+
+  dplyr::collect(hold)
+}
+
 db_read_gmh_leasing_calendar <- function(pool, date_key = Sys.Date()) {
   check_db_pool(pool)
   date_key <- format(date_key, "%Y-%m-%d")

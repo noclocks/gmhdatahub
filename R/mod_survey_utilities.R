@@ -45,7 +45,10 @@ mod_survey_utilities_ui <- function(id) {
   ns <- shiny::NS(id)
 
   htmltools::tagList(
-    bslib::card()
+    bslib::card(
+      reactable::reactableOutput(ns('survey_utilities_tbl')),
+      reactable::reactableOutput(ns('survey_other_utilities_tbl'))
+    )
   )
 }
 
@@ -60,9 +63,11 @@ mod_survey_utilities_server <- function(
     id,
     pool = NULL,
     selected_property_id = NULL,
-    selected_competitor_id = NULL,
     edit_survey_section = NULL
 ) {
+  # check database connection
+  if (is.null(pool)) pool <- db_connect()
+  check_db_conn(pool)
 
   shiny::moduleServer(
     id,
@@ -71,9 +76,55 @@ mod_survey_utilities_server <- function(
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_utilities_server()")
 
-      # check database connection
-      if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
-      check_db_conn(pool)
+      # handle selected property ID
+      if (is.null(selected_property_id)) {
+        selected_property_id <- shiny::reactive({
+          # property_id
+          session$userData$selected_survey_property()
+        })
+      }
+
+      db_refresh_trigger <- shiny::reactiveVal(0)
+
+      utilities_data <- shiny::reactive({
+        shiny::req(pool, selected_property_id(), session$userData$leasing_week())
+
+        db_read_mkt_utilities(
+          pool,
+          property_id = selected_property_id(),
+          leasing_week = session$userData$leasing_week()
+        )
+      })
+
+      output$survey_utilities_tbl <- reactable::renderReactable({
+        data <- utilities_data() |>
+          dplyr::filter(.data$utility_type == "Utility") |>
+          dplyr::select(-utility_type)
+
+        if (nrow(data) == 0) {
+          data <- tibble::tribble(
+            ~'Utilities Summary', ~'All Inclusive', ~'Cap', ~'Allowance', ~'Amount', ~'Per Unit/Bed',
+            'Electricity', 'No', 'No', 'No', '$0', 'Per Unit',
+            'Gas', 'No', 'No', 'No', '$0', 'Per Unit',
+            'Water', 'No', 'No', 'No', '$0', 'Per Unit'
+          )
+        }
+
+        reactable::reactable(
+          data = data,
+          defaultPageSize = nrow(data),
+          searchable = TRUE,
+          columns = list(
+            'Utilities Summary' = reactable::colDef(name = 'Utilities Summary', sortable = TRUE),
+            'All Inclusive' = reactable::colDef(name = 'All Inclusive', sortable = TRUE),
+            'Cap' = reactable::colDef(name = 'Cap', sortable = TRUE),
+            'Allowance' = reactable::colDef(name = 'Allowance', sortable = TRUE),
+            'Amount' = reactable::colDef(name = 'Amount', sortable = TRUE),
+            'Per Unit/Bed' = reactable::colDef(name = 'Per Unit/Bed', sortable = TRUE)
+          ),
+          highlight = TRUE
+        )
+      })
 
       return(
         list(
