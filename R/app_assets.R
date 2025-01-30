@@ -63,8 +63,9 @@ add_external_resources <- function() {
     shinyjs::useShinyjs(),
     waiter::use_waiter(),
     fontawesome::fa_html_dependency(),
-    rintrojs::introjsUI(),
+    # rintrojs::introjsUI(),
     app_favicon(),
-    app_preloader_ui()
+    app_preloader_ui(),
+    htmltools::tags$link(href = "www/styles/css/custom-styles.css", rel = "stylesheet")
   )
 }
