@@ -36,7 +36,6 @@
 #' @examplesIf interactive()
 #' shiny::shinyApp(ui = app_ui, server = app_server)
 app_ui <- function(req = NULL) {
-
   force(req)
 
   if (!is.null(req)) {

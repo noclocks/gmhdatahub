@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : App Configuration
@@ -8,11 +7,9 @@
 #  ------------------------------------------------------------------------
 
 get_app_config <- function(
-  key = NULL,
-  file = Sys.getenv("R_CONFIG_FILE", pkg_sys("config/config.yml")),
-  config = Sys.getenv("R_CONFIG_ACTIVE", "default")
-) {
-
+    key = NULL,
+    file = Sys.getenv("R_CONFIG_FILE", pkg_sys("config/config.yml")),
+    config = Sys.getenv("R_CONFIG_ACTIVE", "default")) {
   # normalize path to config file
   file <- normalizePath(file, mustWork = FALSE)
 
@@ -58,11 +55,9 @@ get_app_config <- function(
 }
 
 get_auth_config <- function(
-  key = NULL,
-  file = Sys.getenv("R_CONFIG_FILE", pkg_sys("config/config.yml")),
-  config = Sys.getenv("R_CONFIG_ACTIVE", "default")
-) {
-
+    key = NULL,
+    file = Sys.getenv("R_CONFIG_FILE", pkg_sys("config/config.yml")),
+    config = Sys.getenv("R_CONFIG_ACTIVE", "default")) {
   # normalize path to config file
   file <- normalizePath(file, mustWork = FALSE)
 
@@ -126,7 +121,6 @@ get_auth_config <- function(
 #' @examples
 #' app_info()
 app_info <- function(...) {
-
   info <- list(
     name = "gmhdatahub",
     title = "GMH Data Hub",
@@ -145,5 +139,3 @@ app_info <- function(...) {
     return(info[[...]])
   }
 }
-
-

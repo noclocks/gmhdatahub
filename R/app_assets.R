@@ -84,4 +84,3 @@ app_favicon <- function(path = "www/favicon.ico") {
     )
   )
 }
-

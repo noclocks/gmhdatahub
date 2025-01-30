@@ -138,7 +138,6 @@ get_competitor_id_by_name <- function(competitor_name) {
 }
 
 get_amenity_id_by_name <- function(pool, amenity_name) {
-
   check_db_conn(pool)
 
   amenity_name <- tolower(amenity_name)
@@ -175,9 +174,7 @@ get_amenity_id_by_name <- function(pool, amenity_name) {
 encrypt_cfg_file <- function(
     cfg_file = Sys.getenv("R_CONFIG_FILE", "config.yml"),
     key = "NOCLOCKS_ENCRYPTION_KEY",
-    ...
-) {
-
+    ...) {
   if (is.null(Sys.getenv(key)) || !httr2::secret_has_key(key)) {
     rlang::abort(
       "Encryption key not found. Please set the encryption key environment variable."
@@ -203,14 +200,11 @@ encrypt_cfg_file <- function(
   cli::cli_alert_success("Successfully encrypted the config file: {.file cfg_file_encrypted}")
 
   return(config::get())
-
 }
 
 decrypt_cfg_file <- function(
     cfg_file = Sys.getenv("R_CONFIG_FILE", "inst/config/config.yml"),
-    key = "NOCLOCKS_ENCRYPTION_KEY"
-) {
-
+    key = "NOCLOCKS_ENCRYPTION_KEY") {
   if (!httr2::secret_has_key(key)) {
     rlang::abort(
       glue::glue(
@@ -242,5 +236,4 @@ decrypt_cfg_file <- function(
   cli::cli_alert_info("Set `R_CONFIG_FILE` to: {.file cfg_file}")
 
   return(invisible(config::get()))
-
 }

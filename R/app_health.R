@@ -7,7 +7,6 @@
 #  ------------------------------------------------------------------------
 
 app_healthcheck <- function(req) {
-
   now <- format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ")
 
   parsed_request <- parse_request(req)
@@ -58,7 +57,6 @@ app_healthcheck <- function(req) {
     content = resp_data_json,
     headers = list("Cache-Control" = "no-cache", "Pragma" = "no-cache")
   )
-
 }
 
 parse_req <- function(req) {
@@ -102,7 +100,6 @@ healthcheck_ui <- function(ui) {
 }
 
 entrata_healthcheck <- function(entrata_config = NULL) {
-
   if (is.null(entrata_config)) {
     entrata_config <- config::get(value = "entrata")
   }
@@ -130,11 +127,9 @@ entrata_healthcheck <- function(entrata_config = NULL) {
 
   resp |>
     httr2::resp_body_json()
-
 }
 
 db_healthcheck <- function(db_config = NULL) {
-
   if (is.null(db_config)) {
     db_config <- config::get(value = "db")
   }
@@ -168,5 +163,4 @@ db_healthcheck <- function(db_config = NULL) {
       )
     }
   )
-
 }

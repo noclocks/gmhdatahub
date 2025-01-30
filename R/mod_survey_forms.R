@@ -141,13 +141,13 @@ mod_survey_forms_ui <- function(id) {
         ),
         bslib::card_footer(
           htmltools::tags$small(
-            style = 'float: right;',
+            style = "float: right;",
             shiny::actionButton(
-              ns('edit_survey_section'),
-              'Edit',
-              icon = shiny::icon('edit'),
-              style = 'width: auto;',
-              class = 'btn-sm btn-primary'
+              ns("edit_survey_section"),
+              "Edit",
+              icon = shiny::icon("edit"),
+              style = "width: auto;",
+              class = "btn-sm btn-primary"
             )
           )
         )
@@ -329,7 +329,9 @@ mod_survey_forms_server <- function(
         pool = pool,
         selected_property_id = session$userData$selected_survey_property(),
         selected_competitor_id = input$competitor,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+        edit_survey_section = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
       unit_amenities_data <- mod_survey_unit_amenities_server(

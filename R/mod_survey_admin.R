@@ -161,23 +161,22 @@ mod_survey_admin_ui <- function(id) {
       #     )
       #   )
       # )
-
       bslib::card_header(
         bslib::card_header(
           # class = 'bg-dark text-white',
-          style = 'display: contents;',
-          bsicons::bs_icon('table'),
-          'Surveys',
+          style = "display: contents;",
+          bsicons::bs_icon("table"),
+          "Surveys",
           shiny::actionButton(
-            ns('add_survey'),
-            'Add Survey',
-            icon = shiny::icon('plus'),
-            class = 'btn-sm btn-primary float-end'
+            ns("add_survey"),
+            "Add Survey",
+            icon = shiny::icon("plus"),
+            class = "btn-sm btn-primary float-end"
           )
         )
       ),
       bslib::card_body(
-        reactable::reactableOutput(ns('surveys_admin_table')) |>
+        reactable::reactableOutput(ns("surveys_admin_table")) |>
           with_loader()
       )
     )
@@ -195,8 +194,7 @@ mod_survey_admin_server <- function(
     id,
     pool = NULL,
     global_filters = NULL,
-    navigate = NULL
-) {
+    navigate = NULL) {
   # validation of reactives
   if (!is.null(global_filters)) {
     stopifnot(shiny::is.reactive(global_filters))
@@ -570,7 +568,7 @@ mod_survey_admin_server <- function(
       surveys <- shiny::reactive({
         # Query existing surveys
         # TODO: move to function
-        db_read_tbl(pool, 'mkt_dump.surveys', collect = FALSE) |>
+        db_read_tbl(pool, "mkt_dump.surveys", collect = FALSE) |>
           # Query the most recent survey for each unique `property_name`
           dplyr::group_by(property_name, survey_week) |>
           dplyr::filter(created_at == max(created_at)) |>
@@ -602,16 +600,16 @@ mod_survey_admin_server <- function(
             #   show = FALSE,
             # ),
             property_name = reactable::colDef(
-              name = 'Property Name'
+              name = "Property Name"
             ),
             survey_week = reactable::colDef(
-              name = 'Survey Week'
+              name = "Survey Week"
             ),
             created_at = reactable::colDef(
-              name = 'Created At'
+              name = "Created At"
             ),
             user_email = reactable::colDef(
-              name = 'User Email'
+              name = "User Email"
             )
           )
         )
@@ -632,15 +630,15 @@ mod_survey_admin_server <- function(
 
         shiny::showModal(
           shiny::modalDialog(
-            size = 'm',
-            title = 'Add a New Survey',
+            size = "m",
+            title = "Add a New Survey",
             footer = shiny::tagList(
-              shiny::modalButton('Cancel'),
+              shiny::modalButton("Cancel"),
               shiny::actionButton(
-                ns('submit_add_survey'),
-                'Create',
-                icon = shiny::icon('plus'),
-                class = 'btn-primary'
+                ns("submit_add_survey"),
+                "Create",
+                icon = shiny::icon("plus"),
+                class = "btn-primary"
               )
             ),
             shinyWidgets::radioGroupButtons(
@@ -650,21 +648,21 @@ mod_survey_admin_server <- function(
               justified = TRUE
             ),
             shinyWidgets::pickerInput(
-              ns('add_survey_properties'),
-              'Competitor Property',
+              ns("add_survey_properties"),
+              "Competitor Property",
               choices = property_choices,
               multiple = FALSE,
               inline = FALSE,
-              width = '100%',
+              width = "100%",
               options = shinyWidgets::pickerOptions(
                 actionsBox = TRUE,
                 liveSearch = TRUE
               )
             ),
             shiny::textInput(
-              ns('add_survey_competitor_name'),
-              'Competitor Name',
-              placeholder = 'Property Name'
+              ns("add_survey_competitor_name"),
+              "Competitor Name",
+              placeholder = "Property Name"
             ) |> shinyjs::hidden()
           )
         )
@@ -672,10 +670,10 @@ mod_survey_admin_server <- function(
 
       # Show/Hide `Property` pickerInput in `Add Property` modal
       shiny::observeEvent(input$property_competitor_radio, {
-        if (input$property_competitor_radio == 'Property') {
-          shinyjs::hide('add_survey_competitor_name')
+        if (input$property_competitor_radio == "Property") {
+          shinyjs::hide("add_survey_competitor_name")
         } else {
-          shinyjs::show('add_survey_competitor_name')
+          shinyjs::show("add_survey_competitor_name")
         }
       })
 
@@ -693,9 +691,12 @@ mod_survey_admin_server <- function(
 
         session$userData$add_survey_trigger(new_survey_info)
 
-        on.exit({
-          navigate('survey_forms')
-        }, add = TRUE)
+        on.exit(
+          {
+            navigate("survey_forms")
+          },
+          add = TRUE
+        )
       })
 
 

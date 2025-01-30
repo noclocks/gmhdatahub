@@ -165,7 +165,7 @@ mod_survey_property_summary_ui <- function(id) {
                 htmltools::tags$strong(" Distance: "),
                 shiny::textOutput(ns("distance"), inline = TRUE)
               )
-            )#,
+            ) # ,
             # bslib::card_footer(
             #   class = "bg-light",
             #   htmltools::tags$small(
@@ -202,7 +202,7 @@ mod_survey_property_summary_ui <- function(id) {
             )
           )
         )
-      )#,
+      ) # ,
       # footer with last updated at timestamp & refresh button
       # bslib::card_footer(
       #   class = "text-muted d-flex justify-content-between align-items-center",
@@ -229,8 +229,7 @@ mod_survey_property_summary_server <- function(
     id,
     pool = NULL,
     selected_property_id = NULL,
-    edit_survey_section = NULL
-) {
+    edit_survey_section = NULL) {
   # validation of reactives
   if (!is.null(selected_property_id)) stopifnot(shiny::is.reactive(selected_property_id))
 
@@ -439,7 +438,6 @@ mod_survey_property_summary_server <- function(
 
       # shiny::observeEvent(input$edit, {
       shiny::observeEvent(edit_survey_section(), {
-
         if (session$userData$selected_survey_tab() != "nav_property_summary") {
           return()
         }
@@ -598,7 +596,7 @@ mod_survey_property_summary_server <- function(
               #   shinyjs::disabled(),
               actionButton(session$ns("save_changes"), "Save", class = "btn-primary"),
               modalButton("Cancel")
-            )#,
+            ) # ,
             # easyClose = TRUE
           )
         )

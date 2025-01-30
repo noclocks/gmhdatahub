@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Survey Amenities Shiny Module
@@ -43,7 +42,6 @@ NULL
 #' @importFrom htmltools tagList tags
 #' @importFrom bslib card
 mod_survey_property_amenities_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   htmltools::tagList(
@@ -67,7 +65,6 @@ mod_survey_property_amenities_ui <- function(id) {
       )
     )
   )
-
 }
 
 # server ------------------------------------------------------------------
@@ -81,13 +78,10 @@ mod_survey_property_amenities_server <- function(
     pool = NULL,
     selected_property_id = NULL,
     selected_competitor_id = NULL,
-    edit_survey_section = NULL
-) {
-
+    edit_survey_section = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_property_amenities_server()")
 
@@ -98,8 +92,12 @@ mod_survey_property_amenities_server <- function(
       # handle selected property ID
       if (is.null(selected_property_id)) {
         prop_id <- get_property_id_by_name("1047 Commonwealth Avenue")
-        selected_property_id <- shiny::reactive({ prop_id })
-        selected_property_name <- shiny::reactive({ get_property_name_by_id(prop_id) })
+        selected_property_id <- shiny::reactive({
+          prop_id
+        })
+        selected_property_name <- shiny::reactive({
+          get_property_name_by_id(prop_id)
+        })
       }
 
       # handle selected competitor ID
@@ -142,10 +140,10 @@ mod_survey_property_amenities_server <- function(
       })
 
       input_data <- shiny::reactive({
-        input_changes()  # Trigger on input changes
+        input_changes() # Trigger on input changes
         amenities <- property_amenities$amenity
 
-        purrr::map_df(amenities, ~{
+        purrr::map_df(amenities, ~ {
           tibble::tibble(
             amenity_name = .x,
             amenity_value = input[[.x]] %||% FALSE
@@ -219,15 +217,19 @@ mod_survey_property_amenities_server <- function(
                 )
               )
             )
-        })
+          }
+        )
 
         # Input change observer
         lapply(
           property_amenities$amenity,
           function(amenity) {
-            shiny::observeEvent(input[[amenity]], {
-              input_changes(input_changes() + 1)
-            }, ignoreInit = TRUE)
+            shiny::observeEvent(input[[amenity]],
+              {
+                input_changes(input_changes() + 1)
+              },
+              ignoreInit = TRUE
+            )
           }
         )
 
@@ -256,7 +258,6 @@ mod_survey_property_amenities_server <- function(
 
       # Changes preview -------------------------------------------------------
       output$changes_preview <- shiny::renderUI({
-
         diff <- changes() |>
           dplyr::mutate(
             amenity_name,
@@ -290,13 +291,11 @@ mod_survey_property_amenities_server <- function(
             )
           )
         )
-
       })
 
 
       # Save handler ----------------------------------------------------------
       shiny::observeEvent(input$save_changes, {
-
         new_values <- input_data() |>
           dplyr::mutate(
             updated_by = session$userData$user_id %||% "53b1207a-9066-49e4-9fcd-a6f439159759"
@@ -309,7 +308,6 @@ mod_survey_property_amenities_server <- function(
 
         db_refresh_trigger(db_refresh_trigger() + 1)
         shiny::removeModal()
-
       })
 
       # Summary display ------------------------------------------------------
@@ -329,8 +327,8 @@ mod_survey_property_amenities_server <- function(
             htmltools::tags$h3(
               class = "text-primary mb-2",
               bsicons::bs_icon(amenity_section_icons |>
-                                 dplyr::filter(category == !!category) |>
-                                 dplyr::pull(icon)),
+                dplyr::filter(category == !!category) |>
+                dplyr::pull(icon)),
               category
             ),
             if (nrow(amenities) > 0) {
@@ -342,7 +340,7 @@ mod_survey_property_amenities_server <- function(
                 ),
                 htmltools::tags$div(
                   class = "d-flex flex-wrap gap-2",
-                  purrr::map(amenities$amenity_name, ~{
+                  purrr::map(amenities$amenity_name, ~ {
                     htmltools::tags$span(
                       class = "badge bg-primary",
                       bsicons::bs_icon(
@@ -370,7 +368,8 @@ mod_survey_property_amenities_server <- function(
         property_amenities_data = property_amenities_data,
         refresh_trigger = db_refresh_trigger
       ))
-    })
+    }
+  )
 }
 
 # demo --------------------------------------------------------------------
@@ -378,7 +377,6 @@ mod_survey_property_amenities_server <- function(
 #' @rdname mod_survey_property_amenities
 #' @export
 mod_survey_property_amenities_demo <- function() {
-
   pkgload::load_all()
 
   ui <- bslib::page_navbar(
@@ -393,18 +391,20 @@ mod_survey_property_amenities_demo <- function() {
       icon = bsicons::bs_icon("house"),
       mod_survey_property_amenities_ui("demo"),
       shiny::actionButton(
-        'edit_survey_section',
-        'Edit',
-        icon = shiny::icon('edit'),
-        style = 'width: auto;',
-        class = 'btn-sm btn-primary'
+        "edit_survey_section",
+        "Edit",
+        icon = shiny::icon("edit"),
+        style = "width: auto;",
+        class = "btn-sm btn-primary"
       )
     )
   )
 
   server <- function(input, output, session) {
     pool <- db_connect()
-    edit_survey_section <- shiny::reactive({ input$edit_survey_section })
+    edit_survey_section <- shiny::reactive({
+      input$edit_survey_section
+    })
     mod_survey_property_amenities_server(
       "demo",
       pool = pool,

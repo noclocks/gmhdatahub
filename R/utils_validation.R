@@ -177,11 +177,14 @@ validate_address_regex <- function(address) {
 }
 
 validate_address_geocode <- function(address) {
-  geocode <- tryCatch({
-    geocode_address(address)
-  }, error = function(e) {
-    NULL
-  })
+  geocode <- tryCatch(
+    {
+      geocode_address(address)
+    },
+    error = function(e) {
+      NULL
+    }
+  )
 
   if (is.null(geocode)) {
     return(FALSE)
@@ -189,4 +192,3 @@ validate_address_geocode <- function(address) {
     return(TRUE)
   }
 }
-

@@ -34,9 +34,7 @@ run_app <- function(
     options = app_opts(port = port, host = host),
     enable_bookmarking = NULL,
     ui_pattern = ".*",
-    ...
-) {
-
+    ...) {
   # Set `noClocksAuthR` API URL conditionally based on environment
   noClocksAuthR:::set_api_url(api_url = auth_config$base_url)
 
