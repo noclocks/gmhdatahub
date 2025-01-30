@@ -43,7 +43,6 @@ Imports:
     plotly,
     pool,
     purrr,
-    R6,
     reactable,
     reactablefmtr,
     readr,
