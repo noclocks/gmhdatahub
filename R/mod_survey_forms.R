@@ -348,13 +348,19 @@ mod_survey_forms_server <- function(
       parking_data <- mod_survey_parking_server(
         "parking",
         pool = pool,
-        global_filters = global_filters
+        selected_property_id = session$userData$selected_survey_property(),
+        edit = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
       utilities_data <- mod_survey_utilities_server(
         "utilities",
         pool = pool,
-        global_filters = global_filters
+        selected_property_id = session$userData$selected_survey_property(),
+        edit = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
       notes_data <- mod_survey_notes_server(
