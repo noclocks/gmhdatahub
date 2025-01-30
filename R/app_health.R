@@ -97,6 +97,8 @@ healthcheck_ui <- function(ui) {
     }
     initial_ui(req)
   }
+
+  return(app_ui)
 }
 
 entrata_healthcheck <- function(entrata_config = NULL) {
