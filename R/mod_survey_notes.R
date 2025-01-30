@@ -50,7 +50,6 @@ NULL
 #' @importFrom shiny showNotification removeModal
 #' @importFrom htmltools tags tagList
 create_note_card <- function(note, ns) {
-
   status_colors <- c(
     "pending" = "warning",
     "in_progress" = "info",

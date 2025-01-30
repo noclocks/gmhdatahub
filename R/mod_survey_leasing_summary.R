@@ -51,151 +51,151 @@ mod_survey_leasing_summary_ui <- function(id) {
   htmltools::tagList(
     bslib::page_fluid(
       # bslib::layout_sidebar(
-        # sidebar = bslib::sidebar(
-        #   shiny::dateInput(
-        #     ns("leasing_week"),
-        #     label = "Leasing Week",
-        #     value = NULL,
-        #     weekstart = 1,
-        #     min = min_leasing_week,
-        #     max = max_leasing_week
+      # sidebar = bslib::sidebar(
+      #   shiny::dateInput(
+      #     ns("leasing_week"),
+      #     label = "Leasing Week",
+      #     value = NULL,
+      #     weekstart = 1,
+      #     min = min_leasing_week,
+      #     max = max_leasing_week
+      #   )
+      # ),
+      bslib::card(
+        # bslib::card_header(
+        #   class = "d-flex justify-content-between align-items-center",
+        #   htmltools::tags$h3(
+        #     class = "m-0",
+        #     "Leasing Summary"
+        #   ),
+        #   shiny::actionButton(
+        #     ns("edit"),
+        #     "Edit",
+        #     icon = shiny::icon("edit"),
+        #     class = "btn-sm btn-primary"
         #   )
         # ),
-        bslib::card(
-          # bslib::card_header(
-          #   class = "d-flex justify-content-between align-items-center",
-          #   htmltools::tags$h3(
-          #     class = "m-0",
-          #     "Leasing Summary"
-          #   ),
-          #   shiny::actionButton(
-          #     ns("edit"),
-          #     "Edit",
-          #     icon = shiny::icon("edit"),
-          #     class = "btn-sm btn-primary"
-          #   )
-          # ),
-          bslib::card_body(
-            bslib::layout_columns(
-              col_widths = c(6, 6, 6, 6),
-              bslib::card(
-                bslib::card_header(
-                  "Occupancy Statistics"
+        bslib::card_body(
+          bslib::layout_columns(
+            col_widths = c(6, 6, 6, 6),
+            bslib::card(
+              bslib::card_header(
+                "Occupancy Statistics"
+              ),
+              bslib::card_body(
+                bslib::value_box(
+                  title = "Current Occupancy %",
+                  value = shiny::textOutput(ns("current_occupancy")),
+                  theme = "primary",
+                  showcase = bsicons::bs_icon("people")
                 ),
-                bslib::card_body(
-                  bslib::value_box(
-                    title = "Current Occupancy %",
-                    value = shiny::textOutput(ns("current_occupancy")),
-                    theme = "primary",
-                    showcase = bsicons::bs_icon("people")
+                bslib::value_box(
+                  title = "Current Pre-Lease %",
+                  value = shiny::textOutput(ns("current_pre_lease")),
+                  theme = "primary",
+                  showcase = bsicons::bs_icon("graph-up")
+                ),
+                bslib::value_box(
+                  title = "Prior Year Occupancy %",
+                  value = shiny::textOutput(ns("prior_occupancy")),
+                  theme = "secondary",
+                  showcase = bsicons::bs_icon("clock-history")
+                ),
+                bslib::value_box(
+                  title = "Prior Year Pre-Lease %",
+                  value = shiny::textOutput(ns("prior_pre_lease")),
+                  theme = "secondary",
+                  showcase = bsicons::bs_icon("clock-history")
+                )
+              )
+            ),
+            bslib::card(
+              bslib::card_header(
+                "Important Dates"
+              ),
+              bslib::card_body(
+                htmltools::tags$p(
+                  htmltools::tags$strong(
+                    "Lease Launch: "
                   ),
-                  bslib::value_box(
-                    title = "Current Pre-Lease %",
-                    value = shiny::textOutput(ns("current_pre_lease")),
-                    theme = "primary",
-                    showcase = bsicons::bs_icon("graph-up")
+                  shiny::textOutput(ns("lease_launch"), inline = TRUE)
+                ),
+                htmltools::tags$p(
+                  htmltools::tags$strong(
+                    "Renewal Launch: "
                   ),
-                  bslib::value_box(
-                    title = "Prior Year Occupancy %",
-                    value = shiny::textOutput(ns("prior_occupancy")),
-                    theme = "secondary",
-                    showcase = bsicons::bs_icon("clock-history")
+                  shiny::textOutput(ns("renewal_launch"), inline = TRUE)
+                ),
+                htmltools::tags$p(
+                  htmltools::tags$strong(
+                    "Reporting Cycle: "
                   ),
-                  bslib::value_box(
-                    title = "Prior Year Pre-Lease %",
-                    value = shiny::textOutput(ns("prior_pre_lease")),
-                    theme = "secondary",
-                    showcase = bsicons::bs_icon("clock-history")
+                  shiny::textOutput(ns("reporting_cycle"), inline = TRUE)
+                ),
+                htmltools::tags$p(
+                  htmltools::tags$strong(
+                    "Last Updated: ",
+                    shiny::textOutput(ns("last_updated"), inline = TRUE)
                   )
                 )
+              )
+            ),
+            bslib::card(
+              bslib::card_header(
+                "Leasing Activity"
               ),
-              bslib::card(
-                bslib::card_header(
-                  "Important Dates"
-                ),
-                bslib::card_body(
-                  htmltools::tags$p(
-                    htmltools::tags$strong(
-                      "Lease Launch: "
-                    ),
-                    shiny::textOutput(ns("lease_launch"), inline = TRUE)
+              bslib::card_body(
+                bslib::layout_columns(
+                  col_widths = c(6, 6),
+                  bslib::value_box(
+                    title = "Total Renewals",
+                    value = shiny::textOutput(ns("total_renewals")),
+                    theme = "success",
+                    showcase = bsicons::bs_icon("arrow-repeat")
                   ),
-                  htmltools::tags$p(
-                    htmltools::tags$strong(
-                      "Renewal Launch: "
-                    ),
-                    shiny::textOutput(ns("renewal_launch"), inline = TRUE)
-                  ),
-                  htmltools::tags$p(
-                    htmltools::tags$strong(
-                      "Reporting Cycle: "
-                    ),
-                    shiny::textOutput(ns("reporting_cycle"), inline = TRUE)
-                  ),
-                  htmltools::tags$p(
-                    htmltools::tags$strong(
-                      "Last Updated: ",
-                      shiny::textOutput(ns("last_updated"), inline = TRUE)
-                    )
+                  bslib::value_box(
+                    title = "Total New Leases",
+                    value = shiny::textOutput(ns("total_new_leases")),
+                    theme = "success",
+                    showcase = bsicons::bs_icon("file-earmark-plus")
                   )
+                ),
+                htmltools::tags$p(
+                  htmltools::tags$strong(
+                    "Weekly Leases: "
+                  ),
+                  shiny::textOutput(ns("weekly_leases"), inline = TRUE)
+                ),
+                htmltools::tags$p(
+                  htmltools::tags$strong(
+                    "Weekly Traffic: "
+                  ),
+                  shiny::textOutput(ns("weekly_traffic"), inline = TRUE)
                 )
+              )
+            ),
+            bslib::card(
+              bslib::card_header(
+                "Incentives"
               ),
-              bslib::card(
-                bslib::card_header(
-                  "Leasing Activity"
+              bslib::card_body(
+                htmltools::tags$p(
+                  htmltools::tags$strong(
+                    "Current Incentive: "
+                  ),
+                  shiny::textOutput(ns("current_incentive"), inline = TRUE)
                 ),
-                bslib::card_body(
-                  bslib::layout_columns(
-                    col_widths = c(6, 6),
-                    bslib::value_box(
-                      title = "Total Renewals",
-                      value = shiny::textOutput(ns("total_renewals")),
-                      theme = "success",
-                      showcase = bsicons::bs_icon("arrow-repeat")
-                    ),
-                    bslib::value_box(
-                      title = "Total New Leases",
-                      value = shiny::textOutput(ns("total_new_leases")),
-                      theme = "success",
-                      showcase = bsicons::bs_icon("file-earmark-plus")
-                    )
+                htmltools::tags$p(
+                  htmltools::tags$strong(
+                    "Incentive Amount: "
                   ),
-                  htmltools::tags$p(
-                    htmltools::tags$strong(
-                      "Weekly Leases: "
-                    ),
-                    shiny::textOutput(ns("weekly_leases"), inline = TRUE)
-                  ),
-                  htmltools::tags$p(
-                    htmltools::tags$strong(
-                      "Weekly Traffic: "
-                    ),
-                    shiny::textOutput(ns("weekly_traffic"), inline = TRUE)
-                  )
-                )
-              ),
-              bslib::card(
-                bslib::card_header(
-                  "Incentives"
-                ),
-                bslib::card_body(
-                  htmltools::tags$p(
-                    htmltools::tags$strong(
-                      "Current Incentive: "
-                    ),
-                    shiny::textOutput(ns("current_incentive"), inline = TRUE)
-                  ),
-                  htmltools::tags$p(
-                    htmltools::tags$strong(
-                      "Incentive Amount: "
-                    ),
-                    shiny::textOutput(ns("incentive_amount"), inline = TRUE)
-                  )
+                  shiny::textOutput(ns("incentive_amount"), inline = TRUE)
                 )
               )
             )
           )
         )
+      )
       # )
     )
   )
@@ -212,8 +212,7 @@ mod_survey_leasing_summary_server <- function(
     id,
     pool = NULL,
     selected_property_id = NULL,
-    edit_survey_section = NULL
-) {
+    edit_survey_section = NULL) {
   # validation of reactives
   if (!is.null(selected_property_id)) stopifnot(shiny::is.reactive(selected_property_id))
 
@@ -567,9 +566,9 @@ mod_survey_leasing_summary_server <- function(
                 "Save",
                 class = "btn-primary"
               ), # |>
-                # shinyjs::disabled(),
+              # shinyjs::disabled(),
               shiny::modalButton("Cancel")
-            )#,
+            ) # ,
             # easyClose = TRUE
           )
         )

@@ -46,7 +46,7 @@ mod_survey_unit_amenities_ui <- function(id) {
 
   htmltools::tagList(
     bslib::card(
-      reactable::reactableOutput(ns('survey_unit_amenities_tbl'))
+      reactable::reactableOutput(ns("survey_unit_amenities_tbl"))
     )
   )
 }
@@ -62,9 +62,7 @@ mod_survey_unit_amenities_server <- function(
     id,
     pool = NULL,
     selected_property_id = NULL,
-    edit_survey_section = NULL
-) {
-
+    edit_survey_section = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {

@@ -46,7 +46,7 @@ mod_survey_fees_ui <- function(id) {
 
   htmltools::tagList(
     bslib::card(
-      reactable::reactableOutput(ns('survey_fees_tbl'))
+      reactable::reactableOutput(ns("survey_fees_tbl"))
     )
   )
 }
@@ -63,8 +63,7 @@ mod_survey_fees_server <- function(
     pool = NULL,
     global_filters = NULL,
     selected_property_id = NULL,
-    edit_survey_section = NULL
-) {
+    edit_survey_section = NULL) {
   # check database connection
   if (is.null(pool)) pool <- db_connect()
   check_db_conn(pool)
@@ -113,20 +112,20 @@ mod_survey_fees_server <- function(
 
         if (nrow(data) == 0) {
           data <- tibble::tribble(
-            ~'Fees', ~'Amount', ~'Frequency',
-            'Application Fee', '$0', 'Monthly',
-            'Administration Fee', '$0', 'Monthly',
-            'Fee Structure', 'Both Fees Waived', 'Monthly',
-            'Utility Set Up Fee', '$0', 'Monthly',
-            'Utility Deposit', '$0', 'Monthly',
-            'Amenity Fee', '$0', 'Monthly',
-            'Common Area Fee', '$0', 'Monthly',
-            'Smart Home Fee', '$0', 'Monthly',
-            'Restoration Fee', '$0', 'Monthly',
-            'Security Deposit', '$1000', 'Monthly',
-            'Pet Fee', '$0', 'Monthly',
-            'Pet Deposit', '$0', 'Monthly',
-            'Pet Rent', '$0', 'Monthly'
+            ~"Fees", ~"Amount", ~"Frequency",
+            "Application Fee", "$0", "Monthly",
+            "Administration Fee", "$0", "Monthly",
+            "Fee Structure", "Both Fees Waived", "Monthly",
+            "Utility Set Up Fee", "$0", "Monthly",
+            "Utility Deposit", "$0", "Monthly",
+            "Amenity Fee", "$0", "Monthly",
+            "Common Area Fee", "$0", "Monthly",
+            "Smart Home Fee", "$0", "Monthly",
+            "Restoration Fee", "$0", "Monthly",
+            "Security Deposit", "$1000", "Monthly",
+            "Pet Fee", "$0", "Monthly",
+            "Pet Deposit", "$0", "Monthly",
+            "Pet Rent", "$0", "Monthly"
           )
         }
 
@@ -175,20 +174,20 @@ mod_survey_fees_server <- function(
 
         if (nrow(data) == 0) {
           data <- tibble::tribble(
-            ~'Fees', ~'Amount', ~'Frequency',
-            'Application Fee', '$0', 'Monthly',
-            'Administration Fee', '$0', 'Monthly',
-            'Fee Structure', 'Both Fees Waived', 'Monthly',
-            'Utility Set Up Fee', '$0', 'Monthly',
-            'Utility Deposit', '$0', 'Monthly',
-            'Amenity Fee', '$0', 'Monthly',
-            'Common Area Fee', '$0', 'Monthly',
-            'Smart Home Fee', '$0', 'Monthly',
-            'Restoration Fee', '$0', 'Monthly',
-            'Security Deposit', '$1000', 'Monthly',
-            'Pet Fee', '$0', 'Monthly',
-            'Pet Deposit', '$0', 'Monthly',
-            'Pet Rent', '$0', 'Monthly'
+            ~"Fees", ~"Amount", ~"Frequency",
+            "Application Fee", "$0", "Monthly",
+            "Administration Fee", "$0", "Monthly",
+            "Fee Structure", "Both Fees Waived", "Monthly",
+            "Utility Set Up Fee", "$0", "Monthly",
+            "Utility Deposit", "$0", "Monthly",
+            "Amenity Fee", "$0", "Monthly",
+            "Common Area Fee", "$0", "Monthly",
+            "Smart Home Fee", "$0", "Monthly",
+            "Restoration Fee", "$0", "Monthly",
+            "Security Deposit", "$1000", "Monthly",
+            "Pet Fee", "$0", "Monthly",
+            "Pet Deposit", "$0", "Monthly",
+            "Pet Rent", "$0", "Monthly"
           )
         }
 
@@ -196,7 +195,7 @@ mod_survey_fees_server <- function(
           data = data,
           contextMenu = FALSE,
           rowHeaders = NULL,
-          colHeaders = c('Fees', 'Amount', 'Frequency')#,
+          colHeaders = c("Fees", "Amount", "Frequency") # ,
           # width = width,
           # height = height
         ) |>
@@ -232,8 +231,8 @@ mod_survey_fees_server <- function(
           ) |>
           rhandsontable::hot_col(
             col = 3,
-            type = 'dropdown',
-            source = c('Monthly', 'Annual')
+            type = "dropdown",
+            source = c("Monthly", "Annual")
           )
       })
 

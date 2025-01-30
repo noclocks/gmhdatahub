@@ -190,9 +190,11 @@ unit_amenities <- amenities_data |>
 
 unit_amenities_premium_inputs <- tibble::tibble(
   category = c(rep("TV Rental Rates", 2), rep("Premium Options", 5)),
-  rate_name = c("Bedroom TV Rate", "Common Area TV Rate",
-                "Floor Premium", "Poolside Premium", "Top Floor Premium",
-                "View Premium", "Other Premium"),
+  rate_name = c(
+    "Bedroom TV Rate", "Common Area TV Rate",
+    "Floor Premium", "Poolside Premium", "Top Floor Premium",
+    "View Premium", "Other Premium"
+  ),
   value = 0
 )
 

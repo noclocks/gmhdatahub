@@ -79,8 +79,7 @@ mod_survey_short_term_leases_server <- function(
     pool = NULL,
     global_filters = NULL,
     selected_property_id = NULL,
-    edit_survey_section = NULL
-) {
+    edit_survey_section = NULL) {
   # check database connection
   if (is.null(pool)) pool <- db_connect()
   check_db_conn(pool)

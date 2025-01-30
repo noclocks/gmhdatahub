@@ -159,7 +159,6 @@ survey_choices_lst <- list(
       "Other"
     )
   ),
-
   utilities = list(
     core_utility_types = c(
       "Electricity",

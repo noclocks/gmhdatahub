@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Shiny App Theme
@@ -25,7 +24,6 @@
 #' @examples
 #' gmh_colors("primary", "secondary")
 gmh_colors <- function(...) {
-
   colors <- c(
     primary = "#0e2b4c",
     secondary = "#6c757d",
@@ -68,7 +66,6 @@ gmh_colors <- function(...) {
 #'
 #' @importFrom bslib bs_theme
 app_theme_ui <- function(preset = "shiny", ...) {
-
   bslib::bs_theme(
     version = 5,
     preset = preset,
@@ -86,7 +83,6 @@ app_theme_ui <- function(preset = "shiny", ...) {
     dark = gmh_colors("dark"),
     ...
   )
-
 }
 
 #' Preview App Theme
@@ -103,13 +99,11 @@ app_theme_ui <- function(preset = "shiny", ...) {
 #'
 #' @importFrom bslib bs_theme_preview
 preview_app_theme <- function(...) {
-
   bslib::bs_theme_preview(
     theme = app_theme_ui(),
     with_themer = TRUE,
     ...
   )
-
 }
 
 
@@ -127,7 +121,6 @@ preview_app_theme <- function(...) {
 #'
 #' @importFrom reactable reactableTheme
 reactable_theme <- function(...) {
-
   header_style <- list(
     backgroundColor = gmh_colors("primary"),
     color = gmh_colors("light"),
@@ -170,6 +163,4 @@ reactable_theme <- function(...) {
     searchInputStyle = list(width = "100%"),
     ...
   )
-
 }
-
