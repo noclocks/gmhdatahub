@@ -43,9 +43,11 @@ Imports:
     plotly,
     pool,
     purrr,
+    R6,
     reactable,
     reactablefmtr,
     readr,
+    rhandsontable,
     rintrojs,
     rlang,
     RPostgres,
@@ -59,6 +61,7 @@ Imports:
     tibble,
     tidyr,
     tidyselect,
+    utils,
     waiter,
     withr
 Suggests:

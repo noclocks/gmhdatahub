@@ -7,10 +7,10 @@
 app_info(...)
 }
 \arguments{
-\item{...}{character vectors, specifying the information to retrieve.}
+\item{...}{The information to retrieve.}
 }
 \value{
-A list of information about the app.
+The requested information.
 }
 \description{
 This function provides information about the app.

@@ -9,7 +9,13 @@
 \usage{
 mod_survey_short_term_leases_ui(id)
 
-mod_survey_short_term_leases_server(id, pool = NULL, global_filters = NULL)
+mod_survey_short_term_leases_server(
+  id,
+  pool = NULL,
+  global_filters = NULL,
+  selected_property_id = NULL,
+  edit_survey_section = NULL
+)
 
 mod_survey_short_term_leases_demo()
 }

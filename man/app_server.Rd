@@ -15,8 +15,4 @@ The server for the Shiny application.
 \description{
 This is the main server function for the Shiny application.
 }
-\seealso{
-Other \strong{Shiny App}: 
-\code{\link{app_ui}()}
-}
 \concept{\strong{Shiny App}}

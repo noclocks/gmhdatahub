@@ -13,6 +13,8 @@ mod_survey_leasing_summary_server(
   id,
   pool = NULL,
   selected_property_id = NULL,
+  selected_company_id = NULL,
+  selected_leasing_week_id = NULL,
   edit_survey_section = NULL
 )
 
