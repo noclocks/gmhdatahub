@@ -163,10 +163,10 @@ mod_survey_admin_ui <- function(id) {
       ),
       bslib::card(
         bslib::card_header(
-          class = 'bg-dark text-white',
-          style = 'display: contents;',
-          bsicons::bs_icon('table'),
-          'Surveys',
+          class = "bg-dark text-white",
+          style = "display: contents;",
+          bsicons::bs_icon("table"),
+          "Surveys",
           shiny::actionButton(
             ns("add_survey"),
             "Add Survey",
@@ -175,7 +175,7 @@ mod_survey_admin_ui <- function(id) {
           )
         ),
         bslib::card_body(
-          reactable::reactableOutput(ns('surveys_admin_table')) |>
+          reactable::reactableOutput(ns("surveys_admin_table")) |>
             with_loader()
         )
       )
