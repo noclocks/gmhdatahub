@@ -91,3 +91,5 @@ app_favicon <- function(path = "www/favicon.ico") {
     )
   )
 }
+
+    htmltools::tags$link(href = "www/styles/css/custom-styles.css", rel = "stylesheet")
