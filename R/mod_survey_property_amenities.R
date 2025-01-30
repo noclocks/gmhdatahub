@@ -103,11 +103,15 @@ mod_survey_property_amenities_server <- function(
       }
 
       # handle selected competitor ID
-      if (!is.null(selected_competitor_id) || !is.null(session$userData$selected_survey_competitor_id)) {
-        comp_id <- selected_competitor_id %||% session$userData$selected_survey_competitor_id
-        selected_competitor_id <- shiny::reactive({ comp_id })
-        selected_property_name <- shiny::reactive({ get_competitor_name_by_id(comp_id) })
-      }
+      # if (!is.null(selected_competitor_id) || !is.null(session$userData$selected_survey_competitor_id)) {
+      #   if (selected_competitor_id != 0 || selected_competitor_id != "none") {
+      #     comp_id <- selected_competitor_id %||% session$userData$selected_survey_competitor_id
+      #     selected_competitor_id <- shiny::reactive({ comp_id })
+      #     selected_property_name <- shiny::reactive({ get_competitor_name_by_id(comp_id) })
+      #   } else {
+      #     selected_competitor_id <- shiny::reactive({ NULL })
+      #   }
+      # }
 
       db_refresh_trigger <- shiny::reactiveVal(0)
       iv <- shinyvalidate::InputValidator$new()

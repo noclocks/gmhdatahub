@@ -64,20 +64,16 @@ mod_survey_unit_amenities_server <- function(
     selected_property_id = NULL,
     edit_survey_section = NULL
 ) {
-  # check database connection
-  if (is.null(pool)) pool <- db_connect()
-  check_db_conn(pool)
-
-  # validation of reactives
-  if (!is.null(global_filters)) {
-    stopifnot(shiny::is.reactive(global_filters))
-  }
 
   shiny::moduleServer(
     id,
     function(input, output, session) {
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_unit_amenities_server()")
+
+      # check database connection
+      if (is.null(pool)) pool <- db_connect()
+      check_db_conn(pool)
 
       # handle selected property ID
       if (is.null(selected_property_id)) {

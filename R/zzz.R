@@ -11,6 +11,7 @@
 .onLoad <- function(libname, pkgname) { # nocov start
 
   Sys.setenv("R_CONFIG_FILE" = pkg_sys("config/config.yml"))
+  decrypt_cfg_file()
 
   shiny::addResourcePath("www", pkg_sys("www"))
 
