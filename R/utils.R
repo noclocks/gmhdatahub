@@ -117,6 +117,26 @@ get_property_id_by_name <- function(property_name) {
   get_default_app_choices("properties")[[property_name]]
 }
 
+get_competitor_name_by_id <- function(competitor_id) {
+  valid_competitor_ids <- get_default_app_choices("competitors")
+  if (!competitor_id %in% valid_competitor_ids) {
+    cli::cli_abort("{.arg competitor_id} is not a valid competitor ID.")
+  }
+
+  names(
+    get_default_app_choices("competitors")
+  )[which(get_default_app_choices("competitors") == competitor_id)]
+}
+
+get_competitor_id_by_name <- function(competitor_name) {
+  valid_competitor_names <- names(get_default_app_choices("competitors"))
+  if (!competitor_name %in% valid_competitor_names) {
+    cli::cli_abort("{.arg competitor_name} is not a valid competitor name.")
+  }
+
+  get_default_app_choices("competitors")[[competitor_name]]
+}
+
 #' NULL Coalescing Operator
 #'
 #' @description
@@ -126,9 +146,7 @@ get_property_id_by_name <- function(property_name) {
 #' @param x, y Values to compare.
 #'
 #' @keywords internal
-"%||%" <- function(x, y) {
-  if (is.null(x)) y else x
-}
+`%||%` <- rlang::`%||%`
 
 #' Inverted versions of in
 #' @noRd
