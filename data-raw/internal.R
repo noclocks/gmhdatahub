@@ -18,6 +18,11 @@ source("data-raw/scripts/survey.R")
 usethis::use_data(
   app_choices_lst,
   survey_choices_lst,
+  amenity_section_icons,
+  amenities_data,
+  property_amenities,
+  unit_amenities,
+  survey_amenities_tbl,
   gmh_competitors_lst,
   gmh_portfolios_lst,
   gmh_segments_lst,

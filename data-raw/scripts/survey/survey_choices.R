@@ -124,19 +124,19 @@ survey_choices_lst <- list(
     )
   ),
   unit_amenities = list(
-    unit_amenity_types_general = c(
-      "Private Bathroom",
-      "Walk-In Closets",
-      "Washer / Dryer in Unit",
-      "Smart Home Technology",
-      "Smart Bedroom Locks",
-      "Smart Unit Locks",
-      "Energy Efficient Appliances",
-      "Stainless Steel Appliances",
-      "Balconies",
-      "Patios",
-      "Backyards",
-    ),
+    # unit_amenity_types_general = c(
+    #   "Private Bathroom",
+    #   "Walk-In Closets",
+    #   "Washer / Dryer in Unit",
+    #   "Smart Home Technology",
+    #   "Smart Bedroom Locks",
+    #   "Smart Unit Locks",
+    #   "Energy Efficient Appliances",
+    #   "Stainless Steel Appliances",
+    #   "Balconies",
+    #   "Patios",
+    #   "Backyards",
+    # ),
     unit_amenity_types_included_in_rent = c(
       "TV Included in Rent",
       "Furniture Included in Rent",
