@@ -112,6 +112,10 @@ mod_survey_unit_amenities_server <- function(
       # handle selected competitor ID
       if (is.null(selected_competitor_id)) {
         selected_competitor_id <- shiny::reactive({ "none" })
+      } else if (shiny::is.reactive(selected_competitor_id)) {
+        if (selected_competitor_id() == "none") {
+          selected_competitor_id <- shiny::reactive({ "none" })
+        }
       }
 
       # initialize reactives
@@ -122,23 +126,23 @@ mod_survey_unit_amenities_server <- function(
       # selected property/competitor ID
       current_id <- shiny::reactive({
         # determine if reactive has any value
-        if (shiny::is.reactive(selected_competitor_id())) {
-          if (selected_competitor_id() != "none") {
-            selected_compertitor_id()
-          } else {
+        # if (shiny::is.reactive(selected_competitor_id)) {
+        #   if (selected_competitor_id() != "none") {
+        #     selected_compertitor_id()
+        #   } else {
             selected_property_id()
-          }
-        } else {
-          selected_property_id()
-        }
+          # }
+        # } else {
+          # selected_property_id()
+        # }
       })
 
       current_name <- shiny::reactive({
-        if (selected_competitor_id() != "none") {
-          get_competitor_name_by_id(selected_competitor_id())
-        } else {
+        # if (selected_competitor_id() != "none") {
+        #   get_competitor_name_by_id(selected_competitor_id())
+        # } else {
           get_property_name_by_id(selected_property_id())
-        }
+        # }
       })
 
       # initial data
