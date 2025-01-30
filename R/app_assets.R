@@ -31,7 +31,7 @@ add_external_resources <- function() {
   )
 
   htmltools::tags$head(
-    shiny::useBusyIndicators(),
+    # shiny::useBusyIndicators(),
     # shinylogs::use_tracking(app_name = app_info("name")),
     shinyjs::useShinyjs(),
     waiter::use_waiter(),

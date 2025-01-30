@@ -163,7 +163,7 @@ app_ui <- function(req = NULL) {
         bslib::nav_item(
           tags$a(
             icon("book"), "Documentation",
-            href = pkg_sys("docs/index.html"),
+            href = "#", #pkg_sys("docs/index.html"),
             target = "_blank"
           )
         ),

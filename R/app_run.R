@@ -37,7 +37,6 @@ run_app <- function(
     ...
 ) {
 
-  # Set `noClocksAuthR` API URL conditionally based on environment
   noClocksAuthR:::set_api_url(api_url = auth_config$base_url)
 
   ui <- noClocksAuthR::secure_ui(
@@ -107,10 +106,10 @@ app_opts <- function(...) {
   current_options_names <- sub("^shiny\\.", "", names(current_options))
   opts_to_override <- intersect(names(valid_options), names(current_options))
   if (length(opts_to_override) > 0) {
-    cli::cli_alert_warning(c(
-      "The following Shiny options are already set and will be overridden:",
-      "{.field {opts_to_override}}"
-    ))
+    # cli::cli_alert_warning(c(
+    #   "The following Shiny options are already set and will be overridden:",
+    #   "{.field {opts_to_override}}"
+    # ))
   }
   do.call(options, valid_options)
   invisible(current_options)
