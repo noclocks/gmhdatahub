@@ -9,7 +9,7 @@
 \usage{
 mod_survey_forms_ui(id)
 
-mod_survey_forms_server(id, pool = NULL)
+mod_survey_forms_server(id, pool = NULL, global_filters = NULL)
 
 mod_survey_forms_demo()
 }
