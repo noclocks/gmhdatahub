@@ -198,19 +198,20 @@ mod_survey_forms_server <- function(
       })
 
       session$userData$selected_survey_property <- shiny::reactiveVal(NULL)
+      session$userData$selected_survey_competitor <- shiny::reactiveVal(NULL)
 
       shiny::observeEvent(input$property, {
         session$userData$selected_survey_property(input$property)
       })
 
-      # session$userData$selected_survey_competitor <- shiny::reactiveVal(NULL)
-
       shiny::observeEvent(input$competitor, {
         # session$userData$selected_survey_competitor(input$competitor)
         if (input$competitor != "none") {
-          session$userData$selected_survey_property(input$competitor)
+          # session$userData$selected_survey_property(input$property)
+          session$userData$selected_survey_competitor(input$competitor)
         } else {
-          session$userData$selected_survey_property(input$property)
+          # session$userData$selected_survey_property(input$property)
+          session$userData$selected_survey_competitor(NULL)
         }
       })
 
