@@ -509,3 +509,32 @@ mod_survey_notes_server <- function(id, pool = NULL, global_filters = NULL) {
     })
   })
 }
+
+mod_survey_notes_demo <- function(pool = NULL) {
+
+  pkgload::load_all()
+
+  ui <- bslib::page_navbar(
+    title = "Demo: Survey Notes Section",
+    window_title = "Demo: Survey Property Summary",
+    theme = bslib::bs_theme(version = 5),
+    lang = "en",
+    bslib::nav_spacer(),
+    bslib::nav_panel(
+      title = "Survey Property Summary",
+      value = "survey_property_summary",
+      icon = bsicons::bs_icon("house"),
+      shinyjs::useShinyjs(),
+      mod_survey_notes_ui("demo")
+    )
+  )
+
+  server <- function(input, output, session) {
+    if (is.null(pool)) pool <- db_connect()
+    mod_survey_notes_server("demo", pool = pool)
+  }
+
+  shiny::shinyApp(ui, server)
+}
+
+# utilities ---------------------------------------------------------------

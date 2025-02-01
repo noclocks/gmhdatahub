@@ -63,9 +63,9 @@ mod_survey_forms_ui <- function(id) {
       #     )
       #   )
       # ),
-      bslib::navset_card_underline(
+      bslib::navset_card_tab(
         id = ns("survey_tabs"),
-        title = "GMH Communities - Leasing Market Survey Sections",
+        # title = "GMH Communities - Leasing Market Survey Sections",
         sidebar = bslib::sidebar(
           title = icon_text("filter", "Filters"),
           width = 300,
@@ -87,18 +87,6 @@ mod_survey_forms_ui <- function(id) {
             value = current_week_start,
             weekstart = 1,
             daysofweekdisabled = c(0, 2:6)
-          )
-        ),
-        footer = bslib::card_footer(
-          htmltools::tags$small(
-            style = "float: right;",
-            shiny::actionButton(
-              ns("edit_survey_section"),
-              "Edit",
-              icon = shiny::icon("edit"),
-              style = "width: auto;",
-              class = "btn-sm btn-primary"
-            )
           )
         ),
         bslib::nav_panel(
@@ -150,6 +138,18 @@ mod_survey_forms_ui <- function(id) {
           title = "Rents",
           value = "nav_rents",
           mod_survey_rents_ui(ns("rents"))
+        ),
+        bslib::card_footer(
+          htmltools::tags$small(
+            style = 'float: right;',
+            shiny::actionButton(
+              ns('edit_survey_section'),
+              'Edit',
+              icon = shiny::icon('edit'),
+              style = 'width: auto;',
+              class = 'btn-sm btn-primary'
+            )
+          )
         )
       )
     )
@@ -338,7 +338,8 @@ mod_survey_forms_server <- function(
         "unit_amenities",
         pool = pool,
         selected_property_id = session$userData$selected_survey_property(),
-        edit = shiny::reactive({
+        selected_competitor_id = input$competitor,
+        edit_survey_section = shiny::reactive({
           input$edit_survey_section
         })
       )

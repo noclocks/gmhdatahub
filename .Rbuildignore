@@ -29,3 +29,4 @@ _\.new\.png$
 ^pkg\.lock$
 ^CHANGELOG\.md$
 config.yml
+^air\.toml$

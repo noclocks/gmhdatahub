@@ -25,6 +25,7 @@ use_module("survey_amenities")
 use_module("survey_parking")
 use_module("survey_utilities")
 use_module("survey_notes")
+use_module("survey_hours")
 use_module("survey_rents")
 
 use_module("wizard")

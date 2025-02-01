@@ -49,13 +49,13 @@ mod_survey_property_summary_ui <- function(id) {
       full_screen = TRUE,
       style = "overflow-y: visible;",
       class = "property-card shadow-sm",
-      # bslib::card_header(
-      #   class = "d-flex justify-content-between align-items-center",
-      #   htmltools::tags$h3(
-      #     class = "m-0",
-      #     shiny::textOutput(ns("property_name_title"))
-      #   )
-      # ),
+      bslib::card_header(
+        class = "d-flex justify-content-between align-items-center",
+        htmltools::tags$h3(
+          class = "m-0",
+          shiny::textOutput(ns("property_name_title"))
+        )
+      ),
       bslib::card_body(
         class = "pt-3 pb-0",
         style = "overflow-y: visible;",
@@ -65,14 +65,14 @@ mod_survey_property_summary_ui <- function(id) {
 
           # image card display
           bslib::card(
-            # full_screen = TRUE,
-            # bslib::card_header(
-            #   class = "d-flex justify-content-between align-items-center",
-            #   htmltools::tags$h3(
-            #     class = "m-0",
-            #     "Property Image"
-            #   )
-            # ),
+            full_screen = TRUE,
+            bslib::card_header(
+              class = "d-flex justify-content-between align-items-center",
+              htmltools::tags$h3(
+                class = "m-0",
+                "Property Image"
+              )
+            ),
             bslib::card_body(
               style = "overflow-y: visible;",
               htmltools::tags$div(
@@ -104,20 +104,20 @@ mod_survey_property_summary_ui <- function(id) {
 
           # property information card
           bslib::card(
-            # full_screen = TRUE,
-            # bslib::card_header(
-            #   class = "d-flex justify-content-between align-items-center",
-            #   htmltools::tags$h3(
-            #     class = "m-0",
-            #     "Property Information"
-            #   )#,
-            #   # shiny::actionButton(
-            #   #   ns("edit"),
-            #   #   "Edit",
-            #   #   icon = shiny::icon("edit"),
-            #   #   class = "btn-sm btn-primary"
-            #   # )
-            # ),
+            full_screen = TRUE,
+            bslib::card_header(
+              class = "d-flex justify-content-between align-items-center",
+              htmltools::tags$h3(
+                class = "m-0",
+                "Property Information"
+              ),
+              shiny::actionButton(
+                ns("edit"),
+                "Edit",
+                icon = shiny::icon("edit"),
+                class = "btn-sm btn-primary"
+              )
+            ),
             bslib::card_body(
               # Use icons or bold labels
               htmltools::tags$p(
@@ -165,33 +165,33 @@ mod_survey_property_summary_ui <- function(id) {
                 htmltools::tags$strong(" Distance: "),
                 shiny::textOutput(ns("distance"), inline = TRUE)
               )
-            ) # ,
-            # bslib::card_footer(
-            #   class = "bg-light",
-            #   htmltools::tags$small(
-            #     class = "text-muted",
-            #     "Need to update info? Click 'Edit'."
-            #   ),
-            #   shiny::actionButton(
-            #     ns("refresh"),
-            #     "Refresh Data",
-            #     icon = shiny::icon("sync"),
-            #     class = "btn-sm btn-outline-primary float-end"
-            #   )
-            # )
+            ),
+            bslib::card_footer(
+              class = "bg-light",
+              htmltools::tags$small(
+                class = "text-muted",
+                "Need to update info? Click 'Edit'."
+              ),
+              shiny::actionButton(
+                ns("refresh"),
+                "Refresh Data",
+                icon = shiny::icon("sync"),
+                class = "btn-sm btn-outline-primary float-end"
+              )
+            )
           ),
 
           # property map card
           bslib::card(
-            # full_screen = TRUE,
-            # min_height = "300px",
-            # bslib::card_header(
-            #   class = "d-flex justify-content-between align-items-center",
-            #   htmltools::tags$h3(
-            #     class = "m-0",
-            #     "Property Map"
-            #   )
-            # ),
+            full_screen = TRUE,
+            min_height = "300px",
+            bslib::card_header(
+              class = "d-flex justify-content-between align-items-center",
+              htmltools::tags$h3(
+                class = "m-0",
+                "Property Map"
+              )
+            ),
             bslib::card_body(
               class = "p-0",
               leaflet::leafletOutput(ns("property_map"), height = 800) |>
@@ -202,18 +202,17 @@ mod_survey_property_summary_ui <- function(id) {
             )
           )
         )
-      ) # ,
-      # footer with last updated at timestamp & refresh button
-      # bslib::card_footer(
-      #   class = "text-muted d-flex justify-content-between align-items-center",
-      #   htmltools::tags$small(
-      #     "Last Updated:"
-      #   ),
-      #   htmltools::tags$span(
-      #     class = "fw-bold",
-      #     shiny::textOutput(ns("last_updated_at"), inline = TRUE)
-      #   )
-      # )
+      ),
+      bslib::card_footer(
+        class = "text-muted d-flex justify-content-between align-items-center",
+        htmltools::tags$small(
+          "Last Updated:"
+        ),
+        htmltools::tags$span(
+          class = "fw-bold",
+          shiny::textOutput(ns("last_updated_at"), inline = TRUE)
+        )
+      )
     )
   )
 }
@@ -229,13 +228,13 @@ mod_survey_property_summary_server <- function(
     id,
     pool = NULL,
     selected_property_id = NULL,
-    edit_survey_section = NULL) {
-  # validation of reactives
-  if (!is.null(selected_property_id)) stopifnot(shiny::is.reactive(selected_property_id))
+    edit_survey_section = NULL
+) {
 
   shiny::moduleServer(
     id,
     function(input, output, session) {
+
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_property_summary_server()")
 
@@ -243,18 +242,14 @@ mod_survey_property_summary_server <- function(
       if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
       check_db_conn(pool)
 
+      # handle selected property ID
       if (is.null(selected_property_id)) {
-        # property_id <- db_read_tbl(pool, "mkt.properties", collect = FALSE) |>
-        #   dplyr::filter(.data$is_competitor == FALSE) |>
-        #   dplyr::pull("property_id")
-        selected_property_id <- shiny::reactive({
-          # property_id
-          session$userData$selected_survey_property()
-        })
+        prop_id <- get_property_id_by_name("1047 Commonwealth Avenue")
+        selected_property_id <- shiny::reactive({prop_id})
+        selected_property_name <- shiny::reactive({get_property_name_by_id(prop_id)})
       }
 
       db_refresh_trigger <- shiny::reactiveVal(0)
-
       iv <- property_summary_validator()
 
       # property data
@@ -263,8 +258,7 @@ mod_survey_property_summary_server <- function(
 
         property_id <- selected_property_id()
         db_read_mkt_property_summary(pool, property_id)
-      }) |>
-        shiny::bindEvent(selected_property_id(), db_refresh_trigger())
+      })
 
       # if property data is empty notify user and launch modal form
       shiny::observe({
@@ -314,12 +308,12 @@ mod_survey_property_summary_server <- function(
         )
       })
 
-      # output$property_name_title <- shiny::renderText({
-      #   shiny::req(property_data())
-      #   id <- property_data()$property_id
-      #   name <- property_data()$property_name
-      #   paste0(name, " (", id, ")")
-      # })
+      output$property_name_title <- shiny::renderText({
+        shiny::req(property_data())
+        id <- property_data()$property_id
+        name <- property_data()$property_name
+        paste0(name, " (", id, ")")
+      })
 
       output$property_image_card <- shiny::renderUI({
         data <- property_data()
@@ -332,8 +326,8 @@ mod_survey_property_summary_server <- function(
         bslib::card_image(
           src = img_src,
           alt = "Property Image",
-          # href = data$website,
-          # target = "_blank",
+          href = data$website,
+          target = "_blank",
           height = "200px",
           width = "auto"
         )
@@ -438,12 +432,12 @@ mod_survey_property_summary_server <- function(
 
       # shiny::observeEvent(input$edit, {
       shiny::observeEvent(edit_survey_section(), {
-        if (session$userData$selected_survey_tab() != "nav_property_summary") {
-          return()
-        }
+        # if (session$userData$selected_survey_tab() != "nav_property_summary") {
+        #   return()
+        # }
 
         # Hide nav menu (`bslib` bug)
-        shinyjs::runjs("$('ul.dropdown-menu.show').removeClass('show')")
+        # shinyjs::runjs("$('ul.dropdown-menu.show').removeClass('show')")
 
         data <- property_data()
 
@@ -582,84 +576,84 @@ mod_survey_property_summary_server <- function(
                 )
               )
             ),
-            # bslib::layout_columns(
-            #   col_widths = c(12),
-            #   bslib::card(
-            #     bslib::card_header("Review Changes"),
-            #     bslib::card_body(
-            #       shiny::uiOutput(session$ns("changes_preview"))
-            #     )
-            #   )
-            # ),
+            bslib::layout_columns(
+              col_widths = c(12),
+              bslib::card(
+                bslib::card_header("Review Changes"),
+                bslib::card_body(
+                  shiny::uiOutput(session$ns("changes_preview"))
+                )
+              )
+            ),
             footer = tagList(
-              # actionButton(session$ns("save_changes"), "Save", class = "btn-primary") |>
-              #   shinyjs::disabled(),
+              actionButton(session$ns("save_changes"), "Save", class = "btn-primary") |>
+                shinyjs::disabled(),
               actionButton(session$ns("save_changes"), "Save", class = "btn-primary"),
               modalButton("Cancel")
-            ) # ,
-            # easyClose = TRUE
+            ),
+            easyClose = TRUE
           )
         )
       })
 
-      # changes <- shiny::reactive({
-      #   req(input_data())
-      #   original_data <- property_data()
-      #   new_values <- input_data()
-      #   if (nrow(original_data) == 0) {
-      #     changes <- "new"
-      #   } else {
-      #     changes <- list()
-      #     for (field in names(new_values)) {
-      #       if (!is.null(new_values[[field]]) && !isTRUE(all.equal(new_values[[field]], original_data[[field]]))) {
-      #         changes[[field]] <- list(
-      #           old = original_data[[field]],
-      #           new = new_values[[field]]
-      #         )
-      #       }
-      #     }
-      #   }
-      #   return(changes)
-      # })
-      #
-      # shiny::observe({
-      #   req(changes())
-      #   if (length(changes()) > 0) {
-      #     shinyjs::enable("save_changes")
-      #   }
-      # })
-      #
-      # output$changes_preview <- renderUI({
-      #   req(changes())
-      #
-      #   changes_data <- changes()
-      #
-      #   if (length(changes_data) == 0) {
-      #     return(p("No changes made"))
-      #   }
-      #
-      #   if (changes_data == "new") {
-      #     return(
-      #       strong(
-      #         p("New property being added", style = "color: #007bff;")
-      #       )
-      #     )
-      #   }
-      #
-      #   # Create the change preview UI
-      #   changes_ui <- lapply(names(changes_data), function(field) {
-      #     div(
-      #       p(
-      #         strong(paste0(tools::toTitleCase(gsub("_", " ", field)), ":")),
-      #         span(paste("Current:", changes_data[[field]]$old), style = "color: #666;"),
-      #         span("→", style = "margin: 0 10px;"),
-      #         span(paste("New:", changes_data[[field]]$new), style = "color: #007bff;")
-      #       )
-      #     )
-      #   })
-      #
-      #   do.call(tagList, changes_ui)
-      # })
+      changes <- shiny::reactive({
+        req(input_data())
+        original_data <- property_data()
+        new_values <- input_data()
+        if (nrow(original_data) == 0) {
+          changes <- "new"
+        } else {
+          changes <- list()
+          for (field in names(new_values)) {
+            if (!is.null(new_values[[field]]) && !isTRUE(all.equal(new_values[[field]], original_data[[field]]))) {
+              changes[[field]] <- list(
+                old = original_data[[field]],
+                new = new_values[[field]]
+              )
+            }
+          }
+        }
+        return(changes)
+      })
+
+      shiny::observe({
+        req(changes())
+        if (length(changes()) > 0) {
+          shinyjs::enable("save_changes")
+        }
+      })
+
+      output$changes_preview <- renderUI({
+        req(changes())
+
+        changes_data <- changes()
+
+        if (length(changes_data) == 0) {
+          return(p("No changes made"))
+        }
+
+        if (changes_data == "new") {
+          return(
+            strong(
+              p("New property being added", style = "color: #007bff;")
+            )
+          )
+        }
+
+        # Create the change preview UI
+        changes_ui <- lapply(names(changes_data), function(field) {
+          div(
+            p(
+              strong(paste0(tools::toTitleCase(gsub("_", " ", field)), ":")),
+              span(paste("Current:", changes_data[[field]]$old), style = "color: #666;"),
+              span("→", style = "margin: 0 10px;"),
+              span(paste("New:", changes_data[[field]]$new), style = "color: #007bff;")
+            )
+          )
+        })
+
+        do.call(tagList, changes_ui)
+      })
 
       shiny::observeEvent(input$save_changes, {
         pd <- property_data()
@@ -719,25 +713,38 @@ mod_survey_property_summary_demo <- function(pool = NULL) {
 
   ui <- bslib::page_navbar(
     title = "Demo: Survey Property Summary",
-    window_title = "Demo: Survey Property Summary",
-    theme = bslib::bs_theme(version = 5),
+    window_title = "Property Summary",
+    theme = app_theme_ui(),
     lang = "en",
     bslib::nav_spacer(),
     bslib::nav_panel(
-      title = "Survey Property Summary",
+      title = "Property Summary",
       value = "survey_property_summary",
       icon = bsicons::bs_icon("house"),
       shinyjs::useShinyjs(),
-      mod_survey_property_summary_ui("demo")
+      mod_survey_property_summary_ui("demo"),
+      shiny::actionButton(
+        "edit_survey_section",
+        "Edit",
+        icon = shiny::icon("edit"),
+        style = "width: auto;",
+        class = "btn-sm btn-primary"
+      )
     )
   )
 
   server <- function(input, output, session) {
     if (is.null(pool)) pool <- db_connect()
-    mod_survey_property_summary_server("demo", pool = pool)
+    edit_survey_section <- shiny::reactive({
+      input$edit_survey_section
+    })
+    mod_survey_property_summary_server(
+      "demo",
+      pool = pool,
+      edit_survey_section = edit_survey_section
+    )
   }
 
   shiny::shinyApp(ui, server)
 }
 
-# utilities ---------------------------------------------------------------

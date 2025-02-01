@@ -153,7 +153,7 @@ mod_survey_unit_amenities_server <- function(
 
         db_read_tbl(pool, "survey.unit_amenities_rates_premiums") |>
           dplyr::filter(.data$property_name == current_name()) |>
-          dplyr::select("property_name", "amenity_name", "rentable_rate", "premium")
+          dplyr::select("property_name", "amenity_name", "amenity_value")
       })
 
       # input data
@@ -187,15 +187,11 @@ mod_survey_unit_amenities_server <- function(
 
         tibble::tibble(
           amenity_name = amenities,
-          rentable_rate = c(
+          amenity_value = c(
             input[["tv_rentable_rate"]],
             input[["tv_bedroom"]],
             input[["tv_common_area"]],
             input[["furniture_rentable_rate"]],
-            rep(NA_real_, 5)
-          ),
-          premium = c(
-            rep(NA_real_, 4),
             input[["floor_premiums"]],
             input[["poolside_premiums"]],
             input[["top_floor_premiums"]],
@@ -571,7 +567,7 @@ mod_survey_unit_amenities_server <- function(
                   ": ",
                   unit_amenities_rates_data() |>
                     dplyr::filter(amenity_name == "TV Rentable Rate") |>
-                    dplyr::pull(rentable_rate) |>
+                    dplyr::pull(amenity_value) |>
                     scales::dollar(accuracy = 0.01)
                 ),
                 htmltools::tags$span(
@@ -580,7 +576,7 @@ mod_survey_unit_amenities_server <- function(
                   ": ",
                   unit_amenities_rates_data() |>
                     dplyr::filter(amenity_name == "TV Bedroom") |>
-                    dplyr::pull(rentable_rate) |>
+                    dplyr::pull(amenity_value) |>
                     scales::dollar(accuracy = 0.01)
                 ),
                 htmltools::tags$span(
@@ -589,7 +585,7 @@ mod_survey_unit_amenities_server <- function(
                   ": ",
                   unit_amenities_rates_data() |>
                     dplyr::filter(amenity_name == "TV Common Area") |>
-                    dplyr::pull(rentable_rate) |>
+                    dplyr::pull(amenity_value) |>
                     scales::dollar(accuracy = 0.01)
                 )
               )
@@ -634,7 +630,7 @@ mod_survey_unit_amenities_server <- function(
                   ": ",
                   unit_amenities_rates_data() |>
                     dplyr::filter(amenity_name == "Furniture Rentable Rate") |>
-                    dplyr::pull(rentable_rate) |>
+                    dplyr::pull(amenity_value) |>
                     scales::dollar(accuracy = 0.01)
                 )
               )
@@ -660,7 +656,7 @@ mod_survey_unit_amenities_server <- function(
                   ": ",
                   unit_amenities_rates_data() |>
                     dplyr::filter(amenity_name == "Floor Premiums") |>
-                    dplyr::pull(premium) |>
+                    dplyr::pull(amenity_value) |>
                     scales::dollar(accuracy = 0.01)
                 ),
                 htmltools::tags$span(
@@ -669,7 +665,7 @@ mod_survey_unit_amenities_server <- function(
                   ": ",
                   unit_amenities_rates_data() |>
                     dplyr::filter(amenity_name == "Poolside Premiums") |>
-                    dplyr::pull(premium) |>
+                    dplyr::pull(amenity_value) |>
                     scales::dollar(accuracy = 0.01)
                 ),
                 htmltools::tags$span(
@@ -678,7 +674,7 @@ mod_survey_unit_amenities_server <- function(
                   ": ",
                   unit_amenities_rates_data() |>
                     dplyr::filter(amenity_name == "Top Floor Premiums") |>
-                    dplyr::pull(premium) |>
+                    dplyr::pull(amenity_value) |>
                     scales::dollar(accuracy = 0.01)
                 ),
                 htmltools::tags$span(
@@ -687,7 +683,7 @@ mod_survey_unit_amenities_server <- function(
                   ": ",
                   unit_amenities_rates_data() |>
                     dplyr::filter(amenity_name == "View Premiums") |>
-                    dplyr::pull(premium) |>
+                    dplyr::pull(amenity_value) |>
                     scales::dollar(accuracy = 0.01)
                 ),
                 htmltools::tags$span(
@@ -696,7 +692,7 @@ mod_survey_unit_amenities_server <- function(
                   ": ",
                   unit_amenities_rates_data() |>
                     dplyr::filter(amenity_name == "Other Premiums") |>
-                    dplyr::pull(premium) |>
+                    dplyr::pull(amenity_value) |>
                     scales::dollar(accuracy = 0.01)
                 )
               )
