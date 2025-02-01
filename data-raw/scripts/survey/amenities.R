@@ -388,4 +388,3 @@ survey_unit_amenities_premium <- tibble::tibble(
   ),
   amenity_value = c(0, 0, 0, 0, 0)
 )
-

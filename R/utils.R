@@ -138,7 +138,6 @@ get_competitor_id_by_name <- function(competitor_name) {
 }
 
 get_amenity_id_by_name <- function(amenity_name) {
-
   amenity_name <- tolower(amenity_name)
 
   amenity_id <- survey_amenities_tbl |>

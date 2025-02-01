@@ -1,11 +1,10 @@
 db_update_survey_unit_amenities_rates_premiums <- function(pool, new_values) {
-
   check_db_conn(pool)
 
   data <- new_values |>
     dplyr::mutate(
       amenity_name = stringr::str_replace(
-        snakecase::to_title_case(.data$amenity_name), "Tv" , "TV"
+        snakecase::to_title_case(.data$amenity_name), "Tv", "TV"
       ),
       property_id = purrr::map_int(.data$property_name, get_property_id_by_name),
       amenity_id = purrr::map_int(.data$amenity_name, get_amenity_id_by_name),
@@ -52,7 +51,6 @@ db_update_survey_unit_amenities_rates_premiums <- function(pool, new_values) {
 }
 
 db_update_survey_unit_amenities <- function(pool, new_values) {
-
   check_db_conn(pool)
 
   data <- new_values |>
