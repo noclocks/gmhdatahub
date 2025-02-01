@@ -24,18 +24,19 @@
 #' @importFrom waiter waiter_hide
 #' @importFrom shiny reactive
 app_server <- function(input, output, session) {
-  # `noClocksAuthR` ####
-  # `noClocksAuthR` signed in user
+
+  # sever::sever()
+  # sever::rupture(ms = 10000)
+  # guide <- app_guide()
+
   output$signed_in_as <- shiny::renderText({
     session$userData$user()$email
   })
 
-  # `noClocksAuthR` sign out
   shiny::observeEvent(input$auth_logout, {
     noClocksAuthR::sign_out_from_shiny(session)
     session$reload()
   })
-
 
   # initialize database connection pool
   pool <- db_connect()
@@ -59,7 +60,7 @@ app_server <- function(input, output, session) {
   }
 
   # modules
-  mod_home_data <- mod_home_server("home", pool = pool, global_filters = global_filters, navigate_func = navigate)
+  mod_home_data <- mod_home_server("home", pool = pool, navigate_func = navigate)
   mod_dashboard_data <- mod_dashboard_server("dashboard", pool = pool, global_filters = global_filters)
   mod_properties_data <- mod_properties_server("properties", pool = pool, global_filters = global_filters)
   mod_property_units_data <- mod_property_units_server("property_units", pool = pool, global_filters = global_filters)

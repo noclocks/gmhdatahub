@@ -31,14 +31,21 @@ add_external_resources <- function() {
   )
 
   htmltools::tags$head(
-    # shiny::useBusyIndicators(),
-    # shinylogs::use_tracking(app_name = app_info("name")),
     shinyjs::useShinyjs(),
     waiter::use_waiter(),
+    sever::useSever(),
+    shinybusy::busy_start_up(
+      loader = shinybusy::spin_epic("orbit", color = "#FFF"),
+      text = "Initializing Data Hub...",
+      timeout = 1500,
+      color = "#FFF",
+      background = gmh_colors("primary")
+    ),
+    shinybrowser::detect(),
     fontawesome::fa_html_dependency(),
     rintrojs::introjsUI(),
-    app_favicon(),
-    app_preloader_ui()
+    conductor::use_conductor(),
+    app_favicon()
   )
 }
 
