@@ -13,7 +13,6 @@ mod_survey_utilities_server(
   id,
   pool = NULL,
   selected_property_id = NULL,
-  selected_competitor_id = NULL,
   edit_survey_section = NULL
 )
 
