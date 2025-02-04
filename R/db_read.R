@@ -34,27 +34,61 @@ db_read_sql <- function(pool, sql_file, ...) {
 db_read_gmh_pre_lease_summary_tbl <- function(
     pool,
     report_date = NULL,
-    property_ids = NULL,
-    collect = TRUE) {
+    property_ids = NULL
+) {
+
   check_db_conn(pool)
 
   hold <- db_read_tbl(pool, "gmh.pre_lease_summary", collect = FALSE)
+  report_dates <- dplyr::pull(hold, "report_date") |> unique()
+  prop_ids <- dplyr::pull(hold, "property_id") |> unique()
 
-  if (!is.null(report_date)) {
-    hold <- dplyr::filter(hold, .data$report_date == .env$report_date)
-  } else {
-    hold <- dplyr::filter(hold, report_date == max(report_date, na.rm = TRUE))
+  if (is.null(report_date)) {
+    report_date <- max(report_dates, na.rm = TRUE)
   }
 
-  if (!is.null(property_ids)) {
-    hold <- dplyr::filter(hold, property_id %in% property_ids)
+  if (is.null(property_ids)) {
+    property_ids <- prop_ids
   }
 
-  if (!collect) {
-    return(hold)
-  }
+  # if (!report_date %in% report_dates) {
+  #   cli::cli_alert_warning("No data found for the specified report date: {.field {report_date}}.")
+  #   report_date <- max(report_dates, na.rm = TRUE)
+  #   cli::cli_alert_info("Using the latest report date instead: {.field {report_date}}.")
+  # }
+  #
+  # if (all(property_ids %in% prop_ids)) {
+  #   hold <- dplyr::filter(hold, .data$report_date == .env$report_date)
+  # } else {
+  #   cli::cli_alert_warning("No data found for the specified property IDs: {.field {property_ids}}.")
+  #   hold <- dplyr::filter(hold, .data$report_date == .env$report_date)
+  # }
 
-  dplyr::collect(hold)
+  # browser()
+
+  out <- dplyr::filter(
+    hold,
+    .data$report_date == .env$report_date,
+    .data$property_id %in% .env$property_ids
+  ) |>
+    dplyr::collect() |>
+    # replace NAs
+    dplyr::mutate(
+      dplyr::across(
+        tidyselect::where(is.numeric),
+        ~dplyr::if_else(
+          is.na(.x),
+          0,
+          .x
+        )
+      )
+    )
+
+  # if (collect) {
+    return(dplyr::collect(out))
+  # }
+  # return(out)
+
 }
 
 db_read_gmh_model_beds <- function(pool, collect = TRUE) {

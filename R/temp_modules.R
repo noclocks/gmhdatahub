@@ -38,14 +38,6 @@ mod_residents_ui <- function(id) {
   )
 }
 
-mod_pre_lease_ui <- function(id) {
-  ns <- NS(id)
-  bslib::card(
-    title = "Pre Lease Report",
-    "Pre lease report content"
-  )
-}
-
 mod_box_score_ui <- function(id) {
   ns <- NS(id)
   bslib::card(
