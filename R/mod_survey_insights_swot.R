@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : SWOT Analysis Module
@@ -47,7 +46,6 @@ NULL
 #' @importFrom bslib nav_panel layout_columns card card_header
 #' @importFrom shiny textAreaInput NS
 mod_survey_insights_swot <- function(id) {
-
   ns <- shiny::NS(id)
 
   bslib::nav_panel(
@@ -73,7 +71,8 @@ mod_survey_insights_swot <- function(id) {
           NULL,
           width = "100%",
           height = "150px",
-          value = "1. Aging infrastructure\n2. Limited parking\n3. Higher operating costs")
+          value = "1. Aging infrastructure\n2. Limited parking\n3. Higher operating costs"
+        )
       ),
       bslib::card(
         bslib::card_header("Opportunities"),
@@ -83,7 +82,8 @@ mod_survey_insights_swot <- function(id) {
           NULL,
           width = "100%",
           height = "150px",
-          value = "1. Market expansion\n2. Renovation potential\n3. New target demographics")
+          value = "1. Market expansion\n2. Renovation potential\n3. New target demographics"
+        )
       ),
       bslib::card(
         bslib::card_header("Threats"),
@@ -93,11 +93,11 @@ mod_survey_insights_swot <- function(id) {
           NULL,
           width = "100%",
           height = "150px",
-          value = "1. New competition\n2. Economic downturn\n3. Changing regulations")
+          value = "1. New competition\n2. Economic downturn\n3. Changing regulations"
+        )
       )
     )
   )
-
 }
 
 
@@ -110,11 +110,9 @@ mod_survey_insights_swot <- function(id) {
 #' @importFrom shiny moduleServer reactiveValues observe observeEvent updateTextAreaInput
 #' @importFrom logger info
 mod_survey_insights_swot_server <- function(id, pool = NULL) {
-
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       # reactive values
       rv <- shiny::reactiveValues(
         swot = list(
@@ -198,11 +196,9 @@ mod_survey_insights_swot_server <- function(id, pool = NULL) {
       )
     }
   )
-
 }
 
 mod_survey_insights_swot_demo <- function() {
-
   pkgload::load_all()
 
   ui <- bslib::page_navbar(
@@ -225,7 +221,6 @@ mod_survey_insights_swot_demo <- function() {
   }
 
   shiny::shinyApp(ui, server)
-
 }
 
 # helpers -----------------------------------------------------------------
@@ -255,12 +250,10 @@ mod_survey_insights_swot_demo <- function() {
 #'   observe_swot_change("threats", "Threats")
 #' }
 observe_swot_change <- function(input_field, field_name) {
-
   shiny::observeEvent(input[[input_field]], {
     before <- rv$swot[[field_name]]
     rv$swot[[field_name]] <- input[[input_field]]
     after <- rv$swot[[field_name]]
     logger::info("[SWOT Analysis]: {field_name} changed from '{before}' to '{after}'.")
   })
-
 }
