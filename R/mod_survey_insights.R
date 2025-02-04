@@ -57,7 +57,7 @@ mod_survey_insights_ui <- function(id) {
         ),
         bslib::card_body(
           bslib::layout_column_wrap(
-            width = 1/2,
+            width = 1 / 2,
             bslib::card(
               bslib::card_header(icon_text("line-chart", "Occupancy Trends")),
               bslib::card_body(
