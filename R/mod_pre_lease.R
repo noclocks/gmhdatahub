@@ -80,7 +80,6 @@ mod_pre_lease_ui <- function(id) {
               style = "margin-left: 10px; display: inline-flex; align-items: center; padding: 2.5px 10px;"
             )
           ),
-
           bslib::card_body(
             class = "p-0",
             reactable::reactableOutput(ns("summary_table"))
@@ -168,15 +167,12 @@ mod_pre_lease_ui <- function(id) {
 #' @importFrom shiny moduleServer reactive
 #' @importFrom cli cat_rule
 mod_pre_lease_server <- function(
-  id,
-  pool = NULL,
-  selected_property_id = NULL
-) {
-
+    id,
+    pool = NULL,
+    selected_property_id = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cat_rule("[Module]: mod_pre_lease_server()")
 
@@ -227,7 +223,7 @@ mod_pre_lease_server <- function(
           ) |>
           plotly::add_trace(
             x = ~property_name,
-            y = ~rep(0.90, nrow(df)),
+            y = ~ rep(0.90, nrow(df)),
             type = "scatter",
             mode = "lines",
             name = "90% Target",
@@ -274,7 +270,7 @@ mod_pre_lease_server <- function(
 
         p <- plotly::plot_ly(
           data = df,
-          height = 500  # Explicit height
+          height = 500 # Explicit height
         ) |>
           plotly::add_trace(
             x = ~property_name,
@@ -318,7 +314,6 @@ mod_pre_lease_server <- function(
           paste0(Sys.Date(), "Pre-Lease-Summary-Table.xlsx")
         },
         content = function(file) {
-
           df <- pre_lease_summary_data() |>
             dplyr::collect()
 
@@ -331,10 +326,11 @@ mod_pre_lease_server <- function(
 
       return(
         list(
-          pre_lease_summary_data = shiny::reactive({ pre_lease_summary_data() })
+          pre_lease_summary_data = shiny::reactive({
+            pre_lease_summary_data()
+          })
         )
       )
-
     }
   )
 }
@@ -371,4 +367,3 @@ mod_pre_lease_demo <- function() {
 
   shiny::shinyApp(ui, server)
 }
-

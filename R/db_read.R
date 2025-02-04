@@ -34,9 +34,7 @@ db_read_sql <- function(pool, sql_file, ...) {
 db_read_gmh_pre_lease_summary_tbl <- function(
     pool,
     report_date = NULL,
-    property_ids = NULL
-) {
-
+    property_ids = NULL) {
   check_db_conn(pool)
 
   hold <- db_read_tbl(pool, "gmh.pre_lease_summary", collect = FALSE)
@@ -76,7 +74,7 @@ db_read_gmh_pre_lease_summary_tbl <- function(
     dplyr::mutate(
       dplyr::across(
         tidyselect::where(is.numeric),
-        ~dplyr::if_else(
+        ~ dplyr::if_else(
           is.na(.x),
           0,
           .x
@@ -85,10 +83,9 @@ db_read_gmh_pre_lease_summary_tbl <- function(
     )
 
   # if (collect) {
-    return(dplyr::collect(out))
+  return(dplyr::collect(out))
   # }
   # return(out)
-
 }
 
 db_read_gmh_model_beds <- function(pool, collect = TRUE) {
