@@ -185,10 +185,7 @@ mod_survey_insights_swot_server <- function(id, pool = NULL) {
       # return -------------------------------------------------------------
       return(
         list(
-          strengths = rv$swot$strengths,
-          weaknesses = rv$swot$weaknesses,
-          opportunities = rv$swot$opportunities,
-          threats = rv$swot$threats
+          swot = rv
         )
       )
     }
