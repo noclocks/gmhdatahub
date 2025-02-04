@@ -588,10 +588,10 @@ tbl_rents_by_floorplan <- function(rents_data) {
     showPagination = FALSE,
     showSortable = TRUE,
     showSortIcon = TRUE
-  ) |>
-    reactablefmtr::add_title(tbl_title) |>
-    reactablefmtr::add_subtitle(tbl_subtitle) |>
-    reactablefmtr::add_source(tbl_src)
+  ) #|>
+    # reactablefmtr::add_title(tbl_title) |>
+    # reactablefmtr::add_subtitle(tbl_subtitle) |>
+    # reactablefmtr::add_source(tbl_src)
 
 }
 
