@@ -331,7 +331,6 @@ mod_survey_forms_server <- function(
         id = "parking",
         pool = pool,
         selected_property_id = session$userData$selected_survey_property(),
-        selected_competitor_id = input$competitor,
         edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
@@ -339,7 +338,6 @@ mod_survey_forms_server <- function(
         "utilities",
         pool = pool,
         selected_property_id = session$userData$selected_survey_property(),
-        selected_competitor_id = input$competitor,
         edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
@@ -347,7 +345,6 @@ mod_survey_forms_server <- function(
         "notes",
         pool = pool,
         selected_property_id = session$userData$selected_survey_property(),
-        selected_competitor_id = input$competitor,
         edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
@@ -355,7 +352,6 @@ mod_survey_forms_server <- function(
         "rents",
         pool = pool,
         selected_property_id = session$userData$selected_survey_property(),
-        selected_competitor_id = input$competitor,
         edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
