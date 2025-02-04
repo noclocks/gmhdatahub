@@ -79,30 +79,39 @@ mod_survey_utilities_server <- function(
 
       # handle selected property ID
       if (is.null(selected_property_id)) {
-        selected_property_id <- shiny::reactive({ session$userData$selected_survey_property() })
+        selected_property_id <- shiny::reactive({ get_property_id_by_name("1047 Commonwealth Avenue") })
       }
 
       db_refresh_trigger <- shiny::reactiveVal(0)
 
       utilities_data <- shiny::reactive({
-        shiny::req(pool, selected_property_id(), session$userData$leasing_week())
+        shiny::req(pool, selected_property_id())
 
-        db_read_tbl(pool, "mkt.utilities") |>
+        db_read_tbl(pool, "survey.utilities") |>
           dplyr::filter(property_id == selected_property_id()) |>
-          dplyr::filter(week == session$userData$leasing_week())
+          dplyr::select(
+            property_name,
+            utility_name,
+            utility_category,
+            utility_per,
+            utility_available,
+            utility_capped,
+            utility_allowance
+          )
       })
 
       output$survey_utilities_tbl <- reactable::renderReactable({
-        data <- utilities_data() |>
-          dplyr::filter(.data$utility_type == "Utility") |>
-          dplyr::select(-utility_type)
+        data <- utilities_data()
 
         if (nrow(data) == 0) {
-          data <- tibble::tribble(
-            ~'Utilities Summary', ~'All Inclusive', ~'Cap', ~'Allowance', ~'Amount', ~'Per Unit/Bed',
-            'Electricity', 'No', 'No', 'No', '$0', 'Per Unit',
-            'Gas', 'No', 'No', 'No', '$0', 'Per Unit',
-            'Water', 'No', 'No', 'No', '$0', 'Per Unit'
+          data <- tibble::tibble(
+            property_name = "No Data Available",
+            utility_name = NA_character_,
+            utility_category = NA_character_,
+            utility_per = NA_character_,
+            utility_available = NA_character_,
+            utility_capped = NA_character_,
+            utility_allowance = NA_real_
           )
         }
 
@@ -111,12 +120,28 @@ mod_survey_utilities_server <- function(
           defaultPageSize = nrow(data),
           searchable = TRUE,
           columns = list(
-            'Utilities Summary' = reactable::colDef(name = 'Utilities Summary', sortable = TRUE),
-            'All Inclusive' = reactable::colDef(name = 'All Inclusive', sortable = TRUE),
-            'Cap' = reactable::colDef(name = 'Cap', sortable = TRUE),
-            'Allowance' = reactable::colDef(name = 'Allowance', sortable = TRUE),
-            'Amount' = reactable::colDef(name = 'Amount', sortable = TRUE),
-            'Per Unit/Bed' = reactable::colDef(name = 'Per Unit/Bed', sortable = TRUE)
+            property_name = reactable::colDef(
+              show = FALSE
+            ),
+            utility_name = reactable::colDef(
+              name = "Utility",
+            ),
+            utility_category = reactable::colDef(
+              show = FALSE
+            ),
+            utility_per = reactable::colDef(
+              name = "Per Bed/Unit"
+            ),
+            utility_available = reactable::colDef(
+              name = "Available?"
+            ),
+            utility_capped = reactable::colDef(
+              name = "Capped?"
+            ),
+            utility_allowance = reactable::colDef(
+              name = "Allowance ($)",
+              format = reactable::colFormat(prefix = "$", digits = 0, separators = TRUE)
+            )
           ),
           highlight = TRUE
         )
@@ -124,7 +149,7 @@ mod_survey_utilities_server <- function(
 
       return(
         list(
-          # reactive values
+          utilities_data = utilities_data
         )
       )
     }
@@ -145,7 +170,7 @@ mod_survey_utilities_demo <- function() {
   ui <- bslib::page_navbar(
     title = "Demo: Survey Utilities",
     window_title = "Demo: Survey Utilities",
-    theme = app_theme(),
+    theme = app_theme_ui(),
     lang = "en",
     bslib::nav_spacer(),
     bslib::nav_panel(
