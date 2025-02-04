@@ -2,11 +2,12 @@
 % Please edit documentation in R/mod_survey_insights_swot.R
 \name{mod_survey_insights_swot}
 \alias{mod_survey_insights_swot}
+\alias{mod_survey_insights_swot_ui}
 \alias{mod_survey_insights_swot_server}
 \alias{mod_survey_insights_swot_demo}
 \title{SWOT Analysis Module}
 \usage{
-mod_survey_insights_swot(id)
+mod_survey_insights_swot_ui(id)
 
 mod_survey_insights_swot_server(id, pool = NULL)
 

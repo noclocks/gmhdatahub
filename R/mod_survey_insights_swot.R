@@ -45,7 +45,7 @@ NULL
 #' @export
 #' @importFrom bslib nav_panel layout_columns card card_header
 #' @importFrom shiny textAreaInput NS
-mod_survey_insights_swot <- function(id) {
+mod_survey_insights_swot_ui <- function(id) {
   ns <- shiny::NS(id)
 
   bslib::nav_panel(

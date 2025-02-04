@@ -21,6 +21,7 @@ Imports:
     bsicons,
     bslib (>= 0.7),
     cli,
+    conductor,
     config,
     DBI,
     dbplyr,
@@ -51,23 +52,27 @@ Imports:
     rlang,
     RPostgres,
     scales,
+    sever,
     shiny,
+    shinybrowser,
+    shinybusy,
     shinycustomloader,
     shinyjs,
     shinyvalidate,
     shinyWidgets,
+    snakecase,
     stringr,
     tibble,
     tidyr,
     tidyselect,
+    tools,
     utils,
     waiter,
-    withr
+    withr,
+    writexl
 Suggests:
     httptest2,
-    httpuv,
     knitr,
-    pingr,
     rmarkdown,
     shinybg,
     shinytest2,
@@ -76,8 +81,8 @@ Suggests:
 VignetteBuilder:
     knitr
 Remotes: 
-    noclocks/noClocksAuthR,
     kcuilla/reactablefmtr,
+    noclocks/noClocksAuthR,
     tiledb-inc/shinybg
 Config/coverage/needs: covr covrpage
 Config/database/needs: config, DBI, pool, dbx, dplyr, dbplyr, RPostgres
