@@ -124,10 +124,10 @@ mod_survey_unit_amenities_server <- function(
         #   if (selected_competitor_id() != "none") {
         #     selected_compertitor_id()
         #   } else {
-            selected_property_id()
-          # }
+        selected_property_id()
+        # }
         # } else {
-          # selected_property_id()
+        # selected_property_id()
         # }
       })
 
@@ -135,7 +135,7 @@ mod_survey_unit_amenities_server <- function(
         # if (selected_competitor_id() != "none") {
         #   get_competitor_name_by_id(selected_competitor_id())
         # } else {
-          get_property_name_by_id(selected_property_id())
+        get_property_name_by_id(selected_property_id())
         # }
       })
 

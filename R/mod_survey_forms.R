@@ -141,13 +141,13 @@ mod_survey_forms_ui <- function(id) {
         ),
         bslib::card_footer(
           htmltools::tags$small(
-            style = 'float: right;',
+            style = "float: right;",
             shiny::actionButton(
-              ns('edit_survey_section'),
-              'Edit',
-              icon = shiny::icon('edit'),
-              style = 'width: auto;',
-              class = 'btn-sm btn-primary'
+              ns("edit_survey_section"),
+              "Edit",
+              icon = shiny::icon("edit"),
+              style = "width: auto;",
+              class = "btn-sm btn-primary"
             )
           )
         )

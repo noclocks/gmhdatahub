@@ -511,7 +511,6 @@ mod_survey_notes_server <- function(id, pool = NULL, global_filters = NULL) {
 }
 
 mod_survey_notes_demo <- function(pool = NULL) {
-
   pkgload::load_all()
 
   ui <- bslib::page_navbar(

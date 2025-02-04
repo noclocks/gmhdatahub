@@ -24,7 +24,6 @@
 #' @importFrom waiter waiter_hide
 #' @importFrom shiny reactive
 app_server <- function(input, output, session) {
-
   # sever::sever()
   # sever::rupture(ms = 10000)
   # guide <- app_guide()

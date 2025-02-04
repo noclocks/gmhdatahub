@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Survey Hours Shiny Module
@@ -43,7 +42,6 @@ NULL
 #' @importFrom htmltools tagList tags
 #' @importFrom bslib card
 mod_survey_hours_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   htmltools::tagList(
@@ -69,16 +67,13 @@ mod_survey_hours_ui <- function(id) {
 #' @importFrom shiny moduleServer reactive
 #' @importFrom cli cat_rule
 mod_survey_hours_server <- function(
-  id,
-  pool = NULL,
-  selected_property_id = NULL,
-  selected_competitor_id = NULL
-) {
-
+    id,
+    pool = NULL,
+    selected_property_id = NULL,
+    selected_competitor_id = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_hours_server()")
 
@@ -89,7 +84,9 @@ mod_survey_hours_server <- function(
       # handle selected property ID
       if (is.null(selected_property_id)) {
         prop_id <- get_property_id_by_name("1047 Commonwealth Avenue")
-        selected_property_id <- shiny::reactive({prop_id})
+        selected_property_id <- shiny::reactive({
+          prop_id
+        })
       }
 
       selected_property_name <- shiny::reactive({
@@ -98,10 +95,14 @@ mod_survey_hours_server <- function(
 
       # handle selected competitor ID
       if (is.null(selected_competitor_id)) {
-        selected_competitor_id <- shiny::reactive({ "none" })
+        selected_competitor_id <- shiny::reactive({
+          "none"
+        })
       } else if (shiny::is.reactive(selected_competitor_id)) {
         if (selected_competitor_id() == "none") {
-          selected_competitor_id <- shiny::reactive({ "none" })
+          selected_competitor_id <- shiny::reactive({
+            "none"
+          })
         }
       }
 
@@ -163,7 +164,6 @@ mod_survey_hours_server <- function(
 #' @importFrom bsicons bs_icon
 #' @importFrom shiny shinyApp
 mod_survey_hours_demo <- function() {
-
   pkgload::load_all()
 
   ui <- bslib::page_navbar(
@@ -188,4 +188,3 @@ mod_survey_hours_demo <- function() {
 }
 
 # utilities ---------------------------------------------------------------
-

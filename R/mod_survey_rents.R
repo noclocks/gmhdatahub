@@ -110,13 +110,10 @@ mod_survey_rents_server <- function(
     pool = NULL,
     selected_property_id = NULL,
     selected_competitor_id = NULL,
-    edit_survey_section = NULL
-) {
-
+    edit_survey_section = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_rents_server()")
 
@@ -127,13 +124,19 @@ mod_survey_rents_server <- function(
       # handle selected property ID
       if (is.null(selected_property_id)) {
         prop_id <- get_property_id_by_name("1047 Commonwealth Avenue")
-        selected_property_id <- shiny::reactive({prop_id})
-        selected_property_name <- shiny::reactive({get_property_name_by_id(prop_id)})
+        selected_property_id <- shiny::reactive({
+          prop_id
+        })
+        selected_property_name <- shiny::reactive({
+          get_property_name_by_id(prop_id)
+        })
       }
 
       # handle selected competitor ID
       if (is.null(selected_competitor_id)) {
-        selected_competitor_id <- shiny::reactive({ "none" })
+        selected_competitor_id <- shiny::reactive({
+          "none"
+        })
       }
 
       # initialize reactives
@@ -142,8 +145,12 @@ mod_survey_rents_server <- function(
       db_refresh_trigger <- shiny::reactiveVal(0)
 
       # selected property/competitor ID
-      current_id <- shiny::reactive({ selected_property_id() })
-      current_name <- shiny::reactive({ get_property_name_by_id(selected_property_id()) })
+      current_id <- shiny::reactive({
+        selected_property_id()
+      })
+      current_name <- shiny::reactive({
+        get_property_name_by_id(selected_property_id())
+      })
 
       # rents by floorplan data
       rents_data <- shiny::reactive({
@@ -167,8 +174,7 @@ mod_survey_rents_server <- function(
 
       # return reactive values
       return(
-        list(
-        )
+        list()
       )
     }
   )
