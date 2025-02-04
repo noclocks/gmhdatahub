@@ -10,7 +10,7 @@ CREATE TABLE survey.utilities (
   utility_available BOOLEAN NOT NULL,
   utility_included BOOLEAN NOT NULL,
   utility_capped BOOLEAN NOT NULL,
-  utility_allowance BOOLEAN NOT NULL,
+  utility_allowance NUMERIC(10,2) NOT NULL,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   created_by UUID REFERENCES survey.users(user_id),
