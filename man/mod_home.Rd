@@ -9,7 +9,7 @@
 \usage{
 mod_home_ui(id)
 
-mod_home_server(id, pool = NULL, global_filters = NULL, navigate_func = NULL)
+mod_home_server(id, pool = NULL, navigate_func = NULL, guide = NULL)
 
 mod_home_demo()
 }
