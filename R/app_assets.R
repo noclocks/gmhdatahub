@@ -45,6 +45,7 @@ add_external_resources <- function() {
     fontawesome::fa_html_dependency(),
     rintrojs::introjsUI(),
     conductor::use_conductor(),
+    htmltools::tags$link(href = "www/styles/css/custom-styles.css", rel = "stylesheet"),
     app_favicon()
   )
 }
@@ -91,5 +92,3 @@ app_favicon <- function(path = "www/favicon.ico") {
     )
   )
 }
-
-    htmltools::tags$link(href = "www/styles/css/custom-styles.css", rel = "stylesheet")
