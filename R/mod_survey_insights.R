@@ -45,7 +45,46 @@ mod_survey_insights_ui <- function(id) {
   ns <- shiny::NS(id)
 
   htmltools::tagList(
-    bslib::card()
+    bslib::page_fluid(
+      bslib::card(
+        bslib::card_header(
+          htmltools::tags$span(
+            bsicons::bs_icon("bar-chart"),
+            "Survey Insights: ",
+            shiny::textOutput(ns("selected_property_title"), inline = TRUE)
+          ),
+          class = "bg-dark text-white"
+        ),
+        bslib::card_body(
+          bslib::layout_column_wrap(
+            width = 1/2,
+            bslib::card(
+              bslib::card_header(icon_text("line-chart", "Occupancy Trends")),
+              bslib::card_body(
+                apexcharter::apexchartOutput(ns("occupancy_chart")) |>
+                  with_loader()
+              ),
+              bslib::card_footer(
+                shiny::textOutput(ns("occupancy_chart_last_updated"))
+              )
+            ),
+            bslib::card(
+              bslib::card_header(icon_text("line-chart", "Rent Comparison")),
+              bslib::card_body(
+                apexcharter::apexchartOutput(ns("rent_chart")) |>
+                  with_loader()
+              ),
+              bslib::card_footer(
+                shiny::textOutput(ns("rent_chart_last_updated"))
+              )
+            )
+          )
+        ),
+        bslib::card_footer(
+          shiny::actionButton(ns("refresh_button"), "Refresh Insights")
+        )
+      )
+    )
   )
 }
 
@@ -115,5 +154,3 @@ mod_survey_insights_demo <- function() {
 
   shiny::shinyApp(ui, server)
 }
-
-# utilities ---------------------------------------------------------------
