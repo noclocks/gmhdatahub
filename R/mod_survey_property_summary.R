@@ -228,10 +228,13 @@ mod_survey_property_summary_server <- function(
     id,
     pool = NULL,
     selected_property_id = NULL,
-    edit_survey_section = NULL) {
+    edit_survey_section = NULL
+) {
+
   shiny::moduleServer(
     id,
     function(input, output, session) {
+
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_property_summary_server()")
 

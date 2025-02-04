@@ -61,23 +61,20 @@ mod_survey_fees_ui <- function(id) {
 mod_survey_fees_server <- function(
     id,
     pool = NULL,
-    global_filters = NULL,
     selected_property_id = NULL,
-    edit_survey_section = NULL) {
-  # check database connection
-  if (is.null(pool)) pool <- db_connect()
-  check_db_conn(pool)
-
-  # validation of reactives
-  if (!is.null(global_filters)) {
-    stopifnot(shiny::is.reactive(global_filters))
-  }
+    edit_survey_section = NULL
+) {
 
   shiny::moduleServer(
     id,
     function(input, output, session) {
+
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_fees_server()")
+
+      # check database connection
+      if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
+      check_db_conn(pool)
 
       # handle selected property ID
       if (is.null(selected_property_id)) {

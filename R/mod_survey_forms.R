@@ -65,7 +65,7 @@ mod_survey_forms_ui <- function(id) {
       # ),
       bslib::navset_card_tab(
         id = ns("survey_tabs"),
-        # title = "GMH Communities - Leasing Market Survey Sections",
+        title = "GMH Communities - Leasing Market Survey Sections",
         sidebar = bslib::sidebar(
           title = icon_text("filter", "Filters"),
           width = 300,
@@ -165,22 +165,19 @@ mod_survey_forms_ui <- function(id) {
 #' @importFrom cli cat_rule
 mod_survey_forms_server <- function(
     id,
-    pool = NULL,
-    global_filters = NULL) {
-  # check database connection
-  if (is.null(pool)) pool <- db_connect()
-  check_db_conn(pool)
-
-  # validation of reactives
-  if (!is.null(global_filters)) {
-    stopifnot(shiny::is.reactive(global_filters))
-  }
+    pool = NULL
+) {
 
   shiny::moduleServer(
     id,
     function(input, output, session) {
+
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_forms_server()")
+
+      # check database connection
+      if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
+      check_db_conn(pool)
 
       # selected tab ------------------------------------------------------------
       # selected_tab <- shiny::reactive({
@@ -286,86 +283,79 @@ mod_survey_forms_server <- function(
 
       # sub-modules -------------------------------------------------------------
       property_summary_data <- mod_survey_property_summary_server(
-        "property_summary",
+        id = "property_summary",
         pool = pool,
-        # selected_property_id = selected_property_id,
         selected_property_id = session$userData$selected_survey_property(),
-        edit = shiny::reactive({
-          input$edit_survey_section
-        })
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
       leasing_summary_data <- mod_survey_leasing_summary_server(
-        "leasing_summary",
+        id = "leasing_summary",
         pool = pool,
         selected_property_id = session$userData$selected_survey_property(),
-        edit = shiny::reactive({
-          input$edit_survey_section
-        })
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
       short_term_leases_data <- mod_survey_short_term_leases_server(
-        "short_term_leases",
+        id = "short_term_leases",
         pool = pool,
-        global_filters = global_filters,
         selected_property_id = session$userData$selected_survey_property(),
-        edit = shiny::reactive({
-          input$edit_survey_section
-        })
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
       fees_data <- mod_survey_fees_server(
-        "fees",
+        id = "fees",
         pool = pool,
-        global_filters = global_filters,
         selected_property_id = session$userData$selected_survey_property(),
-        edit = shiny::reactive({
-          input$edit_survey_section
-        })
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
       property_amenities_data <- mod_survey_property_amenities_server(
-        "property_amenities",
+        id = "property_amenities",
         pool = pool,
         selected_property_id = session$userData$selected_survey_property(),
         selected_competitor_id = input$competitor,
-        edit_survey_section = shiny::reactive({
-          input$edit_survey_section
-        })
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
       unit_amenities_data <- mod_survey_unit_amenities_server(
-        "unit_amenities",
+        id = "unit_amenities",
         pool = pool,
         selected_property_id = session$userData$selected_survey_property(),
         selected_competitor_id = input$competitor,
-        edit_survey_section = shiny::reactive({
-          input$edit_survey_section
-        })
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
       parking_data <- mod_survey_parking_server(
-        "parking",
+        id = "parking",
         pool = pool,
-        global_filters = global_filters
+        selected_property_id = session$userData$selected_survey_property(),
+        selected_competitor_id = input$competitor,
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
       utilities_data <- mod_survey_utilities_server(
         "utilities",
         pool = pool,
-        global_filters = global_filters
+        selected_property_id = session$userData$selected_survey_property(),
+        selected_competitor_id = input$competitor,
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
       notes_data <- mod_survey_notes_server(
         "notes",
         pool = pool,
-        global_filters = global_filters
+        selected_property_id = session$userData$selected_survey_property(),
+        selected_competitor_id = input$competitor,
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
       rents_data <- mod_survey_rents_server(
         "rents",
         pool = pool,
-        global_filters = global_filters
+        selected_property_id = session$userData$selected_survey_property(),
+        selected_competitor_id = input$competitor,
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
       return(

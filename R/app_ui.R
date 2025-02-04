@@ -54,11 +54,11 @@ app_ui <- function(req = NULL) {
       window_title = "GMH DataHub",
       position = "static-top",
       selected = "survey_forms",
-      # header = app_header_ui(),
       theme = app_theme_ui(),
       title = app_title_ui(),
-      # sidebar = app_sidebar_ui("sidebar"),
       footer = app_footer_ui(),
+      # header = app_header_ui(),
+      # sidebar = app_sidebar_ui("sidebar"),
       bslib::nav_spacer(),
       bslib::nav_panel(
         title = "Home",

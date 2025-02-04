@@ -103,12 +103,9 @@ mod_survey_insights_swot <- function(id) {
 
 # server ------------------------------------------------------------------
 
-#' @rdname mod_swot_analysis
-#'
+#' @rdname mod_survey_insights_swot
 #' @export
-#'
 #' @importFrom shiny moduleServer reactiveValues observe observeEvent updateTextAreaInput
-#' @importFrom logger info
 mod_survey_insights_swot_server <- function(id, pool = NULL) {
   shiny::moduleServer(
     id,
@@ -128,28 +125,28 @@ mod_survey_insights_swot_server <- function(id, pool = NULL) {
         before <- rv$swot$strengths
         rv$swot$strengths <- input$strengths
         after <- rv$swot$strengths
-        logger::info("[SWOT Analysis]: Strengths changed from {.field {before}}' to '{.field {after}}'.")
+        cli::cli_alert_info("[SWOT Analysis]: Strengths changed from {.field {before}}' to '{.field {after}}'.")
       })
 
       shiny::observeEvent(input$weaknesses, {
         before <- rv$swot$weaknesses
         rv$swot$weaknesses <- input$weaknesses
         after <- rv$swot$weaknesses
-        logger::info("[SWOT Analysis]: Weaknesses changed from {.field {before}}' to '{.field {after}}'.")
+        cli::cli_alert_info("[SWOT Analysis]: Weaknesses changed from {.field {before}}' to '{.field {after}}'.")
       })
 
       shiny::observeEvent(input$opportunities, {
         before <- rv$swot$opportunities
         rv$swot$opportunities <- input$opportunities
         after <- rv$swot$opportunities
-        logger::info("[SWOT Analysis]: Opportunities changed from {.field {before}}' to '{.field {after}}'.")
+        cli::cli_alert_info("[SWOT Analysis]: Opportunities changed from {.field {before}}' to '{.field {after}}'.")
       })
 
       shiny::observeEvent(input$threats, {
         before <- rv$swot$threats
         rv$swot$threats <- input$threats
         after <- rv$swot$threats
-        logger::info("[SWOT Analysis]: Threats changed from {.field {before}}' to '{.field {after}}'.")
+        cli::cli_alert_info("[SWOT Analysis]: Threats changed from {.field {before}}' to '{.field {after}}'.")
       })
 
       # render reactive values
@@ -198,6 +195,9 @@ mod_survey_insights_swot_server <- function(id, pool = NULL) {
   )
 }
 
+#' @rdname mod_survey_insights_swot
+#' @export
+#' @importFrom pkgload load_all
 mod_survey_insights_swot_demo <- function() {
   pkgload::load_all()
 
@@ -225,7 +225,6 @@ mod_survey_insights_swot_demo <- function() {
 
 # helpers -----------------------------------------------------------------
 
-
 #' Observe SWOT Change
 #'
 #' @description
@@ -239,7 +238,6 @@ mod_survey_insights_swot_demo <- function() {
 #' @export
 #'
 #' @importFrom shiny observeEvent
-#' @importFrom logger info
 #'
 #' @examples
 #' if (interactive()) {
@@ -254,6 +252,6 @@ observe_swot_change <- function(input_field, field_name) {
     before <- rv$swot[[field_name]]
     rv$swot[[field_name]] <- input[[input_field]]
     after <- rv$swot[[field_name]]
-    logger::info("[SWOT Analysis]: {field_name} changed from '{before}' to '{after}'.")
+    cli::cli_alert_info("[SWOT Analysis]: {field_name} changed from '{before}' to '{after}'.")
   })
 }

@@ -78,7 +78,8 @@ mod_survey_property_amenities_server <- function(
     pool = NULL,
     selected_property_id = NULL,
     selected_competitor_id = NULL,
-    edit_survey_section = NULL) {
+    edit_survey_section = NULL
+) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
@@ -225,10 +226,10 @@ mod_survey_property_amenities_server <- function(
           property_amenities$amenity,
           function(amenity) {
             shiny::observeEvent(input[[amenity]],
-              {
-                input_changes(input_changes() + 1)
-              },
-              ignoreInit = TRUE
+                                {
+                                  input_changes(input_changes() + 1)
+                                },
+                                ignoreInit = TRUE
             )
           }
         )
@@ -327,8 +328,8 @@ mod_survey_property_amenities_server <- function(
             htmltools::tags$h3(
               class = "text-primary mb-2",
               bsicons::bs_icon(amenity_section_icons |>
-                dplyr::filter(category == !!category) |>
-                dplyr::pull(icon)),
+                                 dplyr::filter(category == !!category) |>
+                                 dplyr::pull(icon)),
               category
             ),
             if (nrow(amenities) > 0) {

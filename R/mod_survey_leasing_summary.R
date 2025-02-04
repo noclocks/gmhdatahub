@@ -212,13 +212,13 @@ mod_survey_leasing_summary_server <- function(
     id,
     pool = NULL,
     selected_property_id = NULL,
-    edit_survey_section = NULL) {
-  # validation of reactives
-  if (!is.null(selected_property_id)) stopifnot(shiny::is.reactive(selected_property_id))
+    edit_survey_section = NULL
+) {
 
   shiny::moduleServer(
     id,
     function(input, output, session) {
+
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_leasing_summary_server()")
 

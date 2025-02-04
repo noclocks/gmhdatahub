@@ -186,5 +186,3 @@ mod_survey_hours_demo <- function() {
 
   shiny::shinyApp(ui, server)
 }
-
-# utilities ---------------------------------------------------------------
