@@ -34,7 +34,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Run the Shiny Application</h1>
-      <small class="dont-index">Source: <a href="https://github.com/noclocks/gmhdatahub/blob/main/R/app_run.R" class="external-link"><code>R/app_run.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/noclocks/gmhdatahub/blob/develop/R/app_run.R" class="external-link"><code>R/app_run.R</code></a></small>
       <div class="d-none name"><code>run_app.Rd</code></div>
     </div>
 
@@ -47,6 +47,8 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">run_app</span><span class="op">(</span></span>
 <span>  port <span class="op">=</span> <span class="fl">8080</span>,</span>
 <span>  host <span class="op">=</span> <span class="st">"0.0.0.0"</span>,</span>
+<span>  app_config <span class="op">=</span> <span class="fu">get_app_config</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  auth_config <span class="op">=</span> <span class="fu">get_auth_config</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  on_start <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  options <span class="op">=</span> <span class="fu"><a href="app_opts.html">app_opts</a></span><span class="op">(</span>port <span class="op">=</span> <span class="va">port</span>, host <span class="op">=</span> <span class="va">host</span><span class="op">)</span>,</span>
 <span>  enable_bookmarking <span class="op">=</span> <span class="cn">NULL</span>,</span>

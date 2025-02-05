@@ -81,6 +81,13 @@ GMH Data Hub Platform R Package
 <li><a href="#badges">Badges</a></li>
 <li><a href="#overview">Overview</a></li>
 <li><a href="#installation">Installation</a></li>
+<li>
+<a href="#app-architecture">App Architecture</a>
+<ul>
+<li><a href="#core-app-components">Core App Components</a></li>
+<li><a href="#modules">Modules</a></li>
+</ul>
+</li>
 <li><a href="#resources">Resources</a></li>
 </ul>
 </div>
@@ -102,6 +109,120 @@ GMH Data Hub Platform R Package
 <p>You can install the development version of <code>gmhdatahub</code> with the following:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"noclocks/gmhdatahub"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="app-architecture">App Architecture<a class="anchor" aria-label="anchor" href="#app-architecture"></a>
+</h2>
+<p>The <code>gmhdatahub</code> package’s Shiny App consists of multiple modules and functions that need to be properly integrated for a seamless workflow.</p>
+<p>Below is a structured overview of the app’s architecture:</p>
+<div class="section level3">
+<h3 id="core-app-components">Core App Components<a class="anchor" aria-label="anchor" href="#core-app-components"></a>
+</h3>
+<p>Primary app entry point is <code><a href="reference/run_app.html">gmhdatahub::run_app()</a></code>, which initializes the UI and server.</p>
+<p>The app is divided into multiple modules, each handling a specific aspect of the data hub platform:</p>
+<ul>
+<li>
+<a href="R/app_ui.R"><code>R/app_ui.R</code></a>: Contains the UI components for the app.</li>
+<li>
+<a href="R/app_server.R"><code>R/app_server.R</code></a>: Contains the server logic for the app.</li>
+<li>
+<a href="R/app_sidebar.R"><code>R/app_sidebar.R</code></a>: Contains the sidebar logic for the app.</li>
+<li>
+<a href="R/app_theme.R"><code>R/app_theme.R</code></a>: Contains the theme settings for the app.</li>
+<li>
+<a href="R/app_assets.R"><code>R/app_assets.R</code></a>: Contains the asset settings for the app.</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="modules">Modules<a class="anchor" aria-label="anchor" href="#modules"></a>
+</h3>
+<p>The shiny app is modularized, with each module handling a specific aspect of the data hub platform:</p>
+<p><strong>Main Modules/Pages</strong>:</p>
+<ul>
+<li>
+<a href="R/mod_home.R"><code>R/mod_home.R</code></a>: Contains the home module for the app.</li>
+<li>
+<a href="R/mod_dashboard.R"><code>R/mod_dashboard.R</code></a>: Contains the dashboard module for the app.</li>
+<li>
+<a href="R/mod_pre_lease.R"><code>R/mod_pre_lease.R</code></a>: Contains the pre-lease module for the app.</li>
+</ul>
+<p>plus,</p>
+<ul>
+<li>
+<a href="R/mod_custom_sign_in.R"><code>R/mod_custom_sign_in.R</code></a>: Contains the custom sign-in module for the app.</li>
+</ul>
+<p><strong>Survey Modules/Sections:</strong></p>
+<ul>
+<li>
+<a href="R/mod_survey_admin.R"><code>R/mod_survey_admin.R</code></a>: Contains the survey admin module for the app.</li>
+<li>
+<a href="R/mod_survey_forms.R"><code>R/mod_survey_forms.R</code></a>: Contains the survey forms module for the app.
+<ul>
+<li>
+<a href="R/mod_survey_property_summary.R"><code>R/mod_survey_property_summary.R</code></a>: Contains the survey’s property summary section.</li>
+<li>
+<a href="R/mod_survey_leasing_summary.R"><code>R/mod_survey_leasing_summary.R</code></a>: Contains the survey’s leasing summary section.</li>
+<li>
+<a href="R/mod_survey_fees_summary.R"><code>R/mod_survey_fees_summary.R</code></a>: Contains the survey’s fees summary section.</li>
+<li>
+<a href="R/mod_survey_short_term_leases.R"><code>R/mod_survey_short_term_leases.R</code></a>: Contains the survey’s short-term leases section.</li>
+<li>
+<a href="R/mod_survey_notes.R"><code>R/mod_survey_notes.R</code></a>: Contains the survey’s notes section.</li>
+<li>
+<a href="R/mod_survey_property_amenities.R"><code>R/mod_survey_property_amenities.R</code></a>: Contains the survey’s property amenities section.</li>
+<li>
+<a href="R/mod_survey_unit_amenities.R"><code>R/mod_survey_unit_amenities.R</code></a>: Contains the survey’s unit amenities section.</li>
+<li>
+<a href="R/mod_survey_utilities.R"><code>R/mod_survey_utilities.R</code></a>: Contains the survey’s utilities section.</li>
+<li>
+<a href="R/mod_survey_parking.R"><code>R/mod_survey_parking.R</code></a>: Contains the survey’s parking section.</li>
+<li>
+<a href="R/mod_survey_rents.R"><code>R/mod_survey_rents.R</code></a>: Contains the survey’s rent tables section.</li>
+</ul>
+</li>
+<li>
+<a href="R/mod_survey_insights.R"><code>R/mod_survey_insights.R</code></a>: Contains the survey insights module for the app.
+<ul>
+<li>
+<a href="R/mod_survey_insights_trends.R"><code>R/mod_survey_insights_trends.R</code></a>: Contains the survey insights trends section.</li>
+<li>
+<a href="R/mod_survey_insights_comparison.R"><code>R/mod_survey_insights_comparison.R</code></a>: Contains the survey insights comparison section.</li>
+<li>
+<a href="R/mod_survey_insights_swot.R"><code>R/mod_survey_insights_swot.R</code></a>: Contains the survey insights SWOT Analysis.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Charts &amp; Visuals</strong>:</p>
+<ul>
+<li><p><a href="R/chart_current_vs_prior.R"><code>R/chart_current_vs_prior.R</code></a>: Contains the current vs. prior year chart.</p></li>
+<li><p><a href="R/chart_occupancy.R"><code>R/chart_occupancy.R</code></a>: Contains the occupancy chart.</p></li>
+<li><p><a href="R/chart_partner_distribution.R"><code>R/chart_partner_distribution.R</code></a>: Contains the partner distribution chart.</p></li>
+<li><p><a href="R/chart_portfolio_summary.R"><code>R/chart_portfolio_summary.R</code></a>: Contains the portfolio summary chart.</p></li>
+<li><p><a href="R/chart_pre_lease_rates.R"><code>R/chart_pre_lease_rates.R</code></a>: Contains the pre-lease rates chart.</p></li>
+<li><p><a href="R/chart_valocity.R"><code>R/chart_velocity.R</code></a>: Contains the leasing velocity chart.</p></li>
+<li><p><a href="R/chart_weekly.R"><code>R/chart_weekly.R</code></a>: Contains the weekly (pre-lease metrics) chart</p></li>
+<li><p><a href="R/chart_yoy_variance.R"><code>R/chart_yoy_variance.R</code></a>: Contains the year-over-year variance chart.</p></li>
+<li><p><a href="R/map_survey_locations.R"><code>R/map_survey_locations.R</code></a>: Contains the survey locations map.</p></li>
+<li><p><a href="R/tbl_avg_rents_by_unit_type.R"><code>R/tbl_avg_rents_by_unit_type.R</code></a>: Contains the average rents by unit type table.</p></li>
+<li><p><a href="R/tbl_pre_lease_summary.R"><code>R/tbl_pre_lease_summary.R</code></a>: Contains the pre-lease summary table.</p></li>
+<li><p><a href="R/tbl_property_leasing_summary.R"><code>R/tbl_property_leasing_summary.R</code></a>: Contains the property leasing summary table.</p></li>
+<li><p><a href="R/tbl_recent_activity.R"><code>R/tbl_recent_activity.R</code></a>: Contains the recent activity table.</p></li>
+<li><p><a href="R/tbl_rents_by_floorplan.R"><code>R/tbl_rents_by_floorplan.R</code></a>: Contains the rents by floorplan table.</p></li>
+<li><p><a href="R/tbl_survey_locations.R"><code>R/tbl_survey_locations.R</code></a>: Contains the survey locations table.</p></li>
+<li><p><a href="R/tbl_survey_notes.R"><code>R/tbl_survey_notes.R</code></a>: Contains the survey notes table.</p></li>
+<li><p><a href="R/tbl_survey_property_competitors.R"><code>R/tbl_survey_property_competitors.R</code></a>: Contains the survey property competitors table.</p></li>
+<li><p><a href="R/tbl_survey_status.R"><code>R/tbl_survey_status.R</code></a>: Contains the survey status table.</p></li>
+</ul>
+<p><strong>Additional Components:</strong></p>
+<ul>
+<li>
+<a href="R/utils_cards.R"><code>R/utils_cards.R</code></a>: Contains the utility cards for the app.</li>
+<li>
+<a href="R/utils_charts.R"><code>R/utils_charts.R</code></a>: Contains the utility charts for the app.</li>
+<li>
+<a href="R/utils_maps.R"><code>R/utils_maps.R</code></a>: Contains the utility maps for the app.</li>
+</ul>
+</div>
 </div>
 <div class="section level2">
 <h2 id="resources">Resources<a class="anchor" aria-label="anchor" href="#resources"></a>
