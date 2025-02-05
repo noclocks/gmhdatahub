@@ -53,6 +53,9 @@ property_id,move_out_type_id,move_out_type_name
 518046,1,Eviction
 518046,2,Skip
 518046,4,Move Out
+100064798,1,Eviction
+100064798,2,Skip
+100064798,4,Move Out
 1143679,1,Eviction
 1143679,2,Skip
 1143679,4,Move Out

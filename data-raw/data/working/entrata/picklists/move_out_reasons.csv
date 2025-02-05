@@ -533,6 +533,28 @@ property_id,reason_id,reason_name,move_out_type_id
 518046,49734,Unhappy with Apartment Management,4
 518046,49249,Unhappy w/ Neighbors,4
 518046,50505,Unknown,4
+100064798,49238,Failure To Pay,1
+100064798,49239,Unknown Skip Reason,2
+100064798,49240,Disturbing Neighbors,1
+100064798,49732,Eviction,1
+100064798,49749,Graduating School,4
+100064798,49246,Health Reasons,4
+100064798,49241,Lied on Application,1
+100064798,49247,Need Larger Apartment,4
+100064798,49248,Need Smaller Apartment,4
+100064798,50185,Non-renewal,4
+100064798,49257,Non-Renewal (by Property),4
+100064798,49737,On-Site Transfer,4
+100064798,49242,Other Lease Violation,1
+100064798,49751,Relet/Lease Take Over,4
+100064798,49735,Relocated,4
+100064798,49250,Rent Too High,4
+100064798,49731,Skip/No Notice Given,4
+100064798,49750,Transfer,4
+100064798,49733,Transferred to Sister Property,4
+100064798,49734,Unhappy with Apartment Management,4
+100064798,49249,Unhappy w/ Neighbors,4
+100064798,50505,Unknown,4
 1143679,49238,Failure To Pay,1
 1143679,49239,Unknown Skip Reason,2
 1143679,50541,Denied by Entrata screening,4
