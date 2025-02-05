@@ -97,6 +97,119 @@ db_update_survey_unit_amenities <- function(pool, new_values) {
   return(invisible(data))
 }
 
+db_update_survey_property_summary <- function(
+    pool,
+    new_values,
+    survey_id = NULL,
+    user_id = NULL,
+    property_id = NULL,
+    competitor_id = NULL
+) {
+
+  check_db_conn(pool)
+
+  # get id (property id for property and competitor id for competitor)
+  comp_names <- db_read_tbl(pool, "survey.competitors", collect = FALSE) |>
+    dplyr::pull(competitor_name)
+  prop_names <- db_read_tbl(pool, "survey.properties", collect = FALSE) |>
+    dplyr::pull(property_name)
+
+  data <- new_values
+
+  if (data$property_name %in% prop_names) {
+    data <- data |>
+      dplyr::mutate(
+        property_id = purrr::map_int(.data$property_name, get_property_id_by_name),
+        competitor_id = NA_integer_
+      )
+  } else if (data$property_name %in% comp_names) {
+    data <- data |>
+      dplyr::mutate(
+        property_id = NA_integer_,
+        competitor_id = purrr::map_int(.data$property_name, get_competitor_id_by_name)
+      )
+  }
+
+  if (is.null(survey_id)) {
+    survey_id <- db_read_survey_id(
+      pool,
+      property_id = data$property_id,
+      competitor_id = data$competitor_id
+    )
+  }
+
+  if (is.null(user_id)) {
+    user_id <- get_user_id_by_email(pool, "jimmy.briggs@noclocks.dev")
+  }
+
+  summary_data <- data |>
+    dplyr::mutate(
+      survey_id = .env$survey_id,
+      created_by = .env$user_id,
+      updated_by = .env$user_id
+    ) |>
+    dplyr::select(
+      survey_id,
+      property_id,
+      competitor_id,
+      property_name,
+      property_website,
+      property_address,
+      property_phone,
+      property_developer,
+      property_manager,
+      property_owner,
+      property_type,
+      property_rating,
+      property_status,
+      comp_status,
+      year_built,
+      most_recent_sale,
+      distance_from_campus,
+      created_by,
+      updated_by
+    )
+
+  conn <- pool::poolCheckout(pool)
+  on.exit(pool::poolReturn(conn))
+
+  tryCatch(
+    {
+      dbx::dbxUpsert(
+        conn,
+        DBI::SQL("survey.property_summary"),
+        records = summary_data,
+        where_cols = c("survey_id", "property_name"),
+        skip_existing = FALSE
+      )
+
+      cli::cli_alert_success(
+        "Successfully updated property details."
+      )
+
+      shiny::showNotification(
+        "Successfully updated property details.",
+        duration = 500,
+        type = "default"
+      )
+    },
+    error = function(e) {
+      cli::cli_alert_danger(
+        "Failed to update property details: {.error {e$message}}"
+      )
+      shiny::showNotification(
+        "Failed to update property details.",
+        duration = 500,
+        type = "error"
+      )
+    }
+  )
+
+  return(invisible(summary_data))
+
+}
+
+
 
 db_update_survey_property_amenities <- function(pool, new_values) {
   check_db_conn(pool)
