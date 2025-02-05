@@ -55,26 +55,30 @@ mod_survey_insights_ui <- function(id) {
         ),
         sidebar = bslib::sidebar(
           title = icon_text("filter", "Filters"),
-          width = 300#,
-          # shiny::selectizeInput(
-          #   ns("property"),
-          #   label = icon_text("building", "Property"),
-          #   choices = app_choices_lst$properties,
-          #   selected = app_choices_lst$properties[["1047 Commonwealth Avenue"]]
-          # ),
-          # shiny::selectizeInput(
-          #   ns("competitor"),
-          #   label = icon_text("building", "Competitor"),
-          #   choices = c("None" = "none")
-          # ) |>
-          #   shinyjs::disabled(),
-          # shiny::dateInput(
-          #   ns("leasing_week"),
-          #   label = icon_text("calendar", "Leasing Week"),
-          #   value = current_week_start,
-          #   weekstart = 1,
-          #   daysofweekdisabled = c(0, 2:6)
-          # )
+          width = 300,
+          shiny::selectInput(
+            ns("property"),
+            label = icon_text("building", "Property"),
+            choices = app_choices_lst$properties,
+            selected = app_choices_lst$properties[["1047 Commonwealth Avenue"]]
+          ),
+          shiny::selectInput(
+            ns("competitor"),
+            label = icon_text("building", "Competitor"),
+            choices = c("None" = "none")
+          ) |>
+            shinyjs::disabled(),
+          shiny::dateRangeInput(
+            ns("date_range"),
+            label = icon_text("calendar", "Date Range"),
+            start = get_leasing_week_start_date() - lubridate::weeks(6),
+            end = lubridate::today()
+          )
+        ),
+        bslib::nav_panel(
+          title = "Overview",
+          value = ns("nav_overview"),
+          mod_survey_insights_overview_ui(ns("overview"))
         ),
         bslib::nav_panel(
           title = "Trends",
@@ -120,7 +124,12 @@ mod_survey_insights_server <- function(
       if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
       check_db_conn(pool)
 
+      # handle selected property/competitor
+      selected_property <- shiny::reactive({ input$property })
+      selected_competitor <- shiny::reactive({ input$competitor })
+
       # modules
+      mod_survey_insights_overview_server("overview", pool = pool, selected_property, selected_competitor)
       trends_data <- mod_survey_insights_trends_server("trends", pool = pool)
       comparison_data <- mod_survey_insights_comparison_server("comparison", pool = pool)
       swot_data <- mod_survey_insights_swot_server("swot", pool = pool)

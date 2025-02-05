@@ -64,10 +64,6 @@ mod_survey_parking_server <- function(
     selected_property_id = NULL,
     edit_survey_section = NULL
 ) {
-  # check database connection
-  if (is.null(pool)) pool <- db_connect()
-  check_db_conn(pool)
-
   shiny::moduleServer(
     id,
     function(input, output, session) {
@@ -75,33 +71,36 @@ mod_survey_parking_server <- function(
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_parking_server()")
 
+      # check database connection
+      if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
+      check_db_conn(pool)
+
       # handle selected property ID
       if (is.null(selected_property_id)) {
         selected_property_id <- shiny::reactive({
-          # property_id
-          session$userData$selected_survey_property()
+          get_property_id_by_name("1047 Commonwealth Avenue")
         })
       }
 
       db_refresh_trigger <- shiny::reactiveVal(0)
 
       parking_data <- shiny::reactive({
-        shiny::req(pool, selected_property_id(), session$userData$leasing_week())
+        shiny::req(pool, selected_property_id())#, session$userData$leasing_week())
 
         db_read_mkt_parking(
           pool,
           property_id = selected_property_id(),
-          competitor_id = session$userData$selected_survey_competitor(),
-          leasing_week = session$userData$leasing_week()
+          competitor_id = session$userData$selected_survey_competitor()#,
+          # leasing_week = session$userData$leasing_week()
         ) #|>
-          # # Remove `is_` from column names
-          # dplyr::rename_with(~ gsub('is_', '', .)) |>
-          # janitor::clean_names(case = 'title')
+        # # Remove `is_` from column names
+        # dplyr::rename_with(~ gsub('is_', '', .)) |>
+        # janitor::clean_names(case = 'title')
       })
 
       output$survey_parking_tbl <- reactable::renderReactable({
         data <- parking_data() # |>
-          # Change `FALSE` to `'No'` & `TRUE` to `'Yes'`
+        # Change `FALSE` to `'No'` & `TRUE` to `'Yes'`
 
         if (nrow(data) == 0) {
           data <- tibble::tribble(
@@ -279,7 +278,7 @@ mod_survey_parking_demo <- function() {
   ui <- bslib::page_navbar(
     title = "Demo: Survey Parking",
     window_title = "Demo: Survey Parking",
-    theme = app_theme(),
+    theme = app_theme_ui(),
     lang = "en",
     bslib::nav_spacer(),
     bslib::nav_panel(
@@ -287,14 +286,23 @@ mod_survey_parking_demo <- function() {
       value = "survey_parking",
       icon = bsicons::bs_icon("house"),
       mod_survey_parking_ui("demo")
+    ),
+    shiny::actionButton(
+      "edit_survey_section",
+      "Edit",
+      icon = shiny::icon("edit"),
+      style = "width: auto;",
+      class = "btn-sm btn-primary"
     )
   )
 
   server <- function(input, output, session) {
-    mod_survey_parking_server("demo")
+    mod_survey_parking_server(
+      "demo",
+      pool = db_connect(),
+      edit_survey_section = shiny::reactive(input$edit_survey_section)
+    )
   }
 
   shiny::shinyApp(ui, server)
 }
-
-# utilities ---------------------------------------------------------------

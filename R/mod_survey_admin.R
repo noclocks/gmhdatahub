@@ -46,80 +46,14 @@ mod_survey_admin_ui <- function(id) {
 
   htmltools::tagList(
     bslib::page_fluid(
-      bslib::card(
-        bslib::card_header(
-          class = "d-flex justify-content-between align-items-center",
-          htmltools::tags$h2("Survey Administration", class = "m-0"),
-          htmltools::tags$div(
-            class = "form-check form-switch",
-            htmltools::tags$input(
-              class = "form-check-input",
-              type = "checkbox",
-              id = ns("toggle_metrics"),
-              checked = "checked",
-              style = "cursor: pointer;"
-            ),
-            htmltools::tags$label(
-              class = "form-check-label",
-              `for` = ns("toggle_metrics"),
-              htmltools::tags$span(bsicons::bs_icon("eye-fill"), "Show Metrics")
-            )
-          )
-        ),
-        htmltools::tags$div(
-          id = ns("value_boxes"),
-          class = "my-4",
-          bslib::layout_column_wrap(
-            width = 1 / 3,
-            bslib::value_box(
-              title = "Total Properties",
-              value = shiny::textOutput(ns("val_properties")),
-              showcase = bsicons::bs_icon("buildings"),
-              theme = "primary",
-              class = "shadow-sm"
-            ),
-            bslib::value_box(
-              title = "Total Competitors",
-              value = shiny::textOutput(ns("val_competitors")),
-              showcase = bsicons::bs_icon("building"),
-              theme = "primary",
-              class = "shadow-sm"
-            ),
-            bslib::value_box(
-              title = "Total Surveys",
-              value = shiny::textOutput(ns("val_surveys")),
-              showcase = bsicons::bs_icon("clipboard"),
-              theme = "primary",
-              class = "shadow-sm"
-            )
-          )
-        )
-      ),
-      # actions section
-      bslib::card(
-        bslib::card_header("Actions"),
-        bslib::card_body(
-          htmltools::tags$span(
-            class = "help-block",
-            style = "align: center;",
-            htmltools::tags$p(
-              shiny::icon("info-circle"),
-              "Use the buttons below to add new properties, competitors, or create a new survey."
-            )
-          ),
-          bslib::layout_column_wrap(
-            width = 1 / 3,
-            shiny::actionButton(ns("add_property"), "Add New Property", icon = shiny::icon("plus"), class = "btn-primary"),
-            shiny::actionButton(ns("add_competitor"), "Add New Competitor", icon = shiny::icon("plus"), class = "btn-primary"),
-            shiny::actionButton(ns("create_survey"), "Create New Survey", icon = shiny::icon("plus"), class = "btn-success")
-          )
-        )
-      ),
 
-      # navset card
       bslib::navset_card_underline(
         id = ns("nav"),
         title = htmltools::tags$span(bsicons::bs_icon("clipboard"), "Survey Admin"),
+        sidebar = NULL,
+        header = NULL,
+        footer = NULL,
+
         bslib::nav_panel(
           title = icon_text("dashboard", "Overview"),
           bslib::layout_columns(
@@ -161,6 +95,87 @@ mod_survey_admin_ui <- function(id) {
           )
         )
       ),
+
+      bslib::card(
+        bslib::card_header(
+          class = "d-flex justify-content-between align-items-center",
+          htmltools::tags$h2("Market Survey Administration", class = "m-0"),
+          bslib::input_switch(
+            ns("toggle_metrics"),
+            label = icon_text("eye-fill", "Toggle Metrics Display", .function = bsicons::bs_icon),
+            value = TRUE
+          )
+          # htmltools::tags$div(
+          #   class = "form-check form-switch",
+          #   htmltools::tags$input(
+          #     class = "form-check-input",
+          #     type = "checkbox",
+          #     id = ns("toggle_metrics"),
+          #     checked = "checked",
+          #     style = "cursor: pointer;"
+          #   ),
+          #   htmltools::tags$label(
+          #     class = "form-check-label",
+          #     `for` = ns("toggle_metrics"),
+          #     htmltools::tags$span(bsicons::bs_icon("eye-fill"), "Show Metrics")
+          #   )
+          # )
+        ),
+        bslib::card_body(
+          htmltools::tags$div(
+            id = ns("value_boxes"),
+            class = "my-4",
+            bslib::layout_column_wrap(
+              width = 1 / 3,
+              bslib::value_box(
+                title = "Total Properties",
+                value = shiny::textOutput(ns("val_properties")),
+                showcase = bsicons::bs_icon("buildings"),
+                theme = "primary",
+                class = "shadow-sm"
+              ),
+              bslib::value_box(
+                title = "Total Competitors",
+                value = shiny::textOutput(ns("val_competitors")),
+                showcase = bsicons::bs_icon("building"),
+                theme = "primary",
+                class = "shadow-sm"
+              ),
+              bslib::value_box(
+                title = "Total Surveys",
+                value = shiny::textOutput(ns("val_surveys")),
+                showcase = bsicons::bs_icon("clipboard"),
+                theme = "primary",
+                class = "shadow-sm"
+              )
+            )
+          )
+        )
+
+      ),
+      # actions section
+      bslib::card(
+        bslib::card_header("Actions"),
+        bslib::card_body(
+          htmltools::tags$span(
+            class = "help-block",
+            style = "align: center;",
+            htmltools::tags$p(
+              shiny::icon("info-circle"),
+              "Use the buttons below to add new properties, competitors, or create a new survey."
+            )
+          ),
+          bslib::layout_column_wrap(
+            width = 1 / 3,
+            shiny::actionButton(ns("add_property"), "Add New Property", icon = shiny::icon("plus"), class = "btn-primary"),
+            shiny::actionButton(ns("add_competitor"), "Add New Competitor", icon = shiny::icon("plus"), class = "btn-primary"),
+            shiny::actionButton(ns("create_survey"), "Create New Survey", icon = shiny::icon("plus"), class = "btn-success")
+          )
+        )
+      ),
+
+      # navset card
+
       bslib::card(
         bslib::card_header(
           class = "bg-dark text-white",
