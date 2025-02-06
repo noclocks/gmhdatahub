@@ -266,18 +266,15 @@ mod_survey_property_summary_ui <- function(id) {
 #' @importFrom shiny moduleServer reactive
 #' @importFrom cli cat_rule
 mod_survey_property_summary_server <- function(
-  id,
-  pool = NULL,
-  survey_data = NULL,
-  map_data = NULL,
-  selected_filters = NULL,
-  edit_survey_section = NULL
-) {
-
+    id,
+    pool = NULL,
+    survey_data = NULL,
+    map_data = NULL,
+    selected_filters = NULL,
+    edit_survey_section = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       # setup ------------------------------------------------------------
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_property_summary_server()")
@@ -434,7 +431,8 @@ mod_survey_property_summary_server <- function(
           return(
             leaflet::leaflet() |>
               leaflet::addProviderTiles(leaflet::providers$CartoDB.Positron) |>
-              leaflet::setView(lng = -98.35, lat = 39.5, zoom = 4))
+              leaflet::setView(lng = -98.35, lat = 39.5, zoom = 4)
+          )
         }
 
         map_data_split <- map_data() |> split(~map_layer)
@@ -454,7 +452,8 @@ mod_survey_property_summary_server <- function(
         list(
           selected_filters$property_id,
           selected_filters$competitor_id
-        ), {
+        ),
+        {
           shiny::req(map_data())
 
           if (is.null(selected_filters$competitor_id)) {
@@ -476,8 +475,9 @@ mod_survey_property_summary_server <- function(
               lat = selected_data$latitude,
               zoom = 15
             )
-
-        }, ignoreInit = TRUE)
+        },
+        ignoreInit = TRUE
+      )
 
       # edit modal --------------------------------------------------------------
       shiny::observeEvent(edit_survey_section(), {
@@ -737,7 +737,6 @@ mod_survey_property_summary_server <- function(
         }
 
         modified
-
       })
 
       output$changes_preview <- shiny::renderUI({
@@ -772,21 +771,26 @@ mod_survey_property_summary_server <- function(
         list(
           input$refresh,
           db_refresh_trigger()
-        ), {
+        ),
+        {
           shiny::withProgress(
             message = "Refreshing Data...",
             detail = "Please wait...",
-            value = 0, {
-              shiny::incProgress(1/2, detail = "Refreshing Data...")
+            value = 0,
+            {
+              shiny::incProgress(1 / 2, detail = "Refreshing Data...")
               survey_data$property_summary <- db_read_survey_property_summary(
                 pool,
                 property_id = selected_filters$property_id,
                 competitor_id = selected_filters$competitor_id
               )
-              shiny::incProgress(1/2, detail = "Data Refreshed")
-          })
+              shiny::incProgress(1 / 2, detail = "Data Refreshed")
+            }
+          )
           shiny::showNotification("Data Refreshed", type = "default")
-      }, ignoreInit = TRUE)
+        },
+        ignoreInit = TRUE
+      )
 
       # shiny::observe({
       #   shiny::req(property_data())
@@ -800,7 +804,6 @@ mod_survey_property_summary_server <- function(
         property_data = property_data,
         changes = changes
       )
-
     }
   )
 }
@@ -814,7 +817,6 @@ mod_survey_property_summary_server <- function(
 #' @importFrom bsicons bs_icon
 #' @importFrom shiny shinyApp
 mod_survey_property_summary_demo <- function(pool = NULL) {
-
   pkgload::load_all()
 
   ui <- bslib::page_navbar(
@@ -840,7 +842,6 @@ mod_survey_property_summary_demo <- function(pool = NULL) {
   )
 
   server <- function(input, output, session) {
-
     if (is.null(pool)) pool <- db_connect()
 
     edit_survey_section <- shiny::reactive({

@@ -42,7 +42,6 @@ NULL
 #' @importFrom htmltools tagList tags
 #' @importFrom bslib card
 mod_survey_admin_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   htmltools::tagList(
@@ -80,14 +79,12 @@ mod_survey_admin_ui <- function(id) {
       # )
     ),
     bslib::page_fluid(
-
       bslib::navset_card_underline(
         id = ns("nav"),
         title = htmltools::tags$span(bsicons::bs_icon("clipboard"), "Survey Admin"),
         sidebar = NULL,
         header = NULL,
         footer = NULL,
-
         bslib::nav_panel(
           title = icon_text("dashboard", "Overview"),
           bslib::layout_columns(
@@ -129,7 +126,6 @@ mod_survey_admin_ui <- function(id) {
           )
         )
       ),
-
       bslib::card(
         bslib::card_header(
           class = "d-flex justify-content-between align-items-center",
@@ -185,7 +181,6 @@ mod_survey_admin_ui <- function(id) {
             )
           )
         )
-
       ),
       # actions section
       bslib::card(

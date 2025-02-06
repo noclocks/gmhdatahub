@@ -1,7 +1,7 @@
-
 prep_velocity_chart_data <- function(data, metrics) {
-
-  if (length(metrics) == 0) return(NULL)
+  if (length(metrics) == 0) {
+    return(NULL)
+  }
 
   data |>
     dplyr::select(
@@ -30,14 +30,15 @@ prep_velocity_chart_data <- function(data, metrics) {
 }
 
 prep_rates_chart_data <- function(data, rent_type, metrics) {
-
-  rent_cols <- if(rent_type == "bed") {
+  rent_cols <- if (rent_type == "bed") {
     c("market_rent_per_bed", "effective_rent_per_bed", "bundled_rent_per_bed")[metrics %in% c("market", "effective", "bundled")]
   } else {
     c("market_rent_per_unit", "effective_rent_per_unit", "bundled_rent_per_unit")[metrics %in% c("market", "effective", "bundled")]
   }
 
-  if(length(rent_cols) == 0) return(NULL)
+  if (length(rent_cols) == 0) {
+    return(NULL)
+  }
 
   data |>
     dplyr::select(
@@ -49,12 +50,12 @@ prep_rates_chart_data <- function(data, rent_type, metrics) {
       names_to = "rent_type",
       values_to = "amount"
     )
-
 }
 
 chart_velocity <- function(data) {
-
-  if (is.null(data)) return(NULL)
+  if (is.null(data)) {
+    return(NULL)
+  }
 
   apexcharter::apex(
     data,
@@ -119,12 +120,12 @@ chart_velocity <- function(data) {
       position = "top",
       horizontalAlign = "center"
     )
-
 }
 
 chart_rates_comparison <- function(data, rent_type) {
-
-  if(is.null(data)) return(NULL)
+  if (is.null(data)) {
+    return(NULL)
+  }
 
   apexcharter::apex(
     data = data,
@@ -132,8 +133,10 @@ chart_rates_comparison <- function(data, rent_type) {
     mapping = apexcharter::aes(x = property_name, y = amount, fill = rent_type)
   ) |>
     apexcharter::ax_title(
-      text = paste("Rent Analysis by Property -",
-                   if (rent_type == "bed") "Per Bed" else "Per Unit"),
+      text = paste(
+        "Rent Analysis by Property -",
+        if (rent_type == "bed") "Per Bed" else "Per Unit"
+      ),
       align = "center",
       style = list(fontSize = "16px")
     ) |>

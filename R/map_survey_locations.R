@@ -1,5 +1,4 @@
 map_survey_locations <- function(properties = NULL, competitors = NULL, universities = NULL) {
-
   requireNamespace("leaflet.extras", quietly = TRUE)
   requireNamespace("leaflet.providers", quietly = TRUE)
 
@@ -11,8 +10,8 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
 
   if (nrow(merged_data) == 0) {
     return(leaflet::leaflet() |>
-             leaflet::addProviderTiles(leaflet::providers$CartoDB.Positron) |>
-             leaflet::setView(lng = -98.35, lat = 39.5, zoom = 4))
+      leaflet::addProviderTiles(leaflet::providers$CartoDB.Positron) |>
+      leaflet::setView(lng = -98.35, lat = 39.5, zoom = 4))
   }
 
   bounds <- merged_data |>

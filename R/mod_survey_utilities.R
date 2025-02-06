@@ -46,8 +46,8 @@ mod_survey_utilities_ui <- function(id) {
 
   htmltools::tagList(
     bslib::card(
-      reactable::reactableOutput(ns('survey_utilities_tbl')),
-      reactable::reactableOutput(ns('survey_other_utilities_tbl'))
+      reactable::reactableOutput(ns("survey_utilities_tbl")),
+      reactable::reactableOutput(ns("survey_other_utilities_tbl"))
     )
   )
 }
@@ -63,13 +63,10 @@ mod_survey_utilities_server <- function(
     id,
     pool = NULL,
     selected_property_id = NULL,
-    edit_survey_section = NULL
-) {
-
+    edit_survey_section = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_utilities_server()")
 
@@ -79,7 +76,9 @@ mod_survey_utilities_server <- function(
 
       # handle selected property ID
       if (is.null(selected_property_id)) {
-        selected_property_id <- shiny::reactive({ get_property_id_by_name("1047 Commonwealth Avenue") })
+        selected_property_id <- shiny::reactive({
+          get_property_id_by_name("1047 Commonwealth Avenue")
+        })
       }
 
       db_refresh_trigger <- shiny::reactiveVal(0)

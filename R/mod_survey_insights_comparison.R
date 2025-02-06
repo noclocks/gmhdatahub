@@ -39,19 +39,15 @@ NULL
 #' @export
 #' @importFrom bslib nav_panel layout_columns card card_header
 mod_survey_insights_comparison_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   htmltools::tagList(
     bslib::page_fluid(
       bslib::layout_columns(
-        bslib::card(
-
-        )
+        bslib::card()
       )
     )
   )
-
 }
 
 
@@ -64,7 +60,6 @@ mod_survey_insights_comparison_server <- function(id, pool = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cli_rule("[Module]: mod_survey_insights_comparison_server()")
 
@@ -73,11 +68,8 @@ mod_survey_insights_comparison_server <- function(id, pool = NULL) {
       check_db_conn(pool)
 
       return(
-        list(
-
-        )
+        list()
       )
-
     }
   )
 }
@@ -88,7 +80,6 @@ mod_survey_insights_comparison_server <- function(id, pool = NULL) {
 #' @export
 #' @importFrom shiny shinyApp
 mod_survey_insights_comparison_demo <- function() {
-
   pkgload::load_all()
 
   ui <- bslib::page_fluid(
@@ -103,5 +94,4 @@ mod_survey_insights_comparison_demo <- function() {
   }
 
   shiny::shinyApp(ui, server)
-
 }

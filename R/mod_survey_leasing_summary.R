@@ -213,13 +213,10 @@ mod_survey_leasing_summary_server <- function(
     pool = NULL,
     survey_data = NULL,
     selected_filters = NULL,
-    edit_survey_section = NULL
-) {
-
+    edit_survey_section = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       # setup ------------------------------------------------------------
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_leasing_summary_server()")
@@ -235,7 +232,6 @@ mod_survey_leasing_summary_server <- function(
       # data --------------------------------------------------------------------
       shiny::observe({
         shiny::req(survey_data$leasing_summary)
-
       })
 
       leasing_summary_data <- shiny::reactive({

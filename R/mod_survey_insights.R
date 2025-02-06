@@ -42,7 +42,6 @@ NULL
 #' @importFrom htmltools tagList tags
 #' @importFrom bslib card
 mod_survey_insights_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   htmltools::tagList(
@@ -98,7 +97,6 @@ mod_survey_insights_ui <- function(id) {
       )
     )
   )
-
 }
 
 
@@ -110,13 +108,10 @@ mod_survey_insights_ui <- function(id) {
 #' @importFrom cli cat_rule
 mod_survey_insights_server <- function(
     id,
-    pool = NULL
-) {
-
+    pool = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_insights_server()")
 
@@ -125,8 +120,12 @@ mod_survey_insights_server <- function(
       check_db_conn(pool)
 
       # handle selected property/competitor
-      selected_property <- shiny::reactive({ input$property })
-      selected_competitor <- shiny::reactive({ input$competitor })
+      selected_property <- shiny::reactive({
+        input$property
+      })
+      selected_competitor <- shiny::reactive({
+        input$competitor
+      })
 
       # modules
       mod_survey_insights_overview_server("overview", pool = pool, selected_property, selected_competitor)

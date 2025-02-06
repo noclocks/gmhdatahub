@@ -163,7 +163,6 @@ preview_app_theme <- function(...) {
 #'
 #' @importFrom reactable reactableTheme
 reactable_theme <- function(...) {
-
   reactable::reactableTheme(
     color = gmh_colors("black"),
     backgroundColor = gmh_colors("white"),
@@ -180,7 +179,6 @@ reactable_theme <- function(...) {
     inputStyle = reactable_input_style(),
     ...
   )
-
 }
 
 reactable_selected_row_style <- function() {
@@ -257,4 +255,3 @@ reactable_default_col_def <- function(totals = NULL) {
     }
   )
 }
-
