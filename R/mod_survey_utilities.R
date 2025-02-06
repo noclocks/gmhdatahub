@@ -333,10 +333,10 @@ mod_survey_utilities_server <- function(
           prop_name <- selected_filters$property_name
         }
 
-        new_values <- rhandsontable::hot_to_r(input$modal_survey_fees_table) |>
+        new_values <- rhandsontable::hot_to_r(input$modal_survey_core_utilities_table) |>
           dplyr::mutate(utility_category = "Core") |>
           dplyr::bind_rows(
-            rhandsontable::hot_to_r(input$modal_survey_other_fees_table) |>
+            rhandsontable::hot_to_r(input$modal_survey_other_utilities_table) |>
               dplyr::mutate(utility_category = "Other")
           ) |>
           dplyr::mutate(
