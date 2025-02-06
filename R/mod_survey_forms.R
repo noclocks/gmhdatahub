@@ -334,6 +334,7 @@ mod_survey_forms_server <- function(
       }
 
       shiny::observe({
+        session$userData$db_refresh_trigger()
         prop_id <- selected_filters$property_id
         comp_id <- selected_filters$competitor_id
         week_id <- selected_filters$leasing_week_id
@@ -515,6 +516,7 @@ mod_survey_forms_server <- function(
         pool = pool,
         survey_data = survey_data,
         selected_filters = selected_filters,
+        db_trigger_func = db_trigger,
         edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 

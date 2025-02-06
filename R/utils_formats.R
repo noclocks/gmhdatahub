@@ -1,3 +1,14 @@
+format_boolean <- function(value) {
+  icon <- if (value) "✓" else "✗"
+  div(
+    style = list(
+      color = if (value) gmh_colors("success") else gmh_colors("danger"),
+      fontWeight = "bold"
+    ),
+    icon
+  )
+}
+
 html_tel <- function(phone) {
   phone_digits <- gsub("[^0-9]", "", phone)
   glue::glue("<a href='tel:{phone_digits}' target='_blank'>{phone}</a>")

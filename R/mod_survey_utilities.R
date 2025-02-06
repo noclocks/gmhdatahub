@@ -46,7 +46,7 @@ mod_survey_utilities_ui <- function(id) {
 
   htmltools::tagList(
     bslib::card(
-      reactable::reactableOutput(ns("survey_utilities_tbl")),
+      reactable::reactableOutput(ns("survey_core_utilities_tbl")),
       reactable::reactableOutput(ns("survey_other_utilities_tbl"))
     )
   )
@@ -64,6 +64,7 @@ mod_survey_utilities_server <- function(
     pool = NULL,
     survey_data = NULL,
     selected_filters = NULL,
+    db_trigger_func = NULL,
     edit_survey_section = NULL
 ) {
 
@@ -93,7 +94,7 @@ mod_survey_utilities_server <- function(
 
       # data --------------------------------------------------------------------
       utilities_data <- shiny::reactive({
-        shiny::req(nrow(survey_data$utilities) > 0)
+        shiny::req(survey_data$utilities)
         survey_data$utilities |>
           dplyr::select(
             utility_name,
@@ -120,7 +121,7 @@ mod_survey_utilities_server <- function(
           dplyr::select(-utility_category)
       })
 
-      output$survey_utilities_tbl <- reactable::renderReactable({
+      output$survey_core_utilities_tbl <- reactable::renderReactable({
         shiny::req(core_utilities_data())
 
         tbl_data <- core_utilities_data()
@@ -143,22 +144,24 @@ mod_survey_utilities_server <- function(
           highlight = TRUE,
           columns = list(
             utility_name = reactable::colDef(
-              name = "Utility"
+              name = "Utility",
+              cell = reactablefmtr::pill_buttons(data = tbl_data)
             ),
             utility_included = reactable::colDef(
-              name = "Included?"
+              name = "Included?",
+              cell = function(value) format_boolean(value)
             ),
             utility_available = reactable::colDef(
-              name = "Available?"
-            ),
-            utility_per = reactable::colDef(
-              name = "Per Bed/Unit"
+              name = "Available?",
+              cell = function(value) format_boolean(value)
             ),
             utility_capped = reactable::colDef(
-              name = "Capped?"
+              name = "Capped?",
+              cell = function(value) format_boolean(value)
             ),
             utility_per = reactable::colDef(
-              name = "Per Bed/Unit"
+              name = "Per Bed/Unit",
+              cell = reactablefmtr::pill_buttons(data = tbl_data)
             ),
             utility_allowance = reactable::colDef(
               name = "Allowance ($)",
@@ -191,22 +194,24 @@ mod_survey_utilities_server <- function(
           highlight = TRUE,
           columns = list(
             utility_name = reactable::colDef(
-              name = "Utility"
+              name = "Utility",
+              cell = reactablefmtr::pill_buttons(data = tbl_data)
             ),
             utility_included = reactable::colDef(
-              name = "Included?"
+              name = "Included?",
+              cell = function(value) format_boolean(value)
             ),
             utility_available = reactable::colDef(
-              name = "Available?"
-            ),
-            utility_per = reactable::colDef(
-              name = "Per Bed/Unit"
+              name = "Available?",
+              cell = function(value) format_boolean(value)
             ),
             utility_capped = reactable::colDef(
-              name = "Capped?"
+              name = "Capped?",
+              cell = function(value) format_boolean(value)
             ),
             utility_per = reactable::colDef(
-              name = "Per Bed/Unit"
+              name = "Per Bed/Unit",
+              cell = reactablefmtr::pill_buttons(data = tbl_data)
             ),
             utility_allowance = reactable::colDef(
               name = "Allowance ($)",
@@ -306,8 +311,6 @@ mod_survey_utilities_server <- function(
 
       shiny::observeEvent(input$save, {
 
-        browser()
-
         if (!is.na(selected_filters$competitor_id) && !is.null(selected_filters$competitor_id)) {
           prop_id <- NA_integer_
           comp_id <- selected_filters$competitor_id
@@ -401,7 +404,7 @@ mod_survey_utilities_server <- function(
             {
               db_update_survey_utilities(pool, changed_values)
               shiny::setProgress(value = 1, detail = "Changes saved.")
-              db_refresh_trigger(db_refresh_trigger() + 1)
+              db_trigger_func()
               shiny::removeModal()
             }
           )
