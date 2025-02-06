@@ -1,5 +1,4 @@
 mod_survey_insights_overview_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   htmltools::tagList(
@@ -63,7 +62,6 @@ mod_survey_insights_overview_ui <- function(id) {
       )
     )
   )
-
 }
 
 
@@ -72,12 +70,10 @@ mod_survey_insights_overview_server <- function(
     pool = NULL,
     selected_property_ids = NULL,
     selected_competitor_ids = NULL,
-    selected_date_range = NULL
-) {
+    selected_date_range = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cli_rule("[Module]: mod_survey_insights_overview_server()")
 
@@ -172,7 +168,6 @@ mod_survey_insights_overview_server <- function(
           rents_tbl,
           by = "property_name"
         )
-
       })
 
 
@@ -198,7 +193,6 @@ mod_survey_insights_overview_server <- function(
       })
 
       output$property_competitor_performance_table <- reactable::renderReactable({
-
         tbl_data <- demo_data() |>
           dplyr::group_by(property) |>
           dplyr::summarize(
@@ -253,7 +247,6 @@ mod_survey_insights_overview_server <- function(
       })
 
       output$velocity_traffic_chart <- apexcharter::renderApexchart({
-
         chart_data <- demo_data() |>
           tidyr::pivot_longer(
             cols = c("total_new_leases", "weekly_traffic"),
@@ -317,7 +310,6 @@ mod_survey_insights_overview_server <- function(
       })
 
       output$rate_adjustments_chart <- apexcharter::renderApexchart({
-
         chart_data <- demo_data()
 
         apexcharter::apex(
@@ -367,7 +359,7 @@ mod_survey_insights_overview_server <- function(
       })
 
       output$market_velocity_comparison_chart <- apexcharter::renderApexchart({
-        demo_data()  |>
+        demo_data() |>
           dplyr::group_by(property) |>
           apexcharter::apex(
             mapping = apexcharter::aes(x = date, y = total_new_leases, fill = property),
@@ -403,7 +395,6 @@ mod_survey_insights_overview_server <- function(
             formatter = htmlwidgets::JS("function(val) { return Math.round(val) }")
           )
       })
-
     }
   )
 }

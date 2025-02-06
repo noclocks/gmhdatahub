@@ -79,13 +79,10 @@ mod_survey_short_term_leases_server <- function(
     pool = NULL,
     survey_data = NULL,
     selected_filters = NULL,
-    edit_survey_section = NULL
-) {
-
+    edit_survey_section = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_short_term_leases_server()")
 

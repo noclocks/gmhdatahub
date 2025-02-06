@@ -1,6 +1,4 @@
-
 tbl_survey_fees <- function(fees_data) {
-
   req_cols <- c(
     "fee_name",
     "fee_amount",

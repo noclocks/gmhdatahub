@@ -83,8 +83,7 @@ mod_survey_unit_amenities_server <- function(
     pool = NULL,
     survey_data = NULL,
     selected_filters = NULL,
-    edit_survey_section = NULL
-) {
+    edit_survey_section = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
@@ -216,7 +215,6 @@ mod_survey_unit_amenities_server <- function(
 
       # modal
       shiny::observeEvent(edit_survey_section(), {
-
         shiny::req(session$userData$selected_survey_tab(), unit_amenities_data())
 
         if (session$userData$selected_survey_tab() != "nav_unit_amenities") {

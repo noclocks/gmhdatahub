@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Survey Schema Database Functions
@@ -72,12 +71,10 @@
 #   )
 # }
 db_read_survey_properties <- function(
-  pool,
-  property_id = NULL,
-  property_name = NULL,
-  collect = TRUE
-) {
-
+    pool,
+    property_id = NULL,
+    property_name = NULL,
+    collect = TRUE) {
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.properties")
@@ -109,16 +106,13 @@ db_read_survey_properties <- function(
   } else {
     return(hold_filtered)
   }
-
 }
 
 db_read_survey_competitors <- function(
     pool,
     property_id = NULL,
     competitor_id = NULL,
-    collect = TRUE
-) {
-
+    collect = TRUE) {
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.competitors")
@@ -243,9 +237,7 @@ db_read_survey_section_data <- function(
     pool,
     section,
     ...,
-    collect = TRUE
-) {
-
+    collect = TRUE) {
   check_db_pool(pool)
   section <- rlang::arg_match0(section, .survey_sections)
 
@@ -291,9 +283,7 @@ db_read_survey_property_summary <- function(
     pool,
     property_id = NULL,
     competitor_id = NULL,
-    collect = TRUE
-) {
-
+    collect = TRUE) {
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.property_summary", collect = FALSE)
@@ -318,7 +308,6 @@ db_read_survey_property_summary <- function(
   } else {
     return(hold)
   }
-
 }
 
 db_read_survey_leasing_summary <- function(
@@ -328,9 +317,7 @@ db_read_survey_leasing_summary <- function(
     competitor_id = NULL,
     leasing_week_id = NULL,
     property_name = NULL,
-    collect = TRUE
-) {
-
+    collect = TRUE) {
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.leasing_summary", collect = FALSE)
@@ -365,7 +352,6 @@ db_read_survey_leasing_summary <- function(
   } else {
     return(hold_filtered)
   }
-
 }
 
 db_read_survey_short_term_leases <- function(
@@ -374,9 +360,7 @@ db_read_survey_short_term_leases <- function(
     competitor_id = NULL,
     leasing_week_id = NULL,
     property_name = NULL,
-    collect = TRUE
-) {
-
+    collect = TRUE) {
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.short_term_leases", collect = FALSE)
@@ -410,7 +394,6 @@ db_read_survey_short_term_leases <- function(
   } else {
     return(hold_filtered)
   }
-
 }
 
 db_read_survey_fees <- function(
@@ -419,9 +402,7 @@ db_read_survey_fees <- function(
     competitor_id = NULL,
     leasing_week_id = NULL,
     property_name = NULL,
-    collect = TRUE
-) {
-
+    collect = TRUE) {
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.fees", collect = FALSE)
@@ -455,7 +436,6 @@ db_read_survey_fees <- function(
   } else {
     return(hold_filtered)
   }
-
 }
 
 db_read_survey_property_amenities <- function(
@@ -463,9 +443,7 @@ db_read_survey_property_amenities <- function(
     property_id = NULL,
     competitor_id = NULL,
     property_name = NULL,
-    collect = TRUE
-) {
-
+    collect = TRUE) {
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.property_amenities", collect = FALSE)
@@ -498,7 +476,6 @@ db_read_survey_property_amenities <- function(
   } else {
     return(hold_filtered)
   }
-
 }
 
 db_read_survey_unit_amenities <- function(
@@ -506,9 +483,7 @@ db_read_survey_unit_amenities <- function(
     property_id = NULL,
     competitor_id = NULL,
     property_name = NULL,
-    collect = TRUE
-) {
-
+    collect = TRUE) {
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.unit_amenities", collect = FALSE)
@@ -541,7 +516,6 @@ db_read_survey_unit_amenities <- function(
   } else {
     return(hold_filtered)
   }
-
 }
 
 db_read_survey_unit_amenities_rates_premiums <- function(
@@ -549,9 +523,7 @@ db_read_survey_unit_amenities_rates_premiums <- function(
     property_id = NULL,
     competitor_id = NULL,
     property_name = NULL,
-    collect = TRUE
-) {
-
+    collect = TRUE) {
   hold <- db_read_tbl(pool, "survey.unit_amenities_rates_premiums", collect = FALSE)
 
   filters <- list(
@@ -582,7 +554,6 @@ db_read_survey_unit_amenities_rates_premiums <- function(
   } else {
     return(hold_filtered)
   }
-
 }
 
 db_read_survey_hours <- function(
@@ -590,9 +561,7 @@ db_read_survey_hours <- function(
     property_id = NULL,
     competitor_id = NULL,
     property_name = NULL,
-    collect = TRUE
-) {
-
+    collect = TRUE) {
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.hours", collect = FALSE)
@@ -625,7 +594,6 @@ db_read_survey_hours <- function(
   } else {
     return(hold_filtered)
   }
-
 }
 
 db_read_survey_parking <- function(
@@ -633,9 +601,7 @@ db_read_survey_parking <- function(
     property_id = NULL,
     competitor_id = NULL,
     property_name = NULL,
-    collect = TRUE
-) {
-
+    collect = TRUE) {
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.parking", collect = FALSE)
@@ -668,7 +634,6 @@ db_read_survey_parking <- function(
   } else {
     return(hold_filtered)
   }
-
 }
 
 db_read_survey_utilities <- function(
@@ -676,9 +641,7 @@ db_read_survey_utilities <- function(
     property_id = NULL,
     competitor_id = NULL,
     property_name = NULL,
-    collect = TRUE
-) {
-
+    collect = TRUE) {
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.utilities", collect = FALSE)
@@ -711,7 +674,6 @@ db_read_survey_utilities <- function(
   } else {
     return(hold_filtered)
   }
-
 }
 
 db_read_survey_notes <- function(
@@ -720,9 +682,7 @@ db_read_survey_notes <- function(
     competitor_id = NULL,
     property_name = NULL,
     leasing_week_id = NULL,
-    collect = TRUE
-) {
-
+    collect = TRUE) {
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.notes", collect = FALSE) |>
@@ -761,7 +721,6 @@ db_read_survey_notes <- function(
   } else {
     return(hold_filtered)
   }
-
 }
 
 db_read_survey_rents_by_floorplan <- function(
@@ -770,9 +729,7 @@ db_read_survey_rents_by_floorplan <- function(
     competitor_id = NULL,
     property_name = NULL,
     leasing_week_id = NULL,
-    collect = TRUE
-) {
-
+    collect = TRUE) {
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.rents_by_floorplan", collect = FALSE)
@@ -806,11 +763,9 @@ db_read_survey_rents_by_floorplan <- function(
   } else {
     return(hold_filtered)
   }
-
 }
 
 db_read_survey_id <- function(pool, property_id = NULL, competitor_id = NULL, leasing_week_id = NULL) {
-
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.surveys")
@@ -851,5 +806,4 @@ db_read_survey_id <- function(pool, property_id = NULL, competitor_id = NULL, le
   }
 
   dplyr::pull(hold_filtered, "survey_id")
-
 }

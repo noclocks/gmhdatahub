@@ -170,8 +170,7 @@ mod_home_server <- function(
     id,
     pool = NULL,
     navigate_func = NULL,
-    guide = NULL
-) {
+    guide = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
@@ -218,50 +217,50 @@ mod_home_server <- function(
       # initialize conductor guide
       guide$
         step(
-          "Key Metrics Overview",
-          "This section shows your portfolio's vital statistics at a glance.",
-          el = ns("#metrics_section")
-        )$
+        "Key Metrics Overview",
+        "This section shows your portfolio's vital statistics at a glance.",
+        el = ns("#metrics_section")
+      )$
         step(
-          "Active Properties",
-          "View the total number of properties in your portfolio.",
-          el = ns("#val_active_properties")
-        )$
+        "Active Properties",
+        "View the total number of properties in your portfolio.",
+        el = ns("#val_active_properties")
+      )$
         step(
-          "Average Occupancy",
-          "Check the average occupancy rate across your properties.",
-          el = ns("#val_avg_occupancy")
-        )$
+        "Average Occupancy",
+        "Check the average occupancy rate across your properties.",
+        el = ns("#val_avg_occupancy")
+      )$
         step(
-          "Pre-Lease Rate",
-          "Monitor the pre-lease rate for your properties.",
-          el = ns("#val_pre_lease_rate")
-        )$
+        "Pre-Lease Rate",
+        "Monitor the pre-lease rate for your properties.",
+        el = ns("#val_pre_lease_rate")
+      )$
         step(
-          "Market Survey Submissions",
-          "Access the number of market surveys conducted.",
-          el = ns("#val_market_survey")
-        )$
+        "Market Survey Submissions",
+        "Access the number of market surveys conducted.",
+        el = ns("#val_market_survey")
+      )$
         step(
-          "Quick Access Features",
-          "Navigate to key sections of the platform.",
-          el = ns("#quick_access")
-        )$
+        "Quick Access Features",
+        "Navigate to key sections of the platform.",
+        el = ns("#quick_access")
+      )$
         step(
-          "Property Management",
-          "Access and manage your property details here.",
-          el = ns("#property_management")
-        )$
+        "Property Management",
+        "Access and manage your property details here.",
+        el = ns("#property_management")
+      )$
         step(
-          "Lease Administration",
-          "Handle all lease-related activities from this section.",
-          el = ns("#leasing_admin")
-        )$
+        "Lease Administration",
+        "Handle all lease-related activities from this section.",
+        el = ns("#leasing_admin")
+      )$
         step(
-          "Market Survey",
-          "Conduct market surveys and analyze competitor data.",
-          el = ns("#market_survey")
-        )
+        "Market Survey",
+        "Conduct market surveys and analyze competitor data.",
+        el = ns("#market_survey")
+      )
 
       # explore button
       shiny::observeEvent(input$explore, {

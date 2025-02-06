@@ -106,13 +106,10 @@ mod_survey_fees_server <- function(
     pool = NULL,
     survey_data = NULL,
     selected_filters = NULL,
-    edit_survey_section = NULL
-) {
-
+    edit_survey_section = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       # setup ------------------------------------------------------------
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_fees_server()")
@@ -147,7 +144,6 @@ mod_survey_fees_server <- function(
 
       # edit --------------------------------------------------------------------
       shiny::observeEvent(edit_survey_section(), {
-
         if (session$userData$selected_survey_tab() != "nav_fees") {
           return()
         }

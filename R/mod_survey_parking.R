@@ -46,7 +46,7 @@ mod_survey_parking_ui <- function(id) {
 
   htmltools::tagList(
     bslib::card(
-      reactable::reactableOutput(ns('survey_parking_tbl'))
+      reactable::reactableOutput(ns("survey_parking_tbl"))
     )
   )
 }
@@ -62,12 +62,10 @@ mod_survey_parking_server <- function(
     id,
     pool = NULL,
     selected_property_id = NULL,
-    edit_survey_section = NULL
-) {
+    edit_survey_section = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_parking_server()")
 
@@ -85,12 +83,12 @@ mod_survey_parking_server <- function(
       db_refresh_trigger <- shiny::reactiveVal(0)
 
       parking_data <- shiny::reactive({
-        shiny::req(pool, selected_property_id())#, session$userData$leasing_week())
+        shiny::req(pool, selected_property_id()) # , session$userData$leasing_week())
 
         db_read_mkt_parking(
           pool,
           property_id = selected_property_id(),
-          competitor_id = session$userData$selected_survey_competitor()#,
+          competitor_id = session$userData$selected_survey_competitor() # ,
           # leasing_week = session$userData$leasing_week()
         ) #|>
         # # Remove `is_` from column names
@@ -105,11 +103,11 @@ mod_survey_parking_server <- function(
         if (nrow(data) == 0) {
           data <- tibble::tribble(
             ~parking_type, ~is_required, ~is_included, ~amount,
-            'Surface', 'No', 'No', '$0',
-            'Reserved', 'No', 'No', '$0',
-            'Covered', 'No', 'No', '$0',
-            'Garage', 'No', 'No', '$0',
-            'Other', 'No', 'No', '$0'
+            "Surface", "No", "No", "$0",
+            "Reserved", "No", "No", "$0",
+            "Covered", "No", "No", "$0",
+            "Garage", "No", "No", "$0",
+            "Other", "No", "No", "$0"
           )
         }
 
@@ -119,20 +117,20 @@ mod_survey_parking_server <- function(
           searchable = TRUE,
           columns = list(
             parking_type = reactable::colDef(
-              name = 'Parking Type',
-              align = 'left'
+              name = "Parking Type",
+              align = "left"
             ),
             is_required = reactable::colDef(
-              name = 'Is Required',
-              align = 'center'
+              name = "Is Required",
+              align = "center"
             ),
             is_included = reactable::colDef(
-              name = 'Is Included',
-              align = 'center'
+              name = "Is Included",
+              align = "center"
             ),
             amount = reactable::colDef(
-              name = 'Amount',
-              align = 'right'
+              name = "Amount",
+              align = "right"
             )
           ),
           # bordered = TRUE,
@@ -178,11 +176,11 @@ mod_survey_parking_server <- function(
         if (nrow(data) == 0) {
           data <- tibble::tribble(
             ~parking_type, ~is_required, ~is_included, ~amount,
-            'Surface', FALSE, FALSE, '$0',
-            'Reserved', FALSE, FALSE, '$0',
-            'Covered', FALSE, FALSE, '$0',
-            'Garage', FALSE, FALSE, '$0',
-            'Other', FALSE, FALSE, '$0'
+            "Surface", FALSE, FALSE, "$0",
+            "Reserved", FALSE, FALSE, "$0",
+            "Covered", FALSE, FALSE, "$0",
+            "Garage", FALSE, FALSE, "$0",
+            "Other", FALSE, FALSE, "$0"
           )
         }
 
@@ -190,8 +188,8 @@ mod_survey_parking_server <- function(
           data = data,
           contextMenu = FALSE,
           rowHeaders = NULL,
-          colHeaders = c('Parking', 'Required', 'Included', 'Amount'),
-          width = 400#,
+          colHeaders = c("Parking", "Required", "Included", "Amount"),
+          width = 400 # ,
           # height = height
         ) |>
           rhandsontable::hot_cols(
@@ -211,19 +209,19 @@ mod_survey_parking_server <- function(
           ) |>
           rhandsontable::hot_col(
             col = 2,
-            type = 'checkbox'
+            type = "checkbox"
             # type = 'dropdown',
             # source = c('Yes', 'No')
           ) |>
           rhandsontable::hot_col(
             col = 3,
-            type = 'checkbox'
+            type = "checkbox"
             # type = 'dropdown',
             # source = c('Yes', 'No')
           ) |>
           rhandsontable::hot_col(
             col = 4,
-            type = 'numeric'
+            type = "numeric"
           )
       })
 

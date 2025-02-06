@@ -42,7 +42,6 @@ NULL
 #' @importFrom htmltools tagList tags
 #' @importFrom bslib card
 mod_survey_forms_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   current_week_start <- get_leasing_week_start_date()
@@ -162,13 +161,10 @@ mod_survey_forms_ui <- function(id) {
 #' @importFrom cli cat_rule
 mod_survey_forms_server <- function(
     id,
-    pool = NULL
-) {
-
+    pool = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       # setup -------------------------------------------------------------------
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_forms_server()")
@@ -346,77 +342,78 @@ mod_survey_forms_server <- function(
         shiny::withProgress(
           message = "Retrieving Survey Data...",
           detail = "This may take a few moments.",
-          value = 0, {
-            shiny::incProgress(1/12, detail = "Retrieving Property Summary Data...")
+          value = 0,
+          {
+            shiny::incProgress(1 / 12, detail = "Retrieving Property Summary Data...")
             survey_data$property_summary <- db_read_survey_property_summary(
               pool,
               property_id = prop_id,
               competitor_id = comp_id
             )
-            shiny::incProgress(1/12, detail = "Retrieving Leasing Summary Data...")
+            shiny::incProgress(1 / 12, detail = "Retrieving Leasing Summary Data...")
             survey_data$leasing_summary <- db_read_survey_leasing_summary(
               pool,
               property_id = prop_id,
               competitor_id = comp_id,
               leasing_week_id = week_id
             )
-            shiny::incProgress(1/12, detail = "Retrieving Short Term Leases Data...")
+            shiny::incProgress(1 / 12, detail = "Retrieving Short Term Leases Data...")
             survey_data$short_term_leases <- db_read_survey_short_term_leases(
               pool,
               property_id = prop_id,
               competitor_id = comp_id,
               leasing_week_id = week_id
             )
-            shiny::incProgress(1/12, detail = "Retrieving Fees Data...")
+            shiny::incProgress(1 / 12, detail = "Retrieving Fees Data...")
             survey_data$fees <- db_read_survey_fees(
               pool,
               property_id = prop_id,
               competitor_id = comp_id,
               leasing_week_id = week_id
             )
-            shiny::incProgress(1/12, detail = "Retrieving Property Amenities Data...")
+            shiny::incProgress(1 / 12, detail = "Retrieving Property Amenities Data...")
             survey_data$property_amenities <- db_read_survey_property_amenities(
               pool,
               property_id = prop_id,
               competitor_id = comp_id
             )
-            shiny::incProgress(1/12, detail = "Retrieving Unit Amenities Data...")
+            shiny::incProgress(1 / 12, detail = "Retrieving Unit Amenities Data...")
             survey_data$unit_amenities <- db_read_survey_unit_amenities(
               pool,
               property_id = prop_id,
               competitor_id = comp_id
             )
-            shiny::incProgress(1/12, detail = "Retrieving Unit Amenities Rates & Premiums Data...")
+            shiny::incProgress(1 / 12, detail = "Retrieving Unit Amenities Rates & Premiums Data...")
             survey_data$unit_amenities_rates_premiums <- db_read_survey_unit_amenities_rates_premiums(
               pool,
               property_id = prop_id,
               competitor_id = comp_id
             )
-            shiny::incProgress(1/12, detail = "Retrieving Parking Data...")
+            shiny::incProgress(1 / 12, detail = "Retrieving Parking Data...")
             survey_data$parking <- db_read_survey_parking(
               pool,
               property_id = prop_id,
               competitor_id = comp_id
             )
-            shiny::incProgress(1/12, detail = "Retrieving Utilities Data...")
+            shiny::incProgress(1 / 12, detail = "Retrieving Utilities Data...")
             survey_data$utilities <- db_read_survey_utilities(
               pool,
               property_id = prop_id,
               competitor_id = comp_id
             )
-            shiny::incProgress(1/12, detail = "Retrieving Hours Data...")
+            shiny::incProgress(1 / 12, detail = "Retrieving Hours Data...")
             survey_data$hours <- db_read_survey_hours(
               pool,
               property_id = prop_id,
               competitor_id = comp_id
             )
-            shiny::incProgress(1/12, detail = "Retrieving Notes Data...")
+            shiny::incProgress(1 / 12, detail = "Retrieving Notes Data...")
             survey_data$notes <- db_read_survey_notes(
               pool,
               property_id = prop_id,
               competitor_id = comp_id
             )
-            shiny::incProgress(1/12, detail = "Retrieving Rents Data...")
+            shiny::incProgress(1 / 12, detail = "Retrieving Rents Data...")
             survey_data$rents <- db_read_survey_rents_by_floorplan(
               pool,
               property_id = prop_id,
@@ -424,9 +421,10 @@ mod_survey_forms_server <- function(
               leasing_week_id = week_id
             )
             shiny::setProgress(1)
-          })
-          cli::cli_alert_success("Survey Data Retrieved Successfully")
-          shiny::showNotification("Survey Data Retrieved Successfully!")
+          }
+        )
+        cli::cli_alert_success("Survey Data Retrieved Successfully")
+        shiny::showNotification("Survey Data Retrieved Successfully!")
       }) |>
         shiny::bindEvent(
           input$property,
@@ -444,7 +442,9 @@ mod_survey_forms_server <- function(
         survey_data = survey_data,
         map_data = map_data,
         selected_filters = selected_filters,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+        edit_survey_section = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
       # leasing summary
@@ -453,7 +453,9 @@ mod_survey_forms_server <- function(
         pool = pool,
         survey_data = survey_data,
         selected_filters = selected_filters,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+        edit_survey_section = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
       # fees
@@ -462,7 +464,9 @@ mod_survey_forms_server <- function(
         pool = pool,
         survey_data = survey_data,
         selected_filters = selected_filters,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+        edit_survey_section = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
       # property amenities
@@ -471,7 +475,9 @@ mod_survey_forms_server <- function(
         pool = pool,
         survey_data = survey_data,
         selected_filters = selected_filters,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+        edit_survey_section = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
       # unit amenities
@@ -480,7 +486,9 @@ mod_survey_forms_server <- function(
         pool = pool,
         survey_data = survey_data,
         selected_filters = selected_filters,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+        edit_survey_section = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
       # short term leases
@@ -542,7 +550,7 @@ mod_survey_forms_server <- function(
         list(
           selected_filters = selected_filters,
           survey_data = survey_data,
-          map_data = map_data#,
+          map_data = map_data # ,
           # mod_survey_property_summary_data,
           # mod_survey_leasing_summary_data,
           # mod_short_term_leases_data,
@@ -568,7 +576,6 @@ mod_survey_forms_server <- function(
 #' @importFrom bsicons bs_icon
 #' @importFrom shiny shinyApp
 mod_survey_forms_demo <- function(pool = NULL) {
-
   pkgload::load_all()
 
   ui <- bslib::page_navbar(
@@ -594,4 +601,3 @@ mod_survey_forms_demo <- function(pool = NULL) {
 
   shiny::shinyApp(ui, server)
 }
-

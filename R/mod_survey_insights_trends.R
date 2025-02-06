@@ -1,4 +1,3 @@
-
 #  ------------------------------------------------------------------------
 #
 # Title : Survey Trends Analysis Module
@@ -40,7 +39,6 @@ NULL
 #' @export
 #' @importFrom bslib nav_panel layout_columns card card_header
 mod_survey_insights_trends_ui <- function(id) {
-
   ns <- shiny::NS(id)
 
   htmltools::tagList(
@@ -78,13 +76,10 @@ mod_survey_insights_trends_ui <- function(id) {
 #' @importFrom cli cat_rule
 mod_survey_insights_trends_server <- function(
     id,
-    pool = NULL
-) {
-
+    pool = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_insights_server()")
 
@@ -145,7 +140,6 @@ mod_survey_insights_trends_server <- function(
 # demo --------------------------------------------------------------------
 
 mod_survey_insights_trends_demo <- function() {
-
   pkgload::load_all()
 
   ui <- bslib::page_fluid(
@@ -160,5 +154,4 @@ mod_survey_insights_trends_demo <- function() {
   }
 
   shiny::shinyApp(ui, server)
-
 }

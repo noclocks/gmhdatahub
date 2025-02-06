@@ -1,5 +1,4 @@
 derive_tbl_totals <- function(data, count_cols = NULL, sum_cols = NULL, avg_cols = NULL) {
-
   cols <- c(count_cols, sum_cols, avg_cols)
   validate_col_names(data, cols)
 

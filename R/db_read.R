@@ -34,9 +34,7 @@ db_read_sql <- function(pool, sql_file, ...) {
 db_read_gmh_pre_lease_summary_tbl <- function(
     pool,
     report_date = NULL,
-    property_ids = NULL
-) {
-
+    property_ids = NULL) {
   check_db_conn(pool)
 
   hold <- db_read_tbl(pool, "gmh.pre_lease_summary", collect = FALSE)
@@ -69,7 +67,6 @@ db_read_gmh_pre_lease_summary_tbl <- function(
     )
 
   return(dplyr::collect(out))
-
 }
 
 db_read_gmh_model_beds <- function(pool, collect = TRUE) {
@@ -141,11 +138,9 @@ db_read_university_locations <- function(pool, collect = TRUE) {
 }
 
 db_read_gmh_properties <- function(
-  pool,
-  property_id = NULL,
-  collect = TRUE
-) {
-
+    pool,
+    property_id = NULL,
+    collect = TRUE) {
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "gmh.properties", collect = FALSE)
@@ -169,12 +164,10 @@ db_read_gmh_properties <- function(
 }
 
 db_read_gmh_competitors <- function(
-  pool,
-  competitor_id = NULL,
-  property_id = NULL,
-  collect = TRUE
-) {
-
+    pool,
+    competitor_id = NULL,
+    property_id = NULL,
+    collect = TRUE) {
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "gmh.competitors", collect = FALSE)
@@ -206,15 +199,12 @@ db_read_gmh_competitors <- function(
   } else {
     return(hold_filtered)
   }
-
 }
 
 db_read_gmh_map_data <- function(
     pool,
     property_id = NULL,
-    collect = TRUE
-) {
-
+    collect = TRUE) {
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "gmh.locations", collect = FALSE)
