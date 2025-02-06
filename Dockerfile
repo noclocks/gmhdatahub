@@ -36,6 +36,8 @@ WORKDIR /build
 RUN Rscript -e 'pak::local_install(ask = FALSE)'
 WORKDIR /
 RUN rm -rf /build
+RUN mkdir -p /etc/gmhdatahub
+RUN Rscript -e "gmhdatahub:::decrypt_config_file(path = 'etc/gmhdatahub/')"
 
 RUN adduser \
   --disabled-password \
@@ -53,9 +55,6 @@ EXPOSE ${PORT}
 ENV R_CONFIG_ACTIVE="${CONFIG}"
 ENV SHINY_PORT=${PORT}
 ENV SHINY_HOST="0.0.0.0"
-
-RUN mkdir -p /etc/gmhdatahub
-COPY config.yml /etc/gmhdatahub/config.yml
 ENV R_CONFIG_FILE=/etc/gmhdatahub/config.yml
 
 CMD [ "R", "-e", "library(gmhdatahub); gmhdatahub::run_app(host = Sys.getenv('SHINY_HOST'), port = as.integer(Sys.getenv('SHINY_PORT')))" ]

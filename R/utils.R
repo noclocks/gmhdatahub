@@ -172,7 +172,9 @@ get_amenity_id_by_name <- function(amenity_name) {
 encrypt_cfg_file <- function(
     cfg_file = Sys.getenv("R_CONFIG_FILE", "config.yml"),
     key = "NOCLOCKS_ENCRYPTION_KEY",
-    ...) {
+    ...
+) {
+
   if (is.null(Sys.getenv(key)) || !httr2::secret_has_key(key)) {
     rlang::abort(
       "Encryption key not found. Please set the encryption key environment variable."
@@ -201,37 +203,57 @@ encrypt_cfg_file <- function(
 }
 
 decrypt_cfg_file <- function(
-    cfg_file = Sys.getenv("R_CONFIG_FILE", "inst/config/config.yml"),
-    key = "NOCLOCKS_ENCRYPTION_KEY") {
+    path = ".",
+    key = "NOCLOCKS_ENCRYPTION_KEY",
+    set_env = TRUE,
+    cfg_file = pkg_sys("config/config.yml")
+) {
+
   if (!httr2::secret_has_key(key)) {
-    rlang::abort(
-      glue::glue(
-        "Encryption key: {key} not found.",
+    cli::cli_abort(
+      c(
+        "Encryption key: {.field {key}} not found.",
         "Please set the encryption key in your environment variables."
       )
     )
   }
 
-  cfg_file <- fs::path(cfg_file)
   cfg_file_encrypted <- fs::path_ext_remove(cfg_file) |>
     paste0(".encrypted.yml") |>
     fs::path()
+
+  if (!fs::file_exists(cfg_file_encrypted)) {
+    cli::cli_abort(
+      c(
+        "Encrypted config file: {.file {cfg_file_encrypted}} not found.",
+        "Please ensure the file exists."
+      )
+    )
+  }
 
   cfg_file_decrypted <- httr2::secret_decrypt_file(
     path = cfg_file_encrypted,
     key = key
   )
 
-  fs::file_move(
+  cli::cli_alert_success("Successfully decrypted the config file: {.file {cfg_file}}")
+
+  cfg_out <- fs::path(path, "config.yml")
+
+  fs::file_copy(
     cfg_file_decrypted,
-    cfg_file
+    cfg_out,
+    overwrite = TRUE
   )
 
-  cli::cli_alert_success("Successfully decrypted the config file: {.file cfg_file}")
-  cli::cli_alert_info("The decrypted file is now the active config file.")
+  cli::cli_alert_success("Successfully copied the decrypted file to: {.file {cfg_out}}")
 
-  Sys.setenv("R_CONFIG_FILE" = cfg_file)
-  cli::cli_alert_info("Set `R_CONFIG_FILE` to: {.file cfg_file}")
+  if (!set_env) {
+    return(invisible(config::get()))
+  }
+
+  Sys.setenv("R_CONFIG_FILE" = cfg_out)
+  cli::cli_alert_info("Set `R_CONFIG_FILE` to: {.file {cfg_out}}")
 
   return(invisible(config::get()))
 }
