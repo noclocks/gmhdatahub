@@ -48,39 +48,25 @@ mod_survey_forms_ui <- function(id) {
 
   htmltools::tagList(
     bslib::page_fluid(
-
-      # progress ----------------------------------------------------------------
-      # bslib::card(
-      #   bslib::card_header(icon_text("percent", "Progress")),
-      #   bslib::card_body(
-      #     shinyWidgets::progressBar(
-      #       ns("total_progress"),
-      #       value = 0,
-      #       total = 100,
-      #       display_pct = TRUE,
-      #       striped = TRUE,
-      #       title = "Total Progress"
-      #     )
-      #   )
-      # ),
       bslib::navset_card_tab(
         id = ns("survey_tabs"),
-        title = "GMH Communities - Leasing Market Survey Sections",
+        title = "GMH Communities - Market Survey Sections",
         sidebar = bslib::sidebar(
           title = icon_text("filter", "Filters"),
           width = 300,
           shiny::selectizeInput(
             ns("property"),
             label = icon_text("building", "Property"),
-            choices = app_choices_lst$properties,
-            selected = app_choices_lst$properties[["1047 Commonwealth Avenue"]]
+            choices = get_default_app_choices("properties"),
+            selected = get_default_app_choices("properties")[["1047 Commonwealth Avenue"]]
           ),
           shiny::selectizeInput(
             ns("competitor"),
             label = icon_text("building", "Competitor"),
-            choices = c("None" = "none")
-          ) |>
-            shinyjs::disabled(),
+            choices = NULL,
+            selected = NULL,
+            options = list(placeholder = "Select a Competitor")
+          ),
           shiny::dateInput(
             ns("leasing_week"),
             label = icon_text("calendar", "Leasing Week"),
@@ -92,52 +78,62 @@ mod_survey_forms_ui <- function(id) {
         bslib::nav_panel(
           title = "Property Summary",
           value = "nav_property_summary",
+          icon = bsicons::bs_icon("house"),
           mod_survey_property_summary_ui(ns("property_summary"))
         ),
         bslib::nav_panel(
           title = "Leasing Summary",
           value = "nav_leasing_summary",
+          icon = bsicons::bs_icon("clipboard"),
           mod_survey_leasing_summary_ui(ns("leasing_summary"))
         ),
         bslib::nav_panel(
           title = "Short Term Leases",
           value = "nav_short_term_leases",
+          icon = bsicons::bs_icon("calendar"),
           mod_survey_short_term_leases_ui(ns("short_term_leases"))
         ),
         bslib::nav_panel(
           title = "Fees",
           value = "nav_fees",
+          icon = bsicons::bs_icon("credit-card"),
           mod_survey_fees_ui(ns("fees"))
         ),
         bslib::nav_panel(
           title = "Property Amenities",
           value = "nav_property_amenities",
+          icon = bsicons::bs_icon("house"),
           mod_survey_property_amenities_ui(ns("property_amenities"))
         ),
         bslib::nav_panel(
           title = "Unit Amenities",
           value = "nav_unit_amenities",
+          icon = bsicons::bs_icon("door-open"),
           mod_survey_unit_amenities_ui(ns("unit_amenities"))
         ),
         bslib::nav_panel(
           title = "Parking",
           value = "nav_parking",
+          icon = bsicons::bs_icon("car-front"),
           mod_survey_parking_ui(ns("parking"))
         ),
         bslib::nav_panel(
           title = "Utilities",
           value = "nav_utilities",
+          icon = bsicons::bs_icon("plug"),
           mod_survey_utilities_ui(ns("utilities"))
-        ),
-        bslib::nav_panel(
-          title = "Notes",
-          value = "nav_notes",
-          mod_survey_notes_ui(ns("notes"))
         ),
         bslib::nav_panel(
           title = "Rents",
           value = "nav_rents",
+          icon = bsicons::bs_icon("currency-dollar"),
           mod_survey_rents_ui(ns("rents"))
+        ),
+        bslib::nav_panel(
+          title = "Notes",
+          value = "nav_notes",
+          icon = bsicons::bs_icon("sticky"),
+          mod_survey_notes_ui(ns("notes"))
         ),
         bslib::card_footer(
           htmltools::tags$small(
@@ -165,13 +161,11 @@ mod_survey_forms_ui <- function(id) {
 #' @importFrom cli cat_rule
 mod_survey_forms_server <- function(
     id,
-    pool = NULL
-) {
-
+    pool = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
+      # setup -------------------------------------------------------------------
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_forms_server()")
 
@@ -179,184 +173,401 @@ mod_survey_forms_server <- function(
       if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
       check_db_conn(pool)
 
-      session$userData$selected_survey_tab <- shiny::reactiveVal(NULL)
+      # filters -----------------------------------------------------------------
+      selected_filters <- shiny::reactiveValues(
+        property_id = NULL,
+        property_name = NULL,
+        competitor_id = NULL,
+        competitor_name = NULL,
+        leasing_week_id = NULL,
+        leasing_week_date = NULL,
+        survey_id = NULL,
+        user_id = NULL,
+        user_email = NULL
+      )
 
+      # filter observers --------------------------------------------------------
+      session$userData$selected_survey_property <- shiny::reactiveVal(NULL)
+
+      # property ID & name
+      shiny::observeEvent(input$property, {
+        prop_id <- input$property
+        prop_name <- get_property_name_by_id(input$property)
+        selected_filters$property_id <- prop_id
+        selected_filters$property_name <- prop_name
+        session$userData$selected_survey_property(prop_id)
+        cli::cli_alert_info(
+          c(
+            "Selected Property: {.field {prop_name}} (ID: {.field {prop_id}})"
+          )
+        )
+        db_trigger()
+      })
+
+      shiny::observeEvent(input$property, {
+        competitors <- db_read_survey_competitors(
+          pool,
+          property_id = input$property
+        )
+
+        if (nrow(competitors) == 0) {
+          shiny::updateSelectizeInput(
+            session,
+            "competitor",
+            choices = character(0),
+            selected = character(0),
+            options = list(placeholder = "No Competitors Available")
+          )
+        } else {
+          comp_choices <- competitors$competitor_id |>
+            as.list() |>
+            setNames(competitors$competitor_name)
+          shiny::updateSelectizeInput(
+            session,
+            "competitor",
+            choices = comp_choices,
+            selected = character(0)
+          )
+        }
+      })
+
+      # competitor ID & name
+      shiny::observeEvent(input$competitor, {
+        shiny::req(input$competitor)
+        comp_id <- input$competitor
+        comp_name <- get_competitor_name_by_id(input$competitor)
+        selected_filters$competitor_id <- comp_id
+        selected_filters$competitor_name <- comp_name
+        msg <- if (is.null(comp_id)) {
+          "Selected Competitor: {.field None}"
+        } else {
+          c(
+            "Selected Competitor: {.field {comp_name}} (ID: {.field {comp_id}})"
+          )
+        }
+        cli::cli_alert_info(msg)
+        db_trigger()
+      })
+
+      # leasing week ID & date
+      shiny::observeEvent(input$leasing_week, {
+        shiny::req(input$leasing_week)
+        leasing_week_date <- get_leasing_week_start_date(input$leasing_week)
+        leasing_week_id <- get_leasing_week_id_by_date(pool, leasing_week_date)
+        selected_filters$leasing_week_id <- leasing_week_id
+        selected_filters$leasing_week_date <- leasing_week_date
+        cli::cli_alert_info(
+          c(
+            "Selected Leasing Week: {.field {format(leasing_week_date, '%Y-%m-%d')}}",
+            " (ID: {.field {leasing_week_id}})"
+          )
+        )
+      })
+
+      # survey ID -----------------------------------------------------------
+      shiny::observe({
+        if (is.null(selected_filters$survey_id)) {
+          default_survey_id <- db_read_survey_id(
+            pool,
+            property_id = selected_filters$property_id,
+            competitor_id = selected_filters$competitor_id,
+            leasing_week_id = selected_filters$leasing_week_id
+          )
+          selected_filters$survey_id <- default_survey_id
+          cli::cli_alert_info(
+            c(
+              "Cached Survey ID: Survey {.field {default_survey_id}}"
+            )
+          )
+        }
+      })
+
+      # user --------------------------------------------------------------------
+      shiny::observe({
+        if (is.null(session$userData$user)) {
+          user_email <- "default_user@example.com"
+          user_id <- get_user_id_by_email(pool, user_email)
+        } else {
+          user_id <- session$userData$user()$user_uid
+          user_email <- session$userData$user()$email
+        }
+        selected_filters$user_id <- user_id
+        selected_filters$user_email <- user_email
+        cli::cli_alert_info("Current User: {.field {user_email}} (ID: {.field {user_id}})")
+      })
+
+      # navigation --------------------------------------------------------------
+      session$userData$selected_survey_tab <- shiny::reactiveVal(NULL)
       shiny::observeEvent(input$survey_tabs, {
+        cli::cli_alert_info("Selected Survey Tab: {.field {input$survey_tabs}}")
         session$userData$selected_survey_tab(input$survey_tabs)
       })
 
-      session$userData$selected_survey_property <- shiny::reactiveVal(NULL)
-      session$userData$selected_survey_competitor <- shiny::reactiveVal(NULL)
+      # survey data -------------------------------------------------------------
+      survey_data <- shiny::reactiveValues(
+        property_summary = NULL,
+        leasing_summary = NULL,
+        short_term_leases = NULL,
+        fees = NULL,
+        property_amenities = NULL,
+        unit_amenities = NULL,
+        unit_amenities_rates_premiums = NULL,
+        parking = NULL,
+        utilities = NULL,
+        hours = NULL,
+        notes = NULL,
+        rents = NULL
+      )
 
-      shiny::observeEvent(input$property, {
-        session$userData$selected_survey_property(input$property)
+      # map data -------------------------------------------------------
+      map_data <- shiny::reactive({
+        shiny::req(selected_filters$property_id)
+        db_read_gmh_map_data(pool, property_id = selected_filters$property_id)
       })
 
-      shiny::observeEvent(input$competitor, {
-        if (input$competitor != "none") {
-          session$userData$selected_survey_competitor(input$competitor)
-        } else {
-          session$userData$selected_survey_competitor(NULL)
-        }
-      })
-
-      session$userData$leasing_week <- shiny::reactiveVal(NULL)
-
-      shiny::observeEvent(input$leasing_week, {
-        session$userData$leasing_week(input$leasing_week)
-      })
-
-      # competitors -------------------------------------------------------------
-      properties_with_competitors <- db_read_tbl(pool, "mkt.property_competitors") |>
-        dplyr::pull("property_id") |>
-        unique()
-
-      shiny::observeEvent(input$property, {
-        if (input$property %in% properties_with_competitors) {
-          shinyjs::enable("competitor")
-          shiny::updateSelectizeInput(
-            session,
-            "competitor",
-            choices = c("None" = "none", unlist(app_choices_lst$competitors[[input$property]])),
-            selected = "none"
-          )
-        } else {
-          shiny::updateSelectizeInput(
-            session,
-            "competitor",
-            choices = c("None" = "none"),
-            selected = "none"
-          )
-          shinyjs::disable("competitor")
-        }
-      })
-
-      # selected property -------------------------------------------------------
-      selected_property_id <- shiny::reactiveVal(NULL)
+      # database data -----------------------------------------------------------
+      session$userData$db_refresh_trigger <- shiny::reactiveVal(0)
+      db_trigger <- function() {
+        session$userData$db_refresh_trigger(
+          session$userData$db_refresh_trigger() + 1
+        )
+      }
 
       shiny::observe({
-        shiny::req(input$property, input$competitor)
-        if (input$competitor != "none") {
-          session$userData$selected_survey_property(input$competitor)
-          selected_property_id(input$competitor)
-        } else {
-          selected_property_id(input$property)
-          session$userData$selected_survey_property(input$property)
-        }
-      })
+        session$userData$db_refresh_trigger()
+        prop_id <- selected_filters$property_id
+        comp_id <- selected_filters$competitor_id
+        week_id <- selected_filters$leasing_week_id
 
-      # Survey Week input ####
-      shiny::observeEvent(input$survey_week, {
-        start_date <- input$survey_week
+        cli::cli_alert_info("Retrieving Survey Data from Database...")
+        shiny::withProgress(
+          message = "Retrieving Survey Data...",
+          detail = "This may take a few moments.",
+          value = 0,
+          {
+            shiny::incProgress(1 / 12, detail = "Retrieving Property Summary Data...")
+            survey_data$property_summary <- db_read_survey_property_summary(
+              pool,
+              property_id = prop_id,
+              competitor_id = comp_id
+            )
+            shiny::incProgress(1 / 12, detail = "Retrieving Leasing Summary Data...")
+            survey_data$leasing_summary <- db_read_survey_leasing_summary(
+              pool,
+              property_id = prop_id,
+              competitor_id = comp_id,
+              leasing_week_id = week_id
+            )
+            shiny::incProgress(1 / 12, detail = "Retrieving Short Term Leases Data...")
+            survey_data$short_term_leases <- db_read_survey_short_term_leases(
+              pool,
+              property_id = prop_id,
+              competitor_id = comp_id,
+              leasing_week_id = week_id
+            )
+            shiny::incProgress(1 / 12, detail = "Retrieving Fees Data...")
+            survey_data$fees <- db_read_survey_fees(
+              pool,
+              property_id = prop_id,
+              competitor_id = comp_id,
+              leasing_week_id = week_id
+            )
+            shiny::incProgress(1 / 12, detail = "Retrieving Property Amenities Data...")
+            survey_data$property_amenities <- db_read_survey_property_amenities(
+              pool,
+              property_id = prop_id,
+              competitor_id = comp_id
+            )
+            shiny::incProgress(1 / 12, detail = "Retrieving Unit Amenities Data...")
+            survey_data$unit_amenities <- db_read_survey_unit_amenities(
+              pool,
+              property_id = prop_id,
+              competitor_id = comp_id
+            )
+            shiny::incProgress(1 / 12, detail = "Retrieving Unit Amenities Rates & Premiums Data...")
+            survey_data$unit_amenities_rates_premiums <- db_read_survey_unit_amenities_rates_premiums(
+              pool,
+              property_id = prop_id,
+              competitor_id = comp_id
+            )
+            shiny::incProgress(1 / 12, detail = "Retrieving Parking Data...")
+            survey_data$parking <- db_read_survey_parking(
+              pool,
+              property_id = prop_id,
+              competitor_id = comp_id
+            )
+            shiny::incProgress(1 / 12, detail = "Retrieving Utilities Data...")
+            survey_data$utilities <- db_read_survey_utilities(
+              pool,
+              property_id = prop_id,
+              competitor_id = comp_id
+            )
+            shiny::incProgress(1 / 12, detail = "Retrieving Hours Data...")
+            survey_data$hours <- db_read_survey_hours(
+              pool,
+              property_id = prop_id,
+              competitor_id = comp_id
+            )
+            shiny::incProgress(1 / 12, detail = "Retrieving Notes Data...")
+            survey_data$notes <- db_read_survey_notes(
+              pool,
+              property_id = prop_id,
+              competitor_id = comp_id
+            )
+            shiny::incProgress(1 / 12, detail = "Retrieving Rents Data...")
+            survey_data$rents <- db_read_survey_rents_by_floorplan(
+              pool,
+              property_id = prop_id,
+              competitor_id = comp_id,
+              leasing_week_id = week_id
+            )
+            shiny::setProgress(1)
+          }
+        )
+        cli::cli_alert_success("Survey Data Retrieved Successfully")
+        shiny::showNotification("Survey Data Retrieved Successfully!")
+      }) |>
+        shiny::bindEvent(
+          input$property,
+          input$competitor,
+          input$leasing_week,
+          session$userData$db_refresh_trigger()
+        )
 
-        leasing_period_start_date <- get_weekly_period_start_date(start_date)
+      # survey modules ----------------------------------------------------------
 
-        if (start_date != leasing_period_start_date) {
-          shiny::updateDateInput(
-            session = session,
-            inputId = "survey_week",
-            value = leasing_period_start_date
-          )
-        }
-      })
-
-      # reactive values ---------------------------------------------------------
-      db_metrics <- shiny::reactive({
-        db_read_survey_metrics(pool)
-      })
-
-      # progress bars ----------------------------------------------------------
-      # output$total_progress <- shinyWidgets::updateProgressBar(
-      #   session,
-      #   ns("total_progress"),
-      #   value = 80 # TODO
-      # )
-
-      # sub-modules -------------------------------------------------------------
-      property_summary_data <- mod_survey_property_summary_server(
+      # property summary
+      mod_survey_property_summary_data <- mod_survey_property_summary_server(
         id = "property_summary",
         pool = pool,
-        selected_property_id = session$userData$selected_survey_property,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+        survey_data = survey_data,
+        map_data = map_data,
+        selected_filters = selected_filters,
+        db_trigger_func = db_trigger,
+        edit_survey_section = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
-      leasing_summary_data <- mod_survey_leasing_summary_server(
+      # leasing summary
+      mod_survey_leasing_summary_data <- mod_survey_leasing_summary_server(
         id = "leasing_summary",
         pool = pool,
-        selected_property_id = session$userData$selected_survey_property,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+        survey_data = survey_data,
+        selected_filters = selected_filters,
+        db_trigger_func = db_trigger,
+        edit_survey_section = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
-      short_term_leases_data <- mod_survey_short_term_leases_server(
-        id = "short_term_leases",
-        pool = pool,
-        selected_property_id = session$userData$selected_survey_property,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      )
-
-      fees_data <- mod_survey_fees_server(
+      # fees
+      mod_fees_data <- mod_survey_fees_server(
         id = "fees",
         pool = pool,
-        selected_property_id = session$userData$selected_survey_property,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+        survey_data = survey_data,
+        selected_filters = selected_filters,
+        db_trigger_func = db_trigger,
+        edit_survey_section = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
-      property_amenities_data <- mod_survey_property_amenities_server(
+      # property amenities
+      mod_survey_property_amenities_data <- mod_survey_property_amenities_server(
         id = "property_amenities",
         pool = pool,
-        selected_property_id = session$userData$selected_survey_property,
-        selected_competitor_id = input$competitor,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+        survey_data = survey_data,
+        selected_filters = selected_filters,
+        db_trigger_func = db_trigger,
+        edit_survey_section = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
-      unit_amenities_data <- mod_survey_unit_amenities_server(
+      # unit amenities
+      mod_survey_unit_amenities_data <- mod_survey_unit_amenities_server(
         id = "unit_amenities",
         pool = pool,
-        selected_property_id = session$userData$selected_survey_property,
-        selected_competitor_id = shiny::reactive({ input$competitor }),
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+        survey_data = survey_data,
+        selected_filters = selected_filters,
+        db_trigger_func = db_trigger,
+        edit_survey_section = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
-      parking_data <- mod_survey_parking_server(
-        id = "parking",
-        pool = pool,
-        selected_property_id = session$userData$selected_survey_property,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      )
+      # short term leases
+      # mod_short_term_leases_data <- mod_survey_short_term_leases_server(
+      #   id = "short_term_leases",
+      #   pool = pool,
+      #   survey_data = survey_data,
+      #   selected_filters = selected_filters,
+      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      # )
 
-      utilities_data <- mod_survey_utilities_server(
+      # parking
+      # mod_parking_data <- mod_survey_parking_server(
+      #   id = "parking",
+      #   pool = pool,
+      #   survey_data = survey_data,
+      #   selected_filters = selected_filters,
+      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      # )
+
+      # utilities
+      mod_survey_utilities_data <- mod_survey_utilities_server(
         "utilities",
         pool = pool,
-        selected_property_id = session$userData$selected_survey_property,
+        survey_data = survey_data,
+        selected_filters = selected_filters,
+        db_trigger_func = db_trigger,
         edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
-      notes_data <- mod_survey_notes_server(
-        "notes",
-        pool = pool,
-        selected_property_id = session$userData$selected_survey_property,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      )
+      # notes
+      # mod_notes_data <- mod_survey_notes_server(
+      #   "notes",
+      #   pool = pool,
+      #   survey_data = survey_data,
+      #   selected_filters = selected_filters,
+      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      # )
 
-      rents_data <- mod_survey_rents_server(
-        "rents",
-        pool = pool,
-        selected_property_id = session$userData$selected_survey_property,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      )
+      # hours
+      # mod_hours_data <- mod_survey_hours_server(
+      #   "hours",
+      #   pool = pool,
+      #   survey_data = survey_data,
+      #   selected_filters = selected_filters,
+      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      # )
 
+      # rents
+      # mod_rents_data <- mod_survey_rents_server(
+      #   "rents",
+      #   pool = pool,
+      #   survey_data = survey_data,
+      #   selected_filters = selected_filters,
+      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      # )
+
+      # return ------------------------------------------------------------------
       return(
         list(
-          property_summary_data = property_summary_data,
-          leasing_summary_data = leasing_summary_data,
-          short_term_leases_data = short_term_leases_data,
-          fees_data = fees_data,
-          property_amenities_data = property_amenities_data,
-          unit_amenities_data = unit_amenities_data,
-          parking_data = parking_data,
-          utilities_data = utilities_data,
-          notes_data = notes_data,
-          rents_data = rents_data
+          selected_filters = selected_filters,
+          survey_data = survey_data,
+          map_data = map_data # ,
+          # mod_survey_property_summary_data,
+          # mod_survey_leasing_summary_data,
+          # mod_short_term_leases_data,
+          # mod_fees_data,
+          # mod_parking_data,
+          # mod_survey_property_amenities_data,
+          # mod_survey_unit_amenities_data,
+          # mod_utilities_data,
+          # mod_notes_data,
+          # mod_rents_data
         )
       )
     }
@@ -371,7 +582,7 @@ mod_survey_forms_server <- function(
 #' @importFrom bslib page_navbar nav_panel
 #' @importFrom bsicons bs_icon
 #' @importFrom shiny shinyApp
-mod_survey_forms_demo <- function() {
+mod_survey_forms_demo <- function(pool = NULL) {
   pkgload::load_all()
 
   ui <- bslib::page_navbar(
@@ -389,10 +600,11 @@ mod_survey_forms_demo <- function() {
   )
 
   server <- function(input, output, session) {
-    mod_survey_forms_server("demo")
+    if (is.null(pool)) pool <- db_connect()
+    default_property <- get_default_app_choices("properties")[["1047 Commonwealth Avenue"]]
+    default_user <- get_user_id_by_email(pool, "default_user@example.com")
+    mod_survey_forms_server("demo", pool = pool)
   }
 
   shiny::shinyApp(ui, server)
 }
-
-# utilities ---------------------------------------------------------------

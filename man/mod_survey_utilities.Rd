@@ -12,7 +12,9 @@ mod_survey_utilities_ui(id)
 mod_survey_utilities_server(
   id,
   pool = NULL,
-  selected_property_id = NULL,
+  survey_data = NULL,
+  selected_filters = NULL,
+  db_trigger_func = NULL,
   edit_survey_section = NULL
 )
 

@@ -110,8 +110,7 @@ mod_survey_rents_server <- function(
     pool = NULL,
     selected_property_id = NULL,
     selected_competitor_id = NULL,
-    edit_survey_section = NULL
-) {
+    edit_survey_section = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {

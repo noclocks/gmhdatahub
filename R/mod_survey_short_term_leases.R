@@ -77,14 +77,12 @@ mod_survey_short_term_leases_ui <- function(id) {
 mod_survey_short_term_leases_server <- function(
     id,
     pool = NULL,
-    selected_property_id = NULL,
-    edit_survey_section = NULL
-) {
-
+    survey_data = NULL,
+    selected_filters = NULL,
+    edit_survey_section = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_short_term_leases_server()")
 
@@ -92,27 +90,14 @@ mod_survey_short_term_leases_server <- function(
       if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
       check_db_conn(pool)
 
-      # handle selected property ID
-      if (is.null(selected_property_id)) {
-        # property_id <- db_read_tbl(pool, "mkt.properties", collect = FALSE) |>
-        #   dplyr::filter(.data$is_competitor == FALSE) |>
-        #   dplyr::pull("property_id")
-        selected_property_id <- shiny::reactive({
-          # property_id
-          session$userData$selected_survey_property()
-        })
-      }
-
       db_refresh_trigger <- shiny::reactiveVal(0)
 
       short_term_leases_data <- shiny::reactive({
-        shiny::req(pool, selected_property_id(), session$userData$leasing_week())
-
-        db_read_mkt_short_term_leases(
-          pool,
-          property_id = selected_property_id(),
-          leasing_week = session$userData$leasing_week()
-        )
+        # db_read_mkt_short_term_leases(
+        #   pool,
+        #   property_id = selected_property_id(),
+        #   leasing_week = session$userData$leasing_week()
+        # )
       })
 
       output$five_month_available_text <- shiny::renderText({

@@ -18,12 +18,16 @@
 #'
 #' @export
 #'
+#' @importFrom conductor use_conductor
+#' @importFrom fontawesome fa_html_dependency
+#' @importFrom htmltools tags
+#' @importFrom rintrojs introjsUI
+#' @importFrom sever useSever
 #' @importFrom shiny addResourcePath
+#' @importFrom shinybrowser detect
+#' @importFrom shinybusy busy_start_up spin_epic
 #' @importFrom shinyjs useShinyjs
 #' @importFrom waiter use_waiter
-#' @importFrom fontawesome fa_html_dependency
-#' @importFrom rintrojs introjsUI
-#' @importFrom htmltools tags
 add_external_resources <- function() {
   shiny::addResourcePath(
     prefix = "www",
@@ -51,23 +55,23 @@ add_external_resources <- function() {
 }
 
 
-app_preloader_ui <- function() {
-  htmltools::tagList(
-    waiter::waiter_show_on_load(
-      html = shiny::tags$div(
-        style = "display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; height: 50vh;",
-        shiny::tags$img(
-          src = "www/logo.svg",
-          height = "150px",
-          style = "background: #FFFFFF; border: 3px solid black; border-radius: 6px; padding: 0.5%;"
-        ),
-        waiter::spin_puzzle(),
-        shiny::tags$h3("Initializing Data Hub...")
-      ),
-      color = "#0E2B4C"
-    )
-  )
-}
+# app_preloader_ui <- function() {
+#   htmltools::tagList(
+#     waiter::waiter_show_on_load(
+#       html = shiny::tags$div(
+#         style = "display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; height: 50vh;",
+#         shiny::tags$img(
+#           src = "www/logo.svg",
+#           height = "150px",
+#           style = "background: #FFFFFF; border: 3px solid black; border-radius: 6px; padding: 0.5%;"
+#         ),
+#         waiter::spin_puzzle(),
+#         shiny::tags$h3("Initializing Data Hub...")
+#       ),
+#       color = "#0E2B4C"
+#     )
+#   )
+# }
 
 app_logo <- function() {
   htmltools::tags$img(

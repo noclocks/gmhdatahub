@@ -76,10 +76,12 @@ mod_survey_property_amenities_ui <- function(id) {
 mod_survey_property_amenities_server <- function(
     id,
     pool = NULL,
-    selected_property_id = NULL,
-    selected_competitor_id = NULL,
+    survey_data = NULL,
+    selected_filters = NULL,
+    db_trigger_func = NULL,
     edit_survey_section = NULL
 ) {
+
   shiny::moduleServer(
     id,
     function(input, output, session) {
@@ -90,30 +92,24 @@ mod_survey_property_amenities_server <- function(
       if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
       check_db_conn(pool)
 
-      # handle selected property ID
-      if (is.null(selected_property_id)) {
-        prop_id <- get_property_id_by_name("1047 Commonwealth Avenue")
-        selected_property_id <- shiny::reactive({
-          prop_id
-        })
-        selected_property_name <- shiny::reactive({
-          get_property_name_by_id(prop_id)
-        })
-      }
-
-      # handle selected competitor ID
-      # if (!is.null(selected_competitor_id) || !is.null(session$userData$selected_survey_competitor_id)) {
-      #   if (selected_competitor_id != 0 || selected_competitor_id != "none") {
-      #     comp_id <- selected_competitor_id %||% session$userData$selected_survey_competitor_id
-      #     selected_competitor_id <- shiny::reactive({ comp_id })
-      #     selected_property_name <- shiny::reactive({ get_competitor_name_by_id(comp_id) })
-      #   } else {
-      #     selected_competitor_id <- shiny::reactive({ NULL })
-      #   }
-      # }
-
       db_refresh_trigger <- shiny::reactiveVal(0)
       iv <- shinyvalidate::InputValidator$new()
+
+      # filters
+      shiny::observe({
+        shiny::req(selected_filters)
+        if (is.null(selected_filters$property_id)) {
+          selected_filters$property_id <- 739085
+        }
+        if (is.null(selected_filters$property_name)) {
+          selected_filters$property_name <- "1047 Commonwealth Avenue"
+        }
+      })
+
+      selected_property_name <- shiny::reactive({
+        shiny::req(selected_filters)
+        selected_filters$property_name
+      })
 
       property_amentities_data <- shiny::reactive({
         shiny::req(pool, selected_property_name())
@@ -175,6 +171,12 @@ mod_survey_property_amenities_server <- function(
 
       # Modal handling --------------------------------------------------------
       shiny::observeEvent(edit_survey_section(), {
+        shiny::req(session$userData$selected_survey_tab(), property_amenities_data())
+
+        if (session$userData$selected_survey_tab() != "nav_property_amenities") {
+          return()
+        }
+
         data <- property_amenities_data()
         initial_data(data)
 
@@ -226,10 +228,10 @@ mod_survey_property_amenities_server <- function(
           property_amenities$amenity,
           function(amenity) {
             shiny::observeEvent(input[[amenity]],
-                                {
-                                  input_changes(input_changes() + 1)
-                                },
-                                ignoreInit = TRUE
+              {
+                input_changes(input_changes() + 1)
+              },
+              ignoreInit = TRUE
             )
           }
         )
@@ -308,6 +310,7 @@ mod_survey_property_amenities_server <- function(
         )
 
         db_refresh_trigger(db_refresh_trigger() + 1)
+        db_trigger_func()
         shiny::removeModal()
       })
 
@@ -328,8 +331,8 @@ mod_survey_property_amenities_server <- function(
             htmltools::tags$h3(
               class = "text-primary mb-2",
               bsicons::bs_icon(amenity_section_icons |>
-                                 dplyr::filter(category == !!category) |>
-                                 dplyr::pull(icon)),
+                dplyr::filter(category == !!category) |>
+                dplyr::pull(icon)),
               category
             ),
             if (nrow(amenities) > 0) {

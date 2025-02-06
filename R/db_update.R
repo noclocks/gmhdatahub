@@ -97,15 +97,169 @@ db_update_survey_unit_amenities <- function(pool, new_values) {
   return(invisible(data))
 }
 
+db_update_survey_leasing_summary <- function(pool, new_values) {
+  check_db_conn(pool)
+
+  data <- new_values
+
+  if (!all(c("property_name", "competitor_id") %in% colnames(data))) {
+    # get id (property id for property and competitor id for competitor)
+    comp_names <- db_read_tbl(pool, "survey.competitors", collect = FALSE) |>
+      dplyr::pull(competitor_name)
+    prop_names <- db_read_tbl(pool, "survey.properties", collect = FALSE) |>
+      dplyr::pull(property_name)
+
+    if (data$property_name %in% prop_names) {
+      data <- data |>
+        dplyr::mutate(
+          property_id = purrr::map_int(.data$property_name, get_property_id_by_name),
+          competitor_id = NA_integer_
+        )
+    } else if (data$property_name %in% comp_names) {
+      data <- data |>
+        dplyr::mutate(
+          property_id = NA_integer_,
+          competitor_id = purrr::map_int(.data$property_name, get_competitor_id_by_name)
+        )
+    }
+  }
+
+  if (!"leasing_week_id" %in% colnames(data)) {
+    data$leasing_week_id <- get_leasing_week_id_by_date(get_leasing_week_start_date())
+  }
+
+  if (!all(c("updated_by") %in% colnames(data))) {
+    data$updated_by <- get_user_id_by_email(pool, "default_user@example.com")
+  }
+
+  if (!"survey_id" %in% colnames(data)) {
+    data$survey_id <- db_read_survey_id(
+      pool,
+      property_id = data$property_id,
+      competitor_id = data$competitor_id,
+      leasing_week_id = data$leasing_week_id
+    )
+  }
+
+  conn <- pool::poolCheckout(pool)
+  on.exit(pool::poolReturn(conn))
+
+  tryCatch(
+    {
+      dbx::dbxUpsert(
+        conn,
+        DBI::SQL("survey.leasing_summary"),
+        records = data,
+        where_cols = c("property_name", "survey_id", "leasing_week_id"),
+        skip_existing = FALSE
+      )
+
+      cli::cli_alert_success(
+        "Successfully updated survey.leasing_summary"
+      )
+
+      shiny::showNotification(
+        "Successfully updated leasing summary data.",
+        duration = 500,
+        type = "default"
+      )
+    },
+    error = function(e) {
+      cli::cli_alert_danger(
+        "Failed to update leasing_summary: {.error {e$message}}"
+      )
+      shiny::showNotification(
+        "Failed to update leasing_summary.",
+        duration = 500,
+        type = "error"
+      )
+    }
+  )
+
+  return(invisible(data))
+}
+
+db_update_survey_utilities <- function(pool, new_values) {
+
+  check_db_conn(pool)
+
+  data <- new_values
+
+  if (!all(c("property_name", "utility_name") %in% colnames(data))) {
+    # get id (property id for property and competitor id for competitor)
+    comp_names <- db_read_tbl(pool, "survey.competitors", collect = FALSE) |>
+      dplyr::pull(competitor_name)
+    prop_names <- db_read_tbl(pool, "survey.properties", collect = FALSE) |>
+      dplyr::pull(property_name)
+
+    if (data$property_name %in% prop_names) {
+      data <- data |>
+        dplyr::mutate(
+          property_id = purrr::map_int(.data$property_name, get_property_id_by_name),
+          competitor_id = NA_integer_
+        )
+    } else if (data$property_name %in% comp_names) {
+      data <- data |>
+        dplyr::mutate(
+          property_id = NA_integer_,
+          competitor_id = purrr::map_int(.data$property_name, get_competitor_id_by_name)
+        )
+    }
+  }
+
+  if (!all(c("updated_by") %in% colnames(data))) {
+    user_id <- get_user_id_by_email(pool, "default_user@example.com")
+    data <- data |>
+      dplyr::mutate(
+        updated_by = user_id
+      )
+  }
+
+  conn <- pool::poolCheckout(pool)
+  on.exit(pool::poolReturn(conn))
+
+  tryCatch(
+    {
+      dbx::dbxUpsert(
+        conn,
+        DBI::SQL("survey.utilities"),
+        records = data,
+        where_cols = c("property_name", "utility_name"),
+        skip_existing = FALSE
+      )
+
+      cli::cli_alert_success(
+        "Successfully updated utilities"
+      )
+
+      shiny::showNotification(
+        "Successfully updated utilities.",
+        duration = 500,
+        type = "default"
+      )
+    },
+    error = function(e) {
+      cli::cli_alert_danger(
+        "Failed to update utilities: {.error {e$message}}"
+      )
+      shiny::showNotification(
+        "Failed to update utilities.",
+        duration = 500,
+        type = "error"
+      )
+    }
+  )
+
+  return(invisible(data))
+}
+
 db_update_survey_property_summary <- function(
     pool,
     new_values,
-    survey_id = NULL,
-    user_id = NULL,
     property_id = NULL,
-    competitor_id = NULL
+    competitor_id = NULL,
+    user_id = NULL
 ) {
-
   check_db_conn(pool)
 
   # get id (property id for property and competitor id for competitor)
@@ -130,31 +284,22 @@ db_update_survey_property_summary <- function(
       )
   }
 
-  if (is.null(survey_id)) {
-    survey_id <- db_read_survey_id(
-      pool,
-      property_id = data$property_id,
-      competitor_id = data$competitor_id
-    )
-  }
-
   if (is.null(user_id)) {
-    user_id <- get_user_id_by_email(pool, "jimmy.briggs@noclocks.dev")
+    user_id <- get_user_id_by_email(pool, "default_user@example.com")
   }
 
   summary_data <- data |>
     dplyr::mutate(
-      survey_id = .env$survey_id,
       created_by = .env$user_id,
       updated_by = .env$user_id
     ) |>
     dplyr::select(
-      survey_id,
       property_id,
       competitor_id,
       property_name,
       property_website,
       property_address,
+      property_email,
       property_phone,
       property_developer,
       property_manager,
@@ -166,6 +311,8 @@ db_update_survey_property_summary <- function(
       year_built,
       most_recent_sale,
       distance_from_campus,
+      property_image_url,
+      property_description,
       created_by,
       updated_by
     )
@@ -179,7 +326,7 @@ db_update_survey_property_summary <- function(
         conn,
         DBI::SQL("survey.property_summary"),
         records = summary_data,
-        where_cols = c("survey_id", "property_name"),
+        where_cols = c("property_name"),
         skip_existing = FALSE
       )
 
@@ -206,7 +353,6 @@ db_update_survey_property_summary <- function(
   )
 
   return(invisible(summary_data))
-
 }
 
 
@@ -451,49 +597,49 @@ db_update_mkt_parking <- function(pool, property_id, leasing_week, new_values) {
 
   browser()
 
-  tryCatch({
-    # Check for existing survey entry in `mkt.short_term_leases`
-    existing_entry <- db_read_tbl(pool, "mkt.parking", collect = FALSE) |>
-      dplyr::filter(property_id == .env$property_id, leasing_week == .env$leasing_week) |>
-      dplyr::collect() |>
-      nrow()
+  tryCatch(
+    {
+      # Check for existing survey entry in `mkt.short_term_leases`
+      existing_entry <- db_read_tbl(pool, "mkt.parking", collect = FALSE) |>
+        dplyr::filter(property_id == .env$property_id, leasing_week == .env$leasing_week) |>
+        dplyr::collect() |>
+        nrow()
 
-    if (existing_entry > 0) {
-      dbx::dbxUpdate(
-        conn,
-        DBI::SQL("mkt.parking"),
-        records = new_values,
-        where_cols = c("property_id", "leasing_week")
+      if (existing_entry > 0) {
+        dbx::dbxUpdate(
+          conn,
+          DBI::SQL("mkt.parking"),
+          records = new_values,
+          where_cols = c("property_id", "leasing_week")
+        )
+      } else {
+        dbx::dbxInsert(
+          conn,
+          DBI::SQL("mkt.parking"),
+          records = new_values
+        )
+      }
+
+      cli::cli_alert_success(
+        "Successfully updated property details."
       )
-
-    } else {
-      dbx::dbxInsert(
-        conn,
-        DBI::SQL("mkt.parking"),
-        records = new_values
+      shiny::showNotification(
+        "Successfully updated property details.",
+        duration = 500,
+        type = "default"
+      )
+    },
+    error = function(e) {
+      cli::cli_alert_danger(
+        "Failed to update property details: {.error {e$message}}"
+      )
+      shiny::showNotification(
+        "Failed to update property details.",
+        duration = 500,
+        type = "error"
       )
     }
-
-    cli::cli_alert_success(
-      "Successfully updated property details."
-    )
-    shiny::showNotification(
-      "Successfully updated property details.",
-      duration = 500,
-      type = "default"
-    )
-
-  },
-  error = function(e) {
-    cli::cli_alert_danger(
-      "Failed to update property details: {.error {e$message}}"
-    )
-    shiny::showNotification(
-      "Failed to update property details.",
-      duration = 500,
-      type = "error"
-    )
-  })
+  )
 
   return(invisible(new_values))
 }

@@ -81,65 +81,11 @@ tbl_rents_by_floorplan <- function(rents_data) {
     "bundled_rent_per_square_foot"
   )
 
-  totals <- rents_data |>
-    dplyr::summarise(
-      dplyr::across(
-        tidyselect::all_of(count_cols),
-        function(x) {
-          dplyr::n_distinct(x, na.rm = TRUE)
-        }
-      ),
-      dplyr::across(
-        tidyselect::all_of(sum_cols),
-        function(x) {
-          sum(x, na.rm = TRUE)
-        }
-      ),
-      dplyr::across(
-        tidyselect::all_of(avg_cols),
-        function(x) {
-          mean(x, na.rm = TRUE)
-        }
-      )
-    ) |>
-    dplyr::mutate(
-      dplyr::across(
-        tidyselect::all_of(avg_cols),
-        function(x) {
-          round(x, 2) |>
-            prettyNum(big.mark = ",")
-        }
-      ),
-      dplyr::across(
-        tidyselect::all_of(sum_cols),
-        function(x) {
-          prettyNum(x, big.mark = ",")
-        }
-      ),
-      dplyr::across(
-        tidyselect::all_of(count_cols),
-        function(x) {
-          prettyNum(x, big.mark = ",")
-        }
-      )
-    )
-
-  default_col_def <- reactable::colDef(
-    align = "center",
-    headerVAlign = "center",
-    vAlign = "center",
-    format = reactable::colFormat(separators = TRUE),
-    headerStyle = htmltools::css(
-      font_weight = 600,
-      border_bottom = "2px solid black"
-    ),
-    footerStyle = htmltools::css(
-      font_weight = 600,
-      border_top = "2px solid black"
-    ),
-    footer = function(values, col_name) {
-      totals[[col_name]]
-    }
+  totals <- derive_tbl_totals(
+    data = rents_data,
+    count_cols = count_cols,
+    sum_cols = sum_cols,
+    avg_cols = avg_cols
   )
 
   exclude_cols <- c(

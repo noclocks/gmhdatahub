@@ -45,15 +45,46 @@ mod_survey_admin_ui <- function(id) {
   ns <- shiny::NS(id)
 
   htmltools::tagList(
+    # add google places js
+    htmltools::tags$head(
+      htmltools::tags$script(
+        src = sprintf(
+          "https://maps.googleapis.com/maps/api/js?key=%s&libraries=places",
+          get_gmaps_config("api_key")
+        )
+      ),
+      # htmltools::tags$script(
+      #   htmltools::HTML(sprintf("
+      #     $(document).ready(function() {
+      #       var addressInput = document.getElementById('%s');
+      #       var autocomplete = new google.maps.places.Autocomplete(addressInput);
+      #
+      #       autocomplete.addListener('place_changed', function() {
+      #         var place = autocomplete.getPlace();
+      #         if (place.geometry) {
+      #           // Send place details to Shiny
+      #           Shiny.setInputValue('%s', {
+      #             address: place.formatted_address,
+      #             lat: place.geometry.location.lat(),
+      #             lng: place.geometry.location.lng(),
+      #             name: place.name,
+      #             types: place.types,
+      #             nearby: place.address_components
+      #           });
+      #         }
+      #       });
+      #     });
+      #   ",
+      #   ))
+      # )
+    ),
     bslib::page_fluid(
-
       bslib::navset_card_underline(
         id = ns("nav"),
         title = htmltools::tags$span(bsicons::bs_icon("clipboard"), "Survey Admin"),
         sidebar = NULL,
         header = NULL,
         footer = NULL,
-
         bslib::nav_panel(
           title = icon_text("dashboard", "Overview"),
           bslib::layout_columns(
@@ -95,7 +126,6 @@ mod_survey_admin_ui <- function(id) {
           )
         )
       ),
-
       bslib::card(
         bslib::card_header(
           class = "d-flex justify-content-between align-items-center",
@@ -151,7 +181,6 @@ mod_survey_admin_ui <- function(id) {
             )
           )
         )
-
       ),
       # actions section
       bslib::card(
@@ -231,8 +260,7 @@ mod_survey_admin_server <- function(
       if (is.null(user)) {
         user <- list(
           user_id = 1,
-          user_email = "jimmy.briggs@noclocks.dev",
-          user_name = "Jimmy Briggs"
+          user_email = "default_user@example.com"
         )
       } else {
         if (shiny::is.reactive(user)) {

@@ -35,7 +35,13 @@
 #'
 #' @examplesIf interactive()
 #' shiny::shinyApp(ui = app_ui, server = app_server)
+#'
+#' @importFrom bsicons bs_icon
+#' @importFrom bslib page_navbar nav_spacer nav_panel nav_menu nav_item input_dark_mode
+#' @importFrom htmltools tagList tags
+#' @importFrom shiny icon textOutput actionLink
 app_ui <- function(req = NULL) {
+
   force(req)
 
   if (!is.null(req)) {
@@ -161,7 +167,8 @@ app_ui <- function(req = NULL) {
         icon = bsicons::bs_icon("link-45deg"),
         bslib::nav_item(
           tags$a(
-            icon("book"), "Documentation",
+            icon("book"),
+            "Documentation",
             href = "#", # pkg_sys("docs/index.html"),
             target = "_blank"
           )

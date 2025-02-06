@@ -81,8 +81,9 @@ mod_survey_unit_amenities_ui <- function(id) {
 mod_survey_unit_amenities_server <- function(
     id,
     pool = NULL,
-    selected_property_id = NULL,
-    selected_competitor_id = NULL,
+    survey_data = NULL,
+    selected_filters = NULL,
+    db_trigger_func = NULL,
     edit_survey_section = NULL
 ) {
   shiny::moduleServer(
@@ -95,49 +96,39 @@ mod_survey_unit_amenities_server <- function(
       if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
       check_db_conn(pool)
 
-      # handle selected property ID
-      if (is.null(selected_property_id)) {
-        prop_id <- get_property_id_by_name("1047 Commonwealth Avenue")
-        selected_property_id <- shiny::reactive({
-          prop_id
-        })
-        selected_property_name <- shiny::reactive({
-          get_property_name_by_id(prop_id)
-        })
-      }
-
-      # handle selected competitor ID
-      if (is.null(selected_competitor_id)) {
-        selected_competitor_id <- shiny::reactive({
-          "none"
-        })
-      }
-
       # initialize reactives
       initial_data <- shiny::reactiveVal()
       input_changes <- shiny::reactiveVal(0)
       db_refresh_trigger <- shiny::reactiveVal(0)
 
+      # filters
+      shiny::observe({
+        shiny::req(selected_filters)
+        if (is.null(selected_filters$property_id)) {
+          selected_filters$property_id <- 739085
+        }
+        if (is.null(selected_filters$property_name)) {
+          selected_filters$property_name <- "1047 Commonwealth Avenue"
+        }
+      })
+
+      selected_property_id <- shiny::reactive({
+        shiny::req(selected_filters)
+        selected_filters$property_id
+      })
+
+      selected_property_name <- shiny::reactive({
+        shiny::req(selected_filters)
+        selected_filters$property_name
+      })
+
       # selected property/competitor ID
       current_id <- shiny::reactive({
-        # determine if reactive has any value
-        # if (shiny::is.reactive(selected_competitor_id)) {
-        #   if (selected_competitor_id() != "none") {
-        #     selected_compertitor_id()
-        #   } else {
         selected_property_id()
-        # }
-        # } else {
-        # selected_property_id()
-        # }
       })
 
       current_name <- shiny::reactive({
-        # if (selected_competitor_id() != "none") {
-        #   get_competitor_name_by_id(selected_competitor_id())
-        # } else {
         get_property_name_by_id(selected_property_id())
-        # }
       })
 
       # initial data
@@ -226,6 +217,12 @@ mod_survey_unit_amenities_server <- function(
 
       # modal
       shiny::observeEvent(edit_survey_section(), {
+        shiny::req(session$userData$selected_survey_tab(), unit_amenities_data())
+
+        if (session$userData$selected_survey_tab() != "nav_unit_amenities") {
+          return()
+        }
+
         data <- unit_amenities_data()
         initial_data(data)
 
@@ -289,7 +286,7 @@ mod_survey_unit_amenities_server <- function(
                 "TV Rentable Rate ($)",
                 value = unit_amenities_rates_data() |>
                   dplyr::filter(amenity_name == "TV Rentable Rate") |>
-                  dplyr::pull(rentable_rate) %||% 0,
+                  dplyr::pull(amenity_value) %||% 0,
                 min = 0
               ),
               shiny::numericInput(
@@ -297,7 +294,7 @@ mod_survey_unit_amenities_server <- function(
                 "Bedroom TV ($)",
                 value = unit_amenities_rates_data() |>
                   dplyr::filter(amenity_name == "TV Bedroom") |>
-                  dplyr::pull(rentable_rate) %||% 0,
+                  dplyr::pull(amenity_value) %||% 0,
                 min = 0
               ),
               shiny::numericInput(
@@ -305,7 +302,7 @@ mod_survey_unit_amenities_server <- function(
                 "Common Area TV ($)",
                 value = unit_amenities_rates_data() |>
                   dplyr::filter(amenity_name == "TV Common Area") |>
-                  dplyr::pull(rentable_rate) %||% 0,
+                  dplyr::pull(amenity_value) %||% 0,
                 min = 0
               )
             )
@@ -327,7 +324,7 @@ mod_survey_unit_amenities_server <- function(
                 "Furniture Rentable Rate ($)",
                 value = unit_amenities_rates_data() |>
                   dplyr::filter(amenity_name == "Furniture Rentable Rate") |>
-                  dplyr::pull(rentable_rate) %||% 0,
+                  dplyr::pull(amenity_value) %||% 0,
                 min = 0
               )
             )
@@ -342,7 +339,7 @@ mod_survey_unit_amenities_server <- function(
                 "Floor Premiums ($)",
                 value = unit_amenities_rates_data() |>
                   dplyr::filter(amenity_name == "Floor Premiums") |>
-                  dplyr::pull(premium) %||% 0,
+                  dplyr::pull(amenity_value) %||% 0,
                 min = 0
               ),
               shiny::numericInput(
@@ -350,7 +347,7 @@ mod_survey_unit_amenities_server <- function(
                 "Poolside Premiums ($)",
                 value = unit_amenities_rates_data() |>
                   dplyr::filter(amenity_name == "Poolside Premiums") |>
-                  dplyr::pull(premium) %||% 0,
+                  dplyr::pull(amenity_value) %||% 0,
                 min = 0
               ),
               shiny::numericInput(
@@ -358,7 +355,7 @@ mod_survey_unit_amenities_server <- function(
                 "Top Floor Premiums ($)",
                 value = unit_amenities_rates_data() |>
                   dplyr::filter(amenity_name == "Top Floor Premiums") |>
-                  dplyr::pull(premium) %||% 0,
+                  dplyr::pull(amenity_value) %||% 0,
                 min = 0
               ),
               shiny::numericInput(
@@ -366,7 +363,7 @@ mod_survey_unit_amenities_server <- function(
                 "View Premiums ($)",
                 value = unit_amenities_rates_data() |>
                   dplyr::filter(amenity_name == "View Premiums") |>
-                  dplyr::pull(premium) %||% 0,
+                  dplyr::pull(amenity_value) %||% 0,
                 min = 0
               ),
               shiny::numericInput(
@@ -374,7 +371,7 @@ mod_survey_unit_amenities_server <- function(
                 "Other Premiums ($)",
                 value = unit_amenities_rates_data() |>
                   dplyr::filter(amenity_name == "Other Premiums") |>
-                  dplyr::pull(premium) %||% 0,
+                  dplyr::pull(amenity_value) %||% 0,
                 min = 0
               )
             )
@@ -476,7 +473,7 @@ mod_survey_unit_amenities_server <- function(
           )
 
           db_refresh_trigger(db_refresh_trigger() + 1)
-
+          db_trigger_func()
           shiny::removeModal()
         })
       })
@@ -484,8 +481,6 @@ mod_survey_unit_amenities_server <- function(
       # summary display
       output$unit_amenities_summary <- shiny::renderUI({
         purrr::map(unique(unit_amenities$category), function(category) {
-          # browser()
-
           amenities <- unit_amenities_data() |>
             dplyr::filter(
               amenity_value == TRUE,

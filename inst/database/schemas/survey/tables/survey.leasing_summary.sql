@@ -12,7 +12,7 @@ CREATE TABLE survey.leasing_summary (
     current_occupancy NUMERIC(6, 3),
     prior_year_occupancy NUMERIC(6, 3),
     current_pre_lease NUMERIC(6, 3),
-    last_year_pre_lease NUMERIC(6, 3),
+    prior_year_pre_lease NUMERIC(6, 3),
     total_renewals INTEGER,
     total_new_leases INTEGER,
     weekly_leases INTEGER,

@@ -1,5 +1,4 @@
 map_survey_locations <- function(properties = NULL, competitors = NULL, universities = NULL) {
-
   requireNamespace("leaflet.extras", quietly = TRUE)
   requireNamespace("leaflet.providers", quietly = TRUE)
 
@@ -11,8 +10,8 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
 
   if (nrow(merged_data) == 0) {
     return(leaflet::leaflet() |>
-             leaflet::addProviderTiles(leaflet::providers$CartoDB.Positron) |>
-             leaflet::setView(lng = -98.35, lat = 39.5, zoom = 4))
+      leaflet::addProviderTiles(leaflet::providers$CartoDB.Positron) |>
+      leaflet::setView(lng = -98.35, lat = 39.5, zoom = 4))
   }
 
   bounds <- merged_data |>
@@ -51,7 +50,14 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
         group = "Properties",
         icon = property_icons,
         label = ~location_name,
+        labelOptions = leaflet::labelOptions(noHide = TRUE),
         popup = ~map_popup_html,
+        popupOptions = leaflet::popupOptions(
+          # maxHeight = 150,
+          autoPan = TRUE,
+          keepInView = TRUE,
+          closeButton = TRUE
+        ),
         data = properties
       )
   }
@@ -65,7 +71,14 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
         group = "Competitors",
         icon = competitor_icons,
         label = ~location_name,
+        labelOptions = leaflet::labelOptions(noHide = TRUE),
         popup = ~map_popup_html,
+        popupOptions = leaflet::popupOptions(
+          # maxHeight = 150,
+          autoPan = TRUE,
+          keepInView = TRUE,
+          closeButton = TRUE
+        ),
         data = competitors
       )
   }
@@ -79,7 +92,15 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
         group = "Universities",
         icon = university_icons,
         label = ~location_name,
+        labelOptions = leaflet::labelOptions(noHide = TRUE),
         popup = ~map_popup_html,
+        popupOptions = leaflet::popupOptions(
+          # maxHeight = 150,
+          # maxWidth = 300,
+          autoPan = TRUE,
+          keepInView = TRUE,
+          closeButton = TRUE
+        ),
         data = universities
       )
   }

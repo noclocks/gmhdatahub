@@ -1,10 +1,9 @@
-
 app_guide <- function() {
   conductor::Conductor$new()$
     step(
-      "Welcome",
-      "Let's take a quick tour of the platform's key features."
-    )
+    "Welcome",
+    "Let's take a quick tour of the platform's key features."
+  )
 }
 
 # library(shiny)

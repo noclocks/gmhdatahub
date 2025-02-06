@@ -12,7 +12,8 @@ mod_survey_short_term_leases_ui(id)
 mod_survey_short_term_leases_server(
   id,
   pool = NULL,
-  selected_property_id = NULL,
+  survey_data = NULL,
+  selected_filters = NULL,
   edit_survey_section = NULL
 )
 
