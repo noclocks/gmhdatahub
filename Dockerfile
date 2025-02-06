@@ -37,7 +37,9 @@ RUN Rscript -e 'pak::local_install(ask = FALSE)'
 WORKDIR /
 RUN rm -rf /build
 RUN mkdir -p /etc/gmhdatahub
-RUN Rscript -e "gmhdatahub:::decrypt_config_file(path = 'etc/gmhdatahub/')"
+RUN --mount=type=secret,id=encryption_key \
+    export NOCLOCKS_ENCRYPTION_KEY=$(cat /run/secrets/encryption_key) && \
+    Rscript -e "library(gmhdatahub); gmhdatahub:::decrypt_config_file(path = '/etc/gmhdatahub')"
 
 RUN adduser \
   --disabled-password \
