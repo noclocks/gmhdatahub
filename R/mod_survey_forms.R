@@ -292,8 +292,8 @@ mod_survey_forms_server <- function(
           user_email <- "jimmy.briggs@noclocks.dev"
           user_id <- get_user_id_by_email(pool, user_email)
         } else {
-          user_id <- session$userData$user$id
-          user_email <- session$userData$user$email
+          user_id <- session$userData$user()$user_uid
+          user_email <- session$userData$user()$email
         }
         selected_filters$user_id <- user_id
         selected_filters$user_email <- user_email
