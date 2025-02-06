@@ -34,7 +34,9 @@ run_app <- function(
     options = app_opts(port = port, host = host),
     enable_bookmarking = NULL,
     ui_pattern = ".*",
-    ...) {
+    ...
+) {
+
   noClocksAuthR:::set_api_url(api_url = auth_config$base_url)
 
   ui <- noClocksAuthR::secure_ui(
