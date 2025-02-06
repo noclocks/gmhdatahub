@@ -288,7 +288,7 @@ mod_survey_forms_server <- function(
 
       # user --------------------------------------------------------------------
       shiny::observe({
-        if (is.null(session$userData$user)) {
+        if (is.null(session$userData$user())) {
           user_email <- "jimmy.briggs@noclocks.dev"
           user_id <- get_user_id_by_email(pool, user_email)
         } else {
