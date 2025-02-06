@@ -94,34 +94,44 @@ mod_survey_utilities_server <- function(
       # data --------------------------------------------------------------------
       utilities_data <- shiny::reactive({
         shiny::req(nrow(survey_data$utilities) > 0)
-        survey_data$utilities
+        survey_data$utilities |>
+          dplyr::select(
+            utility_name,
+            utility_included,
+            utility_available,
+            utility_capped,
+            utility_per,
+            utility_allowance,
+            utility_category
+          )
+      })
+
+      core_utilities_data <- shiny::reactive({
+        shiny::req(utilities_data())
+        utilities_data() |>
+          dplyr::filter(.data$utility_category == "Core") |>
+          dplyr::select(-utility_category)
+      })
+
+      other_utilities_data <- shiny::reactive({
+        shiny::req(utilities_data())
+        utilities_data() |>
+          dplyr::filter(utility_category == "Other") |>
+          dplyr::select(-utility_category)
       })
 
       output$survey_utilities_tbl <- reactable::renderReactable({
-        shiny::req(utilities_data())
+        shiny::req(core_utilities_data())
 
-        tbl_data <- utilities_data() |>
-          dplyr::filter(.data$utility_category == "Core") |>
-          dplyr::select(
-            property_name,
-            utility_name,
-            utility_category,
-            utility_per,
-            utility_available,
-            utility_included,
-            utility_capped,
-            utility_allowance
-          )
+        tbl_data <- core_utilities_data()
 
         if (nrow(tbl_data) == 0) {
-          data <- tibble::tibble(
-            property_name = "No Data Available",
+          tbl_data <- tibble::tibble(
             utility_name = NA_character_,
-            utility_category = NA_character_,
+            utility_included = as.logical(NA),
+            utility_available = as.logical(NA),
+            utility_capped = as.logical(NA),
             utility_per = NA_character_,
-            utility_available = NA_character_,
-            utility_included = NA_character_,
-            utility_capped = NA_character_,
             utility_allowance = NA_real_
           )
         }
@@ -130,62 +140,46 @@ mod_survey_utilities_server <- function(
           data = tbl_data,
           defaultPageSize = nrow(tbl_data),
           searchable = TRUE,
+          highlight = TRUE,
           columns = list(
-            property_name = reactable::colDef(
-              show = FALSE
-            ),
             utility_name = reactable::colDef(
-              name = "Utility",
-            ),
-            utility_category = reactable::colDef(
-              show = FALSE
-            ),
-            utility_per = reactable::colDef(
-              name = "Per Bed/Unit"
-            ),
-            utility_available = reactable::colDef(
-              name = "Available?"
+              name = "Utility"
             ),
             utility_included = reactable::colDef(
               name = "Included?"
             ),
+            utility_available = reactable::colDef(
+              name = "Available?"
+            ),
+            utility_per = reactable::colDef(
+              name = "Per Bed/Unit"
+            ),
             utility_capped = reactable::colDef(
               name = "Capped?"
+            ),
+            utility_per = reactable::colDef(
+              name = "Per Bed/Unit"
             ),
             utility_allowance = reactable::colDef(
               name = "Allowance ($)",
               format = reactable::colFormat(currency = "USD")
             )
-          ),
-          highlight = TRUE
+          )
         )
       })
 
       output$survey_other_utilities_tbl <- reactable::renderReactable({
-        shiny::req(utilities_data())
+        shiny::req(other_utilities_data())
 
-        tbl_data <- utilities_data() |>
-          dplyr::filter(.data$utility_category == "Other") |>
-          dplyr::select(
-            property_name,
-            utility_name,
-            utility_category,
-            utility_per,
-            utility_available,
-            utility_included,
-            utility_capped,
-            utility_allowance
-          )
+        tbl_data <- other_utilities_data()
 
         if (nrow(tbl_data) == 0) {
-          data <- tibble::tibble(
-            property_name = "No Data Available",
+          tbl_data <- tibble::tibble(
             utility_name = NA_character_,
-            utility_category = NA_character_,
+            utility_included = as.logical(NA),
+            utility_available = as.logical(NA),
+            utility_capped = as.logical(NA),
             utility_per = NA_character_,
-            utility_available = NA_character_,
-            utility_capped = NA_character_,
-            utility_capped = NA_character_,
             utility_allowance = NA_real_
           )
         }
@@ -194,35 +188,88 @@ mod_survey_utilities_server <- function(
           data = tbl_data,
           defaultPageSize = nrow(tbl_data),
           searchable = TRUE,
+          highlight = TRUE,
           columns = list(
-            property_name = reactable::colDef(
-              show = FALSE
-            ),
             utility_name = reactable::colDef(
-              name = "Utility",
-            ),
-            utility_category = reactable::colDef(
-              show = FALSE
-            ),
-            utility_per = reactable::colDef(
-              name = "Per Bed/Unit"
-            ),
-            utility_available = reactable::colDef(
-              name = "Available?"
+              name = "Utility"
             ),
             utility_included = reactable::colDef(
               name = "Included?"
             ),
+            utility_available = reactable::colDef(
+              name = "Available?"
+            ),
+            utility_per = reactable::colDef(
+              name = "Per Bed/Unit"
+            ),
             utility_capped = reactable::colDef(
               name = "Capped?"
+            ),
+            utility_per = reactable::colDef(
+              name = "Per Bed/Unit"
             ),
             utility_allowance = reactable::colDef(
               name = "Allowance ($)",
               format = reactable::colFormat(currency = "USD")
             )
-          ),
-          highlight = TRUE
+          )
         )
+      })
+
+      output$modal_survey_core_utilities_table <- rhandsontable::renderRHandsontable({
+        shiny::req(core_utilities_data())
+
+        core_data <- core_utilities_data()
+
+        rhandsontable::rhandsontable(
+          core_data,
+          rowHeaders = FALSE,
+          colHeaders = c(
+            "Utility Name",
+            "Included?",
+            "Available?",
+            "Capped?",
+            "Per Bed/Unit",
+            "Allowance ($)"
+          ),
+          contextMenu = TRUE,
+          stretchH = "all",
+          width = "100%"
+        ) |>
+          rhandsontable::hot_col(col = 1, readOnly = TRUE) |>
+          rhandsontable::hot_col(col = 2, type = "checkbox") |>
+          rhandsontable::hot_col(col = 3, type = "checkbox") |>
+          rhandsontable::hot_col(col = 4, type = "checkbox") |>
+          rhandsontable::hot_col(col = 5, type = "dropdown", source = c("Bed", "Unit")) |>
+          rhandsontable::hot_col(col = 6, type = "numeric")
+      })
+
+      output$modal_survey_other_utilities_table <- rhandsontable::renderRHandsontable({
+        shiny::req(other_utilities_data())
+
+        other_data <- other_utilities_data()
+
+        rhandsontable::rhandsontable(
+          other_data,
+          rowHeaders = FALSE,
+          colHeaders = c(
+            "Utility Name",
+            "Included?",
+            "Available?",
+            "Capped?",
+            "Per Bed/Unit",
+            "Allowance ($)"
+          ),
+          contextMenu = TRUE,
+          stretchH = "all",
+          width = "100%"
+        ) |>
+          rhandsontable::hot_col(col = 1, readOnly = TRUE) |>
+          rhandsontable::hot_col(col = 2, type = "checkbox") |>
+          rhandsontable::hot_col(col = 3, type = "checkbox") |>
+          rhandsontable::hot_col(col = 4, type = "checkbox") |>
+          rhandsontable::hot_col(col = 5, type = "dropdown", source = c("Bed", "Unit")) |>
+          rhandsontable::hot_col(col = 6, type = "numeric")
       })
 
       shiny::observeEvent(edit_survey_section(), {
@@ -249,95 +296,17 @@ mod_survey_utilities_server <- function(
               ),
               shiny::modalButton("Cancel")
             ),
-            bslib::card(
-              bslib::card_header("Core Utilities"),
-              bslib::card_body(
-                bslib::layout_columns(
-                  col_widths = c(12),
-                  rhandsontable::rHandsontableOutput(ns("modal_survey_core_utilities_table")),
-                  rhandsontable::rHandsontableOutput(ns("modal_survey_other_utilities_table"))
-                )
-              )
-            )
+            rhandsontable::rHandsontableOutput(ns("modal_survey_core_utilities_table")),
+            rhandsontable::rHandsontableOutput(ns("modal_survey_other_utilities_table"))
           )
         )
       })
 
-      output$modal_survey_core_utilities_table <- rhandsontable::renderRHandsontable({
-        shiny::req(utilities_data())
 
-        core_data <- utilities_data() |>
-          dplyr::filter(.data$utility_category == "Core") |>
-          dplyr::select(
-            utility_name,
-            utility_included,
-            utility_available,
-            utility_capped,
-            utility_per,
-            utility_allowance
-          )
-
-        rhandsontable::rhandsontable(
-          core_data,
-          rowHeaders = FALSE,
-          colHeaders = c(
-            "Utility Name",
-            "Included?",
-            "Available?",
-            "Capped?",
-            "Per Bed/Unit",
-            "Allowance ($)"
-          ),
-          contextMenu = TRUE,
-          stretchH = "all",
-          width = "100%"
-        ) |>
-          rhandsontable::hot_col(col = 1, readOnly = TRUE) |>
-          rhandsontable::hot_col(col = 2, type = "checkbox") |>
-          rhandsontable::hot_col(col = 3, type = "checkbox") |>
-          rhandsontable::hot_col(col = 4, type = "checkbox") |>
-          rhandsontable::hot_col(col = 5, type = "dropdown", source = c("Bed", "Unit")) |>
-          rhandsontable::hot_col(col = 6, type = "numeric")
-      })
-
-      output$modal_survey_other_utilities_table <- rhandsontable::renderRHandsontable({
-        shiny::req(utilities_data())
-
-        other_data <- utilities_data() |>
-          dplyr::filter(.data$utility_category == "Other") |>
-          dplyr::select(
-            utility_name,
-            utility_included,
-            utility_available,
-            utility_capped,
-            utility_per,
-            utility_allowance
-          )
-
-        rhandsontable::rhandsontable(
-          other_data,
-          rowHeaders = FALSE,
-          colHeaders = c(
-            "Utility Name",
-            "Included?",
-            "Available?",
-            "Capped?",
-            "Per Bed/Unit",
-            "Allowance ($)"
-          ),
-          contextMenu = TRUE,
-          stretchH = "all",
-          width = "100%"
-        ) |>
-          rhandsontable::hot_col(col = 1, readOnly = TRUE) |>
-          rhandsontable::hot_col(col = 2, type = "checkbox") |>
-          rhandsontable::hot_col(col = 3, type = "checkbox") |>
-          rhandsontable::hot_col(col = 4, type = "checkbox") |>
-          rhandsontable::hot_col(col = 5, type = "dropdown", source = c("Bed", "Unit")) |>
-          rhandsontable::hot_col(col = 6, type = "numeric")
-      })
 
       shiny::observeEvent(input$save, {
+
+        browser()
 
         if (!is.na(selected_filters$competitor_id) && !is.null(selected_filters$competitor_id)) {
           prop_id <- NA_integer_
@@ -349,7 +318,7 @@ mod_survey_utilities_server <- function(
           prop_name <- selected_filters$property_name
         }
 
-        initial_values <- utilities_data() |>
+        initial_values <- survey_data$utilities |>
           dplyr::select(
             property_id,
             competitor_id,
@@ -402,7 +371,23 @@ mod_survey_utilities_server <- function(
             updated_by
           )
 
-        changed_values <- dplyr::anti_join(new_values, initial_values, by = c("property_id", "utility_name", "utility_category"))
+        changed_values <- dplyr::anti_join(
+          new_values,
+          initial_values,
+          by = c(
+            "property_id",
+            "competitor_id",
+            "property_name",
+            "utility_name",
+            "utility_category",
+            "utility_per",
+            "utility_available",
+            "utility_included",
+            "utility_capped",
+            "utility_allowance",
+            "updated_by"
+          )
+        )
 
         if (nrow(changed_values) == 0) {
           shiny::showNotification("No changes detected.")
