@@ -292,7 +292,7 @@ mod_survey_property_summary_server <- function(
       # filters
       shiny::observe({
         shiny::req(selected_filters)
-        if (is.null(selected_filters$property_id)) {
+        if (is.null(selected_filters$competitor_id) && is.null(selected_filters$property_id)) {
           selected_filters$property_id <- 739085
         }
       })

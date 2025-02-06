@@ -283,7 +283,9 @@ db_read_survey_property_summary <- function(
     pool,
     property_id = NULL,
     competitor_id = NULL,
-    collect = TRUE) {
+    collect = TRUE
+) {
+
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.property_summary", collect = FALSE)
@@ -316,22 +318,14 @@ db_read_survey_leasing_summary <- function(
     property_id = NULL,
     competitor_id = NULL,
     leasing_week_id = NULL,
-    property_name = NULL,
-    collect = TRUE) {
+    collect = TRUE
+) {
+
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.leasing_summary", collect = FALSE)
 
-  filters <- list(
-    survey_id = survey_id,
-    property_id = property_id,
-    competitor_id = competitor_id,
-    leasing_week_id = leasing_week_id,
-    property_name = property_name
-  ) |>
-    purrr::compact()
-
-  if (length(filters) == 0) {
+  if (is.null(property_id) && is.null(competitor_id) && is.null(leasing_week_id) && is.null(survey_id)) {
     if (collect) {
       return(dplyr::collect(hold))
     } else {
@@ -339,18 +333,24 @@ db_read_survey_leasing_summary <- function(
     }
   }
 
-  hold_filtered <- purrr::reduce(
-    names(filters),
-    function(acc, col) {
-      dplyr::filter(acc, !!rlang::sym(col) == !!filters[[col]])
-    },
-    .init = hold
-  )
+  if (!is.null(competitor_id)) {
+    hold <- dplyr::filter(hold, .data$competitor_id == .env$competitor_id)
+  } else {
+    hold <- dplyr::filter(hold, .data$property_id == .env$property_id)
+  }
+
+  if (!is.null(leasing_week_id)) {
+    hold <- dplyr::filter(hold, .data$leasing_week_id == .env$leasing_week_id)
+  }
+
+  if (!is.null(survey_id)) {
+    hold <- dplyr::filter(hold, .data$survey_id == .env$survey_id)
+  }
 
   if (collect) {
-    return(dplyr::collect(hold_filtered))
+    return(dplyr::collect(hold))
   } else {
-    return(hold_filtered)
+    return(hold)
   }
 }
 
