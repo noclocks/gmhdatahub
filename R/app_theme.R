@@ -163,16 +163,52 @@ preview_app_theme <- function(...) {
 #'
 #' @importFrom reactable reactableTheme
 reactable_theme <- function(...) {
-  header_style <- list(
+
+  reactable::reactableTheme(
+    color = gmh_colors("black"),
+    backgroundColor = gmh_colors("white"),
+    borderColor = gmh_colors("primary"),
+    cellPadding = "8px 12px",
+    stripedColor = "#f6f8fa",
+    highlightColor = "#e8eef7",
+    style = list(fontSize = "0.8rem"),
+    searchInputStyle = list(width = "100%"),
+    headerStyle = reactable_header_style(),
+    groupHeaderStyle = reactable_header_groups_style(),
+    footerStyle = reactable_footer_style(),
+    rowSelectedStyle = reactable_selected_row_style(),
+    inputStyle = reactable_input_style(),
+    ...
+  )
+
+}
+
+reactable_selected_row_style <- function() {
+  list(
+    backgroundColor = "#d3e1f3",
+    boxShadow = paste0("inset 2px 0 0 0 ", gmh_colors("primary"))
+  )
+}
+
+reactable_input_style <- function() {
+  list(
+    backgroundColor = gmh_colors("light"),
+    color = gmh_colors("dark"),
+    border = paste0("1px solid ", gmh_colors("primary"))
+  )
+}
+
+reactable_header_style <- function() {
+  list(
     backgroundColor = gmh_colors("primary"),
     color = gmh_colors("light"),
     fontSize = "16px",
     fontWeight = "bold",
     "&:hover[aria-sort]" = list(
-      background = "hsl(0, 0%, 96%)"
+      background = gmh_colors("primary")
     ),
     "&[aria-sort='ascending'], &[aria-sort='descending']" = list(
-      background = "hsl(0, 0%, 96%)"
+      background = gmh_colors("primary")
     ),
     "&[aria-sort='ascending']::after" = list(
       content = "' ▲'",
@@ -183,26 +219,42 @@ reactable_theme <- function(...) {
       display = "inline-block"
     )
   )
+}
 
-  reactable::reactableTheme(
-    color = gmh_colors("black"),
-    backgroundColor = gmh_colors("white"),
-    borderColor = gmh_colors("primary"),
-    stripedColor = "#f6f8fa",
-    highlightColor = "#e8eef7",
-    cellPadding = "8px 12px",
-    style = list(fontSize = "0.8rem"),
-    headerStyle = header_style,
-    rowSelectedStyle = list(
-      backgroundColor = "#d3e1f3",
-      boxShadow = "inset 2px 0 0 0 #0e2b4c"
-    ),
-    inputStyle = list(
-      backgroundColor = "#ffffff",
-      color = "#000000",
-      border = "1px solid #0e2b4c"
-    ),
-    searchInputStyle = list(width = "100%"),
-    ...
+reactable_footer_style <- function() {
+  list(
+    background = gmh_colors("primary"),
+    color = "white",
+    fontWeight = "600"
   )
 }
+
+reactable_header_groups_style <- function() {
+  list(
+    backgroundColor = gmh_colors("primary"),
+    color = gmh_colors("light"),
+    borderTop = paste0("2px solid ", gmh_colors("primary")),
+    borderBottom = paste0("2px solid ", gmh_colors("primary"))
+  )
+}
+
+reactable_default_col_def <- function(totals = NULL) {
+  reactable::colDef(
+    align = "center",
+    headerVAlign = "center",
+    vAlign = "center",
+    format = reactable::colFormat(separators = TRUE),
+    headerStyle = htmltools::css(
+      font_weight = 600,
+      border_bottom = "2px solid black"
+    ),
+    footerStyle = htmltools::css(
+      font_weight = 600,
+      border_top = "2px solid black"
+    ),
+    footer = function(values, col_name) {
+      totals[[col_name]]
+    }
+  )
+}
+
