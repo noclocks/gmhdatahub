@@ -12,7 +12,9 @@ mod_survey_property_summary_ui(id)
 mod_survey_property_summary_server(
   id,
   pool = NULL,
-  selected_property_id = NULL,
+  survey_data = NULL,
+  map_data = NULL,
+  selected_filters = NULL,
   edit_survey_section = NULL
 )
 

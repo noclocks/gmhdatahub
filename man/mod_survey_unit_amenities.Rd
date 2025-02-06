@@ -12,8 +12,8 @@ mod_survey_unit_amenities_ui(id)
 mod_survey_unit_amenities_server(
   id,
   pool = NULL,
-  selected_property_id = NULL,
-  selected_competitor_id = NULL,
+  survey_data = NULL,
+  selected_filters = NULL,
   edit_survey_section = NULL
 )
 
