@@ -101,45 +101,38 @@ db_update_survey_utilities <- function(pool, new_values) {
 
   check_db_conn(pool)
 
-  # get id (property id for property and competitor id for competitor)
-  comp_names <- db_read_tbl(pool, "survey.competitors", collect = FALSE) |>
-    dplyr::pull(competitor_name)
-  prop_names <- db_read_tbl(pool, "survey.properties", collect = FALSE) |>
-    dplyr::pull(property_name)
-
   data <- new_values
 
-  if (data$property_name %in% prop_names) {
-    data <- data |>
-      dplyr::mutate(
-        property_id = purrr::map_int(.data$property_name, get_property_id_by_name),
-        competitor_id = NA_integer_
-      )
-  } else if (data$property_name %in% comp_names) {
-    data <- data |>
-      dplyr::mutate(
-        property_id = NA_integer_,
-        competitor_id = purrr::map_int(.data$property_name, get_competitor_id_by_name)
-      )
+  if (!all(c("property_name", "utility_name") %in% colnames(data))) {
+
+    # get id (property id for property and competitor id for competitor)
+    comp_names <- db_read_tbl(pool, "survey.competitors", collect = FALSE) |>
+      dplyr::pull(competitor_name)
+    prop_names <- db_read_tbl(pool, "survey.properties", collect = FALSE) |>
+      dplyr::pull(property_name)
+
+    if (data$property_name %in% prop_names) {
+      data <- data |>
+        dplyr::mutate(
+          property_id = purrr::map_int(.data$property_name, get_property_id_by_name),
+          competitor_id = NA_integer_
+        )
+    } else if (data$property_name %in% comp_names) {
+      data <- data |>
+        dplyr::mutate(
+          property_id = NA_integer_,
+          competitor_id = purrr::map_int(.data$property_name, get_competitor_id_by_name)
+        )
+    }
   }
 
-  if (is.null(user_id)) {
+  if (!all(c("updated_by") %in% colnames(data))) {
     user_id <- get_user_id_by_email(pool, "jimmy.briggs@noclocks.dev")
+    data <- data |>
+      dplyr::mutate(
+        updated_by = user_id
+      )
   }
-
-  utilities_data <- data |>
-    dplyr::select(
-      property_id,
-      competitor_id,
-      property_name,
-      utility_name,
-      utility_category,
-      utility_per,
-      utility_available,
-      utility_capped,
-      utility_allowance,
-      updated_by
-    )
 
   conn <- pool::poolCheckout(pool)
   on.exit(pool::poolReturn(conn))
@@ -149,7 +142,7 @@ db_update_survey_utilities <- function(pool, new_values) {
       dbx::dbxUpsert(
         conn,
         DBI::SQL("survey.utilities"),
-        records = utilities_data,
+        records = data,
         where_cols = c("property_name", "utility_name"),
         skip_existing = FALSE
       )
@@ -176,7 +169,7 @@ db_update_survey_utilities <- function(pool, new_values) {
     }
   )
 
-  return(invisible(utilities_data))
+  return(invisible(data))
 
 }
 

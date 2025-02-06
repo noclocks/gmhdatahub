@@ -108,6 +108,7 @@ mod_survey_utilities_server <- function(
             utility_category,
             utility_per,
             utility_available,
+            utility_included,
             utility_capped,
             utility_allowance
           )
@@ -119,6 +120,7 @@ mod_survey_utilities_server <- function(
             utility_category = NA_character_,
             utility_per = NA_character_,
             utility_available = NA_character_,
+            utility_included = NA_character_,
             utility_capped = NA_character_,
             utility_allowance = NA_real_
           )
@@ -143,6 +145,9 @@ mod_survey_utilities_server <- function(
             ),
             utility_available = reactable::colDef(
               name = "Available?"
+            ),
+            utility_included = reactable::colDef(
+              name = "Included?"
             ),
             utility_capped = reactable::colDef(
               name = "Capped?"
@@ -167,6 +172,7 @@ mod_survey_utilities_server <- function(
             utility_category,
             utility_per,
             utility_available,
+            utility_included,
             utility_capped,
             utility_allowance
           )
@@ -178,6 +184,7 @@ mod_survey_utilities_server <- function(
             utility_category = NA_character_,
             utility_per = NA_character_,
             utility_available = NA_character_,
+            utility_capped = NA_character_,
             utility_capped = NA_character_,
             utility_allowance = NA_real_
           )
@@ -202,6 +209,9 @@ mod_survey_utilities_server <- function(
             ),
             utility_available = reactable::colDef(
               name = "Available?"
+            ),
+            utility_included = reactable::colDef(
+              name = "Included?"
             ),
             utility_capped = reactable::colDef(
               name = "Capped?"
@@ -260,9 +270,10 @@ mod_survey_utilities_server <- function(
           dplyr::filter(.data$utility_category == "Core") |>
           dplyr::select(
             utility_name,
-            utility_per,
+            utility_included,
             utility_available,
             utility_capped,
+            utility_per,
             utility_allowance
           )
 
@@ -271,9 +282,10 @@ mod_survey_utilities_server <- function(
           rowHeaders = FALSE,
           colHeaders = c(
             "Utility Name",
-            "Per Bed/Unit",
+            "Included?",
             "Available?",
             "Capped?",
+            "Per Bed/Unit",
             "Allowance ($)"
           ),
           contextMenu = TRUE,
@@ -281,10 +293,11 @@ mod_survey_utilities_server <- function(
           width = "100%"
         ) |>
           rhandsontable::hot_col(col = 1, readOnly = TRUE) |>
-          rhandsontable::hot_col(col = 2, type = "dropdown", source = c("Bed", "Unit")) |>
-          rhandsontable::hot_col(col = 3, type = "dropdown", source = c("Yes", "No")) |>
-          rhandsontable::hot_col(col = 4, type = "dropdown", source = c("Yes", "No")) |>
-          rhandsontable::hot_col(col = 5, type = "numeric")
+          rhandsontable::hot_col(col = 2, type = "checkbox") |>
+          rhandsontable::hot_col(col = 3, type = "checkbox") |>
+          rhandsontable::hot_col(col = 4, type = "checkbox") |>
+          rhandsontable::hot_col(col = 5, type = "dropdown", source = c("Bed", "Unit")) |>
+          rhandsontable::hot_col(col = 6, type = "numeric")
       })
 
       output$modal_survey_other_utilities_table <- rhandsontable::renderRHandsontable({
@@ -294,9 +307,10 @@ mod_survey_utilities_server <- function(
           dplyr::filter(.data$utility_category == "Other") |>
           dplyr::select(
             utility_name,
-            utility_per,
+            utility_included,
             utility_available,
             utility_capped,
+            utility_per,
             utility_allowance
           )
 
@@ -305,9 +319,10 @@ mod_survey_utilities_server <- function(
           rowHeaders = FALSE,
           colHeaders = c(
             "Utility Name",
-            "Per Bed/Unit",
+            "Included?",
             "Available?",
             "Capped?",
+            "Per Bed/Unit",
             "Allowance ($)"
           ),
           contextMenu = TRUE,
@@ -315,33 +330,61 @@ mod_survey_utilities_server <- function(
           width = "100%"
         ) |>
           rhandsontable::hot_col(col = 1, readOnly = TRUE) |>
-          rhandsontable::hot_col(col = 2, type = "dropdown", source = c("Bed", "Unit")) |>
-          rhandsontable::hot_col(col = 3, type = "dropdown", source = c("Yes", "No")) |>
-          rhandsontable::hot_col(col = 4, type = "dropdown", source = c("Yes", "No")) |>
-          rhandsontable::hot_col(col = 5, type = "numeric")
+          rhandsontable::hot_col(col = 2, type = "checkbox") |>
+          rhandsontable::hot_col(col = 3, type = "checkbox") |>
+          rhandsontable::hot_col(col = 4, type = "checkbox") |>
+          rhandsontable::hot_col(col = 5, type = "dropdown", source = c("Bed", "Unit")) |>
+          rhandsontable::hot_col(col = 6, type = "numeric")
       })
 
       shiny::observeEvent(input$save, {
 
         if (!is.na(selected_filters$competitor_id) && !is.null(selected_filters$competitor_id)) {
-          prop_id <- NULL
+          prop_id <- NA_integer_
           comp_id <- selected_filters$competitor_id
           prop_name <- selected_filters$competitor_name
         } else {
           prop_id <- selected_filters$property_id
-          comp_id <- NULL
+          comp_id <- NA_integer_
           prop_name <- selected_filters$property_name
         }
 
+        initial_values <- utilities_data() |>
+          dplyr::select(
+            property_id,
+            competitor_id,
+            property_name,
+            utility_name,
+            utility_category,
+            utility_per,
+            utility_available,
+            utility_included,
+            utility_capped,
+            utility_allowance,
+            updated_by
+          )
+
         new_values <- rhandsontable::hot_to_r(input$modal_survey_core_utilities_table) |>
-          dplyr::mutate(utility_category = "Core") |>
+          dplyr::mutate(
+            utility_category = "Core",
+            # convert checkboxes to logical
+            utility_available = as.logical(utility_available),
+            utility_included = as.logical(utility_included),
+            utility_capped = as.logical(utility_capped)
+          ) |>
           dplyr::bind_rows(
             rhandsontable::hot_to_r(input$modal_survey_other_utilities_table) |>
-              dplyr::mutate(utility_category = "Other")
+              dplyr::mutate(
+                utility_category = "Other",
+                # convert checkboxes to logical
+                utility_available = as.logical(utility_available),
+                utility_included = as.logical(utility_included),
+                utility_capped = as.logical(utility_capped)
+              )
           ) |>
           dplyr::mutate(
-            property_id = prop_id,
-            competitor_id = comp_id,
+            property_id = as.integer(prop_id),
+            competitor_id = as.integer(comp_id),
             property_name = prop_name,
             updated_by = selected_filters$user_id
           ) |>
@@ -353,14 +396,31 @@ mod_survey_utilities_server <- function(
             utility_category,
             utility_per,
             utility_available,
+            utility_included,
             utility_capped,
             utility_allowance,
             updated_by
           )
 
-        db_update_survey_utilities(pool, new_values)
-        db_refresh_trigger(db_refresh_trigger() + 1)
-        shiny::removeModal()
+        changed_values <- dplyr::anti_join(new_values, initial_values, by = c("property_id", "utility_name", "utility_category"))
+
+        if (nrow(changed_values) == 0) {
+          shiny::showNotification("No changes detected.")
+          shiny::removeModal()
+          return()
+        } else {
+          shiny::withProgress(
+            message = "Saving changes...",
+            detail = "Please wait...",
+            value = 0,
+            {
+              db_update_survey_utilities(pool, changed_values)
+              shiny::setProgress(value = 1, detail = "Changes saved.")
+              db_refresh_trigger(db_refresh_trigger() + 1)
+              shiny::removeModal()
+            }
+          )
+        }
       })
 
       return(
