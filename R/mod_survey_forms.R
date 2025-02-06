@@ -515,7 +515,9 @@ mod_survey_forms_server <- function(
         pool = pool,
         survey_data = survey_data,
         selected_filters = selected_filters,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+        edit_survey_section = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
       # notes

@@ -64,13 +64,10 @@ mod_survey_utilities_server <- function(
     pool = NULL,
     survey_data = NULL,
     selected_filters = NULL,
-    edit_survey_section = NULL
-) {
-
+    edit_survey_section = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
-
       # setup ------------------------------------------------------------
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_utilities_server()")
@@ -275,7 +272,9 @@ mod_survey_utilities_server <- function(
       shiny::observeEvent(edit_survey_section(), {
         shiny::req(session$userData$selected_survey_tab(), utilities_data())
 
-        if (session$userData$selected_survey_tab() != "nav_utilities") { return() }
+        if (session$userData$selected_survey_tab() != "nav_utilities") {
+          return()
+        }
 
         core_data <- utilities_data() |> dplyr::filter(.data$utility_category == "Core")
         other_data <- utilities_data() |> dplyr::filter(.data$utility_category == "Other")
@@ -305,7 +304,6 @@ mod_survey_utilities_server <- function(
 
 
       shiny::observeEvent(input$save, {
-
         browser()
 
         if (!is.na(selected_filters$competitor_id) && !is.null(selected_filters$competitor_id)) {

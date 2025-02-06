@@ -98,13 +98,11 @@ db_update_survey_unit_amenities <- function(pool, new_values) {
 }
 
 db_update_survey_utilities <- function(pool, new_values) {
-
   check_db_conn(pool)
 
   data <- new_values
 
   if (!all(c("property_name", "utility_name") %in% colnames(data))) {
-
     # get id (property id for property and competitor id for competitor)
     comp_names <- db_read_tbl(pool, "survey.competitors", collect = FALSE) |>
       dplyr::pull(competitor_name)
@@ -170,7 +168,6 @@ db_update_survey_utilities <- function(pool, new_values) {
   )
 
   return(invisible(data))
-
 }
 
 db_update_survey_property_summary <- function(
