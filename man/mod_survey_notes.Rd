@@ -11,7 +11,13 @@ create_note_card(note, ns)
 
 mod_survey_notes_ui(id)
 
-mod_survey_notes_server(id, pool = NULL, global_filters = NULL)
+mod_survey_notes_server(
+  id,
+  pool = NULL,
+  selected_property_id = NULL,
+  selected_competitor_id = NULL,
+  edit_survey_section = NULL
+)
 }
 \arguments{
 \item{note}{A single note object.}

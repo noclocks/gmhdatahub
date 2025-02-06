@@ -7,13 +7,13 @@
 app_ui(req = NULL)
 }
 \arguments{
-\item{req}{(internal) The request object.}
+\item{req}{(Internal) The initial HTTP request object.}
 }
 \value{
 The UI for the Shiny application.
 }
 \description{
-This is the main UI function for the Shiny application.
+This function generates the core user interface for the GMH DataHub Shiny app.
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -21,6 +21,15 @@ shiny::shinyApp(ui = app_ui, server = app_server)
 \dontshow{\}) # examplesIf}
 }
 \seealso{
+\itemize{
+\item \code{\link[=app_server]{app_server()}}: Server logic for the Shiny app that complements this UI.
+\item \code{\link[=app_theme_ui]{app_theme_ui()}}: Customized \code{\link[bslib:bs_theme]{bslib::bs_theme()}} for the Shiny app,
+built leveraging the GMH Communities brand assets.
+\item \code{\link[=app_assets]{app_assets()}}: Functions for managing and including various static assets in a Shiny application.
+\item \code{\link[=run_app]{run_app()}}: Run the GMH DataHub Shiny app.
+\item \code{\link[bslib:page_navbar]{bslib::page_navbar()}}: Create a Bootstrap navbar.
+}
+
 Other \strong{Shiny App}: 
 \code{\link{app_server}()}
 }

@@ -10,7 +10,10 @@
 \usage{
 get_leasing_week(as_of_date = Sys.Date(), week_start = "Monday")
 
-get_leasing_week_start_date(as_of_date = Sys.Date(), week_start = "Monday")
+get_leasing_week_start_date(
+  as_of_date = lubridate::today("EST"),
+  week_start = 1
+)
 
 get_leasing_week_end_date(as_of_date = Sys.Date(), week_start = "Monday")
 

@@ -21,6 +21,7 @@ Imports:
     bsicons,
     bslib (>= 0.7),
     cli,
+    conductor,
     config,
     DBI,
     dbplyr,
@@ -32,12 +33,14 @@ Imports:
     glue,
     googleway,
     htmltools,
+    htmlwidgets,
     httr2,
     jsonlite,
     leaflet,
     logger,
     lubridate,
     mime,
+    noClocksAuthR,
     pkgload,
     plotly,
     pool,
@@ -45,27 +48,32 @@ Imports:
     reactable,
     reactablefmtr,
     readr,
+    rhandsontable,
     rintrojs,
     rlang,
     RPostgres,
     scales,
+    sever,
     shiny,
+    shinybrowser,
+    shinybusy,
     shinycustomloader,
     shinyjs,
     shinyvalidate,
     shinyWidgets,
+    snakecase,
     stringr,
     tibble,
     tidyr,
     tidyselect,
     tools,
+    utils,
     waiter,
-    withr
+    withr,
+    writexl
 Suggests:
     httptest2,
-    httpuv,
     knitr,
-    pingr,
     rmarkdown,
     shinybg,
     shinytest2,
@@ -73,9 +81,11 @@ Suggests:
     testthat (>= 3.0.0)
 VignetteBuilder:
     knitr
-Remotes:
+Remotes:  
+    noclocks/noClocksAuthR,
     kcuilla/reactablefmtr,
-    tiledb-inc/shinybg
+    tiledb-inc/shinybg,
+    dreamRs/shinyWidgets
 Config/coverage/needs: covr covrpage
 Config/database/needs: config, DBI, pool, dbx, dplyr, dbplyr, RPostgres
 Config/excel/needs: openxlsx2, readxl, writexl, cellranger

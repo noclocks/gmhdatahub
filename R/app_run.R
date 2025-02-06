@@ -28,15 +28,40 @@
 run_app <- function(
     port = 8080,
     host = "0.0.0.0",
+    app_config = get_app_config(),
+    auth_config = get_auth_config(),
     on_start = NULL,
     options = app_opts(port = port, host = host),
     enable_bookmarking = NULL,
     ui_pattern = ".*",
     ...) {
+  noClocksAuthR:::set_api_url(api_url = auth_config$base_url)
+
+  ui <- noClocksAuthR::secure_ui(
+    ui = app_ui,
+    sign_in_page_ui = custom_sign_in_ui,
+    custom_admin_button_ui = noClocksAuthR::admin_button_ui(align = "left")
+  ) |>
+    healthcheck_ui()
+
+  server <- noClocksAuthR::secure_server(
+    server = app_server,
+    custom_sign_in_server = noClocksAuthR::sign_in_module_2
+  )
+
+  on_start <- function() {
+    noClocksAuthR::noclocksauthr_config(
+      app_name = app_config$id,
+      api_key = auth_config$api_key,
+      is_invite_required = ifelse(Sys.getenv("R_CONFIG_ACTIVE") == "production", TRUE, FALSE),
+      is_email_verification_required = FALSE
+    )
+  }
+
   # run app
   shiny::shinyApp(
-    ui = app_ui,
-    server = app_server,
+    ui = ui,
+    server = server,
     onStart = on_start,
     options = options,
     enableBookmarking = enable_bookmarking,
@@ -56,18 +81,16 @@ run_app <- function(
 #'
 #' @returns
 #' Returns previously set options invisibly.
+#'
+#' @importFrom cli cli_abort cli_warn cli_alert_warning
+#' @importFrom rlang is_named
 app_opts <- function(...) {
-  # collect user options
   user_options <- list(...)
-
-  # ensure options are named
   if (!rlang::is_named(user_options)) {
     cli::cli_abort(
       "All options must be named. For example: {.code app_opts(port = 1234)}."
     )
   }
-
-  # filter out invalid options
   valid_options <- user_options[names(user_options) %in% .shiny_opts]
   if (length(valid_options) < length(user_options)) {
     invalid_options <- setdiff(names(user_options), .shiny_opts)
@@ -77,24 +100,16 @@ app_opts <- function(...) {
     ))
   }
   names(valid_options) <- paste0("shiny.", names(valid_options))
-
-  # get current options
   current_options <- options()[grep("^shiny\\.", names(options()))]
   current_options_names <- sub("^shiny\\.", "", names(current_options))
-
   opts_to_override <- intersect(names(valid_options), names(current_options))
-
   if (length(opts_to_override) > 0) {
-    cli::cli_alert_warning(c(
-      "The following Shiny options are already set and will be overridden:",
-      "{.field {opts_to_override}}"
-    ))
+    # cli::cli_alert_warning(c(
+    #   "The following Shiny options are already set and will be overridden:",
+    #   "{.field {opts_to_override}}"
+    # ))
   }
-
-  # set options
   do.call(options, valid_options)
-
-  # invisibly return any previously set options
   invisible(current_options)
 }
 

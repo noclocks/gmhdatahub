@@ -220,8 +220,17 @@ mod_survey_notes_ui <- function(id) {
 #' @importFrom shiny showModal selectInput textInput checkboxInput textAreaInput
 #' @importFrom shiny actionButton icon modalButton observe modalDialog removeModal
 #' @importFrom shiny showNotification renderUI req
-mod_survey_notes_server <- function(id, pool = NULL, global_filters = NULL) {
+mod_survey_notes_server <- function(
+    id,
+    pool = NULL,
+    selected_property_id = NULL,
+    selected_competitor_id = NULL,
+    edit_survey_section = NULL) {
   shiny::moduleServer(id, function(input, output, session) {
+    # check database connection
+    if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
+    check_db_conn(pool)
+
     # Initialize reactive values with demo data
     notes_data <- shiny::reactiveVal(
       data.frame(
@@ -508,4 +517,30 @@ mod_survey_notes_server <- function(id, pool = NULL, global_filters = NULL) {
       }
     })
   })
+}
+
+mod_survey_notes_demo <- function(pool = NULL) {
+  pkgload::load_all()
+
+  ui <- bslib::page_navbar(
+    title = "Demo: Survey Notes Section",
+    window_title = "Demo: Survey Property Summary",
+    theme = bslib::bs_theme(version = 5),
+    lang = "en",
+    bslib::nav_spacer(),
+    bslib::nav_panel(
+      title = "Survey Property Summary",
+      value = "survey_property_summary",
+      icon = bsicons::bs_icon("house"),
+      shinyjs::useShinyjs(),
+      mod_survey_notes_ui("demo")
+    )
+  )
+
+  server <- function(input, output, session) {
+    if (is.null(pool)) pool <- db_connect()
+    mod_survey_notes_server("demo", pool = pool)
+  }
+
+  shiny::shinyApp(ui, server)
 }

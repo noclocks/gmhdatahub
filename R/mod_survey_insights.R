@@ -45,7 +45,57 @@ mod_survey_insights_ui <- function(id) {
   ns <- shiny::NS(id)
 
   htmltools::tagList(
-    bslib::card()
+    bslib::page_fluid(
+      bslib::navset_card_tab(
+        id = ns("nav"),
+        title = htmltools::tags$span(
+          bsicons::bs_icon("bar-chart"),
+          "Survey Insights"
+        ),
+        sidebar = bslib::sidebar(
+          title = icon_text("filter", "Filters"),
+          width = 300,
+          shiny::selectInput(
+            ns("property"),
+            label = icon_text("building", "Property"),
+            choices = app_choices_lst$properties,
+            selected = app_choices_lst$properties[["1047 Commonwealth Avenue"]]
+          ),
+          shiny::selectInput(
+            ns("competitor"),
+            label = icon_text("building", "Competitor"),
+            choices = c("None" = "none")
+          ) |>
+            shinyjs::disabled(),
+          shiny::dateRangeInput(
+            ns("date_range"),
+            label = icon_text("calendar", "Date Range"),
+            start = get_leasing_week_start_date() - lubridate::weeks(6),
+            end = lubridate::today()
+          )
+        ),
+        bslib::nav_panel(
+          title = "Overview",
+          value = ns("nav_overview"),
+          mod_survey_insights_overview_ui(ns("overview"))
+        ),
+        bslib::nav_panel(
+          title = "Trends",
+          value = ns("nav_trends"),
+          mod_survey_insights_trends_ui(ns("trends"))
+        ),
+        bslib::nav_panel(
+          title = "Comparison",
+          value = ns("nav_comparison"),
+          mod_survey_insights_comparison_ui(ns("comparison"))
+        ),
+        bslib::nav_panel(
+          title = "SWOT Analysis",
+          value = ns("nav_swot"),
+          mod_survey_insights_swot_ui(ns("swot"))
+        )
+      )
+    )
   )
 }
 
@@ -58,26 +108,36 @@ mod_survey_insights_ui <- function(id) {
 #' @importFrom cli cat_rule
 mod_survey_insights_server <- function(
     id,
-    pool = NULL,
-    global_filters = NULL) {
-  # check database connection
-  if (is.null(pool)) pool <- db_connect()
-  check_db_conn(pool)
-
-  # validation of reactives
-  if (!is.null(global_filters)) {
-    stopifnot(shiny::is.reactive(global_filters))
-  }
-
+    pool = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_insights_server()")
 
+      # check database connection
+      if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
+      check_db_conn(pool)
+
+      # handle selected property/competitor
+      selected_property <- shiny::reactive({
+        input$property
+      })
+      selected_competitor <- shiny::reactive({
+        input$competitor
+      })
+
+      # modules
+      mod_survey_insights_overview_server("overview", pool = pool, selected_property, selected_competitor)
+      trends_data <- mod_survey_insights_trends_server("trends", pool = pool)
+      comparison_data <- mod_survey_insights_comparison_server("comparison", pool = pool)
+      swot_data <- mod_survey_insights_swot_server("swot", pool = pool)
+
       return(
         list(
-          # reactive values
+          trends = trends_data,
+          comparison = comparison_data,
+          swot = swot_data
         )
       )
     }
@@ -98,7 +158,7 @@ mod_survey_insights_demo <- function() {
   ui <- bslib::page_navbar(
     title = "Demo: Survey Insights",
     window_title = "Demo: Survey Insights",
-    theme = app_theme(),
+    theme = app_theme_ui(),
     lang = "en",
     bslib::nav_spacer(),
     bslib::nav_panel(
@@ -115,5 +175,3 @@ mod_survey_insights_demo <- function() {
 
   shiny::shinyApp(ui, server)
 }
-
-# utilities ---------------------------------------------------------------

@@ -5,11 +5,11 @@
 \alias{mod_pre_lease_ui}
 \alias{mod_pre_lease_server}
 \alias{mod_pre_lease_demo}
-\title{Pre Lease Shiny Module}
+\title{Pre-Lease Shiny Module}
 \usage{
 mod_pre_lease_ui(id)
 
-mod_pre_lease_server(id, pool = NULL, global_filters = NULL)
+mod_pre_lease_server(id, pool = NULL, selected_property_id = NULL)
 
 mod_pre_lease_demo()
 }
@@ -17,22 +17,27 @@ mod_pre_lease_demo()
 \item{id}{Module's namespace ID.}
 
 \item{pool}{Database connection pool.}
+
+\item{selected_property}{Selected property ID.}
+
+\item{report_date}{Report date.}
 }
 \value{
 \itemize{
-\item \code{mod_pre_lease_ui()}: UI output
-\item \code{mod_pre_lease_server()}: List of reactive expressions.
-\item \code{mod_pre_lease_demo()}: \code{NULL}, runs the demo application.
+\item \code{mod_pre_lease_ui()}: UI HTML Output.
+\item \code{mod_pre_lease_server()}: List of reactive values.
+\item \code{mod_pre_lease_demo()}: \code{NULL}, used for the side-effect of a demo app.
 }
 }
 \description{
-A Shiny Module for the GMH Data Hub's Pre Lease page.
+A Shiny Module for the GMH Communities Pre-Lease Summary & Details reports
+data visualization and review.
 
-Includes the following functions:
+The following functions are implemented:
 \itemize{
-\item \code{mod_pre_lease_ui()}: User Interface (UI) for the module.
-\item \code{mod_pre_lease_server()}: Server logic for the module.
-\item \code{mod_pre_lease_demo()}: Demo application for the module.
+\item \code{mod_pre_lease_ui()}: User interface (UI) definition
+\item \code{mod_pre_lease_server()}: Server logic
+\item \code{mod_pre_lease_demo()}: Demo application for the module
 }
 }
 \examples{

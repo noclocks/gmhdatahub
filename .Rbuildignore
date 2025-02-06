@@ -29,3 +29,7 @@ _\.new\.png$
 ^pkg\.lock$
 ^CHANGELOG\.md$
 config.yml
+^air\.toml$
+^repomixignore$
+^repomix.config.json$
+^repomix.*

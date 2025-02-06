@@ -7,6 +7,7 @@
 #  ------------------------------------------------------------------------
 
 survey_choices_lst <- list(
+  # property summary --------------------------------------------------------
   property_summary = list(
     property_type = c(
       "Student",
@@ -33,6 +34,7 @@ survey_choices_lst <- list(
       "Tier 2"
     )
   ),
+  # leasing summary ---------------------------------------------------------
   leasing_summary = list(
     reporting_cycle = c(
       "Saturday-Friday",
@@ -45,6 +47,17 @@ survey_choices_lst <- list(
       "Monthly Concession",
       "One-Time Concession",
       "Other"
+    )
+  ),
+  # short term leases -------------------------------------------------------
+  short_term_leases = list(
+    lease_term = c(
+      "Five Month Term",
+      "Ten Month Term"
+    ),
+    availability = c(
+      "Available",
+      "Not Available"
     )
   ),
   fees = list(
@@ -75,30 +88,55 @@ survey_choices_lst <- list(
       "Other"
     )
   ),
-  parking = list(
-    parking_type = c(
-      "Surface",
-      "Reserved",
-      "Covered",
-      "Garage",
-      "Other"
+  property_amenities = list(
+    property_amenity_types = c(
+      "University Shuttle",
+      "Private Shuttle",
+      "Limited Access Gates",
+      "Fitness Center",
+      "Computer Lounge",
+      "Game Room",
+      "Spray Tanning",
+      "UV Tanning",
+      "Pool",
+      "Hot Tub",
+      "24hr Package System",
+      "EV Charging Stations",
+      "Car Sharing Services",
+      "Smart Vending",
+      "Mini Market",
+      "Movie Theatre",
+      "Co-Working/Study Spaces",
+      "Free Printing",
+      "Coffee Bar",
+      "Retail",
+      "Sauna/Spa",
+      "Cycling/Yoga Studio",
+      "Rentable Guest Suite",
+      "Wellness Classes",
+      "24hr Concierge",
+      "Outdoor Grill Area",
+      "Sand Volleyball Court",
+      "Basketball Court",
+      "Pets Allowed",
+      "Dog Wash",
+      "Dog Park"
     )
   ),
   unit_amenities = list(
-    unit_amenity_types = c(
-      "Private Bathroom",
-      "Walk-In Closets",
-      "Washer / Dryer in Unit",
-      "Smart Home Technology",
-      "Smart Bedroom Locks",
-      "Smart Unit Locks",
-      "Energy Efficient Appliances",
-      "Stainless Steel Appliances",
-      "Balconies",
-      "Patios",
-      "Backyards",
-      "Other"
-    ),
+    # unit_amenity_types_general = c(
+    #   "Private Bathroom",
+    #   "Walk-In Closets",
+    #   "Washer / Dryer in Unit",
+    #   "Smart Home Technology",
+    #   "Smart Bedroom Locks",
+    #   "Smart Unit Locks",
+    #   "Energy Efficient Appliances",
+    #   "Stainless Steel Appliances",
+    #   "Balconies",
+    #   "Patios",
+    #   "Backyards",
+    # ),
     unit_amenity_types_included_in_rent = c(
       "TV Included in Rent",
       "Furniture Included in Rent",
@@ -109,6 +147,15 @@ survey_choices_lst <- list(
       "Top Floor Premium",
       "Poolside Premium",
       "View Premiums",
+      "Other"
+    )
+  ),
+  parking = list(
+    parking_type = c(
+      "Surface",
+      "Reserved",
+      "Covered",
+      "Garage",
       "Other"
     )
   ),

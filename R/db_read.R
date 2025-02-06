@@ -34,27 +34,39 @@ db_read_sql <- function(pool, sql_file, ...) {
 db_read_gmh_pre_lease_summary_tbl <- function(
     pool,
     report_date = NULL,
-    property_ids = NULL,
-    collect = TRUE) {
+    property_ids = NULL) {
   check_db_conn(pool)
 
   hold <- db_read_tbl(pool, "gmh.pre_lease_summary", collect = FALSE)
+  report_dates <- dplyr::pull(hold, "report_date") |> unique()
+  prop_ids <- dplyr::pull(hold, "property_id") |> unique()
 
-  if (!is.null(report_date)) {
-    hold <- dplyr::filter(hold, .data$report_date == .env$report_date)
-  } else {
-    hold <- dplyr::filter(hold, report_date == max(report_date, na.rm = TRUE))
+  if (is.null(report_date)) {
+    report_date <- max(report_dates, na.rm = TRUE)
   }
 
-  if (!is.null(property_ids)) {
-    hold <- dplyr::filter(hold, property_id %in% property_ids)
+  if (is.null(property_ids)) {
+    property_ids <- prop_ids
   }
 
-  if (!collect) {
-    return(hold)
-  }
+  out <- dplyr::filter(
+    hold,
+    .data$report_date == .env$report_date,
+    .data$property_id %in% .env$property_ids
+  ) |>
+    dplyr::collect() |>
+    dplyr::mutate(
+      dplyr::across(
+        tidyselect::where(is.numeric),
+        ~ dplyr::if_else(
+          is.na(.x),
+          0,
+          .x
+        )
+      )
+    )
 
-  dplyr::collect(hold)
+  return(dplyr::collect(out))
 }
 
 db_read_gmh_model_beds <- function(pool, collect = TRUE) {
@@ -74,11 +86,6 @@ db_read_gmh_locations <- function(pool, collect = TRUE) {
   db_read_tbl(pool, "gmh.locations", collect = collect)
 }
 
-db_read_gmh_map_data <- function(pool, collect = TRUE) {
-  check_db_pool(pool)
-  locations <- db_read_tbl(pool, "gmh.locations", collect = FALSE)
-}
-
 db_read_gmh_property_summary <- function(pool, property_ids = NULL) {
   check_db_pool(pool)
 
@@ -95,9 +102,17 @@ db_read_gmh_property_summary <- function(pool, property_ids = NULL) {
   dplyr::collect(hold)
 }
 
-db_read_gmh_universities <- function(pool, collect = TRUE) {
+db_read_gmh_universities <- function(pool, property_id = NULL, collect = TRUE) {
   check_db_pool(pool)
-  db_read_tbl(pool, "gmh.universities", collect = collect)
+  hold <- db_read_tbl(pool, "gmh.universities", collect = FALSE)
+  if (!is.null(property_id)) {
+    hold <- dplyr::filter(hold, .data$property_id == .env$property_id)
+  }
+  if (collect) {
+    return(dplyr::collect(hold))
+  } else {
+    return(hold)
+  }
 }
 
 db_read_university_locations <- function(pool, collect = TRUE) {
@@ -122,97 +137,13 @@ db_read_university_locations <- function(pool, collect = TRUE) {
   return(hold)
 }
 
-db_read_survey_metrics <- function(pool) {
+db_read_gmh_properties <- function(
+    pool,
+    property_id = NULL,
+    collect = TRUE) {
   check_db_pool(pool)
 
-  pool <- pool::poolCheckout(pool)
-  on.exit(pool::poolReturn(pool), add = TRUE)
-
-  tryCatch(
-    {
-      total_properties_qry <- glue::glue_sql(
-        "SELECT COUNT(*) AS count FROM {`schema`}.{`tbl`}",
-        schema = "mkt",
-        tbl = "properties",
-        .con = pool
-      )
-
-      total_competitors_qry <- glue::glue_sql(
-        "SELECT COUNT(*) AS count FROM {`schema`}.{`tbl`}",
-        schema = "mkt",
-        tbl = "competitors",
-        .con = pool
-      )
-
-      total_surveys_qry <- glue::glue_sql(
-        "SELECT COUNT(*) AS count FROM {`schema`}.{`tbl`}",
-        schema = "mkt",
-        tbl = "surveys",
-        .con = pool
-      )
-
-      total_responses_qry <- glue::glue_sql(
-        "SELECT COUNT(*) AS count FROM {`schema`}.{`tbl`}",
-        schema = "mkt",
-        tbl = "responses",
-        .con = pool
-      )
-
-      total_properties <- DBI::dbGetQuery(pool, total_properties_qry) |>
-        dplyr::pull("count") |>
-        purrr::pluck(1) |>
-        as.integer()
-
-      total_competitors <- DBI::dbGetQuery(pool, total_competitors_qry) |>
-        dplyr::pull("count") |>
-        purrr::pluck(1) |>
-        as.integer()
-
-      total_surveys <- DBI::dbGetQuery(pool, total_surveys_qry) |>
-        dplyr::pull("count") |>
-        purrr::pluck(1) |>
-        as.integer()
-
-      total_responses <- DBI::dbGetQuery(pool, total_responses_qry) |>
-        dplyr::pull("count") |>
-        purrr::pluck(1) |>
-        as.integer()
-
-      cli::cli_alert_success("Successfully retrieved survey metrics from database.")
-
-      return(
-        list(
-          total_properties = total_properties,
-          total_competitors = total_competitors,
-          total_surveys = total_surveys,
-          total_responses = total_responses
-        )
-      )
-    },
-    error = function(e) {
-      cli::cli_alert_danger(
-        c(
-          "Failed to retrieve survey metrics from database.\n",
-          "Error: {.error {conditionMessage(e)}}"
-        )
-      )
-
-      return(
-        list(
-          total_properties = 0,
-          total_competitors = 0,
-          total_surveys = 0,
-          total_responses = 0
-        )
-      )
-    }
-  )
-}
-
-db_read_mkt_property_summary <- function(pool, property_id = NULL) {
-  check_db_pool(pool)
-
-  hold <- db_read_tbl(pool, "mkt.property_summary", collect = FALSE)
+  hold <- db_read_tbl(pool, "gmh.properties", collect = FALSE)
 
   if (!is.null(property_id)) {
     prop_ids <- hold |>
@@ -220,12 +151,92 @@ db_read_mkt_property_summary <- function(pool, property_id = NULL) {
       unique()
     if (!property_id %in% prop_ids) {
       cli::cli_alert_warning("No data found for the specified property ID: {.field {property_id}}.")
+    } else {
+      hold <- dplyr::filter(hold, .data$property_id == .env$property_id)
     }
-    hold <- dplyr::filter(hold, .data$property_id == as.character(.env$property_id))
   }
 
-  dplyr::collect(hold)
+  if (collect) {
+    return(dplyr::collect(hold))
+  } else {
+    return(hold)
+  }
 }
+
+db_read_gmh_competitors <- function(
+    pool,
+    competitor_id = NULL,
+    property_id = NULL,
+    collect = TRUE) {
+  check_db_pool(pool)
+
+  hold <- db_read_tbl(pool, "gmh.competitors", collect = FALSE)
+
+  filters <- list(
+    competitor_id = competitor_id,
+    property_id = property_id
+  ) |>
+    purrr::compact()
+
+  if (length(filters) == 0) {
+    if (collect) {
+      return(dplyr::collect(hold))
+    } else {
+      return(hold)
+    }
+  }
+
+  hold_filtered <- purrr::reduce(
+    .x = names(filters),
+    .f = function(acc, col) {
+      dplyr::filter(acc, !!rlang::sym(col) == !!filters[[col]])
+    },
+    .init = hold
+  )
+
+  if (collect) {
+    return(dplyr::collect(hold_filtered))
+  } else {
+    return(hold_filtered)
+  }
+}
+
+db_read_gmh_map_data <- function(
+    pool,
+    property_id = NULL,
+    collect = TRUE) {
+  check_db_pool(pool)
+
+  hold <- db_read_tbl(pool, "gmh.locations", collect = FALSE)
+
+  prop_names <- db_read_gmh_properties(pool, property_id = property_id, collect = FALSE) |>
+    dplyr::select("property_id", "property_name") |>
+    dplyr::distinct()
+  uni_names <- db_read_gmh_universities(pool, property_id = property_id, collect = FALSE) |>
+    dplyr::select("university_id", "university_name", "property_id") |>
+    dplyr::distinct()
+  comp_names <- db_read_gmh_competitors(pool, property_id = property_id, collect = FALSE) |>
+    dplyr::select("competitor_id", "competitor_name", "property_id") |>
+    dplyr::distinct()
+
+  out <- hold |>
+    dplyr::left_join(prop_names, by = c("location_name" = "property_name")) |>
+    dplyr::left_join(uni_names, by = c("location_name" = "university_name")) |>
+    dplyr::left_join(comp_names, by = c("location_name" = "competitor_name")) |>
+    dplyr::mutate(
+      property_id = dplyr::coalesce(property_id.x, property_id.y, property_id)
+    ) |>
+    dplyr::filter(!is.na(property_id)) |>
+    dplyr::select(-c("property_id.x", "property_id.y"))
+
+  if (collect) {
+    return(dplyr::collect(out))
+  } else {
+    return(out)
+  }
+}
+
+
 
 db_read_mkt_leasing_summary <- function(pool, property_id = NULL, leasing_week = NULL) {
   check_db_pool(pool)
@@ -249,10 +260,194 @@ db_read_mkt_leasing_summary <- function(pool, property_id = NULL, leasing_week =
       unique()
     if (!leasing_week %in% leasing_week_dates) {
       cli::cli_alert_warning("No data found for the specified leasing week: {.field {leasing_week}}.")
-    } else {
-      hold <- dplyr::filter(hold, .data$leasing_week == .env$leasing_week)
     }
   }
+
+  hold <- dplyr::filter(hold, .data$leasing_week == .env$leasing_week)
+
+  dplyr::collect(hold)
+}
+
+db_read_mkt_short_term_leases <- function(pool, property_id = NULL, leasing_week = NULL) {
+  check_db_pool(pool)
+
+  hold <- db_read_tbl(pool, "mkt.short_term_leases", collect = FALSE)
+
+  if (!is.null(property_id)) {
+    prop_ids <- hold |>
+      dplyr::pull("property_id") |>
+      unique()
+    if (!property_id %in% prop_ids) {
+      cli::cli_alert_warning("No data found for the specified property ID: {.field {property_id}}.")
+    } else {
+      hold <- dplyr::filter(hold, .data$property_id == .env$property_id)
+    }
+  }
+
+  if (!is.null(leasing_week)) {
+    leasing_week_dates <- hold |>
+      dplyr::pull("leasing_week") |>
+      unique()
+    if (!leasing_week %in% leasing_week_dates) {
+      cli::cli_alert_warning("No data found for the specified leasing week: {.field {leasing_week}}.")
+    }
+  }
+
+  hold <- dplyr::filter(hold, .data$leasing_week == .env$leasing_week)
+
+  dplyr::collect(hold)
+}
+
+db_read_mkt_fees <- function(pool, property_id = NULL, leasing_week = NULL) {
+  check_db_pool(pool)
+
+  hold <- db_read_tbl(pool, "mkt.fees", collect = FALSE)
+
+  if (!is.null(property_id)) {
+    prop_ids <- hold |>
+      dplyr::pull("property_id") |>
+      unique()
+    if (!property_id %in% prop_ids) {
+      cli::cli_alert_warning("No data found for the specified property ID: {.field {property_id}}.")
+    } else {
+      hold <- dplyr::filter(hold, .data$property_id == .env$property_id)
+    }
+  }
+
+  if (!is.null(leasing_week)) {
+    leasing_week_dates <- hold |>
+      dplyr::pull("leasing_week") |>
+      unique()
+    if (!leasing_week %in% leasing_week_dates) {
+      cli::cli_alert_warning("No data found for the specified leasing week: {.field {leasing_week}}.")
+    }
+  }
+
+  hold <- hold |>
+    dplyr::filter(leasing_week == .env$leasing_week) |>
+    dplyr::select(-property_id, -leasing_week)
+
+  dplyr::collect(hold)
+}
+
+db_read_mkt_property_amenities <- function(pool, property_id = NULL, leasing_week = NULL) {
+  check_db_pool(pool)
+
+  hold <- db_read_tbl(pool, "mkt.property_amenities", collect = FALSE)
+
+  if (!is.null(property_id)) {
+    prop_ids <- hold |>
+      dplyr::pull("property_id") |>
+      unique()
+    if (!property_id %in% prop_ids) {
+      cli::cli_alert_warning("No data found for the specified property ID: {.field {property_id}}.")
+    } else {
+      hold <- dplyr::filter(hold, .data$property_id == .env$property_id)
+    }
+  }
+
+  if (!is.null(leasing_week)) {
+    leasing_week_dates <- hold |>
+      dplyr::pull("leasing_week") |>
+      unique()
+    if (!leasing_week %in% leasing_week_dates) {
+      cli::cli_alert_warning("No data found for the specified leasing week: {.field {leasing_week}}.")
+    }
+  }
+
+  # hold <- dplyr::filter(hold, .data$leasing_week == .env$leasing_week)
+  hold <- hold |>
+    dplyr::filter(leasing_week == .env$leasing_week) |>
+    dplyr::select(-property_id, -leasing_week)
+
+  dplyr::collect(hold)
+}
+
+db_read_mkt_unit_amenities <- function(pool, property_id = NULL, leasing_week = NULL) {
+  check_db_pool(pool)
+
+  hold <- db_read_tbl(pool, "mkt.unit_amenities", collect = FALSE)
+
+  if (!is.null(property_id)) {
+    prop_ids <- hold |>
+      dplyr::pull("property_id") |>
+      unique()
+    if (!property_id %in% prop_ids) {
+      cli::cli_alert_warning("No data found for the specified property ID: {.field {property_id}}.")
+    } else {
+      hold <- dplyr::filter(hold, .data$property_id == .env$property_id)
+    }
+  }
+
+  if (!is.null(leasing_week)) {
+    leasing_week_dates <- hold |>
+      dplyr::pull("leasing_week") |>
+      unique()
+    if (!leasing_week %in% leasing_week_dates) {
+      cli::cli_alert_warning("No data found for the specified leasing week: {.field {leasing_week}}.")
+    }
+  }
+
+  hold <- hold |>
+    dplyr::filter(leasing_week == .env$leasing_week) |>
+    dplyr::select(-property_id, -leasing_week)
+
+  dplyr::collect(hold)
+}
+
+db_read_mkt_parking <- function(pool, property_id = NULL, competitor_id = NULL, leasing_week = NULL) {
+  check_db_pool(pool)
+
+  hold <- db_read_tbl(pool, "survey.parking", collect = FALSE)
+
+  if (!is.null(property_id)) {
+    prop_ids <- hold |>
+      dplyr::pull("property_id") |>
+      unique()
+    if (!property_id %in% prop_ids) {
+      cli::cli_alert_warning("No data found for the specified property ID: {.field {property_id}}.")
+    } else {
+      hold <- dplyr::filter(hold, .data$property_id == .env$property_id)
+
+      if (!is.null(competitor_id)) {
+        comp_ids <- hold |>
+          dplyr::pull("competitor_id") |>
+          unique()
+
+        if (!competitor_id %in% comp_ids) {
+          cli::cli_alert_warning("No data found for the specified competitor ID: {.field {competitor_id}}.")
+        } else {
+          hold <- dplyr::filter(hold, competitor_id == .env$competitor_id)
+        }
+      }
+    }
+  } # else if (!is.null(property_id) && !is.null(competitor_id)) {
+  #   comp_ids <- hold |>
+  #     dplyr::pull("competitor_id") |>
+  #     unique()
+  #
+  #   if (!competitor_id %in% comp_ids) {
+  #     cli::cli_alert_warning("No data found for the specified competitor ID: {.field {competitor_id}}.")
+  #   } else {
+  #     hold <- hold |>
+  #       dplyr::filter(
+  #         competitor_id == .env$competitor_id
+  #       )
+  #   }
+  # }
+
+  # if (!is.null(leasing_week)) {
+  #   leasing_week_dates <- hold |>
+  #     dplyr::pull("leasing_week") |>
+  #     unique()
+  #   if (!leasing_week %in% leasing_week_dates) {
+  #     cli::cli_alert_warning("No data found for the specified leasing week: {.field {leasing_week}}.")
+  #   }
+  # }
+
+  hold <- hold |>
+    dplyr::filter(updated_at == max(updated_at, na.rm = TRUE)) |>
+    dplyr::select(-property_id, -competitor_id, -property_name, -created_at, -updated_at, -created_by, -updated_by)
 
   dplyr::collect(hold)
 }
@@ -363,6 +558,15 @@ db_read_survey_property_ids <- function(pool, ...) {
     dplyr::pull("property_id")
 }
 
+db_read_survey_hours_tbl <- function(pool, selected_property_name = NULL) {
+  check_db_pool(pool)
+  hold <- db_read_tbl(pool, "survey.hours", collect = FALSE)
+  if (!is.null(selected_property_name)) {
+    hold <- dplyr::filter(hold, .data$property_name == .env$selected_property_name)
+  }
+  dplyr::collect(hold)
+}
+
 get_leasing_week_id_by_date <- function(pool, date) {
   check_db_pool(pool)
 
@@ -372,7 +576,12 @@ get_leasing_week_id_by_date <- function(pool, date) {
     dplyr::pull("leasing_week_start_date")
 
   if (!leasing_week_start_date %in% valid_leasing_weeks) {
-    cli::cli_abort("{.arg date} is not a valid leasing week start date.")
+    cli::cli_abort(
+      c(
+        "{.arg date} is not a valid leasing week start date. ",
+        "Provided: {.field {date}}."
+      )
+    )
   }
 
   db_read_tbl(pool, "survey.leasing_weeks") |>

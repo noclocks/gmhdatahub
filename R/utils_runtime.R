@@ -1,11 +1,18 @@
 # shiny -------------------------------------------------------------------
 
 env_in_shiny <- function() {
-  !is.null(Sys.getenv("SHINY_PORT"))
+  shiny::isRunning()
 }
 
 env_in_shiny_session <- function() {
   !is.null(shiny::getDefaultReactiveDomain())
+}
+
+env_in_shiny_devmode <- function() {
+  if (!env_in_shiny()) {
+    return(FALSE)
+  }
+  isTRUE(getOption("shiny.devmode", FALSE)) && !identical(Sys.getenv("TESTTHAT"), "true")
 }
 
 # testthat ----------------------------------------------------------------

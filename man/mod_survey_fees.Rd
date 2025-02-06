@@ -9,7 +9,14 @@
 \usage{
 mod_survey_fees_ui(id)
 
-mod_survey_fees_server(id, pool = NULL, global_filters = NULL)
+mod_survey_fees_server(
+  id,
+  pool = NULL,
+  survey_data = NULL,
+  selected_filters = NULL,
+  db_trigger_func = NULL,
+  edit_survey_section = NULL
+)
 
 mod_survey_fees_demo()
 }

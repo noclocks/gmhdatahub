@@ -45,7 +45,56 @@ mod_survey_rents_ui <- function(id) {
   ns <- shiny::NS(id)
 
   htmltools::tagList(
-    bslib::card()
+    bslib::page_fluid(
+      bslib::card(
+        class = "mx-auto mb-4",
+        full_screen = TRUE,
+        bslib::card_header(
+          class = "bg-primary text-white",
+          htmltools::tags$h2(
+            bsicons::bs_icon("house"),
+            "Rents by Floorplan",
+            class = "mb-2"
+          ),
+          htmltools::tags$p(
+            class = "lead mb-0",
+            "View rents by floorplan."
+          )
+        ),
+        bslib::card_body(
+          reactable::reactableOutput(
+            ns("rents_by_floorplan")
+          )
+        ),
+        bslib::card_footer(
+          # shiny::textOutput(ns("last_updated"))
+        )
+      ),
+      bslib::card(
+        class = "mx-auto mb-4",
+        full_screen = TRUE,
+        bslib::card_header(
+          class = "bg-primary text-white",
+          htmltools::tags$h2(
+            bsicons::bs_icon("house"),
+            "Average Rents by Unit Type",
+            class = "mb-2"
+          ),
+          htmltools::tags$p(
+            class = "lead mb-0",
+            "View average rents by unit type."
+          )
+        ),
+        bslib::card_body(
+          reactable::reactableOutput(
+            ns("avg_rents_by_unit_type")
+          )
+        ),
+        bslib::card_footer(
+          # shiny::textOutput(ns("last_updated"))
+        )
+      )
+    )
   )
 }
 
@@ -59,26 +108,73 @@ mod_survey_rents_ui <- function(id) {
 mod_survey_rents_server <- function(
     id,
     pool = NULL,
-    global_filters = NULL) {
-  # check database connection
-  if (is.null(pool)) pool <- db_connect()
-  check_db_conn(pool)
-
-  # validation of reactives
-  if (!is.null(global_filters)) {
-    stopifnot(shiny::is.reactive(global_filters))
-  }
-
+    selected_property_id = NULL,
+    selected_competitor_id = NULL,
+    edit_survey_section = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_rents_server()")
 
+      # check database connection
+      if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
+      check_db_conn(pool)
+
+      # handle selected property ID
+      if (is.null(selected_property_id)) {
+        prop_id <- get_property_id_by_name("1047 Commonwealth Avenue")
+        selected_property_id <- shiny::reactive({
+          prop_id
+        })
+        selected_property_name <- shiny::reactive({
+          get_property_name_by_id(prop_id)
+        })
+      }
+
+      # handle selected competitor ID
+      if (is.null(selected_competitor_id)) {
+        selected_competitor_id <- shiny::reactive({
+          "none"
+        })
+      }
+
+      # initialize reactives
+      initial_data <- shiny::reactiveVal()
+      input_changes <- shiny::reactiveVal(0)
+      db_refresh_trigger <- shiny::reactiveVal(0)
+
+      # selected property/competitor ID
+      current_id <- shiny::reactive({
+        selected_property_id()
+      })
+      current_name <- shiny::reactive({
+        get_property_name_by_id(selected_property_id())
+      })
+
+      # rents by floorplan data
+      rents_data <- shiny::reactive({
+        shiny::req(pool, current_id())
+
+        db_read_tbl(pool, "survey.rents_by_floorplan") |>
+          dplyr::filter(.data$property_name == current_name())
+      })
+
+      # output - rents by floorplan
+      output$rents_by_floorplan <- reactable::renderReactable({
+        shiny::req(rents_data())
+        tbl_rents_by_floorplan(rents_data())
+      })
+
+      # output - average rents by unit type
+      output$avg_rents_by_unit_type <- reactable::renderReactable({
+        shiny::req(rents_data())
+        tbl_avg_rents_by_unit_type(rents_data())
+      })
+
+      # return reactive values
       return(
-        list(
-          # reactive values
-        )
+        list()
       )
     }
   )
@@ -98,19 +194,34 @@ mod_survey_rents_demo <- function() {
   ui <- bslib::page_navbar(
     title = "Demo: Survey Rents",
     window_title = "Demo: Survey Rents",
-    theme = app_theme(),
+    theme = app_theme_ui(),
     lang = "en",
     bslib::nav_spacer(),
     bslib::nav_panel(
       title = "Survey Rents",
       value = "survey_rents",
       icon = bsicons::bs_icon("house"),
-      mod_survey_rents_ui("demo")
+      mod_survey_rents_ui("demo"),
+      shiny::actionButton(
+        "edit_survey_section",
+        "Edit",
+        icon = shiny::icon("edit"),
+        style = "width: auto;",
+        class = "btn-sm btn-primary"
+      )
     )
   )
 
   server <- function(input, output, session) {
-    mod_survey_rents_server("demo")
+    pool <- db_connect()
+    edit_survey_section <- shiny::reactive({
+      input$edit_survey_section
+    })
+    mod_survey_rents_server(
+      "demo",
+      pool = pool,
+      edit_survey_section = edit_survey_section
+    )
   }
 
   shiny::shinyApp(ui, server)

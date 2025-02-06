@@ -11,14 +11,22 @@
 #' @family **Shiny App**
 #'
 #' @description
-#' This is the main UI function for the Shiny application.
+#' This function generates the core user interface for the GMH DataHub Shiny app.
 #'
-#' @param req (internal) The request object.
+#' @param req (Internal) The initial HTTP request object.
 #'
 #' @returns
 #' The UI for the Shiny application.
 #'
 #' @export
+#'
+#' @seealso
+#' - [app_server()]: Server logic for the Shiny app that complements this UI.
+#' - [app_theme_ui()]: Customized [bslib::bs_theme()] for the Shiny app,
+#'   built leveraging the GMH Communities brand assets.
+#' - [app_assets()]: Functions for managing and including various static assets in a Shiny application.
+#' - [run_app()]: Run the GMH DataHub Shiny app.
+#' - [bslib::page_navbar()]: Create a Bootstrap navbar.
 #'
 #' @importFrom bslib page_navbar nav_spacer nav_panel nav_menu nav_item input_dark_mode
 #' @importFrom shiny actionLink
@@ -27,13 +35,20 @@
 #'
 #' @examplesIf interactive()
 #' shiny::shinyApp(ui = app_ui, server = app_server)
+#'
+#' @importFrom bsicons bs_icon
+#' @importFrom bslib page_navbar nav_spacer nav_panel nav_menu nav_item input_dark_mode
+#' @importFrom htmltools tagList tags
+#' @importFrom shiny icon textOutput actionLink
 app_ui <- function(req = NULL) {
+
+  force(req)
+
   if (!is.null(req)) {
-    force(req)
     http_method <- req$REQUEST_METHOD
     path_info <- req$PATH_INFO
     if (http_method == "GET" && path_info == "/health") {
-      return(app_healthcheck())
+      return(app_healthcheck(req))
     }
   }
 
@@ -44,11 +59,12 @@ app_ui <- function(req = NULL) {
       lang = "en",
       window_title = "GMH DataHub",
       position = "static-top",
-      header = app_header_ui(),
+      selected = "survey_forms",
       theme = app_theme_ui(),
       title = app_title_ui(),
-      sidebar = app_sidebar_ui("sidebar"),
       footer = app_footer_ui(),
+      # header = app_header_ui(),
+      # sidebar = app_sidebar_ui("sidebar"),
       bslib::nav_spacer(),
       bslib::nav_panel(
         title = "Home",
@@ -151,8 +167,9 @@ app_ui <- function(req = NULL) {
         icon = bsicons::bs_icon("link-45deg"),
         bslib::nav_item(
           tags$a(
-            icon("book"), "Documentation",
-            href = "#",
+            icon("book"),
+            "Documentation",
+            href = "#", # pkg_sys("docs/index.html"),
             target = "_blank"
           )
         ),
@@ -182,18 +199,18 @@ app_ui <- function(req = NULL) {
         align = "right",
         icon = bsicons::bs_icon("person-circle"),
         bslib::nav_item(
-          tags$a(
-            icon("user"),
-            # textOutput("signed_in_as"),
-            "User",
-            href = "#"
+          htmltools::tags$a(
+            shiny::icon("user"),
+            shiny::textOutput("signed_in_as"),
+            href = "#",
+            style = "display: inline-flex; align-items: center; padding: 2.5px 10px; width: 16rem; justify-content: space-between;"
           )
         ),
         bslib::nav_item(
-          actionLink(
+          shiny::actionLink(
             inputId = "auth_logout",
             label = "Logout",
-            icon = icon("sign-out-alt"),
+            icon = shiny::icon("sign-out-alt"),
             style = "display: inline-flex; align-items: center; padding: 2.5px 50px; width: -webkit-fill-available;"
           )
         )
@@ -239,5 +256,76 @@ app_footer_ui <- function() {
         "© 2024 GMH DataHub" # Removed text-muted class
       )
     )
+  )
+}
+
+app_links_menu_ui <- function() {
+  bslib::nav_menu(
+    title = "Links",
+    align = "right",
+    icon = bsicons::bs_icon("link-45deg"),
+    bslib::nav_item(
+      htmltools::tags$a(
+        shiny::icon("book"),
+        "Documentation",
+        href = app_info("docs_url"),
+        target = "_blank"
+      )
+    ),
+    bslib::nav_item(
+      htmltools::tags$a(
+        shiny::icon("github"),
+        "Source Code",
+        href = app_info("repo_url"),
+        target = "_blank"
+      )
+    )
+  )
+}
+
+app_contact_menu_ui <- function() {
+  bslib::nav_menu(
+    title = "Contact",
+    align = "right",
+    icon = bsicons::bs_icon("envelope"),
+    bslib::nav_item(
+      htmltools::tags$a(
+        shiny::icon("envelope"),
+        "Email Support",
+        href = "mailto:support@noclocks.dev",
+        target = "_blank"
+      )
+    )
+  )
+}
+
+app_user_menu_ui <- function() {
+  bslib::nav_menu(
+    title = "User",
+    align = "right",
+    icon = bsicons::bs_icon("person-circle"),
+    bslib::nav_item(
+      htmltools::tags$a(
+        shiny::icon("user"),
+        "User",
+        href = "#"
+      )
+    ),
+    bslib::nav_item(
+      shiny::actionLink(
+        inputId = "auth_logout",
+        label = "Logout",
+        icon = shiny::icon("sign-out-alt"),
+        style = "display: inline-flex; align-items: center; padding: 2.5px 50px; width: -webkit-fill-available;"
+      )
+    )
+  )
+}
+
+app_not_found_ui <- function() {
+  shiny::httpResponse(
+    status = 404L,
+    contentType = "text/plain",
+    content = "Not Found"
   )
 }

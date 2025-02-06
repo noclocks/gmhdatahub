@@ -1,7 +1,130 @@
+#  ------------------------------------------------------------------------
+#
+# Title : App Configuration
+#    By : Jimmy Briggs
+#  Date : 2025-01-28
+#
+#  ------------------------------------------------------------------------
+
+get_app_config <- function(
+    key = NULL,
+    file = Sys.getenv("R_CONFIG_FILE", pkg_sys("config/config.yml")),
+    config = Sys.getenv("R_CONFIG_ACTIVE", "default")) {
+  # normalize path to config file
+  file <- normalizePath(file, mustWork = FALSE)
+
+  # ensure config file exists
+  if (!file.exists(file)) {
+    cli::cli_abort(
+      c(
+        "Provided configuration file: {.field {basename(file)}} not found ",
+        "under path: {.path {dirname(file)}}. Please ensure the file exists."
+      )
+    )
+  }
+
+  # attempt to read the configuration file
+  cfg <- tryCatch(
+    {
+      config::get(
+        value = "app",
+        file = file,
+        config = config
+      )
+    },
+    error = function(e) {
+      cli::cli_abort(
+        c(
+          "Error reading configuration file {.field {basename(file)}}.",
+          "Ensure the file contains a {.code app} configuration block for ",
+          " the {.field {config}} configuration.",
+          "Error: {.error_message {e}}"
+        )
+      )
+    }
+  )
+
+  keys <- names(cfg)
+
+  if (!is.null(key)) {
+    key <- rlang::arg_match(key, keys)
+    return(cfg[[key]])
+  }
+
+  return(cfg)
+}
+
+get_auth_config <- function(
+    key = NULL,
+    file = Sys.getenv("R_CONFIG_FILE", pkg_sys("config/config.yml")),
+    config = Sys.getenv("R_CONFIG_ACTIVE", "default")) {
+  # normalize path to config file
+  file <- normalizePath(file, mustWork = FALSE)
+
+  # ensure config file exists
+  if (!file.exists(file)) {
+    cli::cli_abort(
+      c(
+        "Provided configuration file: {.field {basename(file)}} not found ",
+        "under path: {.path {dirname(file)}}. Please ensure the file exists."
+      )
+    )
+  }
+
+  # attempt to read the configuration file
+  cfg <- tryCatch(
+    {
+      config::get(
+        value = "auth",
+        file = file,
+        config = config
+      )
+    },
+    error = function(e) {
+      cli::cli_abort(
+        c(
+          "Error reading configuration file {.field {basename(file)}}.",
+          "Ensure the file contains a {.code auth} configuration block for ",
+          " the {.field {config}} configuration.",
+          "Error: {.error_message {e}}"
+        )
+      )
+    }
+  )
+
+  keys <- names(cfg)
+
+  if (!is.null(key)) {
+    key <- rlang::arg_match(key, keys)
+    return(cfg[[key]])
+  }
+
+  return(cfg)
+}
+
+
+
+# app info ----------------------------------------------------------------
+
+#' App Information
+#'
+#' @description
+#' This function provides information about the app.
+#'
+#' @param ... The information to retrieve.
+#'
+#' @returns
+#' The requested information.
+#'
+#' @export
+#'
+#' @examples
+#' app_info()
 app_info <- function(...) {
   info <- list(
     name = "gmhdatahub",
     title = "GMH Data Hub",
+    company = "GMH Communities",
     version = "1.0",
     logo = "www/gmh-logo.svg",
     symbol = "www/gmh-icon.png",
@@ -15,48 +138,4 @@ app_info <- function(...) {
   } else {
     return(info[[...]])
   }
-}
-
-#' Access files in the current app
-#'
-#' NOTE: If you manually change your package name in the DESCRIPTION,
-#' don't forget to change it here too, and in the config file.
-#' For a safer name change mechanism, use the `golem::set_golem_name()` function.
-#'
-#' @param ... character vectors, specifying subdirectory and file(s)
-#' within your package. The default, none, returns the root of the app.
-#'
-#' @noRd
-app_sys <- function(...) {
-  system.file(..., package = "gmhdatahub")
-}
-
-
-#' Read App Config
-#'
-#' @param value Value to retrieve from the config file.
-#' @param config GOLEM_CONFIG_ACTIVE value. If unset, R_CONFIG_ACTIVE.
-#' If unset, "default".
-#' @param use_parent Logical, scan the parent directory for config file.
-#' @param file Location of the config file
-#'
-#' @noRd
-get_golem_config <- function(
-    value,
-    config = Sys.getenv(
-      "GOLEM_CONFIG_ACTIVE",
-      Sys.getenv(
-        "R_CONFIG_ACTIVE",
-        "default"
-      )
-    ),
-    use_parent = TRUE,
-    # Modify this if your config file is somewhere else
-    file = app_sys("golem-config.yml")) {
-  config::get(
-    value = value,
-    config = config,
-    file = file,
-    use_parent = use_parent
-  )
 }

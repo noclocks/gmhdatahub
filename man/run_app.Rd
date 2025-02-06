@@ -7,6 +7,8 @@
 run_app(
   port = 8080,
   host = "0.0.0.0",
+  app_config = get_app_config(),
+  auth_config = get_auth_config(),
   on_start = NULL,
   options = app_opts(port = port, host = host),
   enable_bookmarking = NULL,

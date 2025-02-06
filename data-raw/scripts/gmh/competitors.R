@@ -18,6 +18,9 @@ gmh_competitors_tbl <- readr::read_csv(
 gmh_competitors_lst <- as.list(gmh_competitors_tbl$competitor_id) |>
   setNames(gmh_competitors_tbl$competitor_name)
 
+# add "None" at beginning of list
+gmh_competitors_lst <- c("None" = "none", gmh_competitors_lst)
+
 # commonwealth_id <- get_property_id_by_name("1047 Commonwealth Avenue")
 #
 # gmh_competitors_tbl <- tibble::tibble(

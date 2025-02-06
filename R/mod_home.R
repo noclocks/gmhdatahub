@@ -45,29 +45,39 @@ mod_home_ui <- function(id) {
   htmltools::tagList(
     # welcome/banner card
     bslib::card(
+      id = ns("hero_section"),
       class = "mb-4",
       height = "250px",
       background = "linear-gradient(135deg, #1e4d92 0%, #2c3e50 100%)",
+      style = "border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);",
       htmltools::tags$div(
         class = "d-flex flex-column justify-content-center h-100 p-5",
+        style = paste0(
+          "background: linear-gradient(135deg, ",
+          gmh_colors("primary"),
+          " 0%,",
+          gmh_colors("primary"),
+          " 100%);"
+        ),
         htmltools::tags$div(
           class = "mb-2",
           htmltools::tags$span(
             bsicons::bs_icon("building-check", size = "2rem"),
-            style = "opacity: 0.9;"
+            style = "opacity: 0.9; color: rgba(255, 255, 255, 0.9);"
           )
         ),
         htmltools::tags$h1(
           "Welcome to GMH DataHub",
-          class = "display-4 fw-bold mb-3",
+          class = "display-4 fw-bold mb-3 text-white",
           style = "letter-spacing: -0.02em;"
         ),
         htmltools::tags$p(
-          class = "lead mb-4",
+          class = "lead mb-4 text-white",
           style = "font-size: 1.3rem; max-width: 800px; opacity: 0.9;",
           "Your centralized platform for leasing data management and analytics. ",
           "Transform property insights into strategic decisions with our comprehensive dashboard suite."
         ),
+        htmltools::tags$hr(),
         htmltools::tags$div(
           class = "mt-2",
           shiny::actionButton(
@@ -83,24 +93,63 @@ mod_home_ui <- function(id) {
       )
     ),
 
+    # key metrics
+    bslib::layout_columns(
+      id = ns("metrics_section"),
+      fill = FALSE,
+      bslib::value_box(
+        id = ns("val_active_properties"),
+        title = "Active Properties",
+        value = shiny::textOutput(ns("active_properties")),
+        showcase = bsicons::bs_icon("building"),
+        theme = "primary"
+      ),
+      bslib::value_box(
+        id = ns("val_avg_occupancy"),
+        title = "Average Occupancy",
+        value = shiny::textOutput(ns("avg_occupancy")),
+        showcase = bsicons::bs_icon("people"),
+        theme = "success"
+      ),
+      bslib::value_box(
+        id = ns("val_pre_lease_rate"),
+        title = "Pre-Lease Rate",
+        value = shiny::textOutput(ns("pre_lease_rate")),
+        showcase = bsicons::bs_icon("calendar-check"),
+        theme = "info"
+      ),
+      bslib::value_box(
+        id = ns("val_market_survey"),
+        title = "Market Survey",
+        value = shiny::textOutput(ns("market_survey")),
+        showcase = bsicons::bs_icon("bar-chart"),
+        theme = "warning"
+      )
+    ),
+
     # Quick access features
     bslib::layout_columns(
+      id = ns("quick_access"),
+      fill = FALSE,
       bslib::card(
-        bslib::card_header("Property Management"),
+        id = ns("property_management"),
+        bslib::card_header("Property Management", class = "bg-light"),
         bslib::card_body(
-          htmltools::tags$p("Access property details, maintenance records, and tenant information."),
+          htmltools::tags$p("Access property details, property unit details, and other property-related data."),
           shiny::actionButton(ns("nav_properties"), "View Properties", class = "btn-primary")
         )
       ),
       bslib::card(
-        bslib::card_header("Leasing Analysis"),
+        id = ns("leasing_admin"),
+        bslib::card_header("Leasing Analysis", class = "bg-light"),
         bslib::card_body(
           htmltools::tags$p("Perform in-depth analysis of leasing, occupancy, pre-leasing rates, and more."),
           shiny::actionButton(ns("nav_pre_lease"), "View Leasing Reports", class = "btn-primary")
         )
       ),
       bslib::card(
-        bslib::card_header("Market Survey"),
+        id = ns("market_survey"),
+        bslib::card_header("Market Survey", class = "bg-light"),
         bslib::card_body(
           htmltools::tags$p("Conduct market surveys, analyze competitor data, and track market trends."),
           shiny::actionButton(ns("nav_survey"), "View Market Survey", class = "btn-primary")
@@ -120,30 +169,105 @@ mod_home_ui <- function(id) {
 mod_home_server <- function(
     id,
     pool = NULL,
-    global_filters = NULL,
-    navigate_func = NULL) {
-  # check database connection
-  if (is.null(pool)) pool <- db_connect()
-  check_db_conn(pool)
-
-  # validation of reactives
-  if (!is.null(global_filters)) {
-    stopifnot(shiny::is.reactive(global_filters))
-  }
-
+    navigate_func = NULL,
+    guide = NULL) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
       ns <- session$ns
       cli::cat_rule("[Module]: mod_home_server()")
 
-      # get db data
+      # database
+      check_db_conn(pool)
 
-      # navigation handlers
-      shiny::observeEvent(input$explore, {
-
+      # value boxes
+      output$active_properties <- shiny::renderText({
+        num <- db_read_tbl(pool, "gmh.properties", collect = FALSE) |>
+          dplyr::filter(.data$property_status == "Active") |>
+          dplyr::collect() |>
+          nrow()
+        paste0(
+          scales::comma(num),
+          " Properties"
+        )
+      })
+      output$avg_occupancy <- shiny::renderText({
+        num <- db_read_tbl(pool, "gmh.pre_lease_summary", collect = FALSE) |>
+          dplyr::summarize(avg_occupancy = mean(current_occupancy, na.rm = TRUE)) |>
+          dplyr::pull("avg_occupancy")
+        scales::percent(num, accuracy = 0.01)
+      })
+      output$pre_lease_rate <- shiny::renderText({
+        num <- db_read_tbl(pool, "gmh.pre_lease_summary", collect = FALSE) |>
+          dplyr::summarize(pre_lease = mean(current_preleased_percent, na.rm = TRUE)) |>
+          dplyr::pull("pre_lease")
+        scales::percent(num, accuracy = 0.01)
+      })
+      output$market_survey <- shiny::renderText({
+        num <- db_read_tbl(pool, "survey.surveys", collect = FALSE) |>
+          dplyr::summarize(num_surveys = dplyr::n()) |>
+          dplyr::pull("num_surveys") |>
+          as.integer()
+        paste0(
+          scales::comma(num),
+          " Surveys"
+        )
       })
 
+      # initialize conductor guide
+      guide$
+        step(
+        "Key Metrics Overview",
+        "This section shows your portfolio's vital statistics at a glance.",
+        el = ns("#metrics_section")
+      )$
+        step(
+        "Active Properties",
+        "View the total number of properties in your portfolio.",
+        el = ns("#val_active_properties")
+      )$
+        step(
+        "Average Occupancy",
+        "Check the average occupancy rate across your properties.",
+        el = ns("#val_avg_occupancy")
+      )$
+        step(
+        "Pre-Lease Rate",
+        "Monitor the pre-lease rate for your properties.",
+        el = ns("#val_pre_lease_rate")
+      )$
+        step(
+        "Market Survey Submissions",
+        "Access the number of market surveys conducted.",
+        el = ns("#val_market_survey")
+      )$
+        step(
+        "Quick Access Features",
+        "Navigate to key sections of the platform.",
+        el = ns("#quick_access")
+      )$
+        step(
+        "Property Management",
+        "Access and manage your property details here.",
+        el = ns("#property_management")
+      )$
+        step(
+        "Lease Administration",
+        "Handle all lease-related activities from this section.",
+        el = ns("#leasing_admin")
+      )$
+        step(
+        "Market Survey",
+        "Conduct market surveys and analyze competitor data.",
+        el = ns("#market_survey")
+      )
+
+      # explore button
+      shiny::observeEvent(input$explore, {
+        guide$init()$start()
+      })
+
+      # navigation handlers
       shiny::observeEvent(input$nav_properties, {
         navigate_func("properties")
       })
@@ -155,8 +279,6 @@ mod_home_server <- function(
       shiny::observeEvent(input$nav_survey, {
         navigate_func("survey_admin")
       })
-
-
 
       return(
         list(
@@ -198,5 +320,3 @@ mod_home_demo <- function() {
 
   shiny::shinyApp(ui, server)
 }
-
-# utilities ---------------------------------------------------------------

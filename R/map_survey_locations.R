@@ -1,4 +1,7 @@
 map_survey_locations <- function(properties = NULL, competitors = NULL, universities = NULL) {
+  requireNamespace("leaflet.extras", quietly = TRUE)
+  requireNamespace("leaflet.providers", quietly = TRUE)
+
   merged_data <- dplyr::bind_rows(
     properties,
     competitors,
@@ -11,21 +14,12 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
       leaflet::setView(lng = -98.35, lat = 39.5, zoom = 4))
   }
 
-  if (nrow(competitors) == 0) {
-    merged_data <- merged_data |> dplyr::filter(.data$map_layer == "properties")
-    competitors <- NULL
-    universities <- NULL
-  }
-
   bounds <- merged_data |>
-    dplyr::filter(
-      !identify_outliers(.data$latitude) & !identify_outliers(.data$longitude)
-    ) |>
     dplyr::summarise(
-      lng1 = min(longitude),
-      lng2 = max(longitude),
-      lat1 = min(latitude),
-      lat2 = max(latitude)
+      lng1 = min(longitude, na.rm = TRUE),
+      lng2 = max(longitude, na.rm = TRUE),
+      lat1 = min(latitude, na.rm = TRUE),
+      lat2 = max(latitude, na.rm = TRUE)
     )
 
   center <- dplyr::summarise(
@@ -43,28 +37,26 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
   university_icons <- leaflet::makeAwesomeIcon(icon = "graduation-cap", library = "fa", markerColor = "green", iconColor = "white")
 
   hold <- leaflet::leaflet(data = merged_data) |>
-    leaflet::addProviderTiles(leaflet::providers$CartoDB.Positron)
+    leaflet::addProviderTiles(leaflet::providers$CartoDB.Positron, group = "Basic") |>
+    leaflet::addProviderTiles(leaflet::providers$Esri.WorldStreetMap, group = "Street") |>
+    leaflet::addProviderTiles(leaflet::providers$Esri.WorldImagery, group = "Satellite")
 
-  if (nrow(properties) > 0) {
+  if (!is.null(properties) && nrow(properties) > 0) {
     hold <- hold |>
       leaflet::addAwesomeMarkers(
         lng = ~longitude,
         lat = ~latitude,
-        layerId = "properties",
+        layerId = ~location_id,
         group = "Properties",
         icon = property_icons,
         label = ~location_name,
-        labelOptions = leaflet::labelOptions(
-          interactive = TRUE,
-          clickable = TRUE,
-          noHide = TRUE
-        ),
+        labelOptions = leaflet::labelOptions(noHide = TRUE),
         popup = ~map_popup_html,
         popupOptions = leaflet::popupOptions(
-          closeButton = TRUE,
+          # maxHeight = 150,
           autoPan = TRUE,
-          maxWidth = 300,
-          maxHeight = 500
+          keepInView = TRUE,
+          closeButton = TRUE
         ),
         data = properties
       )
@@ -75,21 +67,17 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
       leaflet::addAwesomeMarkers(
         lng = ~longitude,
         lat = ~latitude,
-        layerId = "competitors",
+        layerId = ~location_id,
         group = "Competitors",
         icon = competitor_icons,
         label = ~location_name,
-        labelOptions = leaflet::labelOptions(
-          interactive = TRUE,
-          clickable = TRUE,
-          noHide = TRUE
-        ),
+        labelOptions = leaflet::labelOptions(noHide = TRUE),
         popup = ~map_popup_html,
         popupOptions = leaflet::popupOptions(
-          closeButton = TRUE,
+          # maxHeight = 150,
           autoPan = TRUE,
-          maxWidth = 300,
-          maxHeight = 500
+          keepInView = TRUE,
+          closeButton = TRUE
         ),
         data = competitors
       )
@@ -100,21 +88,18 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
       leaflet::addAwesomeMarkers(
         lng = ~longitude,
         lat = ~latitude,
-        layerId = "universities",
+        layerId = ~location_id,
         group = "Universities",
         icon = university_icons,
         label = ~location_name,
-        labelOptions = leaflet::labelOptions(
-          interactive = TRUE,
-          clickable = TRUE,
-          noHide = TRUE
-        ),
+        labelOptions = leaflet::labelOptions(noHide = TRUE),
         popup = ~map_popup_html,
         popupOptions = leaflet::popupOptions(
-          closeButton = TRUE,
+          # maxHeight = 150,
+          # maxWidth = 300,
           autoPan = TRUE,
-          maxWidth = 300,
-          maxHeight = 500
+          keepInView = TRUE,
+          closeButton = TRUE
         ),
         data = universities
       )
@@ -122,8 +107,33 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
 
   hold |>
     leaflet::addLayersControl(
+      baseGroups = c("Basic", "Street", "Satellite"),
       overlayGroups = c("Properties", "Competitors", "Universities"),
       options = leaflet::layersControlOptions(collapsed = FALSE)
+    ) |>
+    leaflet::addEasyButton(
+      leaflet::easyButton(
+        icon = "fa-crosshairs",
+        title = "Reset View",
+        onClick = htmlwidgets::JS(
+          paste0(
+            "function(btn, map) { map.setView([",
+            center$lat,
+            ", ",
+            center$lng,
+            "], ",
+            zoom,
+            "); }"
+          )
+        )
+      )
+    ) |>
+    leaflet::addMeasure(
+      position = "bottomleft",
+      primaryLengthUnit = "meters",
+      primaryAreaUnit = "sqmeters",
+      activeColor = "#3D535D",
+      completedColor = "#7D4479"
     ) |>
     leaflet::addLegend(
       position = "bottomright",
@@ -131,7 +141,6 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
       labels = c("Properties", "Competitors", "Universities"),
       opacity = 1
     ) |>
-    leaflet::clearBounds() |>
     leaflet::fitBounds(
       lng1 = bounds$lng1,
       lng2 = bounds$lng2,
@@ -144,6 +153,7 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
       zoom = zoom
     )
 }
+
 
 
 identify_outliers <- function(x, factor = 1.5) {
