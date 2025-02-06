@@ -213,7 +213,10 @@ mod_survey_leasing_summary_server <- function(
     pool = NULL,
     survey_data = NULL,
     selected_filters = NULL,
-    edit_survey_section = NULL) {
+    db_trigger_func = NULL,
+    edit_survey_section = NULL
+) {
+
   shiny::moduleServer(
     id,
     function(input, output, session) {
@@ -628,7 +631,7 @@ mod_survey_leasing_summary_server <- function(
         )
 
         db_refresh_trigger(db_refresh_trigger() + 1)
-
+        db_trigger_func()
         shiny::removeModal()
       })
 
