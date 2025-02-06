@@ -100,10 +100,9 @@ db_update_survey_unit_amenities <- function(pool, new_values) {
 db_update_survey_property_summary <- function(
     pool,
     new_values,
-    survey_id = NULL,
-    user_id = NULL,
     property_id = NULL,
-    competitor_id = NULL
+    competitor_id = NULL,
+    user_id = NULL
 ) {
 
   check_db_conn(pool)
@@ -130,31 +129,22 @@ db_update_survey_property_summary <- function(
       )
   }
 
-  if (is.null(survey_id)) {
-    survey_id <- db_read_survey_id(
-      pool,
-      property_id = data$property_id,
-      competitor_id = data$competitor_id
-    )
-  }
-
   if (is.null(user_id)) {
     user_id <- get_user_id_by_email(pool, "jimmy.briggs@noclocks.dev")
   }
 
   summary_data <- data |>
     dplyr::mutate(
-      survey_id = .env$survey_id,
       created_by = .env$user_id,
       updated_by = .env$user_id
     ) |>
     dplyr::select(
-      survey_id,
       property_id,
       competitor_id,
       property_name,
       property_website,
       property_address,
+      property_email,
       property_phone,
       property_developer,
       property_manager,
@@ -166,6 +156,8 @@ db_update_survey_property_summary <- function(
       year_built,
       most_recent_sale,
       distance_from_campus,
+      property_image_url,
+      property_description,
       created_by,
       updated_by
     )
@@ -179,7 +171,7 @@ db_update_survey_property_summary <- function(
         conn,
         DBI::SQL("survey.property_summary"),
         records = summary_data,
-        where_cols = c("survey_id", "property_name"),
+        where_cols = c("property_name"),
         skip_existing = FALSE
       )
 
