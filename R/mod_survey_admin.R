@@ -260,8 +260,7 @@ mod_survey_admin_server <- function(
       if (is.null(user)) {
         user <- list(
           user_id = 1,
-          user_email = "jimmy.briggs@noclocks.dev",
-          user_name = "Jimmy Briggs"
+          user_email = "default_user@example.com"
         )
       } else {
         if (shiny::is.reactive(user)) {

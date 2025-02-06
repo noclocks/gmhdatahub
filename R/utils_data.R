@@ -1,3 +1,34 @@
+
+default_tbl_survey_utilities <- function() {
+  tibble::tibble(
+    utility_name = c(
+      "Electricity",
+      "Gas",
+      "Water",
+      "Cable/Satellite",
+      "Internet",
+      "Trash Service",
+      "Valet Trash",
+      "Recycling"
+    ),
+    utility_included = FALSE,
+    utility_available = FALSE,
+    utility_capped = FALSE,
+    utility_per = "Bed",
+    utility_allowance = 0.00,
+    utility_category = c(
+      "Core",
+      "Core",
+      "Core",
+      "Other",
+      "Other",
+      "Other",
+      "Other",
+      "Other"
+    )
+  )
+}
+
 derive_tbl_totals <- function(data, count_cols = NULL, sum_cols = NULL, avg_cols = NULL) {
   cols <- c(count_cols, sum_cols, avg_cols)
   validate_col_names(data, cols)

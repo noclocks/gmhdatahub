@@ -1,4 +1,7 @@
 format_boolean <- function(value) {
+  if (is.null(value) || is.na(value)) {
+    return("N/A")
+  }
   icon <- if (value) "✓" else "✗"
   div(
     style = list(

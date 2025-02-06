@@ -285,7 +285,7 @@ mod_survey_forms_server <- function(
       # user --------------------------------------------------------------------
       shiny::observe({
         if (is.null(session$userData$user)) {
-          user_email <- "jimmy.briggs@noclocks.dev"
+          user_email <- "default_user@example.com"
           user_id <- get_user_id_by_email(pool, user_email)
         } else {
           user_id <- session$userData$user()$user_uid
@@ -602,7 +602,7 @@ mod_survey_forms_demo <- function(pool = NULL) {
   server <- function(input, output, session) {
     if (is.null(pool)) pool <- db_connect()
     default_property <- get_default_app_choices("properties")[["1047 Commonwealth Avenue"]]
-    default_user <- get_user_id_by_email(pool, "jimmy.briggs@noclocks.dev")
+    default_user <- get_user_id_by_email(pool, "default_user@example.com")
     mod_survey_forms_server("demo", pool = pool)
   }
 

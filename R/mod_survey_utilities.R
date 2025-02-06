@@ -86,7 +86,7 @@ mod_survey_utilities_server <- function(
       # filters
       shiny::observe({
         shiny::req(selected_filters)
-        if (is.null(selected_filters$property_id)) {
+        if (is.null(selected_filters$competitor_id) && is.null(selected_filters$property_id)) {
           selected_filters$property_id <- 739085
         }
       })
@@ -94,16 +94,29 @@ mod_survey_utilities_server <- function(
       # data --------------------------------------------------------------------
       utilities_data <- shiny::reactive({
         shiny::req(survey_data$utilities)
-        survey_data$utilities |>
-          dplyr::select(
-            utility_name,
-            utility_included,
-            utility_available,
-            utility_capped,
-            utility_per,
-            utility_allowance,
-            utility_category
+
+        if (nrow(survey_data$utilities) == 0) {
+          out <- default_tbl_survey_utilities()
+          shiny::showNotification(
+            paste0(
+              "No data available for selected property/competitor.",
+              " Using default data for demonstration purposes."
+            )
           )
+        } else {
+          out <- survey_data$utilities |>
+            dplyr::select(
+              utility_name,
+              utility_included,
+              utility_available,
+              utility_capped,
+              utility_per,
+              utility_allowance,
+              utility_category
+            )
+        }
+
+        out
       })
 
       core_utilities_data <- shiny::reactive({
@@ -124,17 +137,6 @@ mod_survey_utilities_server <- function(
         shiny::req(core_utilities_data())
 
         tbl_data <- core_utilities_data()
-
-        if (nrow(tbl_data) == 0) {
-          tbl_data <- tibble::tibble(
-            utility_name = NA_character_,
-            utility_included = as.logical(NA),
-            utility_available = as.logical(NA),
-            utility_capped = as.logical(NA),
-            utility_per = NA_character_,
-            utility_allowance = NA_real_
-          )
-        }
 
         reactable::reactable(
           data = tbl_data,
@@ -174,17 +176,6 @@ mod_survey_utilities_server <- function(
         shiny::req(other_utilities_data())
 
         tbl_data <- other_utilities_data()
-
-        if (nrow(tbl_data) == 0) {
-          tbl_data <- tibble::tibble(
-            utility_name = NA_character_,
-            utility_included = as.logical(NA),
-            utility_available = as.logical(NA),
-            utility_capped = as.logical(NA),
-            utility_per = NA_character_,
-            utility_allowance = NA_real_
-          )
-        }
 
         reactable::reactable(
           data = tbl_data,
@@ -277,14 +268,11 @@ mod_survey_utilities_server <- function(
       })
 
       shiny::observeEvent(edit_survey_section(), {
-        shiny::req(session$userData$selected_survey_tab(), utilities_data())
+        shiny::req(session$userData$selected_survey_tab())
 
         if (session$userData$selected_survey_tab() != "nav_utilities") {
           return()
         }
-
-        core_data <- utilities_data() |> dplyr::filter(.data$utility_category == "Core")
-        other_data <- utilities_data() |> dplyr::filter(.data$utility_category == "Other")
 
         iv$initialize()
         iv$enable()
@@ -292,7 +280,7 @@ mod_survey_utilities_server <- function(
         shiny::showModal(
           shiny::modalDialog(
             title = "Edit Utilities",
-            size = "l",
+            size = "xl",
             easyClose = TRUE,
             footer = htmltools::tagList(
               shiny::actionButton(

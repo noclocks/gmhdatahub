@@ -125,7 +125,7 @@ db_update_survey_utilities <- function(pool, new_values) {
   }
 
   if (!all(c("updated_by") %in% colnames(data))) {
-    user_id <- get_user_id_by_email(pool, "jimmy.briggs@noclocks.dev")
+    user_id <- get_user_id_by_email(pool, "default_user@example.com")
     data <- data |>
       dplyr::mutate(
         updated_by = user_id
@@ -201,7 +201,7 @@ db_update_survey_property_summary <- function(
   }
 
   if (is.null(user_id)) {
-    user_id <- get_user_id_by_email(pool, "jimmy.briggs@noclocks.dev")
+    user_id <- get_user_id_by_email(pool, "default_user@example.com")
   }
 
   summary_data <- data |>

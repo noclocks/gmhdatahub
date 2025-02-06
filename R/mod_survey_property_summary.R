@@ -855,7 +855,7 @@ mod_survey_property_summary_demo <- function(pool = NULL) {
       property_id = 739085,
       competitor_id = NULL,
       survey_id = NULL,
-      user_id = get_user_id_by_email(pool, "jimmy.briggs@noclocks.dev")
+      user_id = get_user_id_by_email(pool, "default_user@example.com")
     )
 
     map_data <- shiny::reactive({
