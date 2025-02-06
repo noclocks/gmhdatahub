@@ -15,6 +15,7 @@ mod_survey_property_summary_server(
   survey_data = NULL,
   map_data = NULL,
   selected_filters = NULL,
+  db_trigger_func = NULL,
   edit_survey_section = NULL
 )
 
