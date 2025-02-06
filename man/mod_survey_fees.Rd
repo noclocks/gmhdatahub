@@ -14,6 +14,7 @@ mod_survey_fees_server(
   pool = NULL,
   survey_data = NULL,
   selected_filters = NULL,
+  db_trigger_func = NULL,
   edit_survey_section = NULL
 )
 
