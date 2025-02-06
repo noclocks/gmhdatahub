@@ -640,9 +640,7 @@ db_read_survey_utilities <- function(
     pool,
     property_id = NULL,
     competitor_id = NULL,
-    collect = TRUE
-) {
-
+    collect = TRUE) {
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.utilities", collect = FALSE)
