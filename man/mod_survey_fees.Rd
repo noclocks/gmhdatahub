@@ -12,7 +12,8 @@ mod_survey_fees_ui(id)
 mod_survey_fees_server(
   id,
   pool = NULL,
-  selected_property_id = NULL,
+  survey_data = NULL,
+  selected_filters = NULL,
   edit_survey_section = NULL
 )
 
