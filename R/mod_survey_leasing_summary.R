@@ -236,19 +236,20 @@ mod_survey_leasing_summary_server <- function(
       # inputs data
       inputs_data <- shiny::reactive({
         tibble::tibble(
-          property_id = selected_property_id(),
-          property_name = leasing_summary_data()$property_name,
-          leasing_week = session$userData$leasing_week(),
+          property_id = selected_filters$property_id,
+          property_name = selected_filters$property_name,
+          leasing_week_id = selected_filters$leasing_week_id,
           reporting_cycle = input$reporting_cycle,
           lease_launch_date = input$lease_launch_date,
           renewal_launch_date = input$renewal_launch_date,
           current_occupancy = input$current_occupancy,
-          last_year_occupancy = input$prior_year_occupancy,
+          prior_year_occupancy = input$prior_year_occupancy,
           current_pre_lease = input$current_pre_lease,
-          last_year_pre_lease = input$last_year_pre_lease,
+          prior_year_pre_lease = input$prior_year_pre_lease,
           total_renewals = input$total_renewals,
           total_new_leases = input$total_new_leases,
-          traffic_weekly = input$weekly_traffic,
+          weekly_leases = input$weekly_leases,
+          weekly_traffic = input$weekly_traffic,
           current_incentive = input$current_incentive,
           incentive_amount = input$incentive_amount
         )
@@ -412,7 +413,7 @@ mod_survey_leasing_summary_server <- function(
                   )
                 ),
                 shiny::sliderInput(
-                  ns("last_year_pre_lease"),
+                  ns("prior_year_pre_lease"),
                   "Prior Year Pre-Lease %",
                   min = 0,
                   max = 1,
