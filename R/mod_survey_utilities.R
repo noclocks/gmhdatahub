@@ -62,11 +62,16 @@ mod_survey_utilities_ui <- function(id) {
 mod_survey_utilities_server <- function(
     id,
     pool = NULL,
-    selected_property_id = NULL,
-    edit_survey_section = NULL) {
+    survey_data = NULL,
+    selected_filters = NULL,
+    edit_survey_section = NULL
+) {
+
   shiny::moduleServer(
     id,
     function(input, output, session) {
+
+      # setup ------------------------------------------------------------
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_utilities_server()")
 
@@ -74,20 +79,29 @@ mod_survey_utilities_server <- function(
       if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
       check_db_conn(pool)
 
-      # handle selected property ID
-      if (is.null(selected_property_id)) {
-        selected_property_id <- shiny::reactive({
-          get_property_id_by_name("1047 Commonwealth Avenue")
-        })
-      }
-
+      # refresh trigger & validator
       db_refresh_trigger <- shiny::reactiveVal(0)
+      iv <- shinyvalidate::InputValidator$new()
 
+      # filters
+      shiny::observe({
+        shiny::req(selected_filters)
+        if (is.null(selected_filters$property_id)) {
+          selected_filters$property_id <- 739085
+        }
+      })
+
+      # data --------------------------------------------------------------------
       utilities_data <- shiny::reactive({
-        shiny::req(pool, selected_property_id())
+        shiny::req(nrow(survey_data$utilities) > 0)
+        survey_data$utilities
+      })
 
-        db_read_tbl(pool, "survey.utilities") |>
-          dplyr::filter(property_id == selected_property_id()) |>
+      output$survey_utilities_tbl <- reactable::renderReactable({
+        shiny::req(utilities_data())
+
+        tbl_data <- utilities_data() |>
+          dplyr::filter(.data$utility_category == "Core") |>
           dplyr::select(
             property_name,
             utility_name,
@@ -97,12 +111,8 @@ mod_survey_utilities_server <- function(
             utility_capped,
             utility_allowance
           )
-      })
 
-      output$survey_utilities_tbl <- reactable::renderReactable({
-        data <- utilities_data()
-
-        if (nrow(data) == 0) {
+        if (nrow(tbl_data) == 0) {
           data <- tibble::tibble(
             property_name = "No Data Available",
             utility_name = NA_character_,
@@ -115,8 +125,8 @@ mod_survey_utilities_server <- function(
         }
 
         reactable::reactable(
-          data = data,
-          defaultPageSize = nrow(data),
+          data = tbl_data,
+          defaultPageSize = nrow(tbl_data),
           searchable = TRUE,
           columns = list(
             property_name = reactable::colDef(
@@ -139,11 +149,218 @@ mod_survey_utilities_server <- function(
             ),
             utility_allowance = reactable::colDef(
               name = "Allowance ($)",
-              format = reactable::colFormat(prefix = "$", digits = 0, separators = TRUE)
+              format = reactable::colFormat(currency = "USD")
             )
           ),
           highlight = TRUE
         )
+      })
+
+      output$survey_other_utilities_tbl <- reactable::renderReactable({
+        shiny::req(utilities_data())
+
+        tbl_data <- utilities_data() |>
+          dplyr::filter(.data$utility_category == "Other") |>
+          dplyr::select(
+            property_name,
+            utility_name,
+            utility_category,
+            utility_per,
+            utility_available,
+            utility_capped,
+            utility_allowance
+          )
+
+        if (nrow(tbl_data) == 0) {
+          data <- tibble::tibble(
+            property_name = "No Data Available",
+            utility_name = NA_character_,
+            utility_category = NA_character_,
+            utility_per = NA_character_,
+            utility_available = NA_character_,
+            utility_capped = NA_character_,
+            utility_allowance = NA_real_
+          )
+        }
+
+        reactable::reactable(
+          data = tbl_data,
+          defaultPageSize = nrow(tbl_data),
+          searchable = TRUE,
+          columns = list(
+            property_name = reactable::colDef(
+              show = FALSE
+            ),
+            utility_name = reactable::colDef(
+              name = "Utility",
+            ),
+            utility_category = reactable::colDef(
+              show = FALSE
+            ),
+            utility_per = reactable::colDef(
+              name = "Per Bed/Unit"
+            ),
+            utility_available = reactable::colDef(
+              name = "Available?"
+            ),
+            utility_capped = reactable::colDef(
+              name = "Capped?"
+            ),
+            utility_allowance = reactable::colDef(
+              name = "Allowance ($)",
+              format = reactable::colFormat(currency = "USD")
+            )
+          ),
+          highlight = TRUE
+        )
+      })
+
+      shiny::observeEvent(edit_survey_section(), {
+        shiny::req(session$userData$selected_survey_tab(), utilities_data())
+
+        if (session$userData$selected_survey_tab() != "nav_utilities") { return() }
+
+        core_data <- utilities_data() |> dplyr::filter(.data$utility_category == "Core")
+        other_data <- utilities_data() |> dplyr::filter(.data$utility_category == "Other")
+
+        iv$initialize()
+        iv$enable()
+
+        shiny::showModal(
+          shiny::modalDialog(
+            title = "Edit Utilities",
+            size = "l",
+            easyClose = TRUE,
+            footer = htmltools::tagList(
+              shiny::actionButton(
+                ns("save"),
+                "Save",
+                class = "btn-primary"
+              ),
+              shiny::modalButton("Cancel")
+            ),
+            bslib::card(
+              bslib::card_header("Core Utilities"),
+              bslib::card_body(
+                bslib::layout_columns(
+                  col_widths = c(12),
+                  rhandsontable::rHandsontableOutput(ns("modal_survey_core_utilities_table")),
+                  rhandsontable::rHandsontableOutput(ns("modal_survey_other_utilities_table"))
+                )
+              )
+            )
+          )
+        )
+      })
+
+      output$modal_survey_core_utilities_table <- rhandsontable::renderRHandsontable({
+        shiny::req(utilities_data())
+
+        core_data <- utilities_data() |>
+          dplyr::filter(.data$utility_category == "Core") |>
+          dplyr::select(
+            utility_name,
+            utility_per,
+            utility_available,
+            utility_capped,
+            utility_allowance
+          )
+
+        rhandsontable::rhandsontable(
+          core_data,
+          rowHeaders = FALSE,
+          colHeaders = c(
+            "Utility Name",
+            "Per Bed/Unit",
+            "Available?",
+            "Capped?",
+            "Allowance ($)"
+          ),
+          contextMenu = TRUE,
+          stretchH = "all",
+          width = "100%"
+        ) |>
+          rhandsontable::hot_col(col = 1, readOnly = TRUE) |>
+          rhandsontable::hot_col(col = 2, type = "dropdown", source = c("Bed", "Unit")) |>
+          rhandsontable::hot_col(col = 3, type = "dropdown", source = c("Yes", "No")) |>
+          rhandsontable::hot_col(col = 4, type = "dropdown", source = c("Yes", "No")) |>
+          rhandsontable::hot_col(col = 5, type = "numeric")
+      })
+
+      output$modal_survey_other_utilities_table <- rhandsontable::renderRHandsontable({
+        shiny::req(utilities_data())
+
+        other_data <- utilities_data() |>
+          dplyr::filter(.data$utility_category == "Other") |>
+          dplyr::select(
+            utility_name,
+            utility_per,
+            utility_available,
+            utility_capped,
+            utility_allowance
+          )
+
+        rhandsontable::rhandsontable(
+          other_data,
+          rowHeaders = FALSE,
+          colHeaders = c(
+            "Utility Name",
+            "Per Bed/Unit",
+            "Available?",
+            "Capped?",
+            "Allowance ($)"
+          ),
+          contextMenu = TRUE,
+          stretchH = "all",
+          width = "100%"
+        ) |>
+          rhandsontable::hot_col(col = 1, readOnly = TRUE) |>
+          rhandsontable::hot_col(col = 2, type = "dropdown", source = c("Bed", "Unit")) |>
+          rhandsontable::hot_col(col = 3, type = "dropdown", source = c("Yes", "No")) |>
+          rhandsontable::hot_col(col = 4, type = "dropdown", source = c("Yes", "No")) |>
+          rhandsontable::hot_col(col = 5, type = "numeric")
+      })
+
+      shiny::observeEvent(input$save, {
+
+        if (!is.na(selected_filters$competitor_id) && !is.null(selected_filters$competitor_id)) {
+          prop_id <- NULL
+          comp_id <- selected_filters$competitor_id
+          prop_name <- selected_filters$competitor_name
+        } else {
+          prop_id <- selected_filters$property_id
+          comp_id <- NULL
+          prop_name <- selected_filters$property_name
+        }
+
+        new_values <- rhandsontable::hot_to_r(input$modal_survey_fees_table) |>
+          dplyr::mutate(utility_category = "Core") |>
+          dplyr::bind_rows(
+            rhandsontable::hot_to_r(input$modal_survey_other_fees_table) |>
+              dplyr::mutate(utility_category = "Other")
+          ) |>
+          dplyr::mutate(
+            property_id = prop_id,
+            competitor_id = comp_id,
+            property_name = prop_name,
+            updated_by = selected_filters$user_id
+          ) |>
+          dplyr::select(
+            property_id,
+            competitor_id,
+            property_name,
+            utility_name,
+            utility_category,
+            utility_per,
+            utility_available,
+            utility_capped,
+            utility_allowance,
+            updated_by
+          )
+
+        db_update_survey_utilities(pool, new_values)
+        db_refresh_trigger(db_refresh_trigger() + 1)
+        shiny::removeModal()
       })
 
       return(

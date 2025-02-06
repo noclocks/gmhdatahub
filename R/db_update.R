@@ -97,6 +97,89 @@ db_update_survey_unit_amenities <- function(pool, new_values) {
   return(invisible(data))
 }
 
+db_update_survey_utilities <- function(pool, new_values) {
+
+  check_db_conn(pool)
+
+  # get id (property id for property and competitor id for competitor)
+  comp_names <- db_read_tbl(pool, "survey.competitors", collect = FALSE) |>
+    dplyr::pull(competitor_name)
+  prop_names <- db_read_tbl(pool, "survey.properties", collect = FALSE) |>
+    dplyr::pull(property_name)
+
+  data <- new_values
+
+  if (data$property_name %in% prop_names) {
+    data <- data |>
+      dplyr::mutate(
+        property_id = purrr::map_int(.data$property_name, get_property_id_by_name),
+        competitor_id = NA_integer_
+      )
+  } else if (data$property_name %in% comp_names) {
+    data <- data |>
+      dplyr::mutate(
+        property_id = NA_integer_,
+        competitor_id = purrr::map_int(.data$property_name, get_competitor_id_by_name)
+      )
+  }
+
+  if (is.null(user_id)) {
+    user_id <- get_user_id_by_email(pool, "jimmy.briggs@noclocks.dev")
+  }
+
+  utilities_data <- data |>
+    dplyr::select(
+      property_id,
+      competitor_id,
+      property_name,
+      utility_name,
+      utility_category,
+      utility_per,
+      utility_available,
+      utility_capped,
+      utility_allowance,
+      updated_by
+    )
+
+  conn <- pool::poolCheckout(pool)
+  on.exit(pool::poolReturn(conn))
+
+  tryCatch(
+    {
+      dbx::dbxUpsert(
+        conn,
+        DBI::SQL("survey.utilities"),
+        records = utilities_data,
+        where_cols = c("property_name", "utility_name"),
+        skip_existing = FALSE
+      )
+
+      cli::cli_alert_success(
+        "Successfully updated utilities"
+      )
+
+      shiny::showNotification(
+        "Successfully updated utilities.",
+        duration = 500,
+        type = "default"
+      )
+    },
+    error = function(e) {
+      cli::cli_alert_danger(
+        "Failed to update utilities: {.error {e$message}}"
+      )
+      shiny::showNotification(
+        "Failed to update utilities.",
+        duration = 500,
+        type = "error"
+      )
+    }
+  )
+
+  return(invisible(utilities_data))
+
+}
+
 db_update_survey_property_summary <- function(
     pool,
     new_values,

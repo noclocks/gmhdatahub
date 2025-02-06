@@ -284,7 +284,7 @@ mod_survey_forms_server <- function(
 
       # user --------------------------------------------------------------------
       shiny::observe({
-        if (is.null(session$userData$user())) {
+        if (is.null(session$userData$user)) {
           user_email <- "jimmy.briggs@noclocks.dev"
           user_id <- get_user_id_by_email(pool, user_email)
         } else {
@@ -510,13 +510,13 @@ mod_survey_forms_server <- function(
       # )
 
       # utilities
-      # mod_survey_utilities_data <- mod_survey_utilities_server(
-      #   "utilities",
-      #   pool = pool,
-      #   survey_data = survey_data,
-      #   selected_filters = selected_filters,
-      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      # )
+      mod_survey_utilities_data <- mod_survey_utilities_server(
+        "utilities",
+        pool = pool,
+        survey_data = survey_data,
+        selected_filters = selected_filters,
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      )
 
       # notes
       # mod_notes_data <- mod_survey_notes_server(
