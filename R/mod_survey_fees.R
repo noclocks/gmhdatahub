@@ -45,8 +45,51 @@ mod_survey_fees_ui <- function(id) {
   ns <- shiny::NS(id)
 
   htmltools::tagList(
-    bslib::card(
-      reactable::reactableOutput(ns("survey_fees_tbl"))
+    # page --------------------------------------------------------------------
+    bslib::page_fluid(
+      # card --------------------------------------------------------------------
+      bslib::card(
+        full_screen = TRUE,
+        class = "mx-auto",
+        bslib::card_header(
+          class = "bg-primary text-white",
+          htmltools::tags$span(
+            htmltools::tags$h2(
+              bsicons::bs_icon("currency-dollar"),
+              "Fees",
+              shiny::actionButton(
+                ns("refresh"),
+                "Refresh Data",
+                icon = shiny::icon("sync"),
+                class = "btn-sm btn-outline-light float-end",
+                style = "width: auto;"
+              ),
+              class = "mb-2"
+            ),
+            htmltools::tags$p(
+              shiny::textOutput(ns("property_name_title")),
+              class = "lead mb-0"
+            )
+          )
+        ),
+        bslib::card_body(
+          bslib::layout_columns(
+            col_widths = c(12),
+            reactable::reactableOutput(ns("survey_fees_tbl")) |>
+              with_loader()
+          )
+        ),
+        bslib::card_footer(
+          class = "text-center",
+          htmltools::tags$p(
+            "Last Updated: ",
+            htmltools::tags$span(
+              shiny::textOutput(ns("last_updated")),
+              class = "fw-bold"
+            )
+          )
+        )
+      )
     )
   )
 }
@@ -61,7 +104,8 @@ mod_survey_fees_ui <- function(id) {
 mod_survey_fees_server <- function(
     id,
     pool = NULL,
-    selected_property_id = NULL,
+    survey_data = NULL,
+    selected_filters = NULL,
     edit_survey_section = NULL
 ) {
 
@@ -69,6 +113,7 @@ mod_survey_fees_server <- function(
     id,
     function(input, output, session) {
 
+      # setup ------------------------------------------------------------
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_fees_server()")
 
@@ -76,69 +121,37 @@ mod_survey_fees_server <- function(
       if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
       check_db_conn(pool)
 
-      # handle selected property ID
-      if (is.null(selected_property_id)) {
-        # property_id <- db_read_tbl(pool, "mkt.properties", collect = FALSE) |>
-        #   dplyr::filter(.data$is_competitor == FALSE) |>
-        #   dplyr::pull("property_id")
-        selected_property_id <- shiny::reactive({
-          # property_id
-          session$userData$selected_survey_property()
-        })
-      }
-
+      # refresh trigger & validator
       db_refresh_trigger <- shiny::reactiveVal(0)
+      iv <- shinyvalidate::InputValidator$new()
 
-      fees_data <- shiny::reactive({
-        shiny::req(pool, selected_property_id(), session$userData$leasing_week())
-
-        db_read_mkt_fees(
-          pool,
-          property_id = selected_property_id(),
-          leasing_week = session$userData$leasing_week()
-        )
-      })
-
-      output$survey_fees_tbl <- reactable::renderReactable({
-        # query data
-        # survey_fees <- db_query_survey_fees(pool)
-
-        data <- fees_data()
-
-        # browser()
-
-        if (nrow(data) == 0) {
-          data <- tibble::tribble(
-            ~"Fees", ~"Amount", ~"Frequency",
-            "Application Fee", "$0", "Monthly",
-            "Administration Fee", "$0", "Monthly",
-            "Fee Structure", "Both Fees Waived", "Monthly",
-            "Utility Set Up Fee", "$0", "Monthly",
-            "Utility Deposit", "$0", "Monthly",
-            "Amenity Fee", "$0", "Monthly",
-            "Common Area Fee", "$0", "Monthly",
-            "Smart Home Fee", "$0", "Monthly",
-            "Restoration Fee", "$0", "Monthly",
-            "Security Deposit", "$1000", "Monthly",
-            "Pet Fee", "$0", "Monthly",
-            "Pet Deposit", "$0", "Monthly",
-            "Pet Rent", "$0", "Monthly"
-          )
+      # filters
+      shiny::observe({
+        shiny::req(selected_filters)
+        if (is.null(selected_filters$property_id)) {
+          selected_filters$property_id <- 739085
         }
-
-        # render table
-        reactable::reactable(
-          data = data,
-          defaultPageSize = nrow(data),
-          searchable = TRUE
-        )
       })
 
-      # Edit ####
+      # data --------------------------------------------------------------------
+      fees_data <- shiny::reactive({
+        shiny::req(nrow(survey_data$fees) > 0)
+        survey_data$fees
+      })
+
+      # table -------------------------------------------------------------------
+      output$survey_fees_tbl <- reactable::renderReactable({
+        shiny::req(fees_data())
+        tbl_survey_fees(fees_data())
+      })
+
+      # edit --------------------------------------------------------------------
       shiny::observeEvent(edit_survey_section(), {
+
         if (session$userData$selected_survey_tab() != "nav_fees") {
           return()
         }
+
         shiny::showModal(
           shiny::modalDialog(
             title = "Fees",
@@ -152,8 +165,7 @@ mod_survey_fees_server <- function(
                 ns("save_changes"),
                 "Save",
                 class = "btn-primary"
-              ), # |>
-              # shinyjs::disabled(),
+              ),
               shiny::modalButton("Cancel")
             )
           )
@@ -161,34 +173,16 @@ mod_survey_fees_server <- function(
       })
 
       output$modal_survey_fees_table <- rhandsontable::renderRHandsontable({
-        data <- fees_data()
+        shiny::req(fees_data())
 
-        if (nrow(data) == 0) {
-          data <- tibble::tribble(
-            ~"Fees", ~"Amount", ~"Frequency",
-            "Application Fee", "$0", "Monthly",
-            "Administration Fee", "$0", "Monthly",
-            "Fee Structure", "Both Fees Waived", "Monthly",
-            "Utility Set Up Fee", "$0", "Monthly",
-            "Utility Deposit", "$0", "Monthly",
-            "Amenity Fee", "$0", "Monthly",
-            "Common Area Fee", "$0", "Monthly",
-            "Smart Home Fee", "$0", "Monthly",
-            "Restoration Fee", "$0", "Monthly",
-            "Security Deposit", "$1000", "Monthly",
-            "Pet Fee", "$0", "Monthly",
-            "Pet Deposit", "$0", "Monthly",
-            "Pet Rent", "$0", "Monthly"
-          )
-        }
+        tbl_data <- fees_data() |>
+          dplyr::select(tidyselect::contains("fee_"))
 
         rhandsontable::rhandsontable(
-          data = data,
+          data = tbl_data,
           contextMenu = FALSE,
           rowHeaders = NULL,
-          colHeaders = c("Fees", "Amount", "Frequency") # ,
-          # width = width,
-          # height = height
+          colHeaders = c("Fee Name", "Amount", "Frequency")
         ) |>
           rhandsontable::hot_cols(
             colWidths = 200

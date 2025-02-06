@@ -54,30 +54,30 @@ mod_survey_admin_ui <- function(id) {
           get_gmaps_config("api_key")
         )
       ),
-      htmltools::tags$script(
-        htmltools::HTML(sprintf("
-          $(document).ready(function() {
-            var addressInput = document.getElementById('%s');
-            var autocomplete = new google.maps.places.Autocomplete(addressInput);
-
-            autocomplete.addListener('place_changed', function() {
-              var place = autocomplete.getPlace();
-              if (place.geometry) {
-                // Send place details to Shiny
-                Shiny.setInputValue('%s', {
-                  address: place.formatted_address,
-                  lat: place.geometry.location.lat(),
-                  lng: place.geometry.location.lng(),
-                  name: place.name,
-                  types: place.types,
-                  nearby: place.address_components
-                });
-              }
-            });
-          });
-        ",
-        ))
-      )
+      # htmltools::tags$script(
+      #   htmltools::HTML(sprintf("
+      #     $(document).ready(function() {
+      #       var addressInput = document.getElementById('%s');
+      #       var autocomplete = new google.maps.places.Autocomplete(addressInput);
+      #
+      #       autocomplete.addListener('place_changed', function() {
+      #         var place = autocomplete.getPlace();
+      #         if (place.geometry) {
+      #           // Send place details to Shiny
+      #           Shiny.setInputValue('%s', {
+      #             address: place.formatted_address,
+      #             lat: place.geometry.location.lat(),
+      #             lng: place.geometry.location.lng(),
+      #             name: place.name,
+      #             types: place.types,
+      #             nearby: place.address_components
+      #           });
+      #         }
+      #       });
+      #     });
+      #   ",
+      #   ))
+      # )
     ),
     bslib::page_fluid(
 

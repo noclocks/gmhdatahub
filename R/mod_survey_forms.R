@@ -456,6 +456,33 @@ mod_survey_forms_server <- function(
         edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
+      # short term leases
+      mod_short_term_leases_data <- mod_survey_short_term_leases_server(
+        id = "short_term_leases",
+        pool = pool,
+        survey_data = survey_data,
+        selected_filters = selected_filters,
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      )
+
+      # fees
+      mod_fees_data <- mod_survey_fees_server(
+        id = "fees",
+        pool = pool,
+        survey_data = survey_data,
+        selected_filters = selected_filters,
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      )
+
+      # parking
+      mod_parking_data <- mod_survey_parking_server(
+        id = "parking",
+        pool = pool,
+        survey_data = survey_data,
+        selected_filters = selected_filters,
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      )
+
       # property amenities
       mod_survey_property_amenities_data <- mod_survey_property_amenities_server(
         id = "property_amenities",
@@ -474,173 +501,49 @@ mod_survey_forms_server <- function(
         edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
-      shiny::observe({
-        mod_survey_property_summary_data$property_data() |>
-          dplyr::glimpse()
-      })
-
-      # return ------------------------------------------------------------------
-
-
-
-      # BELOW NEEDS TO BE FIXED / IMPLEMENTED WITH NEW SETUP
-
-
-
-      #
-      # session$userData$selected_survey_competitor <- shiny::reactiveVal(NULL)
-      #
-      # shiny::observeEvent(input$property, {
-      #   session$userData$selected_survey_property(input$property)
-      # })
-      #
-      # shiny::observeEvent(input$competitor, {
-      #   if (input$competitor != 0) {
-      #     session$userData$selected_survey_competitor(input$competitor)
-      #   } else {
-      #     session$userData$selected_survey_competitor(NULL)
-      #   }
-      # })
-      #
-      # session$userData$leasing_week <- shiny::reactiveVal(NULL)
-      #
-      # shiny::observeEvent(input$leasing_week, {
-      #   session$userData$leasing_week(input$leasing_week)
-      # })
-
-      # competitors -------------------------------------------------------------
-      # properties_with_competitors <- db_read_tbl(pool, "mkt.property_competitors") |>
-      #   dplyr::pull("property_id") |>
-      #   unique()
-
-      # shiny::observeEvent(input$property, {
-      #   if (input$property %in% properties_with_competitors) {
-      #     shinyjs::enable("competitor")
-      #     shiny::updateSelectizeInput(
-      #       session,
-      #       "competitor",
-      #       choices = c("None" = "none", unlist(app_choices_lst$competitors[[input$property]])),
-      #       selected = "none"
-      #     )
-      #   } else {
-      #     shiny::updateSelectizeInput(
-      #       session,
-      #       "competitor",
-      #       choices = c("None" = "none"),
-      #       selected = "none"
-      #     )
-      #     shinyjs::disable("competitor")
-      #   }
-      # })
-
-      # selected property -------------------------------------------------------
-      # selected_property_id <- shiny::reactiveVal(NULL)
-      # Survey Week input ####
-      # shiny::observeEvent(input$survey_week, {
-      #   start_date <- input$survey_week
-      #
-      #   leasing_period_start_date <- get_weekly_period_start_date(start_date)
-      #
-      #   if (start_date != leasing_period_start_date) {
-      #     shiny::updateDateInput(
-      #       session = session,
-      #       inputId = "survey_week",
-      #       value = leasing_period_start_date
-      #     )
-      #   }
-      # })
-
-      # reactive values ---------------------------------------------------------
-      # db_metrics <- shiny::reactive({
-      #   db_read_survey_metrics(pool)
-      # })
-
-      # progress bars ----------------------------------------------------------
-      # output$total_progress <- shinyWidgets::updateProgressBar(
-      #   session,
-      #   ns("total_progress"),
-      #   value = 80 # TODO
-      # )
-
-      # sub-modules -------------------------------------------------------------
-      # property_summary_data <- mod_survey_property_summary_server(
-      #   id = "property_summary",
-      #   pool = pool,
-      #   selected_property_id = session$userData$selected_survey_property,
-      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      # )
-      #
-      # leasing_summary_data <- mod_survey_leasing_summary_server(
-      #   id = "leasing_summary",
-      #   pool = pool,
-      #   selected_property_id = session$userData$selected_survey_property,
-      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      # )
-
-      short_term_leases_data <- mod_survey_short_term_leases_server(
-        id = "short_term_leases",
-        pool = pool,
-        selected_property_id = session$userData$selected_survey_property,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      )
-
-      fees_data <- mod_survey_fees_server(
-        id = "fees",
-        pool = pool,
-        selected_property_id = session$userData$selected_survey_property,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      )
-
-      # property_amenities_data <- mod_survey_property_amenities_server(
-      #   id = "property_amenities",
-      #   pool = pool,
-      #   selected_property_id = session$userData$selected_survey_property,
-      #   selected_competitor_id = input$competitor,
-      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      # )
-
-      # unit_amenities_data <- mod_survey_unit_amenities_server(
-      #   id = "unit_amenities",
-      #   pool = pool,
-      #   selected_property_id = session$userData$selected_survey_property,
-      #   selected_competitor_id = shiny::reactive({ input$competitor }),
-      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      # )
-
-      parking_data <- mod_survey_parking_server(
-        id = "parking",
-        pool = pool,
-        selected_property_id = session$userData$selected_survey_property,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      )
-
-      utilities_data <- mod_survey_utilities_server(
+      # utilities
+      mod_utilities_data <- mod_survey_utilities_server(
         "utilities",
         pool = pool,
-        selected_property_id = session$userData$selected_survey_property,
+        survey_data = survey_data,
+        selected_filters = selected_filters,
         edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
-      notes_data <- mod_survey_notes_server(
+      # hours
+      mod_notes_data <- mod_survey_notes_server(
         "notes",
         pool = pool,
-        selected_property_id = session$userData$selected_survey_property,
+        survey_data = survey_data,
+        selected_filters = selected_filters,
         edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
-      rents_data <- mod_survey_rents_server(
+      # rents
+      mod_rents_data <- mod_survey_rents_server(
         "rents",
         pool = pool,
-        selected_property_id = session$userData$selected_survey_property,
+        survey_data = survey_data,
+        selected_filters = selected_filters,
         edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
+      # return ------------------------------------------------------------------
       return(
         list(
-          # selected_filters = selected_filters,
-          # survey_data = survey_data,
-          # map_data = map_data,
-          # db_metrics = db_metrics
+          selected_filters = selected_filters,
+          survey_data = survey_data,
+          map_data = map_data,
+          mod_survey_property_summary_data,
+          mod_survey_leasing_summary_data,
+          mod_short_term_leases_data,
+          mod_fees_data,
+          mod_parking_data,
+          mod_survey_property_amenities_data,
+          mod_survey_unit_amenities_data,
+          mod_utilities_data,
+          mod_notes_data,
+          mod_rents_data
         )
       )
     }
