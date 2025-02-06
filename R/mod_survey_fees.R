@@ -139,12 +139,6 @@ mod_survey_fees_server <- function(
         if (session$userData$selected_survey_tab() != "nav_fees") {
           return()
         }
-
-        # data <- fees_data()
-
-        # TODO:
-        #   `iv` (?)
-
         shiny::showModal(
           shiny::modalDialog(
             title = "Fees",

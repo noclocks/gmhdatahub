@@ -51,7 +51,14 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
         group = "Properties",
         icon = property_icons,
         label = ~location_name,
+        labelOptions = leaflet::labelOptions(noHide = TRUE),
         popup = ~map_popup_html,
+        popupOptions = leaflet::popupOptions(
+          # maxHeight = 150,
+          autoPan = TRUE,
+          keepInView = TRUE,
+          closeButton = TRUE
+        ),
         data = properties
       )
   }
@@ -65,7 +72,14 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
         group = "Competitors",
         icon = competitor_icons,
         label = ~location_name,
+        labelOptions = leaflet::labelOptions(noHide = TRUE),
         popup = ~map_popup_html,
+        popupOptions = leaflet::popupOptions(
+          # maxHeight = 150,
+          autoPan = TRUE,
+          keepInView = TRUE,
+          closeButton = TRUE
+        ),
         data = competitors
       )
   }
@@ -79,7 +93,15 @@ map_survey_locations <- function(properties = NULL, competitors = NULL, universi
         group = "Universities",
         icon = university_icons,
         label = ~location_name,
+        labelOptions = leaflet::labelOptions(noHide = TRUE),
         popup = ~map_popup_html,
+        popupOptions = leaflet::popupOptions(
+          # maxHeight = 150,
+          # maxWidth = 300,
+          autoPan = TRUE,
+          keepInView = TRUE,
+          closeButton = TRUE
+        ),
         data = universities
       )
   }

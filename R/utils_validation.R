@@ -192,3 +192,33 @@ validate_address_geocode <- function(address) {
     return(TRUE)
   }
 }
+
+
+validate_property_data <- function(input, is_new = TRUE) {
+
+  errors <- character()
+
+  if (is.null(input$property_name) || nchar(input$property_name) < 1)
+    errors <- c(errors, "Property name is required")
+
+  if (is.null(input$total_units) || input$total_units < 1)
+    errors <- c(errors, "Total units must be greater than 0")
+
+  if (is.null(input$total_beds) || input$total_beds < 1)
+    errors <- c(errors, "Total beds must be greater than 0")
+
+  if (is.null(input$occupancy) || input$occupancy < 0 || input$occupancy > 100)
+    errors <- c(errors, "Occupancy must be between 0 and 100")
+
+  if (is.null(input$prelease) || input$prelease < 0 || input$prelease > 100)
+    errors <- c(errors, "Pre-lease must be between 0 and 100")
+
+  if (is_new && (is.null(input$selected_place) || is.null(input$selected_place$lat)))
+    errors <- c(errors, "Valid address selection is required")
+
+  if (length(errors) > 0) {
+    return(list(valid = FALSE, errors = errors))
+  }
+
+  return(list(valid = TRUE))
+}

@@ -42,9 +42,43 @@ NULL
 #' @importFrom htmltools tagList tags
 #' @importFrom bslib card
 mod_survey_admin_ui <- function(id) {
+
   ns <- shiny::NS(id)
 
   htmltools::tagList(
+    # add google places js
+    htmltools::tags$head(
+      htmltools::tags$script(
+        src = sprintf(
+          "https://maps.googleapis.com/maps/api/js?key=%s&libraries=places",
+          get_gmaps_config("api_key")
+        )
+      ),
+      htmltools::tags$script(
+        htmltools::HTML(sprintf("
+          $(document).ready(function() {
+            var addressInput = document.getElementById('%s');
+            var autocomplete = new google.maps.places.Autocomplete(addressInput);
+
+            autocomplete.addListener('place_changed', function() {
+              var place = autocomplete.getPlace();
+              if (place.geometry) {
+                // Send place details to Shiny
+                Shiny.setInputValue('%s', {
+                  address: place.formatted_address,
+                  lat: place.geometry.location.lat(),
+                  lng: place.geometry.location.lng(),
+                  name: place.name,
+                  types: place.types,
+                  nearby: place.address_components
+                });
+              }
+            });
+          });
+        ",
+        ))
+      )
+    ),
     bslib::page_fluid(
 
       bslib::navset_card_underline(

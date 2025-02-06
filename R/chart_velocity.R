@@ -1,3 +1,159 @@
+
+prep_velocity_chart_data <- function(data, metrics) {
+
+  if (length(metrics) == 0) return(NULL)
+
+  data |>
+    dplyr::select(
+      property_name,
+      tidyselect::all_of(metrics)
+    ) |>
+    tidyr::pivot_longer(
+      cols = -property_name,
+      names_to = "metric",
+      values_to = "value"
+    ) |>
+    dplyr::mutate(
+      metric = dplyr::case_when(
+        metric == "occupancy" ~ "Occupancy %",
+        metric == "vacancy" ~ "Vacancy %",
+        metric == "prelease" ~ "Pre-lease %",
+        metric == "total_beds" ~ "Total Beds",
+        metric == "total_units" ~ "Total Units",
+        metric == "total_renewals" ~ "Total Renewals",
+        metric == "available_units" ~ "Available Units",
+        metric == "weekly_new_leases" ~ "Weekly New Leases",
+        metric == "weekly_renewals" ~ "Weekly Renewals",
+        TRUE ~ metric
+      )
+    )
+}
+
+prep_rates_chart_data <- function(data, rent_type, metrics) {
+
+  rent_cols <- if(rent_type == "bed") {
+    c("market_rent_per_bed", "effective_rent_per_bed", "bundled_rent_per_bed")[metrics %in% c("market", "effective", "bundled")]
+  } else {
+    c("market_rent_per_unit", "effective_rent_per_unit", "bundled_rent_per_unit")[metrics %in% c("market", "effective", "bundled")]
+  }
+
+  if(length(rent_cols) == 0) return(NULL)
+
+  data |>
+    dplyr::select(
+      property_name,
+      tidyselect::all_of(rent_cols)
+    ) |>
+    tidyr::pivot_longer(
+      cols = tidyselect::all_of(rent_cols),
+      names_to = "rent_type",
+      values_to = "amount"
+    )
+
+}
+
+chart_velocity <- function(data) {
+
+  if (is.null(data)) return(NULL)
+
+  apexcharter::apex(
+    data,
+    type = "line",
+    mapping = apexcharter::aes(
+      x = property_name,
+      y = value,
+      group = metric
+    )
+  ) |>
+    apexcharter::ax_series(
+      list(
+        name = unique(data$metric)
+      )
+    ) |>
+    apexcharter::ax_yaxis(
+      decimalsInFloat = 1,
+      labels = list(
+        formatter = apexcharter::JS("function(val) {
+          if (this.seriesName && this.seriesName.includes('%')) {
+            return val.toFixed(1) + '%';
+          }
+          return Math.round(val);
+        }")
+      )
+    ) |>
+    apexcharter::ax_xaxis(
+      type = "category"
+    ) |>
+    apexcharter::ax_tooltip(
+      shared = TRUE,
+      y = list(
+        formatter = apexcharter::JS("function(val, { seriesIndex, w }) {
+          if (w.globals.seriesNames[seriesIndex].includes('%')) {
+            return val.toFixed(1) + '%';
+          }
+          return Math.round(val);
+        }")
+      )
+    ) |>
+    apexcharter::ax_stroke(
+      width = 2,
+      curve = "smooth"
+    ) |>
+    apexcharter::ax_markers(
+      size = 4
+    ) |>
+    apexcharter::ax_grid(
+      show = TRUE,
+      borderColor = "#e0e0e0",
+      strokeDashArray = 0,
+      position = "back"
+    ) |>
+    apexcharter::ax_title(
+      text = "Leasing Velocity Metrics",
+      align = "center",
+      style = list(
+        fontSize = "16px"
+      )
+    ) |>
+    apexcharter::ax_legend(
+      position = "top",
+      horizontalAlign = "center"
+    )
+
+}
+
+chart_rates_comparison <- function(data, rent_type) {
+
+  if(is.null(data)) return(NULL)
+
+  apexcharter::apex(
+    data = data,
+    type = "bar",
+    mapping = apexcharter::aes(x = property_name, y = amount, fill = rent_type)
+  ) |>
+    apexcharter::ax_title(
+      text = paste("Rent Analysis by Property -",
+                   if (rent_type == "bed") "Per Bed" else "Per Unit"),
+      align = "center",
+      style = list(fontSize = "16px")
+    ) |>
+    apexcharter::ax_yaxis(
+      labels = list(
+        formatter = apexcharter::JS("function(val) { return '$' + val.toFixed(0) }")
+      )
+    ) |>
+    apexcharter::ax_tooltip(
+      shared = TRUE,
+      y = list(
+        formatter = apexcharter::JS("function(val) { return '$' + val.toFixed(0) }")
+      )
+    ) |>
+    apexcharter::ax_legend(
+      position = "top",
+      horizontalAlign = "center"
+    )
+}
+
 chart_velocity_comparison <- function(data, id = NULL, ...) {
   validate_col_names(
     data,

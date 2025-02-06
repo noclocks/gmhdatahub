@@ -68,11 +68,11 @@ mod_survey_insights_overview_ui <- function(id) {
 
 
 mod_survey_insights_overview_server <- function(
-  id,
-  pool = NULL,
-  selected_property_ids = NULL,
-  selected_competitor_ids = NULL,
-  selected_date_range = NULL
+    id,
+    pool = NULL,
+    selected_property_ids = NULL,
+    selected_competitor_ids = NULL,
+    selected_date_range = NULL
 ) {
   shiny::moduleServer(
     id,

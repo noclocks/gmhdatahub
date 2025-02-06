@@ -211,7 +211,8 @@ mod_survey_leasing_summary_ui <- function(id) {
 mod_survey_leasing_summary_server <- function(
     id,
     pool = NULL,
-    selected_property_id = NULL,
+    survey_data = NULL,
+    selected_filters = NULL,
     edit_survey_section = NULL
 ) {
 
@@ -219,6 +220,7 @@ mod_survey_leasing_summary_server <- function(
     id,
     function(input, output, session) {
 
+      # setup ------------------------------------------------------------
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_leasing_summary_server()")
 
@@ -226,72 +228,20 @@ mod_survey_leasing_summary_server <- function(
       if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
       check_db_conn(pool)
 
-      # handle selected property ID
-      if (is.null(selected_property_id)) {
-        # property_id <- db_read_tbl(pool, "mkt.properties", collect = FALSE) |>
-        #   dplyr::filter(.data$is_competitor == FALSE) |>
-        #   dplyr::pull("property_id")
-        selected_property_id <- shiny::reactive({
-          # property_id
-          session$userData$selected_survey_property()
-        })
-      }
-
+      # refresh trigger & validator
       db_refresh_trigger <- shiny::reactiveVal(0)
-
       iv <- leasing_summary_validator()
 
-      # selected_leasing_week <- shiny::reactive({
-      #   shiny::req(input$leasing_week)
-      #   input$leasing_week |> get_leasing_week_start_date()
-      # })
+      # data --------------------------------------------------------------------
+      shiny::observe({
+        shiny::req(survey_data$leasing_summary)
+
+      })
 
       leasing_summary_data <- shiny::reactive({
-        shiny::req(pool, selected_property_id(), session$userData$leasing_week())
-
-        db_read_mkt_leasing_summary(
-          pool,
-          property_id = selected_property_id(),
-          leasing_week = session$userData$leasing_week()
-        )
-      }) |>
-        shiny::bindEvent(
-          selected_property_id(),
-          session$userData$leasing_week(),
-          db_refresh_trigger()
-        )
-
-      # leasing_data_latest_leasing_week <- shiny::reactive({
-      #   browser()
-      #
-      #   db_read_mkt_leasing_summary(
-      #     pool,
-      #     property_id = selected_property_id()
-      #   ) |>
-      #     dplyr::pull("leasing_week") |>
-      #     max()
-      # })
-      #
-      # shiny::observeEvent(leasing_data_latest_leasing_week(),
-      #   {
-      #     if (leasing_data_latest_leasing_week() != session$userData$leasing_week()) {
-      #       shiny::updateDateInput(
-      #         session,
-      #         "leasing_week",
-      #         value = leasing_data_latest_leasing_week()
-      #       )
-      #       cli::cli_alert_warning(
-      #         "Leasing week has been updated to match the selected property's data."
-      #       )
-      #       shiny::showNotification(
-      #         "Leasing week has been updated to match the selected property's data.",
-      #         duration = 5000,
-      #         type = "warning"
-      #       )
-      #     }
-      #   },
-      #   once = TRUE
-      # )
+        shiny::req(survey_data$leasing_summary)
+        survey_data$leasing_summary
+      })
 
       inputs_data <- shiny::reactive({
         tibble::tibble(
