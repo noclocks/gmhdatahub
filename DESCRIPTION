@@ -33,6 +33,7 @@ Imports:
     glue,
     googleway,
     htmltools,
+    htmlwidgets,
     httr2,
     jsonlite,
     leaflet,
@@ -80,10 +81,11 @@ Suggests:
     testthat (>= 3.0.0)
 VignetteBuilder:
     knitr
-Remotes: 
-    kcuilla/reactablefmtr,
+Remotes:  
     noclocks/noClocksAuthR,
-    tiledb-inc/shinybg
+    kcuilla/reactablefmtr,
+    tiledb-inc/shinybg,
+    dreamRs/shinyWidgets
 Config/coverage/needs: covr covrpage
 Config/database/needs: config, DBI, pool, dbx, dplyr, dbplyr, RPostgres
 Config/excel/needs: openxlsx2, readxl, writexl, cellranger
