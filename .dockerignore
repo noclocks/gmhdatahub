@@ -2,6 +2,9 @@
 .Rhistory
 .git
 .gitignore
+.gitattributes
+.here
+.lintr
 manifest.json
 rsconnect/
 .Rproj.user
@@ -11,13 +14,14 @@ docs/
 CHANGELOG.md
 README.md
 codecov.yml
-config.yml
 index.md
 LICENSE
 LICENSE.md
 Makefile
 NEWS.md
 pkgdown/
+air.toml
+
 
 # Ignore generated credentials from google-github-actions/auth
 gha-creds-*.json

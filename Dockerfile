@@ -54,5 +54,8 @@ ENV R_CONFIG_ACTIVE="${CONFIG}"
 ENV SHINY_PORT=${PORT}
 ENV SHINY_HOST="0.0.0.0"
 
-CMD [ "R", "-e", "library(gmhdatahub); gmhdatahub::run_app(host = Sys.getenv('SHINY_HOST'), port = as.integer(Sys.getenv('SHINY_PORT')))" ]
+RUN mkdir -p /etc/gmhdatahub
+COPY config.yml /etc/gmhdatahub/config.yml
+ENV R_CONFIG_FILE=/etc/gmhdatahub/config.yml
 
+CMD [ "R", "-e", "library(gmhdatahub); gmhdatahub::run_app(host = Sys.getenv('SHINY_HOST'), port = as.integer(Sys.getenv('SHINY_PORT')))" ]
