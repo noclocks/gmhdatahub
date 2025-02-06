@@ -456,27 +456,9 @@ mod_survey_forms_server <- function(
         edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
-      # short term leases
-      mod_short_term_leases_data <- mod_survey_short_term_leases_server(
-        id = "short_term_leases",
-        pool = pool,
-        survey_data = survey_data,
-        selected_filters = selected_filters,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      )
-
       # fees
       mod_fees_data <- mod_survey_fees_server(
         id = "fees",
-        pool = pool,
-        survey_data = survey_data,
-        selected_filters = selected_filters,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      )
-
-      # parking
-      mod_parking_data <- mod_survey_parking_server(
-        id = "parking",
         pool = pool,
         survey_data = survey_data,
         selected_filters = selected_filters,
@@ -501,49 +483,76 @@ mod_survey_forms_server <- function(
         edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
+      # short term leases
+      # mod_short_term_leases_data <- mod_survey_short_term_leases_server(
+      #   id = "short_term_leases",
+      #   pool = pool,
+      #   survey_data = survey_data,
+      #   selected_filters = selected_filters,
+      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      # )
+
+      # parking
+      # mod_parking_data <- mod_survey_parking_server(
+      #   id = "parking",
+      #   pool = pool,
+      #   survey_data = survey_data,
+      #   selected_filters = selected_filters,
+      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      # )
+
       # utilities
-      mod_utilities_data <- mod_survey_utilities_server(
-        "utilities",
-        pool = pool,
-        survey_data = survey_data,
-        selected_filters = selected_filters,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      )
+      # mod_survey_utilities_data <- mod_survey_utilities_server(
+      #   "utilities",
+      #   pool = pool,
+      #   survey_data = survey_data,
+      #   selected_filters = selected_filters,
+      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      # )
+
+      # notes
+      # mod_notes_data <- mod_survey_notes_server(
+      #   "notes",
+      #   pool = pool,
+      #   survey_data = survey_data,
+      #   selected_filters = selected_filters,
+      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      # )
 
       # hours
-      mod_notes_data <- mod_survey_notes_server(
-        "notes",
-        pool = pool,
-        survey_data = survey_data,
-        selected_filters = selected_filters,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      )
+      # mod_hours_data <- mod_survey_hours_server(
+      #   "hours",
+      #   pool = pool,
+      #   survey_data = survey_data,
+      #   selected_filters = selected_filters,
+      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      # )
 
       # rents
-      mod_rents_data <- mod_survey_rents_server(
-        "rents",
-        pool = pool,
-        survey_data = survey_data,
-        selected_filters = selected_filters,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      )
+      # mod_rents_data <- mod_survey_rents_server(
+      #   "rents",
+      #   pool = pool,
+      #   survey_data = survey_data,
+      #   selected_filters = selected_filters,
+      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      # )
 
       # return ------------------------------------------------------------------
       return(
         list(
           selected_filters = selected_filters,
           survey_data = survey_data,
-          map_data = map_data,
-          mod_survey_property_summary_data,
-          mod_survey_leasing_summary_data,
-          mod_short_term_leases_data,
-          mod_fees_data,
-          mod_parking_data,
-          mod_survey_property_amenities_data,
-          mod_survey_unit_amenities_data,
-          mod_utilities_data,
-          mod_notes_data,
-          mod_rents_data
+          map_data = map_data#,
+          # mod_survey_property_summary_data,
+          # mod_survey_leasing_summary_data,
+          # mod_short_term_leases_data,
+          # mod_fees_data,
+          # mod_parking_data,
+          # mod_survey_property_amenities_data,
+          # mod_survey_unit_amenities_data,
+          # mod_utilities_data,
+          # mod_notes_data,
+          # mod_rents_data
         )
       )
     }
