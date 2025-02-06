@@ -271,7 +271,9 @@ mod_survey_property_summary_server <- function(
     survey_data = NULL,
     map_data = NULL,
     selected_filters = NULL,
-    edit_survey_section = NULL) {
+    db_trigger_func = NULL,
+    edit_survey_section = NULL
+) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
@@ -698,6 +700,7 @@ mod_survey_property_summary_server <- function(
 
         # Trigger a refresh of the property data
         db_refresh_trigger(db_refresh_trigger() + 1)
+        db_trigger_func()
         shiny::removeModal()
       })
 
