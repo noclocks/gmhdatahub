@@ -228,7 +228,7 @@ mod_survey_rents_server <- function(
           stretchH = "all",
           width = "100%"
         ) |>
-          rhansontable::hot_table(highlightCol = TRUE, highlightRow = TRUE) |>
+          rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE) |>
           rhandsontable::hot_col(1, type = "dropdown", source = get_survey_choices("floorplans", "floorplan_type"), halign = "htCenter") |>
           rhandsontable::hot_col(2, halign = "htCenter") |>
           rhandsontable::hot_col(3, type = "numeric", halign = "htCenter") |>
@@ -237,7 +237,7 @@ mod_survey_rents_server <- function(
           rhandsontable::hot_col(6, type = "numeric", halign = "htCenter") |>
           rhandsontable::hot_col(7, readOnly = TRUE, halign = "htCenter") |>
           rhandsontable::hot_col(8, type = "checkbox", halign = "htCenter") |>
-          rhansontable::hot_validate_numeric(cols = c(3:6), min = 0)
+          rhandsontable::hot_validate_numeric(cols = c(3:6), min = 0)
       })
 
       output$modal_rents <- rhandsontable::renderRHandsontable({
@@ -269,7 +269,7 @@ mod_survey_rents_server <- function(
           rhandsontable::hot_col(2, halign = "htCenter") |>
           rhandsontable::hot_col(3, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
           rhandsontable::hot_col(4, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
-          rhansontable::hot_validate_numeric(cols = c(3:4), min = 0)
+          rhandsontable::hot_validate_numeric(cols = c(3:4), min = 0)
       })
 
       output$modal_concessions_expenses <- rhandsontable::renderRHandsontable({
@@ -325,7 +325,7 @@ mod_survey_rents_server <- function(
           rhandsontable::hot_col(10, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
           rhandsontable::hot_col(11, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
           rhandsontable::hot_col(12, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
-          rhansontable::hot_validate_numeric(cols = c(3:12), min = 0)
+          rhandsontable::hot_validate_numeric(cols = c(3:12), min = 0)
       })
 
       # edit --------------------------------------------------------------------
