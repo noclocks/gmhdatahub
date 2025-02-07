@@ -25,7 +25,9 @@
 <url><loc>https://docs.noclocks.dev/gmhdatahub/reference/db_create_tbl.html</loc></url>
 <url><loc>https://docs.noclocks.dev/gmhdatahub/reference/db_read_sql.html</loc></url>
 <url><loc>https://docs.noclocks.dev/gmhdatahub/reference/db_tbl_exists.html</loc></url>
+<url><loc>https://docs.noclocks.dev/gmhdatahub/reference/decrypt_cfg_file.html</loc></url>
 <url><loc>https://docs.noclocks.dev/gmhdatahub/reference/dot-shared-params.html</loc></url>
+<url><loc>https://docs.noclocks.dev/gmhdatahub/reference/encrypt_cfg_file.html</loc></url>
 <url><loc>https://docs.noclocks.dev/gmhdatahub/reference/geocode_address.html</loc></url>
 <url><loc>https://docs.noclocks.dev/gmhdatahub/reference/get_academic_year.html</loc></url>
 <url><loc>https://docs.noclocks.dev/gmhdatahub/reference/get_db_conn.html</loc></url>
