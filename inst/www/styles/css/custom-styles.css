@@ -1,3 +1,12 @@
 .handsontableInput {
   width: fit-content !important;
 }
+
+.modal-dialog {
+  max-width: 90%;
+}
+
+.rhandsontable-container {
+  width: 100% !important;
+  overflow-x: auto;
+}
