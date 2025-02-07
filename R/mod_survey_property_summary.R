@@ -267,6 +267,7 @@ mod_survey_property_summary_server <- function(
   shiny::moduleServer(
     id,
     function(input, output, session) {
+
       # setup ------------------------------------------------------------
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_property_summary_server()")
@@ -289,7 +290,7 @@ mod_survey_property_summary_server <- function(
 
       # data --------------------------------------------------------------------
       property_data <- shiny::reactive({
-        shiny::req(nrow(survey_data$property_summary) > 0)
+        shiny::req(survey_data$property_summary)
         survey_data$property_summary
       })
 

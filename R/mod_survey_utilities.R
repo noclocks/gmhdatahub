@@ -42,12 +42,61 @@ NULL
 #' @importFrom htmltools tagList tags
 #' @importFrom bslib card
 mod_survey_utilities_ui <- function(id) {
+
   ns <- shiny::NS(id)
 
   htmltools::tagList(
-    bslib::card(
-      reactable::reactableOutput(ns("survey_core_utilities_tbl")),
-      reactable::reactableOutput(ns("survey_other_utilities_tbl"))
+    bslib::page_fluid(
+      bslib::card(
+        full_screen = TRUE,
+        class = "mx-auto",
+        bslib::card_header(
+          class = "bg-primary text-white",
+          htmltools::tags$h4(
+            bsicons::bs_icon("plug"),
+            htmltools::tags$span(
+              "Utilities - ",
+              shiny::textOutput(ns("property_name_title"), inline = TRUE)
+            ),
+            shiny::actionButton(
+              ns("refresh"),
+              "Refresh Data",
+              icon = shiny::icon("sync"),
+              class = "btn-sm btn-outline-light float-end",
+              style = "width: auto;"
+            )
+          )
+        ),
+        bslib::card_body(
+          bslib::layout_columns(
+            col_widths = c(12),
+            bslib::card(
+              bslib::card_header(
+                "Core Utilities",
+                class = "bg-primary text-white"
+              ),
+              reactable::reactableOutput(ns("survey_core_utilities_tbl"))
+            ),
+            bslib::card(
+              bslib::card_header(
+                "Other Utilities",
+                class = "bg-primary text-white"
+              ),
+              reactable::reactableOutput(ns("survey_other_utilities_tbl"))
+            )
+          )
+        ),
+        bslib::card_footer(
+          class = "text-muted d-flex justify-content-between align-items-center",
+          htmltools::tags$small(
+            "Last Updated:",
+            htmltools::tags$span(
+              class = "fw-bold",
+              shiny::textOutput(ns("last_updated_at"), inline = TRUE)
+            )
+          )
+        )
+      )
     )
   )
 }
@@ -71,6 +120,7 @@ mod_survey_utilities_server <- function(
   shiny::moduleServer(
     id,
     function(input, output, session) {
+
       # setup ------------------------------------------------------------
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_utilities_server()")
@@ -133,6 +183,28 @@ mod_survey_utilities_server <- function(
           dplyr::select(-utility_category)
       })
 
+      # outputs -----------------------------------------------------------------
+      output$property_name_title <- shiny::renderText({
+        shiny::req(selected_filters)
+        prop_id <- selected_filters$property_id
+        comp_id <- selected_filters$competitor_id
+        prop_name <- selected_filters$property_name
+        if (is.na(comp_id)) {
+          paste0(prop_name, "(", prop_id, ")")
+        } else {
+          paste0(prop_name, "(Competitor #", comp_id, ")")
+        }
+      })
+
+      output$last_updated_at <- shiny::renderText({
+        shiny::req(survey_data$utilities)
+        survey_data$utilities$updated_at |>
+          dplyr::pull("updated_at") |>
+          max(na.rm = TRUE) |>
+          format("%Y-%m-%d %H:%M:%S")
+      })
+
+      # tables ------------------------------------------------------------------
       output$survey_core_utilities_tbl <- reactable::renderReactable({
         shiny::req(core_utilities_data())
 
@@ -267,6 +339,8 @@ mod_survey_utilities_server <- function(
           rhandsontable::hot_col(col = 6, type = "numeric")
       })
 
+
+      # edit --------------------------------------------------------------------
       shiny::observeEvent(edit_survey_section(), {
         shiny::req(session$userData$selected_survey_tab())
 
@@ -296,10 +370,8 @@ mod_survey_utilities_server <- function(
         )
       })
 
-
-
+      # save --------------------------------------------------------------------
       shiny::observeEvent(input$save, {
-
         if (!is.na(selected_filters$competitor_id) && !is.null(selected_filters$competitor_id)) {
           prop_id <- NA_integer_
           comp_id <- selected_filters$competitor_id
@@ -440,5 +512,3 @@ mod_survey_utilities_demo <- function() {
 
   shiny::shinyApp(ui, server)
 }
-
-# utilities ---------------------------------------------------------------

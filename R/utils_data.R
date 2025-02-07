@@ -29,6 +29,61 @@ default_tbl_survey_utilities <- function() {
   )
 }
 
+default_tbl_survey_parking <- function() {
+  tibble::tibble(
+    parking_type = get_survey_choices("parking", "parking_type"),
+    is_required = FALSE,
+    is_included = FALSE,
+    amount = 0.00
+  )
+}
+
+default_tbl_survey_notes <- function() {
+  tibble::tibble(
+    note_id = NA_integer_,
+    note_type = NA_character_,
+    note_actionable = as.logical(NA),
+    note_status = NA_character_,
+    note_tags = NA_character_,
+    note_content = NA_character_
+  )
+}
+
+default_tbl_survey_short_term_leases <- function() {
+  tibble::tibble(
+    term_months = c(5, 10),
+    is_available = FALSE,
+    premium = 0.00,
+    quantity = 0
+  )
+}
+
+default_tbl_survey_hours <- function() {
+  tibble::tibble(
+    day_of_week = c(
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ),
+    open_time = c(
+      rep("09:00", 5),
+      rep("10:00", 2)
+    ) |>
+      as.POSIXct(format = "%H:%M") |>
+      format("%I:%M %p"),
+    close_time = c(
+      rep("18:00", 5),
+      rep("17:00", 2)
+    ) |>
+      as.POSIXct(format = "%H:%M") |>
+      format("%I:%M %p")
+  )
+}
+
 derive_tbl_totals <- function(data, count_cols = NULL, sum_cols = NULL, avg_cols = NULL) {
   cols <- c(count_cols, sum_cols, avg_cols)
   validate_col_names(data, cols)
