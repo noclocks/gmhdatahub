@@ -42,6 +42,7 @@ NULL
 #' @importFrom htmltools tagList tags
 #' @importFrom bslib card
 mod_survey_rents_ui <- function(id) {
+
   ns <- shiny::NS(id)
 
   htmltools::tagList(
@@ -54,7 +55,13 @@ mod_survey_rents_ui <- function(id) {
           htmltools::tags$h2(
             bsicons::bs_icon("house"),
             "Rents by Floorplan",
-            class = "mb-2"
+            shiny::actionButton(
+              ns("refresh"),
+              "Refresh Data",
+              icon = shiny::icon("sync"),
+              class = "btn-sm btn-outline-light float-end",
+              style = "width: auto;"
+            )
           ),
           htmltools::tags$p(
             class = "lead mb-0",
@@ -67,7 +74,7 @@ mod_survey_rents_ui <- function(id) {
           )
         ),
         bslib::card_footer(
-          # shiny::textOutput(ns("last_updated"))
+          shiny::textOutput(ns("rents_by_floorplan_last_updated"))
         )
       ),
       bslib::card(
@@ -91,7 +98,7 @@ mod_survey_rents_ui <- function(id) {
           )
         ),
         bslib::card_footer(
-          # shiny::textOutput(ns("last_updated"))
+          shiny::textOutput(ns("avg_rents_last_updated"))
         )
       )
     )
@@ -108,12 +115,16 @@ mod_survey_rents_ui <- function(id) {
 mod_survey_rents_server <- function(
     id,
     pool = NULL,
-    selected_property_id = NULL,
-    selected_competitor_id = NULL,
-    edit_survey_section = NULL) {
+    survey_data = NULL,
+    selected_filters = NULL,
+    db_trigger_func = NULL,
+    edit_survey_section = NULL
+) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
+
+      # setup ------------------------------------------------------------
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_rents_server()")
 
@@ -121,28 +132,21 @@ mod_survey_rents_server <- function(
       if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
       check_db_conn(pool)
 
-      # handle selected property ID
-      if (is.null(selected_property_id)) {
-        prop_id <- get_property_id_by_name("1047 Commonwealth Avenue")
-        selected_property_id <- shiny::reactive({
-          prop_id
-        })
-        selected_property_name <- shiny::reactive({
-          get_property_name_by_id(prop_id)
-        })
-      }
-
-      # handle selected competitor ID
-      if (is.null(selected_competitor_id)) {
-        selected_competitor_id <- shiny::reactive({
-          "none"
-        })
-      }
-
-      # initialize reactives
-      initial_data <- shiny::reactiveVal()
-      input_changes <- shiny::reactiveVal(0)
+      # refresh trigger & validator
       db_refresh_trigger <- shiny::reactiveVal(0)
+      iv <- shinyvalidate::InputValidator$new()
+
+      # filters -----------------------------------------------------------------
+      shiny::observe({
+        shiny::req(selected_filters)
+        if (is.null(selected_filters$competitor_id) && is.null(selected_filters$property_id)) {
+          selected_filters$property_id <- 739085
+        }
+      })
+
+      # data --------------------------------------------------------------------
+      initial_data <- shiny::reactiveVal(0)
+      input_changes <- shiny::reactiveVal(0)
 
       # selected property/competitor ID
       current_id <- shiny::reactive({

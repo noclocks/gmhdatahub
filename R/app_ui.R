@@ -176,7 +176,7 @@ app_ui <- function(req = NULL) {
         bslib::nav_item(
           tags$a(
             icon("github"), "GitHub",
-            href = "#",
+            href = "https://docs.noclocks.dev/gmhdatahub/",
             target = "_blank"
           )
         )

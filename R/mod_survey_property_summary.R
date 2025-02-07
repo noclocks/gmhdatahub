@@ -53,139 +53,145 @@ mod_survey_property_summary_ui <- function(id) {
         class = "mx-auto",
         bslib::card_header(
           class = "bg-primary text-white",
-          htmltools::tags$span(
-            htmltools::tags$h2(
-              bsicons::bs_icon("building"),
-              "Property Summary",
-              shiny::actionButton(
-                ns("refresh"),
-                "Refresh Data",
-                icon = shiny::icon("sync"),
-                class = "btn-sm btn-outline-light float-end",
-                style = "width: auto;"
-              ),
-              class = "mb-2"
+          htmltools::tags$h4(
+            bsicons::bs_icon("building"),
+            htmltools::tags$span(
+              "Property Summary - ",
+              shiny::textOutput(ns("property_name_title"), inline = TRUE)
             ),
-            htmltools::tags$p(
-              shiny::textOutput(ns("property_name_title")),
-              class = "lead mb-0"
+            shiny::actionButton(
+              ns("refresh"),
+              "Refresh Data",
+              icon = shiny::icon("sync"),
+              class = "btn-sm btn-outline-light float-end",
+              style = "width: auto;"
             )
           )
         ),
         bslib::card_body(
           bslib::layout_columns(
-            col_widths = c(7, 5),
+            col_widths = c(4, 4, 4),
             gap = "1rem",
             # property information ----------------------------------------------------
             bslib::card(
               bslib::card_header(
                 class = "bg-primary text-white",
-                htmltools::tags$h4(bsicons::bs_icon("info-circle"), " Property Information"),
-                htmltools::tags$small("View and edit various property details.")
+                htmltools::tags$h5(bsicons::bs_icon("info-circle"), " Property Information")
               ),
               bslib::card_body(
-                bslib::layout_columns(
-                  col_widths = c(6, 6),
-                  bslib::card(
-                    bslib::card_header(
-                      class = "bg-primary text-white",
-                      htmltools::tags$p(
-                        bsicons::bs_icon("building"),
-                        htmltools::tags$strong(" Property Name: "),
-                        shiny::textOutput(ns("property_name"), inline = TRUE)
-                      )
-                    ),
-                    bslib::card_body(
-                      htmltools::tags$p(
-                        bsicons::bs_icon("buildings"),
-                        htmltools::tags$strong(" Developer: "),
-                        shiny::textOutput(ns("developer"), inline = TRUE)
-                      ),
-                      htmltools::tags$p(
-                        bsicons::bs_icon("person-workspace"),
-                        htmltools::tags$strong(" Manager: "),
-                        shiny::textOutput(ns("manager"), inline = TRUE)
-                      ),
-                      htmltools::tags$p(
-                        bsicons::bs_icon("people"),
-                        htmltools::tags$strong(" Owner: "),
-                        shiny::textOutput(ns("owner"), inline = TRUE)
-                      ),
-                      htmltools::tags$p(
-                        bsicons::bs_icon("house"),
-                        htmltools::tags$strong(" Type: "),
-                        shiny::textOutput(ns("type"), inline = TRUE)
-                      ),
-                      htmltools::tags$p(
-                        bsicons::bs_icon("info-circle"),
-                        htmltools::tags$strong(" Status: "),
-                        shiny::textOutput(ns("status"), inline = TRUE)
-                      ),
-                      htmltools::tags$p(
-                        bsicons::bs_icon("graph-up"),
-                        htmltools::tags$strong(" Comp Status: "),
-                        shiny::textOutput(ns("comp_status"), inline = TRUE)
-                      ),
-                      htmltools::tags$p(
-                        bsicons::bs_icon("calendar2-date"),
-                        htmltools::tags$strong(" Year Built: "),
-                        shiny::textOutput(ns("year_built"), inline = TRUE)
-                      ),
-                      htmltools::tags$p(
-                        bsicons::bs_icon("cash-stack"),
-                        htmltools::tags$strong(" Last Sale: "),
-                        shiny::textOutput(ns("last_sale"), inline = TRUE)
-                      ),
-                      htmltools::tags$p(
-                        bsicons::bs_icon("geo-alt"),
-                        htmltools::tags$strong(" Distance: "),
-                        shiny::textOutput(ns("distance"), inline = TRUE)
-                      )
-                    )
+                htmltools::tags$small("View and edit various property details."),
+                htmltools::tags$p(
+                  bsicons::bs_icon("building"),
+                  htmltools::tags$strong(" Property Name: "),
+                  shiny::textOutput(ns("property_name"), inline = TRUE)
+                ),
+                htmltools::tags$p(
+                  bsicons::bs_icon("buildings"),
+                  htmltools::tags$strong(" Developer: "),
+                  shiny::textOutput(ns("developer"), inline = TRUE)
+                ),
+                htmltools::tags$p(
+                  bsicons::bs_icon("person-workspace"),
+                  htmltools::tags$strong(" Manager: "),
+                  shiny::textOutput(ns("manager"), inline = TRUE)
+                ),
+                htmltools::tags$p(
+                  bsicons::bs_icon("people"),
+                  htmltools::tags$strong(" Owner: "),
+                  shiny::textOutput(ns("owner"), inline = TRUE)
+                ),
+                htmltools::tags$p(
+                  bsicons::bs_icon("house"),
+                  htmltools::tags$strong(" Type: "),
+                  shiny::textOutput(ns("type"), inline = TRUE)
+                ),
+                htmltools::tags$p(
+                  bsicons::bs_icon("info-circle"),
+                  htmltools::tags$strong(" Status: "),
+                  shiny::textOutput(ns("status"), inline = TRUE)
+                ),
+                htmltools::tags$p(
+                  bsicons::bs_icon("graph-up"),
+                  htmltools::tags$strong(" Comp Status: "),
+                  shiny::textOutput(ns("comp_status"), inline = TRUE)
+                ),
+                htmltools::tags$p(
+                  bsicons::bs_icon("calendar2-date"),
+                  htmltools::tags$strong(" Year Built: "),
+                  shiny::textOutput(ns("year_built"), inline = TRUE)
+                ),
+                htmltools::tags$p(
+                  bsicons::bs_icon("cash-stack"),
+                  htmltools::tags$strong(" Last Sale: "),
+                  shiny::textOutput(ns("last_sale"), inline = TRUE)
+                ),
+                htmltools::tags$p(
+                  bsicons::bs_icon("geo-alt"),
+                  htmltools::tags$strong(" Distance: "),
+                  shiny::textOutput(ns("distance"), inline = TRUE)
+                ),
+                htmltools::tags$p(
+                  bsicons::bs_icon("star"),
+                  htmltools::tags$strong(" Property Rating: "),
+                  shiny::textOutput(ns("property_rating"), inline = TRUE)
+                ),
+                htmltools::tags$p(
+                  bsicons::bs_icon("globe"),
+                  htmltools::tags$strong(" Website: "),
+                  htmltools::tags$a(
+                    shiny::textOutput(ns("website_url"), inline = TRUE),
+                    href = "#",
+                    target = "_blank"
+                  )
+                ),
+                htmltools::tags$p(
+                  bsicons::bs_icon("geo-alt"),
+                  htmltools::tags$strong(" Address: "),
+                  shiny::textOutput(ns("address"), inline = TRUE)
+                ),
+                htmltools::tags$p(
+                  bsicons::bs_icon("envelope"),
+                  htmltools::tags$strong(" Email: "),
+                  shiny::textOutput(ns("email"), inline = TRUE)
+                ),
+                htmltools::tags$p(
+                  bsicons::bs_icon("phone"),
+                  htmltools::tags$strong(" Phone: "),
+                  shiny::textOutput(ns("phone"), inline = TRUE)
+                )
+              )
+            ),
+            bslib::layout_columns(
+              col_widths = c(12),
+              # property image ----------------------------------------------------------
+              bslib::card(
+                bslib::card_header(
+                  class = "bg-primary text-white",
+                  htmltools::tags$h5(bsicons::bs_icon("image"), " Property Image")
+                ),
+                bslib::card_body(
+                  style = "overflow-y: visible;",
+                  htmltools::tags$small(
+                    "Click the image to visit the property's website."
                   ),
-                  bslib::card(
-                    bslib::card_header(
-                      class = "bg-primary text-white",
-                      htmltools::tags$p(bsicons::bs_icon("image"), " Property Image")
-                    ),
-                    bslib::card_body(
-                      style = "overflow-y: visible;",
-                      htmltools::tags$div(
-                        class = "position-relative",
-                        shiny::uiOutput(ns("property_image_card")),
-                        htmltools::tags$br(),
-                        shiny::uiOutput(ns("rating_stars"))
-                      ),
-                      htmltools::tags$p(
-                        bsicons::bs_icon("star"),
-                        htmltools::tags$strong(" Property Rating: "),
-                        shiny::textOutput(ns("property_rating"), inline = TRUE)
-                      ),
-                      htmltools::tags$p(
-                        bsicons::bs_icon("globe"),
-                        htmltools::tags$strong(" Website: "),
-                        htmltools::tags$a(
-                          shiny::textOutput(ns("website_url"), inline = TRUE),
-                          href = "#",
-                          target = "_blank"
-                        )
-                      ),
-                      htmltools::tags$p(
-                        bsicons::bs_icon("geo-alt"),
-                        htmltools::tags$strong(" Address: "),
-                        shiny::textOutput(ns("address"), inline = TRUE)
-                      ),
-                      htmltools::tags$p(
-                        bsicons::bs_icon("envelope"),
-                        htmltools::tags$strong(" Email: "),
-                        shiny::textOutput(ns("email"), inline = TRUE)
-                      ),
-                      htmltools::tags$p(
-                        bsicons::bs_icon("phone"),
-                        htmltools::tags$strong(" Phone: "),
-                        shiny::textOutput(ns("phone"), inline = TRUE)
-                      )
-                    )
+                  htmltools::tags$div(
+                    class = "position-relative",
+                    shiny::uiOutput(ns("property_image_card")),
+                    htmltools::tags$br(),
+                    shiny::uiOutput(ns("rating_stars"))
+                  )
+                )
+              ),
+              # property description ----------------------------------------------------
+              bslib::card(
+                bslib::card_header(
+                  class = "bg-primary text-white",
+                  htmltools::tags$p(bsicons::bs_icon("info-circle"), " Property Description")
+                ),
+                bslib::card_body(
+                  htmltools::tags$small("View the property's description and details."),
+                  htmltools::tags$p(
+                    shiny::textOutput(ns("property_description"))
                   )
                 )
               )
@@ -196,47 +202,13 @@ mod_survey_property_summary_ui <- function(id) {
               min_height = "300px",
               bslib::card_header(
                 class = "bg-primary text-white",
-                htmltools::tags$h4(bsicons::bs_icon("map"), " Property Map"),
-                htmltools::tags$small("View the property location on the map.")
+                htmltools::tags$h4(bsicons::bs_icon("map"), " Property Map")
               ),
               bslib::card_body(
-                class = "p-0",
+                htmltools::tags$small("View the property location on the map."),
                 leaflet::leafletOutput(ns("property_map"), height = "500px"),
                 htmltools::tags$small(
                   "Click the markers for more information."
-                )
-              )
-            )
-          ),
-          bslib::layout_columns(
-            col_widths = c(12),
-            bslib::card(
-              # property description
-              bslib::card_header(
-                class = "bg-primary text-white",
-                htmltools::tags$p(bsicons::bs_icon("info-circle"), " Property Description"),
-                htmltools::tags$small("View the property's description and details.")
-              ),
-              bslib::card_body(
-                htmltools::tags$p(
-                  shiny::textOutput(ns("property_description"))
-                )
-              )
-            )
-          ),
-          bslib::layout_columns(
-            col_widths = c(12),
-            bslib::card(
-              bslib::card_header(
-                class = "bg-primary text-white",
-                htmltools::tags$p(bsicons::bs_icon("clock"), " Property History"),
-                htmltools::tags$small("View the property's history and updates.")
-              ),
-              bslib::card_body(
-                htmltools::tags$p(
-                  bsicons::bs_icon("calendar2-date"),
-                  htmltools::tags$strong(" Last Updated: "),
-                  shiny::textOutput(ns("last_updated_at"), inline = TRUE)
                 )
               )
             )
@@ -249,6 +221,24 @@ mod_survey_property_summary_ui <- function(id) {
             "Last Updated:",
             htmltools::tags$span(
               class = "fw-bold",
+              shiny::textOutput(ns("last_updated_at"), inline = TRUE)
+            )
+          )
+        )
+      ),
+      # history -----------------------------------------------------------------
+      bslib::layout_columns(
+        col_widths = c(12),
+        bslib::card(
+          bslib::card_header(
+            class = "bg-primary text-white",
+            htmltools::tags$p(bsicons::bs_icon("clock"), " Property Summary History")
+          ),
+          bslib::card_body(
+            htmltools::tags$small("View the property's history and updates."),
+            htmltools::tags$p(
+              bsicons::bs_icon("calendar2-date"),
+              htmltools::tags$strong(" Last Updated: "),
               shiny::textOutput(ns("last_updated_at"), inline = TRUE)
             )
           )
@@ -483,7 +473,7 @@ mod_survey_property_summary_server <- function(
 
       # edit modal --------------------------------------------------------------
       shiny::observeEvent(edit_survey_section(), {
-        shiny::req(session$userData$selected_survey_tab(), property_data())
+        shiny::req(session$userData$selected_survey_tab, property_data())
 
         if (session$userData$selected_survey_tab() != "nav_property_summary") {
           return()
@@ -497,7 +487,7 @@ mod_survey_property_summary_server <- function(
         shiny::showModal(
           shiny::modalDialog(
             title = "Edit Property Information",
-            size = "l",
+            size = "xl",
             easyClose = TRUE,
             bslib::layout_columns(
               col_widths = c(6, 6),
@@ -632,7 +622,10 @@ mod_survey_property_summary_server <- function(
                     )
                   )
                 )
-              ),
+              )
+            ),
+            bslib::layout_columns(
+              col_widths = c(12),
               shiny::textAreaInput(
                 session$ns("description_input"),
                 "Description",
@@ -869,12 +862,22 @@ mod_survey_property_summary_demo <- function(pool = NULL) {
       property_summary = db_read_survey_property_summary(pool, property_id = shiny::isolate(selected_filters$property_id))
     )
 
+    session$userData$selected_survey_tab <- shiny::reactiveVal("nav_property_summary")
+
+    db_trigger_func <- function() {
+      survey_data$property_summary <- db_read_survey_property_summary(
+        pool,
+        property_id = selected_filters$property_id
+      )
+    }
+
     mod_survey_property_summary_server(
       "demo",
       pool = pool,
       survey_data = survey_data,
       map_data = map_data,
       selected_filters = selected_filters,
+      db_trigger_func = db_trigger_func,
       edit_survey_section = edit_survey_section
     )
   }

@@ -179,7 +179,9 @@ mod_dashboard_ui <- function(id) {
 mod_dashboard_server <- function(
     id,
     pool = NULL,
-    global_filters = NULL) {
+    global_filters = NULL
+) {
+
   shiny::moduleServer(
     id,
     function(input, output, session) {
@@ -194,7 +196,7 @@ mod_dashboard_server <- function(
         db_read_gmh_pre_lease_summary_tbl(
           pool = pool,
           report_date = NULL,
-          property_ids = NULL # filter_property_ids
+          property_ids = NULL
         )
       })
 

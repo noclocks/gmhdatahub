@@ -124,6 +124,12 @@ mod_survey_forms_ui <- function(id) {
           mod_survey_utilities_ui(ns("utilities"))
         ),
         bslib::nav_panel(
+          title = "Hours",
+          value = "nav_hours",
+          icon = bsicons::bs_icon("clock"),
+          mod_survey_hours_ui(ns("hours"))
+        ),
+        bslib::nav_panel(
           title = "Rents",
           value = "nav_rents",
           icon = bsicons::bs_icon("currency-dollar"),
@@ -316,7 +322,8 @@ mod_survey_forms_server <- function(
         utilities = NULL,
         hours = NULL,
         notes = NULL,
-        rents = NULL
+        rents_by_floorplan = NULL,
+        avg_rents = NULL
       )
 
       # map data -------------------------------------------------------
@@ -345,77 +352,84 @@ mod_survey_forms_server <- function(
           detail = "This may take a few moments.",
           value = 0,
           {
-            shiny::incProgress(1 / 12, detail = "Retrieving Property Summary Data...")
+            shiny::incProgress(1 / 13, detail = "Retrieving Property Summary Data...")
             survey_data$property_summary <- db_read_survey_property_summary(
               pool,
               property_id = prop_id,
               competitor_id = comp_id
             )
-            shiny::incProgress(1 / 12, detail = "Retrieving Leasing Summary Data...")
+            shiny::incProgress(1 / 13, detail = "Retrieving Leasing Summary Data...")
             survey_data$leasing_summary <- db_read_survey_leasing_summary(
               pool,
               property_id = prop_id,
               competitor_id = comp_id,
               leasing_week_id = week_id
             )
-            shiny::incProgress(1 / 12, detail = "Retrieving Short Term Leases Data...")
+            shiny::incProgress(1 / 13, detail = "Retrieving Short Term Leases Data...")
             survey_data$short_term_leases <- db_read_survey_short_term_leases(
               pool,
               property_id = prop_id,
               competitor_id = comp_id,
               leasing_week_id = week_id
             )
-            shiny::incProgress(1 / 12, detail = "Retrieving Fees Data...")
+            shiny::incProgress(1 / 13, detail = "Retrieving Fees Data...")
             survey_data$fees <- db_read_survey_fees(
               pool,
               property_id = prop_id,
               competitor_id = comp_id,
               leasing_week_id = week_id
             )
-            shiny::incProgress(1 / 12, detail = "Retrieving Property Amenities Data...")
+            shiny::incProgress(1 / 13, detail = "Retrieving Property Amenities Data...")
             survey_data$property_amenities <- db_read_survey_property_amenities(
               pool,
               property_id = prop_id,
               competitor_id = comp_id
             )
-            shiny::incProgress(1 / 12, detail = "Retrieving Unit Amenities Data...")
+            shiny::incProgress(1 / 13, detail = "Retrieving Unit Amenities Data...")
             survey_data$unit_amenities <- db_read_survey_unit_amenities(
               pool,
               property_id = prop_id,
               competitor_id = comp_id
             )
-            shiny::incProgress(1 / 12, detail = "Retrieving Unit Amenities Rates & Premiums Data...")
+            shiny::incProgress(1 / 13, detail = "Retrieving Unit Amenities Rates & Premiums Data...")
             survey_data$unit_amenities_rates_premiums <- db_read_survey_unit_amenities_rates_premiums(
               pool,
               property_id = prop_id,
               competitor_id = comp_id
             )
-            shiny::incProgress(1 / 12, detail = "Retrieving Parking Data...")
+            shiny::incProgress(1 / 13, detail = "Retrieving Parking Data...")
             survey_data$parking <- db_read_survey_parking(
               pool,
               property_id = prop_id,
               competitor_id = comp_id
             )
-            shiny::incProgress(1 / 12, detail = "Retrieving Utilities Data...")
+            shiny::incProgress(1 / 13, detail = "Retrieving Utilities Data...")
             survey_data$utilities <- db_read_survey_utilities(
               pool,
               property_id = prop_id,
               competitor_id = comp_id
             )
-            shiny::incProgress(1 / 12, detail = "Retrieving Hours Data...")
+            shiny::incProgress(1 / 13, detail = "Retrieving Hours Data...")
             survey_data$hours <- db_read_survey_hours(
               pool,
               property_id = prop_id,
               competitor_id = comp_id
             )
-            shiny::incProgress(1 / 12, detail = "Retrieving Notes Data...")
+            shiny::incProgress(1 / 13, detail = "Retrieving Notes Data...")
             survey_data$notes <- db_read_survey_notes(
               pool,
               property_id = prop_id,
               competitor_id = comp_id
             )
-            shiny::incProgress(1 / 12, detail = "Retrieving Rents Data...")
+            shiny::incProgress(1 / 13, detail = "Retrieving Rents By Floorplan Data...")
             survey_data$rents <- db_read_survey_rents_by_floorplan(
+              pool,
+              property_id = prop_id,
+              competitor_id = comp_id,
+              leasing_week_id = week_id
+            )
+            shiny::incProgress(1 / 13, detail = "Retrieving Average Rents Data...")
+            survey_data$avg_rents <- db_read_survey_avg_rents(
               pool,
               property_id = prop_id,
               competitor_id = comp_id,
@@ -498,22 +512,22 @@ mod_survey_forms_server <- function(
       )
 
       # short term leases
-      # mod_short_term_leases_data <- mod_survey_short_term_leases_server(
-      #   id = "short_term_leases",
-      #   pool = pool,
-      #   survey_data = survey_data,
-      #   selected_filters = selected_filters,
-      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      # )
+      mod_short_term_leases_data <- mod_survey_short_term_leases_server(
+        id = "short_term_leases",
+        pool = pool,
+        survey_data = survey_data,
+        selected_filters = selected_filters,
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      )
 
       # parking
-      # mod_parking_data <- mod_survey_parking_server(
-      #   id = "parking",
-      #   pool = pool,
-      #   survey_data = survey_data,
-      #   selected_filters = selected_filters,
-      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      # )
+      mod_parking_data <- mod_survey_parking_server(
+        id = "parking",
+        pool = pool,
+        survey_data = survey_data,
+        selected_filters = selected_filters,
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      )
 
       # utilities
       mod_survey_utilities_data <- mod_survey_utilities_server(
@@ -526,48 +540,55 @@ mod_survey_forms_server <- function(
       )
 
       # notes
-      # mod_notes_data <- mod_survey_notes_server(
-      #   "notes",
-      #   pool = pool,
-      #   survey_data = survey_data,
-      #   selected_filters = selected_filters,
-      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      # )
+      mod_notes_data <- mod_survey_notes_server(
+        "notes",
+        pool = pool,
+        survey_data = survey_data,
+        selected_filters = selected_filters,
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      )
 
       # hours
-      # mod_hours_data <- mod_survey_hours_server(
-      #   "hours",
-      #   pool = pool,
-      #   survey_data = survey_data,
-      #   selected_filters = selected_filters,
-      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      # )
+      mod_hours_data <- mod_survey_hours_server(
+        "hours",
+        pool = pool,
+        survey_data = survey_data,
+        selected_filters = selected_filters,
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      )
 
       # rents
-      # mod_rents_data <- mod_survey_rents_server(
-      #   "rents",
-      #   pool = pool,
-      #   survey_data = survey_data,
-      #   selected_filters = selected_filters,
-      #   edit_survey_section = shiny::reactive({ input$edit_survey_section })
-      # )
+      mod_rents_data <- mod_survey_rents_server(
+        "rents",
+        pool = pool,
+        survey_data = survey_data,
+        selected_filters = selected_filters,
+        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+      )
+
+      # module data -------------------------------------------------------------
+      survey_mods_data <- shiny::reactive({
+
+      })
+
+
 
       # return ------------------------------------------------------------------
       return(
         list(
           selected_filters = selected_filters,
           survey_data = survey_data,
-          map_data = map_data # ,
-          # mod_survey_property_summary_data,
-          # mod_survey_leasing_summary_data,
-          # mod_short_term_leases_data,
-          # mod_fees_data,
-          # mod_parking_data,
-          # mod_survey_property_amenities_data,
-          # mod_survey_unit_amenities_data,
-          # mod_utilities_data,
-          # mod_notes_data,
-          # mod_rents_data
+          map_data = map_data,
+          mod_survey_property_summary_data,
+          mod_survey_leasing_summary_data,
+          mod_short_term_leases_data,
+          mod_fees_data,
+          mod_parking_data,
+          mod_survey_property_amenities_data,
+          mod_survey_unit_amenities_data,
+          mod_utilities_data,
+          mod_notes_data,
+          mod_rents_data
         )
       )
     }
