@@ -190,16 +190,19 @@ mod_survey_hours_server <- function(
       })
 
       output$modal_hours_table <- rhandsontable::renderRHandsontable({
+
+        shiny::req(hours_data())
+
+        tbl_data <- hours_data()
+
         rhandsontable::rhandsontable(
-          hours_data(),
+          tbl_data,
           colHeaders = c("Day of Week", "Open Time", "Close Time"),
-          rowHeaders = NULL,
-          comments = TRUE,
-          useTypes = TRUE
+          rowHeaders = NULL
         ) |>
-          rhandsontable::hot_col(1, readOnly = TRUE) |>
-          rhandsontable::hot_col(2) |>
-          rhandsontable::hot_col(3)
+          rhandsontable::hot_col("day_of_week", readOnly = TRUE) |>
+          rhandsontable::hot_col("open_time", type = "time") |>
+          rhandsontable::hot_col("close_time", type = "time")
       })
 
       # edit --------------------------------------------------------------------

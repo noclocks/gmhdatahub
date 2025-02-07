@@ -148,12 +148,12 @@ mod_survey_rents_server <- function(
 
       # rents by floorplan data
       rents_data <- shiny::reactive({
-        shiny::req(survey_data$rents_by_floorplan)
+        shiny::req(survey_data$rents)
 
-        if (nrow(survey_data$rents_by_floorplan) == 0) {
+        if (nrow(survey_data$rents) == 0) {
           default_tbl_survey_rents_by_floorplan()
         } else {
-          survey_data$rents_by_floorplan |>
+          survey_data$rents |>
             dplyr::select(
               "floorplan_type",
               "floorplan_id",
@@ -228,14 +228,16 @@ mod_survey_rents_server <- function(
           stretchH = "all",
           width = "100%"
         ) |>
-          rhandsontable::hot_col("floorplan_type", type = "dropdown", source = get_survey_choices("floorplans", "floorplan_type")) |>
-          rhandsontable::hot_col("floorplan_id") |>
-          rhandsontable::hot_col("square_feet", type = "numeric") |>
-          rhandsontable::hot_col("number_of_beds", type = "numeric") |>
-          rhandsontable::hot_col("number_of_baths", type = "numeric") |>
-          rhandsontable::hot_col("total_units_count", type = "numeric") |>
-          rhandsontable::hot_col("square_feet_per_bed", readOnly = TRUE) |>
-          rhandsontable::hot_col("available", type = "checkbox")
+          rhansontable::hot_table(highlightCol = TRUE, highlightRow = TRUE) |>
+          rhandsontable::hot_col(1, type = "dropdown", source = get_survey_choices("floorplans", "floorplan_type"), halign = "htCenter") |>
+          rhandsontable::hot_col(2, halign = "htCenter") |>
+          rhandsontable::hot_col(3, type = "numeric", halign = "htCenter") |>
+          rhandsontable::hot_col(4, type = "numeric", halign = "htCenter") |>
+          rhandsontable::hot_col(5, type = "numeric", halign = "htCenter") |>
+          rhandsontable::hot_col(6, type = "numeric", halign = "htCenter") |>
+          rhandsontable::hot_col(7, readOnly = TRUE, halign = "htCenter") |>
+          rhandsontable::hot_col(8, type = "checkbox", halign = "htCenter") |>
+          rhansontable::hot_validate_numeric(cols = c(3:6), min = 0)
       })
 
       output$modal_rents <- rhandsontable::renderRHandsontable({
@@ -262,10 +264,12 @@ mod_survey_rents_server <- function(
           stretchH = "all",
           width = "100%"
         ) |>
-          rhandsontable::hot_col("floorplan_type", type = "dropdown", source = get_survey_choices("floorplans", "floorplan_type")) |>
-          rhandsontable::hot_col("floorplan_id") |>
-          rhandsontable::hot_col("market_rent_per_bed", type = "numeric") |>
-          rhandsontable::hot_col("market_rent_per_square_foot", type = "numeric")
+          rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE) |>
+          rhandsontable::hot_col(1, type = "dropdown", source = get_survey_choices("floorplans", "floorplan_type"), halign = "htCenter") |>
+          rhandsontable::hot_col(2, halign = "htCenter") |>
+          rhandsontable::hot_col(3, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(4, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhansontable::hot_validate_numeric(cols = c(3:4), min = 0)
       })
 
       output$modal_concessions_expenses <- rhandsontable::renderRHandsontable({
@@ -308,18 +312,20 @@ mod_survey_rents_server <- function(
           stretchH = "all",
           width = "100%"
         ) |>
-          rhandsontable::hot_col("floorplan_type", type = "dropdown", source = get_survey_choices("floorplans", "floorplan_type")) |>
-          rhandsontable::hot_col("floorplan_id") |>
-          rhandsontable::hot_col("concessions_gift_card", type = "numeric") |>
-          rhandsontable::hot_col("concessions_one_time_rent", type = "numeric") |>
-          rhandsontable::hot_col("concessions_monthly_rent", type = "numeric") |>
-          rhandsontable::hot_col("expenses_furniture", type = "numeric") |>
-          rhandsontable::hot_col("expenses_tv", type = "numeric") |>
-          rhandsontable::hot_col("expenses_electricity_gas", type = "numeric") |>
-          rhandsontable::hot_col("expenses_water", type = "numeric") |>
-          rhandsontable::hot_col("expenses_cable_internet", type = "numeric") |>
-          rhandsontable::hot_col("expenses_trash_valet", type = "numeric") |>
-          rhandsontable::hot_col("expenses_parking", type = "numeric")
+          rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE) |>
+          rhandsontable::hot_col(1, type = "dropdown", source = get_survey_choices("floorplans", "floorplan_type"), halign = "htCenter") |>
+          rhandsontable::hot_col(2, halign = "htCenter") |>
+          rhandsontable::hot_col(3, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(4, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(5, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(6, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(7, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(8, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(9, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(10, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(11, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(12, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhansontable::hot_validate_numeric(cols = c(3:12), min = 0)
       })
 
       # edit --------------------------------------------------------------------

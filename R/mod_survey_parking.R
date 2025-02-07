@@ -155,8 +155,8 @@ mod_survey_parking_server <- function(
         tbl_data <- parking_data()
 
         reactable::reactable(
-          data,
-          defaultPageSize = nrow(data),
+          tbl_data,
+          defaultPageSize = nrow(tbl_data),
           searchable = TRUE,
           bordered = TRUE,
           striped = TRUE,
