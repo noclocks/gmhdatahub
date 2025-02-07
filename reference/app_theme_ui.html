@@ -34,7 +34,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>App Theme</h1>
-      <small class="dont-index">Source: <a href="https://github.com/noclocks/gmhdatahub/blob/develop/R/app_theme.R" class="external-link"><code>R/app_theme.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/noclocks/gmhdatahub/blob/main/R/app_theme.R" class="external-link"><code>R/app_theme.R</code></a></small>
       <div class="d-none name"><code>app_theme_ui.Rd</code></div>
     </div>
 
@@ -67,6 +67,28 @@ provide a value of <code>"bootstrap"</code> (this value will also work in
 <dd><p>The major version of Bootstrap to use (see <code><a href="https://rstudio.github.io/bslib/reference/versions.html" class="external-link">versions()</a></code>
 for possible values). Defaults to the currently recommended version
 for new projects (currently Bootstrap 5).</p></dd>
+
+    <dt><code>brand</code></dt>
+<dd><p>Specifies how to apply branding to your theme using
+<a href="https://posit-dev.github.io/brand-yml/" class="external-link">brand.yml</a>, a simple YAML file that
+defines key brand elements like colors, fonts, and logos. Valid options:</p><ul><li><p><code>NULL</code> (default): Automatically looks for a <code>_brand.yml</code> file in the
+current directory or in <code>_brand/</code> or <code>brand/</code> in the current directory.
+If not found, it searches parent project directories for a <code>_brand.yml</code>
+file (also possibly in <code>_brand/</code> or <code>brand/</code>). If a <code>_brand.yml</code> file is
+found, it is applied to the Bootstrap theme.</p></li>
+<li><p><code>TRUE</code> (default): Automatically looks for a <code>_brand.yml</code> file in the
+current or app directory as described above. If a <code>_brand.yml</code> file
+<em>is not found</em>, <code>bs_theme()</code> will throw an error.</p></li>
+<li><p><code>FALSE</code>: Disables any brand.yml usage, even if a <code>_brand.yml</code> file is
+present.</p></li>
+<li><p>A file path that directly points to a specific brand.yml file (with any
+file name) that you want to use.</p></li>
+<li><p>Use a list to directly provide brand settings directly in R, following
+the brand.yml structure.</p></li>
+</ul><p>Learn more about creating and using brand.yml files at the
+<a href="https://posit-dev.github.io/brand-yml/" class="external-link">brand.yml homepage</a> or run
+<code>shiny::runExample("brand.yml", package = "bslib")</code> to try brand.yml in a
+demo app.</p></dd>
 
     <dt><code>bg</code></dt>
 <dd><p>A color string for the background.</p></dd>
