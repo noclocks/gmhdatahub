@@ -48,7 +48,7 @@ mod_survey_forms_ui <- function(id) {
 
   htmltools::tagList(
     bslib::page_fluid(
-      bslib::navset_card_tab(
+      bslib::navset_card_underline(
         id = ns("survey_tabs"),
         title = "GMH Communities - Market Survey Sections",
         sidebar = bslib::sidebar(
