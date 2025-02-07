@@ -131,7 +131,8 @@ mod_survey_fees_server <- function(
 
       # data --------------------------------------------------------------------
       fees_data <- shiny::reactive({
-        shiny::req(nrow(survey_data$fees) > 0)
+        shiny::req(survey_data$fees)
+        browser()
         survey_data$fees
       })
 
@@ -157,7 +158,7 @@ mod_survey_fees_server <- function(
             ),
             footer = htmltools::tagList(
               shiny::actionButton(
-                ns("save_changes"),
+                ns("save"),
                 "Save",
                 class = "btn-primary"
               ),
@@ -216,19 +217,43 @@ mod_survey_fees_server <- function(
           )
       })
 
-      shiny::observeEvent(input$save_changes, {
-        shiny::req(pool, selected_property_id(), session$userData$leasing_week())
+      shiny::observeEvent(input$save, {
+
+        if (!is.na(selected_filters$competitor_id) && !is.null(selected_filters$competitor_id)) {
+          prop_id <- NULL
+          comp_id <- selected_filters$competitor_id
+        } else {
+          prop_id <- selected_filters$property_id
+          comp_id <- NULL
+        }
 
         new_values <- rhandsontable::hot_to_r(input$modal_survey_fees_table) |>
           dplyr::mutate(
-            property_id = selected_property_id(),
-            leasing_week = session$userData$leasing_week()
+            property_id = prop_id,
+            competitor_id = comp_id,
+            property_name = selected_filters$property_name,
+            leasing_week_id = selected_filters$leasing_week_id,
+            updated_by = session$userData$user_id
           ) |>
           dplyr::select(
             property_id,
-            leasing_week,
-            dplyr::everything()
+            competitor_id,
+            property_name,
+            leasing_week_id,
+            fee_name,
+            fee_amount,
+            fee_frequency,
+            updated_by
           )
+
+        db_update_survey_fees(pool, new_values)
+
+        # Trigger a refresh of the property data
+        db_refresh_trigger(db_refresh_trigger() + 1)
+        db_trigger_func()
+        shiny::removeModal()
+
+        new_values <-
 
         # browser()
 
