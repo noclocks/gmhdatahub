@@ -85,9 +85,14 @@ decrypt_cfg_file <- function(
     )
   }
 
-  cfg_file_encrypted <- fs::path_ext_remove(cfg_file) |>
-    paste0(".encrypted.yml") |>
-    fs::path()
+  # cfg_file_encrypted <- fs::path_ext_remove(cfg_file) |>
+  #   paste0(".encrypted.yml") |>
+  #   fs::path()
+
+  cfg_file_encrypted <- system.file(
+    "config/config.encrypted.yml",
+    package = "gmhdatahub"
+  )
 
   if (!fs::file_exists(cfg_file_encrypted)) {
     cli::cli_abort(
