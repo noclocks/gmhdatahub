@@ -4,6 +4,9 @@ ARG USER=shiny
 ARG UID=10001
 ARG PORT=8080
 ARG CONFIG="default"
+ARG NOCLOCKS_ENCRYPTION_KEY=""
+
+ENV NOCLOCKS_ENCRYPTION_KEY=${NOCLOCKS_ENCRYPTION_KEY}
 
 RUN apt-get update -y -qq && apt-get -y --no-install-recommends install \
   libpq-dev \

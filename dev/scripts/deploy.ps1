@@ -17,9 +17,7 @@ gcloud config set project $PROJECT_ID
 gcloud auth configure-docker "$REGION-docker.pkg.dev"
 
 # docker commands
-# build with argument for encryption key
-docker build --secret id=encryption_key,env=NOCLOCKS_ENCRYPTION_KEY -t gmh/gmhdatahub:latest .
-
+docker build --build-arg NOCLOCKS_ENCRYPTION_KEY=$ENV:NOCLOCKS_ENCRYPTION_KEY -t gmhdatahub:latest .
 $DOCKER_TAG = "$REGION-docker.pkg.dev/$PROJECT_ID/$SERVICE/$SERVICE" + ":${TAG}"
 docker tag gmh/gmhdatahub:latest $DOCKER_TAG
 docker push $DOCKER_TAG
