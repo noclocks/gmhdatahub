@@ -66,41 +66,17 @@ mod_survey_notes_ui <- function(id) {
               shiny::textOutput(ns("property_name_title"), inline = TRUE)
             ),
             shiny::actionButton(
+              ns("add_note"),
+              "Add New Note",
+              icon = shiny::icon("plus"),
+              class = "btn-sm btn-outline-success float-end"
+            ),
+            shiny::actionButton(
               ns("refresh"),
               "Refresh Data",
               icon = shiny::icon("sync"),
               class = "btn-sm btn-outline-light float-end",
               style = "width: auto;"
-            ),
-            shiny::actionButton(
-              ns("add_note"),
-              label = "Add Note",
-              icon = shiny::icon("plus"),
-              class = "btn-sm btn-outline-success float-end",
-            ),
-            shiny::selectInput(
-              ns("filter_status"),
-              NULL,
-              choices = c(
-                "All" = "",
-                "Pending" = "Pending",
-                "In Progress" = "In Progress",
-                "Complete" = "Complete",
-                "Cancelled" = "Cancelled"
-              ),
-              selected = "",
-              width = "150px"
-            ),
-            shiny::selectInput(
-              ns("filter_type"),
-              NULL,
-              choices = c(
-                "All Types" = "",
-                "Leasing Specials" = "Leasing Specials",
-                "Property Notes" = "Property Notes"
-              ),
-              selected = "",
-              width = "150px"
             )
           )
         ),
@@ -129,8 +105,37 @@ mod_survey_notes_ui <- function(id) {
             )
           ),
           bslib::layout_columns(
-            col_widths = c(12),
-            shiny::uiOutput(ns("notes_display"))
+            col_widths = c(6, 6),
+            bslib::card(
+              bslib::card_header(
+                class = "bg-primary text-white",
+                "Leasing Specials Notes"
+              ),
+              bslib::card_body(
+                shiny::textAreaInput(
+                  ns("leasing_specials_notes"),
+                  "Add Leasing Specials Notes",
+                  width = "100%",
+                  height = "150px",
+                  resize = "vertical"
+                )
+              )
+            ),
+            bslib::card(
+              bslib::card_header(
+                "Property Notes",
+                class = "bg-primary text-white"
+              ),
+              bslib::card_body(
+                shiny::textAreaInput(
+                  ns("property_notes"),
+                  "Add Property Notes",
+                  width = "100%",
+                  height = "150px",
+                  resize = "vertical"
+                )
+              )
+            )
           )
         ),
         bslib::card_footer(
@@ -188,6 +193,20 @@ mod_survey_notes_server <- function(
         }
       })
 
+      output$property_name_title <- shiny::renderText({
+        shiny::req(survey_data$notes)
+
+        prop_id <- survey_data$notes$property_id |> unique()
+        comp_id <- survey_data$notes$competitor_id |> unique()
+        prop_name <- survey_data$notes$property_name |> unique()
+
+        if (is.na(comp_id)) {
+          paste0(name, " (", prop_id, ")")
+        } else {
+          paste0(name, " (Competitor #", comp_id, ")")
+        }
+      })
+
       # data --------------------------------------------------------------------
       notes_data <- shiny::reactive({
         shiny::req(survey_data$notes)
@@ -202,24 +221,63 @@ mod_survey_notes_server <- function(
               note_actionable,
               note_status,
               note_tags,
-              note_content,
-              timestamp = updated_at,
-              submitted_by = updated_by
-            ) |>
-            dplyr::arrange(dplyr::desc(updated_at))
+              note_content
+            )
         }
       })
 
-      filtered_notes <- shiny::reactive({
+      output$last_updated_at <- shiny::renderText({
+        shiny::req(survey_data$notes)
+        survey_data$notes$updated_at |>
+          max(na.rm = TRUE) |>
+          format("%B %d, %Y %I:%M %p")
+      })
+
+      shiny::observe({
         shiny::req(notes_data())
-        notes <- notes_data()
-        if (!is.null(input$filter_status) && input$filter_status != "") {
-          notes <- notes[notes$status == input$filter_status, ]
+
+        # get note content - leasing specials
+        leasing_notes <- notes_data() |>
+          dplyr::filter(.data$note_type == "Leasing Specials") |>
+          dplyr::pull(.data$note_content) |>
+          # merge separating on separate lines
+          paste(collapse = "\n")
+
+        if (leasing_notes == "") {
+          shiny::updateTextAreaInput(
+            session,
+            "leasing_specials_notes",
+            value = NULL,
+            placeholder = "No leasing specials notes available."
+          )
+        } else {
+          shiny::updateTextAreaInput(
+            session,
+            "leasing_specials_notes",
+            value = leasing_notes
+          )
         }
-        if (!is.null(input$filter_type) && input$filter_type != "") {
-          notes <- notes[notes$note_type == input$filter_type, ]
+
+        property_notes <- notes_data() |>
+          dplyr::filter(.data$note_type == "Property Notes") |>
+          dplyr::pull(.data$note_content) |>
+          # merge separating on separate lines
+          paste(collapse = "\n")
+
+        if (property_notes == "") {
+          shiny::updateTextAreaInput(
+            session,
+            "property_notes",
+            value = NULL,
+            placeholder = "No property notes available."
+          )
+        } else {
+          shiny::updateTextAreaInput(
+            session,
+            "property_notes",
+            value = property_notes
+          )
         }
-        notes
       })
 
       # outputs -----------------------------------------------------------------
@@ -286,7 +344,7 @@ mod_survey_notes_server <- function(
             ),
             footer = htmltools::tagList(
               shiny::actionButton(
-                ns("add_note"),
+                ns("save"),
                 "Add Note",
                 icon = shiny::icon("plus"),
                 class = "btn-primary"
@@ -297,197 +355,37 @@ mod_survey_notes_server <- function(
         )
       })
 
-      # edit --------------------------------------------------------------------
-      # shiny::observe({
-      #   notes <- notes_data()
-      #   for (note in 1:nrow(notes)) {
-      #     local({
-      #
-      #       note_id <- notes$note_id
-      #
-      #       shiny::observeEvent(input[[paste0("edit_", note_id)]], {
-      #         current_edit_id(note_id)
-      #         current_note <- notes[notes$id == note_id, ]
-      #         shiny::showModal(
-      #           shiny::modalDialog(
-      #             title = "Edit Note",
-      #             size = "l",
-      #             shiny::textAreaInput(
-      #               ns("edit_text"),
-      #               "Note Content",
-      #               value = current_note$text,
-      #               height = "150px"
-      #             ),
-      #             shiny::textInput(
-      #               ns("edit_tags"),
-      #               "Tags (Comma-Separated)",
-      #               value = current_note$tags
-      #             ),
-      #             shiny::selectInput(
-      #               ns("edit_status"), "Status",
-      #               choices = c(
-      #                 "Pending",
-      #                 "In Progress",
-      #                 "Complete",
-      #                 "Cancelled"
-      #               ),
-      #               selected = current_note$status
-      #             ),
-      #             footer = htmltools::tagList(
-      #               shiny::actionButton(
-      #                 ns("save"),
-      #                 label = "Save Changes",
-      #                 class = "btn-primary",
-      #                 icon = shiny::icon("save")
-      #               ),
-      #               shiny::modalButton("Cancel")
-      #             ),
-      #             easyClose = TRUE
-      #           )
-      #         )
-      #       })
-      #     })
-      #   }
-      # })
 
-      # save --------------------------------------------------------------------
-      # shiny::observeEvent(input$save, {
-      #
-      #   notes <- notes_data()
-      #   note_id <- current_edit_id()
-      #
-      #   notes[notes$note_id == note_id, "note_content"] <- input$edit_text
-      #   notes[notes$note_id == note_id, "note_tags"] <- input$edit_tags
-      #   notes[notes$note_id == note_id, "note_status"] <- input$edit_status
-      #
-      #   shiny::withProgress(
-      #     message = "Saving changes...",
-      #     detail = "Please wait...",
-      #     value = 0,
-      #     {
-      #       db_update_survey_notes(pool, notes)
-      #       shiny::setProgress(1, detail = "Changes saved!")
-      #       shiny::showNotification("Note updated successfully!", type = "success")
-      #       db_trigger_func()
-      #       shiny::removeModal()
-      #     }
-      #   )
-      #
-      # })
+      shiny::observeEvent(input$save, {
 
-      # # Handle complete button clicks
-      # shiny::observe({
-      #   notes <- notes_data()
-      #   for (note in 1:nrow(notes)) {
-      #     local({
-      #       note_id <- notes$id[note]
-      #       shiny::observeEvent(input[[paste0("complete_", note_id)]], {
-      #         notes <- notes_data()
-      #         notes[notes$id == note_id, "status"] <- "completed"
-      #         notes_data(notes)
-      #         shiny::showNotification("Note marked as complete!", type = "success")
-      #       })
-      #     })
-      #   }
-      # })
-      #
-      # # Handle delete button clicks
-      # shiny::observe({
-      #   notes <- notes_data()
-      #   for (note in 1:nrow(notes)) {
-      #     local({
-      #       note_id <- notes$id[note]
-      #       shiny::observeEvent(input[[paste0("delete_", note_id)]], {
-      #         shiny::showModal(shiny::modalDialog(
-      #           title = "Confirm Deletion",
-      #           "Are you sure you want to delete this note?",
-      #           footer = tagList(
-      #             shiny::actionButton(session$ns(paste0("confirm_delete_", note_id)),
-      #                                 "Delete",
-      #                                 class = "btn-danger"
-      #             ),
-      #             shiny::modalButton("Cancel")
-      #           ),
-      #           easyClose = TRUE
-      #         ))
-      #       })
-      #
-      #       # Handle delete confirmation
-      #       shiny::observeEvent(input[[paste0("confirm_delete_", note_id)]], {
-      #         notes <- notes_data()
-      #         notes_data(notes[notes$id != note_id, ])
-      #         shiny::removeModal()
-      #         shiny::showNotification("Note deleted successfully!", type = "warning")
-      #       })
-      #     })
-      #   }
-      # })
-
-      # Render notes display
-      output$notes_display <- shiny::renderUI({
-        notes <- filtered_notes() # Use filtered notes instead of all notes
-
-        if (nrow(notes) == 0) {
-          return(
-            bslib::card_body(
-              htmltools::tags$div(
-                class = "text-center text-muted p-4",
-                shiny::icon("notebook"),
-                htmltools::tags$p("No notes have been submitted yet.")
-              )
-            )
+        new_note <- tibble::tibble(
+          note_type = input$note_type,
+          note_actionable = input$note_actionable,
+          note_status = input$note_status,
+          note_tags = input$note_tags,
+          note_content = input$note_content
+        ) |>
+          dplyr::mutate(
+            note_type = dplyr::coalesce(.data$note_type, "General"),
+            note_actionable = dplyr::coalesce(.data$note_actionable, FALSE),
+            note_status = dplyr::coalesce(.data$note_status, "Pending"),
+            note_tags = dplyr::coalesce(.data$note_tags, "{}")
           )
-        }
 
-        note_cards <- lapply(1:nrow(notes), function(i) {
-          create_note_card(notes[i, ], session$ns)
-        })
-
-        bslib::card_body(
-          htmltools::tags$div(
-            class = "note-cards",
-            style = "display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1rem;",
-            !!!note_cards
-          )
+        db_update_survey_notes(
+          pool,
+          new_note
         )
+
+        shiny::removeModal()
+        shiny::showNotification("Note added successfully!", duration = 5)
       })
 
-      # Handle note submission (modified to close modal)
-      shiny::observeEvent(input$add_note, {
-        shiny::req(
-          input$note_type,
-          input$note_actionable,
-          input$note_status,
-          input$note_tags,
-          input$note_content
+      return(
+        list(
+          notes_data = notes_data
         )
-
-        if (nchar(input$note_content) > 0) {
-          new_note <- tibble::tibble(
-            note_type = input$note_type,
-            note_actionable = input$note_actionable,
-            note_status = input$note_status,
-            note_tags = input$note_tags,
-            note_content = input$note_content
-          )
-        } else {
-          shiny::showNotification("Note content cannot be empty!", type = "warning")
-          shiny::removeModal()
-          return()
-        }
-
-        shiny::withProgress(
-          message = "Adding note...",
-          detail = "Please wait...",
-          value = 0,
-          {
-            # db_insert_survey_notes(pool, new_note)
-            shiny::setProgress(1, detail = "Note added!")
-            db_trigger_func()
-            shiny::removeModal()
-          }
-        )
-      })
+      )
     })
 }
 
