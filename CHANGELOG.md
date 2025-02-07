@@ -8,6 +8,7 @@
 
 ## Bug Fixes
 
+- Incorrect function name ([85c1364](https://github.com/noclocks/gmhdatahub/commit/85c136488c745ce601add739f822e3c26f4512f3))  - (Jimmy Briggs)
 - Fix user() ([94c1830](https://github.com/noclocks/gmhdatahub/commit/94c18306c9c0914ab6f552ae20c3b0785715e4a3))  - (Jimmy Briggs)
 - Remove table titles ([01bea97](https://github.com/noclocks/gmhdatahub/commit/01bea97e8ea659e6c375e83c17811b031ea63779))  - (Jimmy Briggs)
 - Fix utils ([f6a6694](https://github.com/noclocks/gmhdatahub/commit/f6a6694d7ad7ad656a5d0a80ecb62cb050c3d00d))  - (Jimmy Briggs)
