@@ -92,7 +92,7 @@ tbl_survey_fees <- function(fees_data) {
     striped = TRUE,
     highlight = TRUE,
     compact = TRUE,
-    defaultPageSize = nrow(rents_data),
+    defaultPageSize = nrow(fees_data),
     defaultSorted = list("fee_name" = "asc"),
     showPagination = FALSE,
     showSortable = TRUE,

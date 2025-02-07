@@ -42,11 +42,51 @@ NULL
 #' @importFrom htmltools tagList tags
 #' @importFrom bslib card
 mod_survey_parking_ui <- function(id) {
+
   ns <- shiny::NS(id)
 
   htmltools::tagList(
-    bslib::card(
-      reactable::reactableOutput(ns("survey_parking_tbl"))
+    # page --------------------------------------------------------------------
+    bslib::page_fluid(
+      # card --------------------------------------------------------------------
+      bslib::card(
+        full_screen = TRUE,
+        class = "mx-auto",
+        bslib::card_header(
+          class = "bg-primary text-white",
+          htmltools::tags$h4(
+            bsicons::bs_icon("car-front"),
+            htmltools::tags$span(
+              "Parking - ",
+              shiny::textOutput(ns("property_name_title"), inline = TRUE)
+            ),
+            shiny::actionButton(
+              ns("refresh"),
+              "Refresh Data",
+              icon = shiny::icon("sync"),
+              class = "btn-sm btn-outline-light float-end",
+              style = "width: auto;"
+            )
+          )
+        ),
+        bslib::card_body(
+          bslib::layout_columns(
+            col_widths = c(12),
+            reactable::reactableOutput(ns("survey_parking_tbl")) |>
+              with_loader()
+          )
+        ),
+        bslib::card_footer(
+          class = "text-muted d-flex justify-content-between align-items-center",
+          htmltools::tags$small(
+            "Last Updated:",
+            htmltools::tags$span(
+              class = "fw-bold",
+              shiny::textOutput(ns("last_updated_at"), inline = TRUE)
+            )
+          )
+        )
+      )
     )
   )
 }
@@ -61,11 +101,17 @@ mod_survey_parking_ui <- function(id) {
 mod_survey_parking_server <- function(
     id,
     pool = NULL,
-    selected_property_id = NULL,
-    edit_survey_section = NULL) {
+    survey_data = NULL,
+    selected_filters = NULL,
+    db_trigger_func = NULL,
+    edit_survey_section = NULL
+) {
+
   shiny::moduleServer(
     id,
     function(input, output, session) {
+
+      # setup ------------------------------------------------------------
       ns <- session$ns
       cli::cat_rule("[Module]: mod_survey_parking_server()")
 
@@ -73,81 +119,80 @@ mod_survey_parking_server <- function(
       if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
       check_db_conn(pool)
 
-      # handle selected property ID
-      if (is.null(selected_property_id)) {
-        selected_property_id <- shiny::reactive({
-          get_property_id_by_name("1047 Commonwealth Avenue")
-        })
-      }
-
+      # refresh trigger & validator
       db_refresh_trigger <- shiny::reactiveVal(0)
+      iv <- shinyvalidate::InputValidator$new()
 
-      parking_data <- shiny::reactive({
-        shiny::req(pool, selected_property_id()) # , session$userData$leasing_week())
-
-        db_read_mkt_parking(
-          pool,
-          property_id = selected_property_id(),
-          competitor_id = session$userData$selected_survey_competitor() # ,
-          # leasing_week = session$userData$leasing_week()
-        ) #|>
-        # # Remove `is_` from column names
-        # dplyr::rename_with(~ gsub('is_', '', .)) |>
-        # janitor::clean_names(case = 'title')
+      # filters ----------------------------------------------------------
+      shiny::observe({
+        shiny::req(selected_filters)
+        if (is.null(selected_filters$competitor_id) && is.null(selected_filters$property_id)) {
+          selected_filters$property_id <- 739085
+        }
       })
 
-      output$survey_parking_tbl <- reactable::renderReactable({
-        data <- parking_data() # |>
-        # Change `FALSE` to `'No'` & `TRUE` to `'Yes'`
+      # data --------------------------------------------------------------------
+      parking_data <- shiny::reactive({
+        shiny::req(survey_data$parking)
 
-        if (nrow(data) == 0) {
-          data <- tibble::tribble(
-            ~parking_type, ~is_required, ~is_included, ~amount,
-            "Surface", "No", "No", "$0",
-            "Reserved", "No", "No", "$0",
-            "Covered", "No", "No", "$0",
-            "Garage", "No", "No", "$0",
-            "Other", "No", "No", "$0"
-          )
+        if (nrow(survey_data$parking) == 0) {
+          default_tbl_survey_parking()
+        } else {
+          survey_data$parking |>
+            dplyr::select(
+              parking_type,
+              is_required,
+              is_included,
+              amount
+            )
         }
+      })
+
+      # table -------------------------------------------------------------------
+      output$survey_parking_tbl <- reactable::renderReactable({
+        shiny::req(parking_data())
+
+        tbl_data <- parking_data()
 
         reactable::reactable(
-          data,
-          defaultPageSize = nrow(data),
+          tbl_data,
+          defaultPageSize = nrow(tbl_data),
           searchable = TRUE,
+          bordered = TRUE,
+          striped = TRUE,
+          highlight = TRUE,
           columns = list(
             parking_type = reactable::colDef(
-              name = "Parking Type",
-              align = "left"
+              name = "Parking",
+              cell = reactablefmtr::pill_buttons(data = tbl_data),
             ),
             is_required = reactable::colDef(
-              name = "Is Required",
-              align = "center"
+              name = "Required?",
+              align = "center",
+              cell = function(value) format_boolean(value)
             ),
             is_included = reactable::colDef(
-              name = "Is Included",
-              align = "center"
+              name = "Included?",
+              align = "center",
+              cell = function(value) format_boolean(value)
             ),
             amount = reactable::colDef(
               name = "Amount",
-              align = "right"
+              align = "right",
+              format = reactable::colFormat(currency = "USD")
             )
-          ),
-          # bordered = TRUE,
-          # striped = TRUE,
-          # hover = TRUE
-          highlight = TRUE
+          )
         )
       })
 
-      # Edit ####
+      # edit --------------------------------------------------------------------
       shiny::observeEvent(edit_survey_section(), {
         if (session$userData$selected_survey_tab() != "nav_parking") {
           return()
         }
 
-        # TODO:
-        #   `iv` (?)
+        iv$initialize()
+        iv$enable()
 
         shiny::showModal(
           shiny::modalDialog(
@@ -159,103 +204,118 @@ mod_survey_parking_server <- function(
             ),
             footer = htmltools::tagList(
               shiny::actionButton(
-                ns("save_changes"),
+                ns("save"),
                 "Save",
                 class = "btn-primary"
-              ), # |>
-              # shinyjs::disabled(),
+              ),
               shiny::modalButton("Cancel")
             )
           )
         )
       })
 
+      # edit table --------------------------------------------------------------
       output$modal_survey_parking_table <- rhandsontable::renderRHandsontable({
-        data <- parking_data()
+        shiny::req(parking_data())
 
-        if (nrow(data) == 0) {
-          data <- tibble::tribble(
-            ~parking_type, ~is_required, ~is_included, ~amount,
-            "Surface", FALSE, FALSE, "$0",
-            "Reserved", FALSE, FALSE, "$0",
-            "Covered", FALSE, FALSE, "$0",
-            "Garage", FALSE, FALSE, "$0",
-            "Other", FALSE, FALSE, "$0"
-          )
-        }
+        tbl_data <- parking_data()
 
         rhandsontable::rhandsontable(
-          data = data,
-          contextMenu = FALSE,
+          data = tbl_data,
+          contextMenu = TRUE,
           rowHeaders = NULL,
           colHeaders = c("Parking", "Required", "Included", "Amount"),
-          width = 400 # ,
-          # height = height
+          width = 400
         ) |>
           rhandsontable::hot_cols(
             colWidths = c(150, 75, 75, 100)
           ) |>
-          rhandsontable::hot_col(
-            col = 1,
-            readOnly = TRUE,
-            renderer = "
-              function(instance, td, row, col, prop, value, cellProperties) {
-                Handsontable.renderers.TextRenderer.apply(this, arguments);
-
-                // Set text to black
-                td.style.color = 'black';
-              }
-            "
-          ) |>
-          rhandsontable::hot_col(
-            col = 2,
-            type = "checkbox"
-            # type = 'dropdown',
-            # source = c('Yes', 'No')
-          ) |>
-          rhandsontable::hot_col(
-            col = 3,
-            type = "checkbox"
-            # type = 'dropdown',
-            # source = c('Yes', 'No')
-          ) |>
-          rhandsontable::hot_col(
-            col = 4,
-            type = "numeric"
-          )
+          rhandsontable::hot_col(col = 1, readOnly = TRUE) |>
+          rhandsontable::hot_col(col = 2, type = "checkbox") |>
+          rhandsontable::hot_col(col = 3, type = "checkbox") |>
+          rhandsontable::hot_col(col = 4, type = "numeric")
       })
 
-      shiny::observeEvent(input$save_changes, {
-        shiny::req(pool, selected_property_id(), session$userData$leasing_week())
+      # save --------------------------------------------------------------------
+      shiny::observeEvent(input$save, {
+
+        if (!is.na(selected_filters$competitor_id) && !is.null(selected_filters$competitor_id)) {
+          prop_id <- NA_integer_
+          comp_id <- selected_filters$competitor_id
+          prop_name <- selected_filters$competitor_name
+        } else {
+          prop_id <- selected_filters$property_id
+          comp_id <- NA_integer_
+          prop_name <- selected_filters$property_name
+        }
+
+        initial_values <- survey_data$parking |>
+          dplyr::select(
+            property_id,
+            competitor_id,
+            property_name,
+            parking_type,
+            is_required,
+            is_included,
+            amount,
+            updated_by
+          )
 
         new_values <- rhandsontable::hot_to_r(input$modal_survey_parking_table) |>
           dplyr::mutate(
-            property_id = selected_property_id(),
-            leasing_week = session$userData$leasing_week()
+            property_id = as.integer(prop_id),
+            competitor_id = as.integer(comp_id),
+            property_name = prop_name,
+            updated_by = selected_filters$user_id
           ) |>
           dplyr::select(
             property_id,
-            leasing_week,
-            dplyr::everything()
+            competitor_id,
+            property_name,
+            parking_type,
+            is_required,
+            is_included,
+            amount,
+            updated_by
           )
 
-        # browser()
-
-        db_update_mkt_parking(
-          pool,
-          property_id = selected_property_id(),
-          leasing_week = session$userData$leasing_week(),
-          new_values = new_values
+        changed_values <- dplyr::anti_join(
+          new_values,
+          initial_values,
+          by = c(
+            "property_id",
+            "competitor_id",
+            "property_name",
+            "parking_type",
+            "is_required",
+            "is_included",
+            "amount",
+            "updated_by"
+          )
         )
 
-        db_refresh_trigger(db_refresh_trigger() + 1)
-
-        shiny::removeModal()
+        if (nrow(changed_values) == 0) {
+          shiny::showNotification("No changes detected.")
+          shiny::removeModal()
+          return()
+        } else {
+          shiny::withProgress(
+            message = "Saving changes...",
+            detail = "Please wait...",
+            value = 0,
+            {
+              db_update_survey_parking(pool, changed_values)
+              shiny::setProgress(value = 1, detail = "Changes saved.")
+              db_trigger_func()
+              shiny::removeModal()
+            }
+          )
+        }
       })
 
       return(
         list(
-          # reactive values
+          parking_data = parking_data
         )
       )
     }

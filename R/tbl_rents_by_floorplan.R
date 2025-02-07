@@ -100,22 +100,57 @@ tbl_rents_by_floorplan <- function(rents_data) {
     "updated_by"
   )
 
-  prop_name <- unique(rents_data$property_name)[[1]]
-
-  tbl_title <- "Rents by Floorplan"
-  tbl_subtitle <- paste0("Summary of Rents by Floorplan for Property: ", prop_name)
-  tbl_src <- "Source: Rent Data"
+  # prop_name <- unique(rents_data$property_name)[[1]]
+  # tbl_title <- "Rents by Floorplan"
+  # tbl_subtitle <- paste0("Summary of Rents by Floorplan for Property: ", prop_name)
+  # tbl_src <- "Source: Rent Data"
 
   col_defs <- list(
-    property_id = reactable::colDef(show = FALSE),
-    competitor_id = reactable::colDef(show = FALSE),
-    leasing_week_id = reactable::colDef(show = FALSE),
-    property_name = reactable::colDef(show = FALSE),
-    square_feet = reactable::colDef(show = FALSE),
-    created_at = reactable::colDef(show = FALSE),
-    updated_at = reactable::colDef(show = FALSE),
-    created_by = reactable::colDef(show = FALSE),
-    updated_by = reactable::colDef(show = FALSE),
+    property_id = if ("property_id" %in% colnames(rents_data)) {
+      reactable::colDef(show = FALSE)
+    } else {
+      NULL
+    },
+    competitor_id = if ("competitor_id" %in% colnames(rents_data)) {
+      reactable::colDef(show = FALSE)
+    } else {
+      NULL
+    },
+    leasing_week_id = if ("leasing_week_id" %in% colnames(rents_data)) {
+      reactable::colDef(show = FALSE)
+    } else {
+      NULL
+    },
+    property_name = if ("property_name" %in% colnames(rents_data)) {
+      reactable::colDef(show = FALSE)
+    } else {
+      NULL
+    },
+    if ("square_feet" %in% colnames(rents_data)) {
+      square_feet = reactable::colDef(show = FALSE)
+    } else {
+      NULL
+    },
+    if ("created_at" %in% colnames(rents_data)) {
+      created_at = reactable::colDef(show = FALSE)
+    } else {
+      NULL
+    },
+    if ("updated_at" %in% colnames(rents_data)) {
+      updated_at = reactable::colDef(show = FALSE)
+    } else {
+      NULL
+    },
+    if ("created_by" %in% colnames(rents_data)) {
+      created_by = reactable::colDef(show = FALSE)
+    } else {
+      NULL
+    },
+    if ("updated_by" %in% colnames(rents_data)) {
+      updated_by = reactable::colDef(show = FALSE)
+    } else {
+      NULL
+    },
     floorplan_type = reactable::colDef(
       name = "Unit Type",
       minWidth = 130,
@@ -517,7 +552,7 @@ tbl_rents_by_floorplan <- function(rents_data) {
     data = rents_data,
     theme = tbl_theme,
     # height = "800px",
-    defaultColDef = default_col_def,
+    defaultColDef = reactable_default_col_def(),
     columns = col_defs,
     columnGroups = col_groups,
     filterable = TRUE,

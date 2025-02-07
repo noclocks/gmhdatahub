@@ -442,3 +442,140 @@ db_update_survey_utilities <- function(pool, new_values) {
   return(invisible(data))
 }
 
+db_update_survey_hours <- function(pool, new_values) {
+
+  check_db_conn(pool)
+
+  data <- new_values
+
+  conn <- pool::poolCheckout(pool)
+  on.exit(pool::poolReturn(conn))
+
+  tryCatch(
+    {
+      dbx::dbxUpsert(
+        conn,
+        DBI::SQL("survey.hours"),
+        records = data,
+        where_cols = c("property_name", "day_of_week"),
+        skip_existing = FALSE
+      )
+
+      cli::cli_alert_success(
+        "Successfully updated hours."
+      )
+
+      shiny::showNotification(
+        "Successfully updated hours."
+      )
+    },
+    error = function(e) {
+      cli::cli_alert_danger(
+        "Failed to update hours: {.error {e$message}}"
+      )
+      shiny::showNotification(
+        "Failed to update hours.",
+        type = "error"
+      )
+    }
+  )
+
+  return(invisible(data))
+}
+
+db_update_survey_notes <- function(pool, new_values) {
+
+  check_db_conn(pool)
+
+  data <- new_values |>
+    dplyr::mutate(
+      note_type = dplyr::coalesce(.data$note_type, "General"),
+      note_actionable = dplyr::coalesce(.data$note_actionable, FALSE),
+      note_status = dplyr::coalesce(.data$note_status, "Pending"),
+      note_tags = dplyr::coalesce(.data$note_tags, "{}")
+    )
+
+  conn <- pool::poolCheckout(pool)
+  on.exit(pool::poolReturn(conn))
+
+  tryCatch(
+    {
+      dbx::dbxInsert(
+        conn,
+        DBI::SQL("survey.notes"),
+        records = data
+      )
+
+      cli::cli_alert_success("Successfully updated notes.")
+      shiny::showNotification("Successfully updated notes.")
+    },
+    error = function(e) {
+      cli::cli_alert_danger("Failed to update notes: {.error {e$message}}")
+      shiny::showNotification("Failed to update notes.", type = "error")
+    }
+  )
+
+  return(invisible(data))
+
+}
+
+db_update_survey_short_term_leases <- function(pool, new_values) {
+
+  check_db_conn(pool)
+
+  data <- new_values
+
+  conn <- pool::poolCheckout(pool)
+  on.exit(pool::poolReturn(conn))
+
+  tryCatch(
+    {
+      dbx::dbxUpsert(
+        conn,
+        DBI::SQL("survey.short_term_leases"),
+        records = data,
+        where_cols = c("property_name", "leasing_week_id"),
+        skip_existing = FALSE
+      )
+
+      cli::cli_alert_success("Successfully updated short-term leases.")
+      shiny::showNotification("Successfully updated short-term leases.")
+    },
+    error = function(e) {
+      cli::cli_alert_danger("Failed to update notes: {.error {e$message}}")
+      shiny::showNotification("Failed to update short-term leases.", type = "error")
+    }
+  )
+
+  return(invisible(data))
+
+}
+
+db_update_survey_rents_by_floorplan <- function(pool, new_values) {
+
+  check_db_conn(pool)
+
+  data <- new_values
+
+  conn <- pool::poolCheckout(pool)
+  on.exit(pool::poolReturn(conn))
+
+  tryCatch(
+    {
+      dbx::dbxUpsert(
+        conn,
+        DBI::SQL("survey.rents_by_floorplan"),
+        records = data,
+        where_cols = c("property_name", "leasing_week_id", "floorplan_type", "floorplan_id"),
+        skip_existing = FALSE
+      )
+
+      cli::cli_alert_success("Successfully updated rents by floorplan.")
+      shiny::showNotification("Successfully updated rents by floorplan.")
+    },
+    error = function(e) {
+      cli::cli_alert_danger("Failed to update rents by floorplan: {.error {e$message}}")
+      shiny::showNotification("Failed to update rents by floorplan.", type = "error")
+    }
+  )
+}

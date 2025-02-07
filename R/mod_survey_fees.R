@@ -42,6 +42,7 @@ NULL
 #' @importFrom htmltools tagList tags
 #' @importFrom bslib card
 mod_survey_fees_ui <- function(id) {
+
   ns <- shiny::NS(id)
 
   htmltools::tagList(
@@ -53,22 +54,18 @@ mod_survey_fees_ui <- function(id) {
         class = "mx-auto",
         bslib::card_header(
           class = "bg-primary text-white",
-          htmltools::tags$span(
-            htmltools::tags$h2(
-              bsicons::bs_icon("currency-dollar"),
-              "Fees",
-              shiny::actionButton(
-                ns("refresh"),
-                "Refresh Data",
-                icon = shiny::icon("sync"),
-                class = "btn-sm btn-outline-light float-end",
-                style = "width: auto;"
-              ),
-              class = "mb-2"
+          htmltools::tags$h4(
+            bsicons::bs_icon("currency-dollar"),
+            htmltools::tags$span(
+              "Fees - ",
+              shiny::textOutput(ns("property_name_title"), inline = TRUE)
             ),
-            htmltools::tags$p(
-              shiny::textOutput(ns("property_name_title")),
-              class = "lead mb-0"
+            shiny::actionButton(
+              ns("refresh"),
+              "Refresh Data",
+              icon = shiny::icon("sync"),
+              class = "btn-sm btn-outline-light float-end",
+              style = "width: auto;"
             )
           )
         ),

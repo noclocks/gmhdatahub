@@ -145,23 +145,43 @@ mod_survey_rents_server <- function(
       })
 
       # data --------------------------------------------------------------------
-      initial_data <- shiny::reactiveVal(0)
-      input_changes <- shiny::reactiveVal(0)
-
-      # selected property/competitor ID
-      current_id <- shiny::reactive({
-        selected_property_id()
-      })
-      current_name <- shiny::reactive({
-        get_property_name_by_id(selected_property_id())
-      })
 
       # rents by floorplan data
       rents_data <- shiny::reactive({
-        shiny::req(pool, current_id())
+        shiny::req(survey_data$rents)
 
-        db_read_tbl(pool, "survey.rents_by_floorplan") |>
-          dplyr::filter(.data$property_name == current_name())
+        if (nrow(survey_data$rents) == 0) {
+          default_tbl_survey_rents_by_floorplan()
+        } else {
+          survey_data$rents |>
+            dplyr::select(
+              "floorplan_type",
+              "floorplan_id",
+              "square_feet",
+              "number_of_beds",
+              "number_of_baths",
+              "total_units_count",
+              "square_feet_per_bed",
+              "available",
+              "market_rent_per_bed",
+              "market_rent_per_square_foot",
+              "concessions_gift_card",
+              "concessions_one_time_rent",
+              "concessions_monthly_rent",
+              "effective_rent_per_bed",
+              "effective_rent_per_square_foot",
+              "expenses_furniture",
+              "expenses_tv",
+              "expenses_electricity_gas",
+              "expenses_water",
+              "expenses_cable_internet",
+              "expenses_trash_valet",
+              "expenses_parking",
+              "expenses_total",
+              "bundled_rent_per_bed",
+              "bundled_rent_per_square_foot"
+            )
+        }
       })
 
       # output - rents by floorplan
@@ -176,9 +196,329 @@ mod_survey_rents_server <- function(
         tbl_avg_rents_by_unit_type(rents_data())
       })
 
-      # return reactive values
+      output$modal_rents_floorplans <- rhandsontable::renderRHandsontable({
+        shiny::req(rents_data())
+
+        tbl_data <- rents_data() |>
+          dplyr::select(
+            "floorplan_type",
+            "floorplan_id",
+            "square_feet",
+            "number_of_beds",
+            "number_of_baths",
+            "total_units_count",
+            "square_feet_per_bed",
+            "available"
+          )
+
+        rhandsontable::rhandsontable(
+          tbl_data,
+          rowHeaders = FALSE,
+          colHeaders = c(
+            "Floorplan Type",
+            "Floorplan ID",
+            "Square Feet",
+            "Number of Beds",
+            "Number of Baths",
+            "Total Units Count",
+            "Square Feet per Bed",
+            "Available"
+          ),
+          contextMenu = TRUE,
+          stretchH = "all",
+          width = "100%"
+        ) |>
+          rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE) |>
+          rhandsontable::hot_col(1, type = "dropdown", source = get_survey_choices("floorplans", "floorplan_type"), halign = "htCenter") |>
+          rhandsontable::hot_col(2, halign = "htCenter") |>
+          rhandsontable::hot_col(3, type = "numeric", halign = "htCenter") |>
+          rhandsontable::hot_col(4, type = "numeric", halign = "htCenter") |>
+          rhandsontable::hot_col(5, type = "numeric", halign = "htCenter") |>
+          rhandsontable::hot_col(6, type = "numeric", halign = "htCenter") |>
+          rhandsontable::hot_col(7, readOnly = TRUE, halign = "htCenter") |>
+          rhandsontable::hot_col(8, type = "checkbox", halign = "htCenter") |>
+          rhandsontable::hot_validate_numeric(cols = c(3:6), min = 0)
+      })
+
+      output$modal_rents <- rhandsontable::renderRHandsontable({
+        shiny::req(rents_data())
+
+        tbl_data <- rents_data() |>
+          dplyr::select(
+            "floorplan_type",
+            "floorplan_id",
+            "market_rent_per_bed",
+            "market_rent_per_square_foot"
+          )
+
+        rhandsontable::rhandsontable(
+          tbl_data,
+          rowHeaders = FALSE,
+          colHeaders = c(
+            "Floorplan Type",
+            "Floorplan ID",
+            "Market Rent per Bed",
+            "Market Rent per Square Foot"
+          ),
+          contextMenu = TRUE,
+          stretchH = "all",
+          width = "100%"
+        ) |>
+          rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE) |>
+          rhandsontable::hot_col(1, type = "dropdown", source = get_survey_choices("floorplans", "floorplan_type"), halign = "htCenter") |>
+          rhandsontable::hot_col(2, halign = "htCenter") |>
+          rhandsontable::hot_col(3, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(4, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_validate_numeric(cols = c(3:4), min = 0)
+      })
+
+      output$modal_concessions_expenses <- rhandsontable::renderRHandsontable({
+        shiny::req(rents_data())
+
+        tbl_data <- rents_data() |>
+          dplyr::select(
+            "floorplan_type",
+            "floorplan_id",
+            "concessions_gift_card",
+            "concessions_one_time_rent",
+            "concessions_monthly_rent",
+            "expenses_furniture",
+            "expenses_tv",
+            "expenses_electricity_gas",
+            "expenses_water",
+            "expenses_cable_internet",
+            "expenses_trash_valet",
+            "expenses_parking",
+          )
+
+        rhandsontable::rhandsontable(
+          tbl_data,
+          rowHeaders = FALSE,
+          colHeaders = c(
+            "Floorplan Type",
+            "Floorplan ID",
+            "Concessions Gift Card",
+            "Concessions One Time Rent",
+            "Concessions Monthly Rent",
+            "Expenses Furniture",
+            "Expenses TV",
+            "Expenses Electricity Gas",
+            "Expenses Water",
+            "Expenses Cable Internet",
+            "Expenses Trash Valet",
+            "Expenses Parking"
+          ),
+          contextMenu = TRUE,
+          stretchH = "all",
+          width = "100%"
+        ) |>
+          rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE) |>
+          rhandsontable::hot_col(1, type = "dropdown", source = get_survey_choices("floorplans", "floorplan_type"), halign = "htCenter") |>
+          rhandsontable::hot_col(2, halign = "htCenter") |>
+          rhandsontable::hot_col(3, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(4, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(5, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(6, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(7, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(8, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(9, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(10, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(11, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_col(12, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
+          rhandsontable::hot_validate_numeric(cols = c(3:12), min = 0)
+      })
+
+      # edit --------------------------------------------------------------------
+
+      shiny::observeEvent(edit_survey_section(), {
+        shiny::req(session$userData$selected_survey_tab())
+
+        if (session$userData$selected_survey_tab() != "nav_rents") {
+          return()
+        }
+
+        iv$initialize()
+        iv$enable()
+
+        shiny::showModal(
+          shiny::modalDialog(
+            title = "Edit Rents",
+            size = "xl",
+            easyClose = TRUE,
+            footer = htmltools::tagList(
+              shiny::actionButton(
+                ns("save"),
+                "Save",
+                class = "btn-primary"
+              ),
+              shiny::modalButton("Cancel")
+            ),
+            bslib::accordion(
+              open = TRUE,
+              bslib::accordion_panel(
+                title = "Edit Floorplans",
+                icon = bsicons::bs_icon("house"),
+                rhandsontable::rHandsontableOutput(ns("modal_rents_floorplans"))
+              ),
+              bslib::accordion_panel(
+                "Edit Market Rents",
+                icon = bsicons::bs_icon("bar-chart-line"),
+                rhandsontable::rHandsontableOutput(ns("modal_rents"))
+              ),
+              bslib::accordion_panel(
+                "Edit Concessions & Expenses",
+                icon = bsicons::bs_icon("currency-dollar"),
+                rhandsontable::rHandsontableOutput(ns("modal_concessions_expenses"))
+              )
+            )
+          )
+        )
+      })
+
+      # save --------------------------------------------------------------------
+      shiny::observeEvent(input$save, {
+        if (!is.na(selected_filters$competitor_id) && !is.null(selected_filters$competitor_id)) {
+          prop_id <- NA_integer_
+          comp_id <- selected_filters$competitor_id
+          prop_name <- selected_filters$competitor_name
+        } else {
+          prop_id <- selected_filters$property_id
+          comp_id <- NA_integer_
+          prop_name <- selected_filters$property_name
+        }
+
+        if (is.null(selected_filters$leasing_week_id) || is.na(selected_filters$leasing_week_id)) {
+          week_date <- get_leasing_week_start_date()
+          week_id <- get_leasing_week_id_by_date(week_date)
+        } else {
+          week_id <- selected_filters$leasing_week_id
+          week_date <- selected_filters$leasing_week_date
+        }
+
+        initial_values <- survey_data$rents |>
+          dplyr::select(
+            property_id,
+            competitor_id,
+            leasing_week_id,
+            property_name,
+            floorplan_type,
+            floorplan_id,
+            square_feet,
+            number_of_beds,
+            number_of_baths,
+            total_units_count,
+            available,
+            market_rent_per_bed,
+            concessions_gift_card,
+            concessions_one_time_rent,
+            concessions_monthly_rent,
+            expenses_furniture,
+            expenses_tv,
+            expenses_electricity_gas,
+            expenses_water,
+            expenses_cable_internet,
+            expenses_trash_valet,
+            expenses_parking,
+            updated_by
+          )
+
+        new_values_floorplans <- rhandsontable::hot_to_r(input$modal_rents_floorplans)
+        new_values_rents <- rhandsontable::hot_to_r(input$modal_rents)
+        new_values_concessions_expenses <- rhandsontable::hot_to_r(input$modal_concessions_expenses)
+
+        # merge new_values_* into table like initial data
+        new_values <- initial_values |>
+          dplyr::select("floorplan_type", "floorplan_id") |>
+          dplyr::distinct() |>
+          dplyr::left_join(new_values_floorplans, by = c("floorplan_type", "floorplan_id")) |>
+          dplyr::left_join(new_values_rents, by = c("floorplan_type", "floorplan_id")) |>
+          dplyr::left_join(new_values_concessions_expenses, by = c("floorplan_type", "floorplan_id")) |>
+          dplyr::mutate(
+            property_id = as.integer(.env$prop_id),
+            competitor_id = as.integer(.env$comp_id),
+            leasing_week_id = as.integer(.env$week_id),
+            property_name = .env$prop_name,
+            updated_by = .env$selected_filters$user_id
+          ) |>
+          dplyr::select(
+            property_id,
+            competitor_id,
+            leasing_week_id,
+            property_name,
+            floorplan_type,
+            floorplan_id,
+            square_feet,
+            number_of_beds,
+            number_of_baths,
+            total_units_count,
+            available,
+            market_rent_per_bed,
+            concessions_gift_card,
+            concessions_one_time_rent,
+            concessions_monthly_rent,
+            expenses_furniture,
+            expenses_tv,
+            expenses_electricity_gas,
+            expenses_water,
+            expenses_cable_internet,
+            expenses_trash_valet,
+            expenses_parking,
+            updated_by
+          )
+
+        changed_values <- dplyr::anti_join(
+          new_values,
+          initial_values,
+          by = c(
+            "property_id",
+            "competitor_id",
+            "leasing_week_id",
+            "property_name",
+            "floorplan_type",
+            "floorplan_id",
+            "square_feet",
+            "number_of_beds",
+            "number_of_baths",
+            "total_units_count",
+            "available",
+            "market_rent_per_bed",
+            "concessions_gift_card",
+            "concessions_one_time_rent",
+            "concessions_monthly_rent",
+            "expenses_furniture",
+            "expenses_tv",
+            "expenses_electricity_gas",
+            "expenses_water",
+            "expenses_cable_internet",
+            "expenses_trash_valet",
+            "expenses_parking"
+          )
+        )
+
+        if (nrow(changed_values) == 0) {
+          shiny::showNotification("No changes detected.")
+          shiny::removeModal()
+          return()
+        } else {
+          shiny::withProgress(
+            message = "Saving changes...",
+            detail = "Please wait...",
+            value = 0,
+            {
+              db_update_survey_rents_by_floorplan(pool, changed_values)
+              shiny::setProgress(value = 1, detail = "Changes saved.")
+              db_trigger_func()
+              shiny::removeModal()
+            }
+          )
+        }
+      })
+
+      # return ------------------------------------------------------------------
       return(
-        list()
+        list(
+          rents_data = rents_data
+        )
       )
     }
   )

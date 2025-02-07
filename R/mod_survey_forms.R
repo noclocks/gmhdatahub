@@ -48,7 +48,7 @@ mod_survey_forms_ui <- function(id) {
 
   htmltools::tagList(
     bslib::page_fluid(
-      bslib::navset_card_tab(
+      bslib::navset_card_underline(
         id = ns("survey_tabs"),
         title = "GMH Communities - Market Survey Sections",
         sidebar = bslib::sidebar(
@@ -141,16 +141,13 @@ mod_survey_forms_ui <- function(id) {
           icon = bsicons::bs_icon("sticky"),
           mod_survey_notes_ui(ns("notes"))
         ),
-        bslib::card_footer(
-          htmltools::tags$small(
-            style = "float: right;",
-            shiny::actionButton(
-              ns("edit_survey_section"),
-              "Edit",
-              icon = shiny::icon("edit"),
-              style = "width: auto;",
-              class = "btn-sm btn-primary"
-            )
+        bslib::nav_spacer(),
+        bslib::nav_item(
+          shiny::actionButton(
+            ns("edit_survey_section"),
+            "Edit Section Data",
+            icon = shiny::icon("edit"),
+            class = "btn-primary"
           )
         )
       )
@@ -322,8 +319,7 @@ mod_survey_forms_server <- function(
         utilities = NULL,
         hours = NULL,
         notes = NULL,
-        rents_by_floorplan = NULL,
-        avg_rents = NULL
+        rents_by_floorplan = NULL
       )
 
       # map data -------------------------------------------------------
@@ -423,13 +419,6 @@ mod_survey_forms_server <- function(
             )
             shiny::incProgress(1 / 13, detail = "Retrieving Rents By Floorplan Data...")
             survey_data$rents <- db_read_survey_rents_by_floorplan(
-              pool,
-              property_id = prop_id,
-              competitor_id = comp_id,
-              leasing_week_id = week_id
-            )
-            shiny::incProgress(1 / 13, detail = "Retrieving Average Rents Data...")
-            survey_data$avg_rents <- db_read_survey_avg_rents(
               pool,
               property_id = prop_id,
               competitor_id = comp_id,
@@ -568,10 +557,19 @@ mod_survey_forms_server <- function(
 
       # module data -------------------------------------------------------------
       survey_mods_data <- shiny::reactive({
-
+        list(
+          property_summary = mod_survey_property_summary_data(),
+          leasing_summary = mod_survey_leasing_summary_data(),
+          short_term_leases = mod_short_term_leases_data(),
+          fees = mod_fees_data(),
+          property_amenities = mod_survey_property_amenities_data(),
+          unit_amenities = mod_survey_unit_amenities_data(),
+          parking = mod_parking_data(),
+          utilities = mod_survey_utilities_data(),
+          notes = mod_notes_data(),
+          rents = mod_rents_data()
+        )
       })
-
-
 
       # return ------------------------------------------------------------------
       return(
@@ -579,16 +577,7 @@ mod_survey_forms_server <- function(
           selected_filters = selected_filters,
           survey_data = survey_data,
           map_data = map_data,
-          mod_survey_property_summary_data,
-          mod_survey_leasing_summary_data,
-          mod_short_term_leases_data,
-          mod_fees_data,
-          mod_parking_data,
-          mod_survey_property_amenities_data,
-          mod_survey_unit_amenities_data,
-          mod_utilities_data,
-          mod_notes_data,
-          mod_rents_data
+          survey_mods_data = survey_mods_data
         )
       )
     }
