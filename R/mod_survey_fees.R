@@ -132,7 +132,6 @@ mod_survey_fees_server <- function(
       # data --------------------------------------------------------------------
       fees_data <- shiny::reactive({
         shiny::req(survey_data$fees)
-        browser()
         survey_data$fees
       })
 
