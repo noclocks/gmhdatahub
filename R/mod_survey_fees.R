@@ -219,20 +219,20 @@ mod_survey_fees_server <- function(
       shiny::observeEvent(input$save, {
 
         if (!is.na(selected_filters$competitor_id) && !is.null(selected_filters$competitor_id)) {
-          prop_id <- NULL
+          prop_id <- NA_integer_
           comp_id <- selected_filters$competitor_id
         } else {
           prop_id <- selected_filters$property_id
-          comp_id <- NULL
+          comp_id <- NA_integer_
         }
 
         new_values <- rhandsontable::hot_to_r(input$modal_survey_fees_table) |>
           dplyr::mutate(
-            property_id = selected_filters$property_id,
-            competitor_id = selected_filters$competitor_id,
+            property_id = prop_id,
+            competitor_id = comp_id,
             property_name = selected_filters$property_name,
             leasing_week_id = selected_filters$leasing_week_id,
-            updated_by = session$userData$user_id
+            updated_by = selected_filters$user_id
           ) |>
           dplyr::select(
             property_id,
