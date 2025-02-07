@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   dates: dates.html
   gmhdatahub: gmhdatahub.html
-last_built: 2025-02-07T00:06Z
+last_built: 2025-02-07T00:09Z
 urls:
   reference: https://docs.noclocks.dev/gmhdatahub/reference
   article: https://docs.noclocks.dev/gmhdatahub/articles
