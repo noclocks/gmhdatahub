@@ -426,8 +426,6 @@ mod_survey_rents_server <- function(
         new_values_rents <- rhandsontable::hot_to_r(input$modal_rents)
         new_values_concessions_expenses <- rhandsontable::hot_to_r(input$modal_concessions_expenses)
 
-        browser()
-
         # merge new_values_* into table like initial data
         new_values <- initial_values |>
           dplyr::select("floorplan_type", "floorplan_id") |>
