@@ -2,7 +2,6 @@ tbl_rents_by_floorplan <- function(rents_data) {
   req_cols <- c(
     "floorplan_type",
     "floorplan_id",
-    "square_feet",
     "number_of_beds",
     "number_of_baths",
     "total_units_count",
@@ -126,28 +125,28 @@ tbl_rents_by_floorplan <- function(rents_data) {
     } else {
       NULL
     },
-    if ("square_feet" %in% colnames(rents_data)) {
-      square_feet = reactable::colDef(show = FALSE)
+    square_feet = if ("square_feet" %in% colnames(rents_data)) {
+      reactable::colDef(show = FALSE)
     } else {
       NULL
     },
-    if ("created_at" %in% colnames(rents_data)) {
-      created_at = reactable::colDef(show = FALSE)
+    created_at = if ("created_at" %in% colnames(rents_data)) {
+      reactable::colDef(show = FALSE)
     } else {
       NULL
     },
-    if ("updated_at" %in% colnames(rents_data)) {
-      updated_at = reactable::colDef(show = FALSE)
+    updated_at = if ("updated_at" %in% colnames(rents_data)) {
+      reactable::colDef(show = FALSE)
     } else {
       NULL
     },
-    if ("created_by" %in% colnames(rents_data)) {
-      created_by = reactable::colDef(show = FALSE)
+    created_by = if ("created_by" %in% colnames(rents_data)) {
+      reactable::colDef(show = FALSE)
     } else {
       NULL
     },
-    if ("updated_by" %in% colnames(rents_data)) {
-      updated_by = reactable::colDef(show = FALSE)
+    updated_by = if ("updated_by" %in% colnames(rents_data)) {
+      reactable::colDef(show = FALSE)
     } else {
       NULL
     },
