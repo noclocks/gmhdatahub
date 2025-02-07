@@ -48,7 +48,7 @@ jobs:
       - name: 'Build and Push Container'
         run: |-
           DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.SERVICE }}:${{ github.sha }}"
-          docker build --tag "${DOCKER_TAG}" -f ./Dockerfile ./
+          docker build --build-arg NOCLOCKS_ENCRYPTION_KEY="${{ secrets.NOCLOCKS_ENCRYPTION_KEY }}" --tag "${DOCKER_TAG}" -f ./Dockerfile ./
           docker push "${DOCKER_TAG}"
 
       - name: 'Deploy to Cloud Run'
