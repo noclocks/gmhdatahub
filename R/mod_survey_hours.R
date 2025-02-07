@@ -177,13 +177,11 @@ mod_survey_hours_server <- function(
             ),
             open_time = reactable::colDef(
               name = "Open Time",
-              align = "center",
-              format = reactable::colFormat(time = TRUE)
+              align = "center"
             ),
             close_time = reactable::colDef(
               name = "Close Time",
-              align = "center",
-              format = reactable::colFormat(time = TRUE)
+              align = "center"
             )
           )
         )
@@ -200,9 +198,9 @@ mod_survey_hours_server <- function(
           colHeaders = c("Day of Week", "Open Time", "Close Time"),
           rowHeaders = NULL
         ) |>
-          rhandsontable::hot_col("day_of_week", readOnly = TRUE) |>
-          rhandsontable::hot_col("open_time", type = "time") |>
-          rhandsontable::hot_col("close_time", type = "time")
+          rhandsontable::hot_col(1, readOnly = TRUE) |>
+          rhandsontable::hot_col(2) |>
+          rhandsontable::hot_col(3)
       })
 
       # edit --------------------------------------------------------------------

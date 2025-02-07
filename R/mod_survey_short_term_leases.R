@@ -173,7 +173,7 @@ mod_survey_short_term_leases_server <- function(
           dplyr::pull("premium")
 
         paste0(
-          "5 Month Term Premium: $",
+          "5 Month Term Premium: ",
           scales::dollar(val, accuracy = 0.01)
         )
       })
@@ -206,7 +206,7 @@ mod_survey_short_term_leases_server <- function(
           dplyr::pull("premium")
 
         paste0(
-          "10 Month Term Premium: $",
+          "10 Month Term Premium: ",
           scales::dollar(val, accuracy = 0.01)
         )
       })
