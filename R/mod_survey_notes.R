@@ -201,9 +201,9 @@ mod_survey_notes_server <- function(
         prop_name <- survey_data$notes$property_name |> unique()
 
         if (is.na(comp_id)) {
-          paste0(name, " (", prop_id, ")")
+          paste0(prop_name, " (", prop_id, ")")
         } else {
-          paste0(name, " (Competitor #", comp_id, ")")
+          paste0(prop_name, " (Competitor #", comp_id, ")")
         }
       })
 
