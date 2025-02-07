@@ -2,31 +2,32 @@
 % Please edit documentation in R/mod_survey_notes.R
 \name{mod_survey_notes}
 \alias{mod_survey_notes}
-\alias{create_note_card}
 \alias{mod_survey_notes_ui}
 \alias{mod_survey_notes_server}
+\alias{create_note_card}
 \title{Survey Notes Section Module}
 \usage{
-create_note_card(note, ns)
-
 mod_survey_notes_ui(id)
 
 mod_survey_notes_server(
   id,
   pool = NULL,
-  selected_property_id = NULL,
-  selected_competitor_id = NULL,
+  survey_data = NULL,
+  selected_filters = NULL,
+  db_trigger_func = NULL,
   edit_survey_section = NULL
 )
+
+create_note_card(note, ns)
 }
 \arguments{
-\item{note}{A single note object.}
-
-\item{ns}{Namespace function.}
-
 \item{id}{Module's namespace ID.}
 
 \item{pool}{Database connection pool.}
+
+\item{note}{A single note object.}
+
+\item{ns}{Namespace function.}
 
 \item{global_filters}{Reactive expression for global filters.}
 }
