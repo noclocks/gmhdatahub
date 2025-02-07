@@ -42,6 +42,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
+      # docker build --build-arg NOCLOCKS_ENCRYPTION_KEY="${{ secrets.NOCLOCKS_ENCRYPTION_KEY }}" --tag "${DOCKER_TAG}" -f ./Dockerfile ./
       - name: Build and push
         id: push
         uses: docker/build-push-action@v6
@@ -50,6 +51,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            "NOCLOCKS_ENCRYPTION_KEY=${{ secrets.NOCLOCKS_ENCRYPTION_KEY }}"
 
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v2
