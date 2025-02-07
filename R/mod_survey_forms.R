@@ -141,16 +141,13 @@ mod_survey_forms_ui <- function(id) {
           icon = bsicons::bs_icon("sticky"),
           mod_survey_notes_ui(ns("notes"))
         ),
-        bslib::card_footer(
-          htmltools::tags$small(
-            style = "float: right;",
-            shiny::actionButton(
-              ns("edit_survey_section"),
-              "Edit",
-              icon = shiny::icon("edit"),
-              style = "width: auto;",
-              class = "btn-sm btn-primary"
-            )
+        bslib::nav_spacer(),
+        bslib::nav_item(
+          shiny::actionButton(
+            ns("edit_survey_section"),
+            "Edit Section Data:",
+            icon = shiny::icon("edit"),
+            class = "btn-primary"
           )
         )
       )

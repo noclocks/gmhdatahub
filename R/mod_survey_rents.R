@@ -391,7 +391,7 @@ mod_survey_rents_server <- function(
           week_id <- get_leasing_week_id_by_date(week_date)
         }
 
-        initial_values <- survey_data$rents_by_floorplan |>
+        initial_values <- survey_data$rents |>
           dplyr::select(
             property_id,
             competitor_id,
