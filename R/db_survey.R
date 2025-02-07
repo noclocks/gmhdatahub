@@ -720,7 +720,53 @@ db_read_survey_rents_by_floorplan <- function(
     competitor_id = NULL,
     property_name = NULL,
     leasing_week_id = NULL,
-    collect = TRUE) {
+    collect = TRUE
+) {
+
+  check_db_pool(pool)
+
+  hold <- db_read_tbl(pool, "survey.rents_by_floorplan", collect = FALSE)
+
+  filters <- list(
+    property_id = property_id,
+    competitor_id = competitor_id,
+    property_name = property_name,
+    leasing_week_id = leasing_week_id
+  ) |>
+    purrr::compact()
+
+  if (length(filters) == 0) {
+    if (collect) {
+      return(dplyr::collect(hold))
+    } else {
+      return(hold)
+    }
+  }
+
+  hold_filtered <- purrr::reduce(
+    names(filters),
+    function(acc, col) {
+      dplyr::filter(acc, !!rlang::sym(col) == !!filters[[col]])
+    },
+    .init = hold
+  )
+
+  if (collect) {
+    return(dplyr::collect(hold_filtered))
+  } else {
+    return(hold_filtered)
+  }
+}
+
+db_read_survey_avg_rents <- function(
+    pool,
+    property_id = NULL,
+    competitor_id = NULL,
+    property_name = NULL,
+    leasing_week_id = NULL,
+    collect = TRUE
+) {
+
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.rents_by_floorplan", collect = FALSE)
