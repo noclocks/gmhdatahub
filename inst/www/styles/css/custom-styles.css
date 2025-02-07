@@ -2,11 +2,7 @@
   width: fit-content !important;
 }
 
-.modal-dialog {
-  max-width: 90%;
-}
-
-.rhandsontable-container {
+.handsontable-container {
   width: 100% !important;
   overflow-x: auto;
 }
