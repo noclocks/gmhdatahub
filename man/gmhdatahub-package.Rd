@@ -6,13 +6,14 @@
 \alias{gmhdatahub-package}
 \title{gmhdatahub: Shiny Dashboard and API Client for GMH Communities Leasing Data}
 \description{
-Provides a Shiny dashboard and API client for interactingwith GMH Communities leasing data via the Entrata API. Includesfunctions for API authentication, data retrieval, and datavisualization.
+Provides a Shiny dashboard and API client for interacting with GMH Communities leasing data via the Entrata API. Includes functions for API authentication, data retrieval, and datavisualization.
 }
 \seealso{
 Useful links:
 \itemize{
   \item \url{https://github.com/noclocks/gmhdatahub}
   \item \url{https://docs.noclocks.dev/gmhdatahub/}
+  \item \url{http://docs.noclocks.dev/gmhdatahub/}
   \item Report bugs at \url{https://github.com/noclocks/gmhdatahub/issues}
 }
 
