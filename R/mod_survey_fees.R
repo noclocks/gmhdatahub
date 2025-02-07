@@ -228,8 +228,8 @@ mod_survey_fees_server <- function(
 
         new_values <- rhandsontable::hot_to_r(input$modal_survey_fees_table) |>
           dplyr::mutate(
-            property_id = prop_id,
-            competitor_id = comp_id,
+            property_id = selected_filters$property_id,
+            competitor_id = selected_filters$competitor_id,
             property_name = selected_filters$property_name,
             leasing_week_id = selected_filters$leasing_week_id,
             updated_by = session$userData$user_id
@@ -248,21 +248,6 @@ mod_survey_fees_server <- function(
         db_update_survey_fees(pool, new_values)
 
         # Trigger a refresh of the property data
-        db_refresh_trigger(db_refresh_trigger() + 1)
-        db_trigger_func()
-        shiny::removeModal()
-
-        new_values <-
-
-        # browser()
-
-        db_update_mkt_fees(
-          pool,
-          property_id = selected_property_id(),
-          leasing_week = session$userData$leasing_week(),
-          new_values = new_values
-        )
-
         db_refresh_trigger(db_refresh_trigger() + 1)
         db_trigger_func()
         shiny::removeModal()
