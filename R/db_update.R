@@ -1,24 +1,4 @@
 
-#' Database Update Functions
-#'
-#' @name db_update
-#'
-#' @description
-#' These functions are used to update data in the database.
-#'
-#' @param pool A database connection pool object.
-#' @param new_values A data frame containing the new values to update.
-#' @param property_id (Optional) The property ID to update.
-#' @param competitor_id (Optional) The competitor ID to update.
-#' @param user_id (Optional) The user ID to update.
-#'
-#' @returns
-#' The updated data (invisible).
-#'
-#' @export
-NULL
-
-#' @rdname db_update
 #' @importFrom dplyr mutate select pull
 #' @importFrom purrr map_int
 #' @importFrom pool poolCheckout poolReturn
