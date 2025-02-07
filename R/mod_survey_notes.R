@@ -194,15 +194,16 @@ mod_survey_notes_server <- function(
       })
 
       output$property_name_title <- shiny::renderText({
+        shiny::req(survey_data$notes)
 
-        prop_id <- selected_filters$property_id
-        comp_id <- selected_filters$competitor_id
-        prop_name <- selected_filters$property_name
+        prop_id <- survey_data$notes$property_id |> unique()
+        comp_id <- survey_data$notes$competitor_id |> unique()
+        prop_name <- survey_data$notes$property_name |> unique()
 
         if (is.na(comp_id)) {
-          paste0(prop_name, " (", prop_id, ")")
+          paste0(name, " (", prop_id, ")")
         } else {
-          paste0(prop_name, " (Competitor #", comp_id, ")")
+          paste0(name, " (Competitor #", comp_id, ")")
         }
       })
 
@@ -227,12 +228,9 @@ mod_survey_notes_server <- function(
 
       output$last_updated_at <- shiny::renderText({
         shiny::req(survey_data$notes)
-
-        survey_data$notes |>
-          dplyr::pull(.data$updated_at) |>
+        survey_data$notes$updated_at |>
           max(na.rm = TRUE) |>
-          lubridate::as_datetime() |>
-          lubridate::format("%Y-%m-%d %H:%M:%S")
+          format("%B %d, %Y %I:%M %p")
       })
 
       shiny::observe({
