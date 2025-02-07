@@ -358,17 +358,35 @@ mod_survey_rents_server <- function(
               bslib::accordion_panel(
                 title = "Edit Floorplans",
                 icon = bsicons::bs_icon("house"),
-                rhandsontable::rHandsontableOutput(ns("modal_rents_floorplans"))
+                bslib::layout_columns(
+                  col_widths = c(12),
+                  bslib::card(
+                    full_screen = TRUE,
+                    rhandsontable::rHandsontableOutput(ns("modal_rents_floorplans"))
+                  )
+                )
               ),
               bslib::accordion_panel(
                 "Edit Market Rents",
                 icon = bsicons::bs_icon("bar-chart-line"),
-                rhandsontable::rHandsontableOutput(ns("modal_rents"))
+                bslib::layout_columns(
+                  col_widths = c(12),
+                  bslib::card(
+                    full_screen = TRUE,
+                    rhandsontable::rHandsontableOutput(ns("modal_rents"))
+                  )
+                )
               ),
               bslib::accordion_panel(
                 "Edit Concessions & Expenses",
                 icon = bsicons::bs_icon("currency-dollar"),
-                rhandsontable::rHandsontableOutput(ns("modal_concessions_expenses"))
+                bslib::layout_columns(
+                  col_widths = c(12),
+                  bslib::card(
+                    full_screen = TRUE,
+                    rhandsontable::rHandsontableOutput(ns("modal_concessions_expenses"))
+                  )
+                )
               )
             )
           )
