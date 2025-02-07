@@ -160,7 +160,6 @@ mod_survey_parking_server <- function(
           searchable = TRUE,
           bordered = TRUE,
           striped = TRUE,
-          hover = TRUE,
           highlight = TRUE,
           columns = list(
             parking_type = reactable::colDef(

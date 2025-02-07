@@ -131,10 +131,10 @@ tbl_avg_rents_by_unit_type <- function(rents_data) {
     }
   )
 
-  prop_name <- unique(rents_data$property_name)[[1]]
-  tbl_title <- "Average Rents by Unit Type/Floorplan"
-  tbl_subtitle <- paste0("Derived Rent Averages for Property: ", prop_name)
-  tbl_src <- "Source: Rent Data"
+  # prop_name <- unique(rents_data$property_name)[[1]]
+  # tbl_title <- "Average Rents by Unit Type/Floorplan"
+  # tbl_subtitle <- paste0("Derived Rent Averages for Property: ", prop_name)
+  # tbl_src <- "Source: Rent Data"
 
   col_defs <- list(
     floorplan_type = reactable::colDef(

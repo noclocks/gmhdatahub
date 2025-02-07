@@ -189,7 +189,7 @@ mod_survey_utilities_server <- function(
         prop_id <- selected_filters$property_id
         comp_id <- selected_filters$competitor_id
         prop_name <- selected_filters$property_name
-        if (is.na(comp_id)) {
+        if (is.null(comp_id) || is.na(comp_id)) {
           paste0(prop_name, "(", prop_id, ")")
         } else {
           paste0(prop_name, "(Competitor #", comp_id, ")")
@@ -198,7 +198,7 @@ mod_survey_utilities_server <- function(
 
       output$last_updated_at <- shiny::renderText({
         shiny::req(survey_data$utilities)
-        survey_data$utilities$updated_at |>
+        survey_data$utilities |>
           dplyr::pull("updated_at") |>
           max(na.rm = TRUE) |>
           format("%Y-%m-%d %H:%M:%S")

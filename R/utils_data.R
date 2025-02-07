@@ -132,3 +132,49 @@ derive_tbl_totals <- function(data, count_cols = NULL, sum_cols = NULL, avg_cols
       )
     )
 }
+
+default_tbl_survey_rents_by_floorplan <- function() {
+  tibble::tibble(
+    floorplan_type = c(
+      "Studio",
+      "1 Bedroom",
+      "2 Bedroom",
+      "3 Bedroom",
+      "4 Bedroom",
+      "5 Bedroom",
+      "6 Bedroom"
+    ),
+    floorplan_id = c(
+      "A1",
+      "A2",
+      "B1",
+      "B2",
+      "C1",
+      "C2",
+      "D1"
+    ),
+    square_feet = rep(0, 7),
+    number_of_beds = c(1, 1, 2, 3, 4, 5, 6),
+    number_of_baths = rep(1, 7),
+    total_units_count = rep(0, 7),
+    square_feet_per_bed = rep(0, 7),
+    available = rep(TRUE, 7),
+    market_rent_per_bed = rep(0.00, 7),
+    market_rent_per_square_foot = rep(0.00, 7),
+    concessions_gift_card = rep(0.00, 7),
+    concessions_one_time_rent = rep(0.00, 7),
+    concessions_monthly_rent = rep(0.00, 7),
+    effective_rent_per_bed = rep(0.00, 7),
+    effective_rent_per_square_foot = rep(0.00, 7),
+    expenses_furniture = rep(0.00, 7),
+    expenses_tv = rep(0.00, 7),
+    expenses_electricity_gas = rep(0.00, 7),
+    expenses_water = rep(0.00, 7),
+    expenses_cable_internet = rep(0.00, 7),
+    expenses_trash_valet = rep(0.00, 7),
+    expenses_parking = rep(0.00, 7),
+    expenses_total = rep(0.00, 7),
+    bundled_rent_per_bed = rep(0.00, 7),
+    bundled_rent_per_square_foot = rep(0.00, 7)
+  )
+}

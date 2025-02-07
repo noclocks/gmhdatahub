@@ -149,7 +149,7 @@ mod_survey_hours_server <- function(
 
       output$last_updated_at <- shiny::renderText({
         shiny::req(survey_data$hours)
-        survey_data$hours$updated_at |>
+        survey_data$hours |>
           dplyr::pull("updated_at") |>
           max(na.rm = TRUE) |>
           format("%Y-%m-%d %H:%M:%S")
@@ -173,7 +173,7 @@ mod_survey_hours_server <- function(
             day_of_week = reactable::colDef(
               name = "Day of Week",
               align = "center",
-              reactablefmtr::pill_buttons(tbl_data)
+              cell = reactablefmtr::pill_buttons(tbl_data)
             ),
             open_time = reactable::colDef(
               name = "Open Time",
