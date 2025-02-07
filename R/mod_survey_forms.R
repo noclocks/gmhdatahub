@@ -145,7 +145,7 @@ mod_survey_forms_ui <- function(id) {
         bslib::nav_item(
           shiny::actionButton(
             ns("edit_survey_section"),
-            "Edit Section Data:",
+            "Edit Section Data",
             icon = shiny::icon("edit"),
             class = "btn-primary"
           )

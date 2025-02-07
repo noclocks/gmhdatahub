@@ -550,3 +550,32 @@ db_update_survey_short_term_leases <- function(pool, new_values) {
   return(invisible(data))
 
 }
+
+db_update_survey_rents_by_floorplan <- function(pool, new_values) {
+
+  check_db_conn(pool)
+
+  data <- new_values
+
+  conn <- pool::poolCheckout(pool)
+  on.exit(pool::poolReturn(conn))
+
+  tryCatch(
+    {
+      dbx::dbxUpsert(
+        conn,
+        DBI::SQL("survey.rents_by_floorplan"),
+        records = data,
+        where_cols = c("property_name", "leasing_week_id", "floorplan_type", "floorplan_id"),
+        skip_existing = FALSE
+      )
+
+      cli::cli_alert_success("Successfully updated rents by floorplan.")
+      shiny::showNotification("Successfully updated rents by floorplan.")
+    },
+    error = function(e) {
+      cli::cli_alert_danger("Failed to update rents by floorplan: {.error {e$message}}")
+      shiny::showNotification("Failed to update rents by floorplan.", type = "error")
+    }
+  )
+}

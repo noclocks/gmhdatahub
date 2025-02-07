@@ -354,6 +354,7 @@ mod_survey_rents_server <- function(
               shiny::modalButton("Cancel")
             ),
             bslib::accordion(
+              open = TRUE,
               bslib::accordion_panel(
                 title = "Edit Floorplans",
                 icon = bsicons::bs_icon("house"),
@@ -389,6 +390,9 @@ mod_survey_rents_server <- function(
         if (is.null(selected_filters$leasing_week_id) || is.na(selected_filters$leasing_week_id)) {
           week_date <- get_leasing_week_start_date()
           week_id <- get_leasing_week_id_by_date(week_date)
+        } else {
+          week_id <- selected_filters$leasing_week_id
+          week_date <- selected_filters$leasing_week_date
         }
 
         initial_values <- survey_data$rents |>
@@ -403,15 +407,11 @@ mod_survey_rents_server <- function(
             number_of_beds,
             number_of_baths,
             total_units_count,
-            square_feet_per_bed,
             available,
             market_rent_per_bed,
-            market_rent_per_square_foot,
             concessions_gift_card,
             concessions_one_time_rent,
             concessions_monthly_rent,
-            effective_rent_per_bed,
-            effective_rent_per_square_foot,
             expenses_furniture,
             expenses_tv,
             expenses_electricity_gas,
@@ -419,9 +419,6 @@ mod_survey_rents_server <- function(
             expenses_cable_internet,
             expenses_trash_valet,
             expenses_parking,
-            expenses_total,
-            bundled_rent_per_bed,
-            bundled_rent_per_square_foot,
             updated_by
           )
 
@@ -429,19 +426,21 @@ mod_survey_rents_server <- function(
         new_values_rents <- rhandsontable::hot_to_r(input$modal_rents)
         new_values_concessions_expenses <- rhandsontable::hot_to_r(input$modal_concessions_expenses)
 
+        browser()
+
         # merge new_values_* into table like initial data
-        new_data <- initial_values |>
+        new_values <- initial_values |>
           dplyr::select("floorplan_type", "floorplan_id") |>
           dplyr::distinct() |>
           dplyr::left_join(new_values_floorplans, by = c("floorplan_type", "floorplan_id")) |>
           dplyr::left_join(new_values_rents, by = c("floorplan_type", "floorplan_id")) |>
           dplyr::left_join(new_values_concessions_expenses, by = c("floorplan_type", "floorplan_id")) |>
           dplyr::mutate(
-            property_id = prop_id,
-            competitor_id = comp_id,
-            leasing_week_id = week_id,
-            property_name = prop_name,
-            updated_by = selected_filters$user_id
+            property_id = as.integer(.env$prop_id),
+            competitor_id = as.integer(.env$comp_id),
+            leasing_week_id = as.integer(.env$week_id),
+            property_name = .env$prop_name,
+            updated_by = .env$selected_filters$user_id
           ) |>
           dplyr::select(
             property_id,
@@ -454,15 +453,11 @@ mod_survey_rents_server <- function(
             number_of_beds,
             number_of_baths,
             total_units_count,
-            square_feet_per_bed,
             available,
             market_rent_per_bed,
-            market_rent_per_square_foot,
             concessions_gift_card,
             concessions_one_time_rent,
             concessions_monthly_rent,
-            effective_rent_per_bed,
-            effective_rent_per_square_foot,
             expenses_furniture,
             expenses_tv,
             expenses_electricity_gas,
@@ -470,16 +465,36 @@ mod_survey_rents_server <- function(
             expenses_cable_internet,
             expenses_trash_valet,
             expenses_parking,
-            expenses_total,
-            bundled_rent_per_bed,
-            bundled_rent_per_square_foot,
             updated_by
           )
 
         changed_values <- dplyr::anti_join(
           new_values,
           initial_values,
-          by = names(new_values)
+          by = c(
+            "property_id",
+            "competitor_id",
+            "leasing_week_id",
+            "property_name",
+            "floorplan_type",
+            "floorplan_id",
+            "square_feet",
+            "number_of_beds",
+            "number_of_baths",
+            "total_units_count",
+            "available",
+            "market_rent_per_bed",
+            "concessions_gift_card",
+            "concessions_one_time_rent",
+            "concessions_monthly_rent",
+            "expenses_furniture",
+            "expenses_tv",
+            "expenses_electricity_gas",
+            "expenses_water",
+            "expenses_cable_internet",
+            "expenses_trash_valet",
+            "expenses_parking"
+          )
         )
 
         if (nrow(changed_values) == 0) {
