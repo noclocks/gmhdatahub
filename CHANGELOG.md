@@ -55,6 +55,8 @@
 
 ## Features
 
+- Survey mods ([586d79e](https://github.com/noclocks/gmhdatahub/commit/586d79e3f07f2b7d7343081a155d55923ae4ab9c))  - (Jimmy Briggs)
+- Db funcs ([3101589](https://github.com/noclocks/gmhdatahub/commit/3101589e33cf61e976d3f14c682208a35da92719))  - (Jimmy Briggs)
 - Db_trigger_func ([107c917](https://github.com/noclocks/gmhdatahub/commit/107c917ef6709e5972fd8b28dd7c980746aba7b4))  - (Jimmy Briggs)
 - Finish utilities ([8267636](https://github.com/noclocks/gmhdatahub/commit/8267636576a256d216d865a57672fec9528dd928))  - (Jimmy Briggs)
 - Utilities ([ff5cb4b](https://github.com/noclocks/gmhdatahub/commit/ff5cb4b5c6bd67676d6ce48d331e1363dab75989))  - (Jimmy Briggs)
