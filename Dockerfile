@@ -42,17 +42,6 @@ RUN rm -rf /build
 RUN mkdir -p /etc/gmhdatahub
 RUN Rscript -e "library(gmhdatahub); gmhdatahub::decrypt_cfg_file(path = '/etc/gmhdatahub')"
 
-RUN adduser \
-  --disabled-password \
-  --gecos "" \
-  --home "/nonexistent" \
-  --shell "/sbin/nologin" \
-  --no-create-home \
-  --uid "${UID}" \
-  "${USER}"
-
-USER ${USER}
-
 EXPOSE ${PORT}
 
 ENV R_CONFIG_ACTIVE="${CONFIG}"
