@@ -55,6 +55,7 @@
 
 ## Features
 
+- Enhance survey utilities module ([4e94b36](https://github.com/noclocks/gmhdatahub/commit/4e94b365454e3b5a61c9ed3b41657cc47c165b8b))  - (Jimmy Briggs)
 - Survey mods ([586d79e](https://github.com/noclocks/gmhdatahub/commit/586d79e3f07f2b7d7343081a155d55923ae4ab9c))  - (Jimmy Briggs)
 - Db funcs ([3101589](https://github.com/noclocks/gmhdatahub/commit/3101589e33cf61e976d3f14c682208a35da92719))  - (Jimmy Briggs)
 - Db_trigger_func ([107c917](https://github.com/noclocks/gmhdatahub/commit/107c917ef6709e5972fd8b28dd7c980746aba7b4))  - (Jimmy Briggs)
