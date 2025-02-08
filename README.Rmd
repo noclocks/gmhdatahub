@@ -19,7 +19,8 @@ knitr::opts_chunk$set(
   <a href="CHANGELOG.md">Changelog</a> &middot;
   <a href="https://docs.noclocks.dev/gmhdatahub/">Documentation</a> &middot;
   <a href="https://github.com/noclocks/gmhdatahub/pkgs/container/gmhdatahub">Docker Containers</a> &middot;
-  <a href="https://datahub.gmhcommunities.com">Live App</a>
+  <a href="https://gmhdatahub-851121724994.us-east1.run.app/">Live Development App</a> &middot;
+  <a href="https://datahub.gmhcommunities.com">Live Production App</a>
 </p>
 
 <p align="center">

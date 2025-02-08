@@ -1,32 +1,24 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
 <h1 align="center">
-
 GMH Data Hub Platform R Package
 </h1>
-
 <p align="center">
-
 <a href="CHANGELOG.md">Changelog</a> ·
 <a href="https://docs.noclocks.dev/gmhdatahub/">Documentation</a> ·
 <a href="https://github.com/noclocks/gmhdatahub/pkgs/container/gmhdatahub">Docker
-Containers</a> · <a href="https://datahub.gmhcommunities.com">Live
-App</a>
+Containers</a> ·
+<a href="https://gmhdatahub-851121724994.us-east1.run.app/">Live
+Development App</a> · <a href="https://datahub.gmhcommunities.com">Live
+Production App</a>
 </p>
-
 <p align="center">
-
 <img src="man/figures/noclocks-logo.svg" width="200px" height="auto" alt="No Clocks Logo"/>
 </p>
-
 <p align="center">
-
 <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&pause=1000&center=true&vCenter=true&multiline=true&width=450&height=80&lines=GMH+Data+Hub;Built+by+No+Clocks%2C+LLC" alt="Typing SVG"/>
 </p>
-
 <p align="center">
-
 <img src="man/figures/dashboard-screenshot.png" width="100%" height="auto" alt="GMH Data Hub Platform"/>
 </p>
 
