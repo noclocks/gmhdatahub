@@ -52,14 +52,99 @@ app_ui <- function(req = NULL) {
     }
   }
 
-  htmltools::tagList(
-    add_external_resources(),
-    bslib::page_navbar(
+  is_prod <- function(env = Sys.getenv('R_CONFIG_ACTIVE')) {
+    if (env == 'production') {
+      return(TRUE)
+    } else {
+      return(FALSE)
+    }
+  }
+
+  out <- NULL
+
+  if (Sys.getenv('R_CONFIG_ACTIVE') != 'production') {
+    custom_page_navbar <- bslib::page_navbar(
       id = "nav",
       lang = "en",
       window_title = "GMH DataHub",
       position = "static-top",
-      selected = "survey_forms",
+      # selected = "survey_forms",
+      selected = 'dashboard',
+      theme = app_theme_ui(),
+      title = app_title_ui(),
+      footer = app_footer_ui(),
+      bslib::nav_spacer(),
+      bslib::nav_panel(
+        title = "Dashboard",
+        value = "dashboard",
+        icon = bsicons::bs_icon("speedometer2"),
+        mod_dashboard_ui("dashboard")
+      ),
+      bslib::nav_spacer(),
+      bslib::nav_item(bslib::input_dark_mode(id = "dark_mode", mode = "light")),
+      # bslib::nav_menu(
+      #   title = "Links",
+      #   align = "right",
+      #   icon = bsicons::bs_icon("link-45deg"),
+      #   bslib::nav_item(
+      #     tags$a(
+      #       icon("book"),
+      #       "Documentation",
+      #       href = "#", # pkg_sys("docs/index.html"),
+      #       target = "_blank"
+      #     )
+      #   ),
+      #   bslib::nav_item(
+      #     tags$a(
+      #       icon("github"), "GitHub",
+      #       href = "https://docs.noclocks.dev/gmhdatahub/",
+      #       target = "_blank"
+      #     )
+      #   )
+      # ),
+      bslib::nav_menu(
+        title = "Contact",
+        align = "right",
+        icon = bsicons::bs_icon("envelope"),
+        bslib::nav_item(
+          tags$a(
+            icon("envelope"),
+            "Email Support",
+            href = "mailto:support@noclocks.dev",
+            target = "_blank"
+          )
+        )
+      ),
+      bslib::nav_menu(
+        title = "User",
+        align = "right",
+        icon = bsicons::bs_icon("person-circle"),
+        bslib::nav_item(
+          htmltools::tags$a(
+            shiny::icon("user"),
+            shiny::textOutput("signed_in_as"),
+            href = "#",
+            style = "display: inline-flex; align-items: center; padding: 2.5px 10px; width: 16rem; justify-content: space-between;"
+          )
+        ),
+        bslib::nav_item(
+          shiny::actionLink(
+            inputId = "auth_logout",
+            label = "Logout",
+            icon = shiny::icon("sign-out-alt"),
+            style = "display: inline-flex; align-items: center; padding: 2.5px 50px; width: -webkit-fill-available;"
+          )
+        )
+      )
+    )
+  } else {
+    custom_page_navbar <- bslib::page_navbar(
+      id = "nav",
+      lang = "en",
+      window_title = "GMH DataHub",
+      position = "static-top",
+      # selected = "survey_forms",
+      selected = 'dashboard',
       theme = app_theme_ui(),
       title = app_title_ui(),
       footer = app_footer_ui(),
@@ -161,26 +246,26 @@ app_ui <- function(req = NULL) {
       ),
       bslib::nav_spacer(),
       bslib::nav_item(bslib::input_dark_mode(id = "dark_mode", mode = "light")),
-      bslib::nav_menu(
-        title = "Links",
-        align = "right",
-        icon = bsicons::bs_icon("link-45deg"),
-        bslib::nav_item(
-          tags$a(
-            icon("book"),
-            "Documentation",
-            href = "#", # pkg_sys("docs/index.html"),
-            target = "_blank"
-          )
-        ),
-        bslib::nav_item(
-          tags$a(
-            icon("github"), "GitHub",
-            href = "https://docs.noclocks.dev/gmhdatahub/",
-            target = "_blank"
-          )
-        )
-      ),
+      # bslib::nav_menu(
+      #   title = "Links",
+      #   align = "right",
+      #   icon = bsicons::bs_icon("link-45deg"),
+      #   bslib::nav_item(
+      #     tags$a(
+      #       icon("book"),
+      #       "Documentation",
+      #       href = "#", # pkg_sys("docs/index.html"),
+      #       target = "_blank"
+      #     )
+      #   ),
+      #   bslib::nav_item(
+      #     tags$a(
+      #       icon("github"), "GitHub",
+      #       href = "https://docs.noclocks.dev/gmhdatahub/",
+      #       target = "_blank"
+      #     )
+      #   )
+      # ),
       bslib::nav_menu(
         title = "Contact",
         align = "right",
@@ -216,6 +301,11 @@ app_ui <- function(req = NULL) {
         )
       )
     )
+  }
+
+  htmltools::tagList(
+    add_external_resources(),
+    custom_page_navbar
   )
 }
 
