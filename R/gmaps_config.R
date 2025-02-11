@@ -1,6 +1,6 @@
 get_gmaps_config <- function(
     key = NULL,
-    file = Sys.getenv("R_CONFIG_FILE", "config.yml"),
+    file = Sys.getenv("R_CONFIG_FILE", pkg_sys("config/config.yml")),
     config = Sys.getenv("R_CONFIG_ACTIVE", "default")) {
   # normalize path to config file
   file <- normalizePath(file, mustWork = FALSE)
