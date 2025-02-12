@@ -374,7 +374,7 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
     bordered = TRUE,
     striped = TRUE,
     highlight = TRUE,
-    defaultPageSize = -1,
+    defaultPageSize = nrow(summary_data),
     defaultSorted = list("property_name" = "asc"),
     showPagination = FALSE,
     showSortable = TRUE,
@@ -465,8 +465,6 @@ tbl_entrata_pre_lease <- function(details_by_property_data, details_data) {
         ~round(.x, 0)
       )
     )
-
-
 
   reactable::reactable(
     details_by_property_data,
