@@ -2,6 +2,16 @@ source("data-raw/scripts/gmh.R")
 
 pool <- db_connect()
 
+leasing_calendar_tbl <- create_leasing_calendar(start_year = 2023, num_years = 3) |>
+  dplyr::select(-date_key) |>
+  dplyr::rename(date_key = date)
+
+pool::dbAppendTable(
+  pool,
+  DBI::SQL("gmh.leasing_calendar"),
+  leasing_calendar_tbl
+)
+
 db_init_tbl <- function(pool, tbl_name, tbl_data, sql_file = NULL) {
 
   # create table
@@ -46,10 +56,8 @@ db_init_tbl(pool, "gmh.leasing_calendar", gmh_leasing_calendar_tbl, "inst/databa
 #
 #
 #
-# leasing_calendar_tbl <- create_leasing_calendar(start_year = 2023, num_years = 3) |>
-#   select(-date_key) |>
-#   dplyr::rename(date_key = date)
-#
+
+
 # generate_table_ddl(leasing_calendar_tbl, "leasing_calendar", "gmh") |>
 #   cat(sep = "\n", file = "inst/database/schemas/gmh/tables/gmh.leasing_calendar.sql", append = TRUE)
 #
