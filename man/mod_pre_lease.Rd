@@ -9,7 +9,7 @@
 \usage{
 mod_pre_lease_ui(id)
 
-mod_pre_lease_server(id, pool = NULL)
+mod_pre_lease_server(id, pool = NULL, selected_property_id = NULL)
 
 mod_pre_lease_demo()
 }
