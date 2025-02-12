@@ -333,6 +333,7 @@ app_footer_ui <- function() {
     tags$div(
       class = "container",
       tags$span(
+        style = 'width: 100%; display: inline-flex; justify-content: center;',
         "© 2024 GMH DataHub" # Removed text-muted class
       )
     )
