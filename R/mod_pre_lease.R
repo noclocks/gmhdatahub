@@ -127,40 +127,7 @@ mod_pre_lease_ui <- function(id) {
           value = ns("summary"),
           # summary table -----------------------------------------------------------
           bslib::card(
-            bslib::card_header(
-              class = "bg-primary text-white",
-              htmltools::tags$h2(
-                bsicons::bs_icon("table"),
-                "Pre-Lease Summary",
-                htmltools::tags$span(
-                  class = "float-end justify-content-between",
-                  shiny::actionButton(
-                    ns("refresh"),
-                    "Refresh Data",
-                    icon = shiny::icon("recycle"),
-                    class = "btn-sm btn-outline-light"
-                  ),
-                  shiny::actionButton(
-                    ns("entrata"),
-                    "Entrata API",
-                    icon = shiny::icon("sync"),
-                    class = "btn-sm btn-outline-light"
-                  ),
-                  shiny::downloadButton(
-                    ns("download"),
-                    "Export to Excel",
-                    class = "btn-sm btn-outline-light",
-                    icon = shiny::icon("file-excel")
-                  ),
-                  shiny::actionButton(
-                    inputId = ns("help"),
-                    label = "Help",
-                    icon = shiny::icon("question-circle"),
-                    class = "btn-sm btn-outline-light"
-                  )
-                )
-              )
-            ),
+            full_screen = TRUE,
             bslib::card_body(
               reactable::reactableOutput(ns("summary_table")) |> with_loader()
             ),
@@ -244,8 +211,50 @@ mod_pre_lease_ui <- function(id) {
                 htmltools::tags$li(bsicons::bs_icon("file-earmark-text", class = "me-2"), "Lease Types: Breakdown between new leases and renewals", class = "mb-2"),
                 htmltools::tags$li(bsicons::bs_icon("graph-up", class = "me-2"), "YOY Performance: Year-over-year comparison of leasing metrics", class = "mb-2"),
                 htmltools::tags$li(bsicons::bs_icon("speedometer", class = "me-2"), "Velocity Targets: Progress towards 90%, 95%, and 100% occupancy goals")
+              ),
+              htmltools::tags$hr(),
+              htmltools::tags$iframe(
+                src = "www/content/pre_lease/pre_lease_summary_tbl.html",
+                width = "100%",
+                height = "600px",
+                scrolling = "auto",
+                frameborder = 0
               )
             )
+          )
+        ),
+        bslib::nav_spacer(),
+        bslib::nav_item(
+          shiny::downloadButton(
+            ns("download"),
+            "Export to Excel",
+            class = "btn-sm btn-success",
+            icon = shiny::icon("file-excel")
+          )
+        ),
+        bslib::nav_item(
+          shiny::actionButton(
+            ns("refresh"),
+            "Refresh Data",
+            icon = shiny::icon("recycle"),
+            class = "btn-sm btn-primary"
+          )
+        ),
+        bslib::nav_item(
+          shiny::actionButton(
+            ns("entrata"),
+            "Entrata Settings",
+            icon = shiny::icon("gear"),
+            class = "btn-sm btn-primary"
+          )
+        ),
+        bslib::nav_item(
+          shiny::actionButton(
+            inputId = ns("help"),
+            label = "Help",
+            icon = shiny::icon("question-circle"),
+            class = "btn-sm btn-primary",
+            style = "margin-right: 10px;"
           )
         )
       )
@@ -643,24 +652,18 @@ mod_pre_lease_server <- function(
         )
       })
 
-      shiny::observeEvent(input$help, {
-        shiny::showModal(
-          shiny::modalDialog(
-            title = "Pre-Lease Summary Help",
-            size = "l",
-            easyClose = TRUE,htmltools::tags$iframe(
-              src = "www/content/pre_lease/pre_lease_summary_tbl.html",
-              width = "100%",
-              height = "600px",
-              scrolling = "auto",
-              frameborder = 0
-            ),
-            footer = htmltools::tagList(
-              shiny::modalButton("Close")
-            )
-          )
-        )
-      })
+      # shiny::observeEvent(input$help, {
+      #   shiny::showModal(
+      #     shiny::modalDialog(
+      #       title = "Pre-Lease Summary Help",
+      #       size = "l",
+      #       easyClose = TRUE,
+      #       footer = htmltools::tagList(
+      #         shiny::modalButton("Close")
+      #       )
+      #     )
+      #   )
+      # })
 
       # value boxes
       output$val_avg_occupancy <- shiny::renderText({
