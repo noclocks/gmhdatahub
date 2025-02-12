@@ -96,40 +96,45 @@ mod_pre_lease_ui <- function(id) {
         sidebar = bslib::sidebar(
           id = ns("sidebar"),
           title = "Controls",
-          bslib::accordion_panel(
-            title = "Filters",
-            value = ns("filters"),
-            icon = bsicons::bs_icon("funnel"),
-            shiny::selectInput(
-              ns("partners"),
-              label = "Investment Partners",
-              choices = default_partners,
-              multiple = TRUE
-            ),
-            shiny::selectInput(
-              ns("properties"),
-              label = "Properties",
-              choices = default_properties,
-              selectize = FALSE,
-              selected = default_properties,
-              multiple = TRUE
-            ),
-            shiny::dateInput(
-              ns("report_date"),
-              label = "Report Date",
-              value = default_report_date
-            ),
-            shiny::dateInput(
-              ns("leasing_date"),
-              label = "Pre-Lease Date",
-              value = default_leasing_date
-            )
-          ),
           shiny::actionButton(
             inputId = ns("entrata_settings"),
             label = "Entrata Settings",
             icon = shiny::icon("gear"),
             class = "btn-primary"
+          ),
+          bslib::accordion(
+            id = ns("accordion"),
+            bslib::accordion_panel(
+              title = "Filters",
+              value = ns("filters"),
+              icon = bsicons::bs_icon("funnel"),
+              shiny::selectInput(
+                ns("partners"),
+                label = "Investment Partners",
+                choices = default_partners,
+                selectize = FALSE,
+                selected = default_partners,
+                multiple = TRUE
+              ),
+              shiny::selectInput(
+                ns("properties"),
+                label = "Properties",
+                choices = default_properties,
+                selectize = FALSE,
+                selected = default_properties,
+                multiple = TRUE
+              ),
+              shiny::dateInput(
+                ns("report_date"),
+                label = "Report Date",
+                value = default_report_date
+              ),
+              shiny::dateInput(
+                ns("leasing_date"),
+                label = "Pre-Lease Date",
+                value = default_leasing_date
+              )
+            )
           )
         ),
         # summary -----------------------------------------------------------------
@@ -316,13 +321,14 @@ mod_pre_lease_server <- function(
         )
 
       # observe partners to update properties
-      shiny::observeEvent(input$partners, {
-        shiny::req(input$partners)
+      shiny::observeEvent(filters$partners, {
 
-        filters$partners <- input$partners
-
-        partner_properties <- db_read_gmh_properties(pool, partner_ids = input$partners) |>
+        partner_properties <- db_read_tbl(pool, "gmh.pre_lease_global_summary", collect = FALSE) |>
+          dplyr::filter(
+            investment_partner %in% filters$partners
+          ) |>
           dplyr::select("property_id", "property_name") |>
+          dplyr::collect() |>
           tibble::deframe()
 
         shiny::updateSelectInput(
@@ -331,8 +337,6 @@ mod_pre_lease_server <- function(
           choices = partner_properties,
           selected = partner_properties
         )
-
-        filters$properties <- partner_properties
 
         cli::cli_alert_info(
           c(
@@ -344,22 +348,16 @@ mod_pre_lease_server <- function(
       }, ignoreInit = TRUE, ignoreNULL = TRUE)
 
       # observe properties to update partners
-      shiny::observeEvent(input$properties, {
-        shiny::req(input$properties)
+      shiny::observeEvent(filters$properties, {
 
-        filters$properties <- input$properties
+        prop_id <- as.integer(filters$properties)
 
-        property_partner_ids <- db_read_gmh_properties(pool, property_ids = input$properties, collect = FALSE) |>
-          dplyr::select("partner_id") |>
-          dplyr::pull("partner_id") |>
-          as.integer() |>
+        property_partners <- db_read_tbl(pool, "gmh.pre_lease_global_summary", collect = FALSE) |>
+          dplyr::filter(
+            .data$property_id %in% .env$prop_id
+          ) |>
+          dplyr::pull("investment_partner") |>
           unique()
-
-        property_partner_names <- get_partner_name_by_id(property_partner_ids)
-
-        property_partners <- property_partner_ids |> setNames(property_partner_names)
-
-        filters$partners <- property_partners
 
         shiny::updateSelectInput(
           session,
@@ -380,11 +378,7 @@ mod_pre_lease_server <- function(
       # initial data
       pre_lease_summary_data <- shiny::reactive({
         shiny::req(db_trigger())
-        db_read_gmh_pre_lease_summary_tbl(
-          pool,
-          report_date = filters$report_date,
-          property_ids = filters$properties
-        )
+        db_read_tbl(pool, "gmh.pre_lease_global_summary")
       })
 
       # summary table
@@ -658,16 +652,199 @@ mod_pre_lease_server <- function(
       # download
       output$download <- shiny::downloadHandler(
         filename = function() {
-          paste0(Sys.Date(), "Pre-Lease-Summary-Table.xlsx")
+          get_xl_report_file_name(report_name = "GMH Pre-Lease Summary",
+                                  report_date = Sys.Date())
         },
         content = function(file) {
-          df <- pre_lease_summary_data() |>
-            dplyr::collect()
+          shiny::withProgress(
+            message = "Generating Excel Pre-Lease Report Export...",
+            value = 0,
+            {
+              shiny::setProgress(10, message = "Collecting Data and Information...")
 
-          writexl::write_xlsx(
-            x = df,
-            path = file
+              report_date <- pre_lease_summary_data() |>
+                dplyr::pull("report_date") |>
+                max(na.rm = TRUE)
+
+              leasing_week <- get_leasing_week_number(report_date)
+
+              weeks_left_to_lease <- get_weeks_left_to_lease(report_date)
+
+              leasing_season_ending <- get_pre_lease_season_start_date(report_date)
+
+              xl_data <- pre_lease_summary_data() |>
+                dplyr::select(
+                  property_name,
+                  investment_partner,
+                  total_beds,
+                  model_beds,
+                  current_occupied,
+                  current_occupancy,
+                  current_total_new,
+                  current_total_renewals,
+                  current_total_leases,
+                  current_preleased_percent,
+                  prior_total_new,
+                  prior_total_renewals,
+                  prior_total_leases,
+                  prior_preleased_percent,
+                  yoy_variance_count,
+                  yoy_variance_percent,
+                  weekly_new,
+                  weekly_renewal,
+                  weekly_total,
+                  weekly_percent_gained,
+                  beds_left,
+                  vel_90,
+                  vel_95,
+                  vel_100
+                ) |>
+                dplyr::mutate(
+                  dplyr::across(
+                    tidyselect::where(is.numeric),
+                    dplyr::coalesce,
+                    0
+                  )
+                )
+
+              shiny::setProgress(20, message = "Formatting Data for Excel...")
+
+              comma_cols <- c(
+                "total_beds",
+                "model_beds",
+                "current_occupied",
+                "current_total_new",
+                "current_total_renewals",
+                "current_total_leases",
+                "prior_total_new",
+                "prior_total_renewals",
+                "prior_total_leases",
+                "yoy_variance_count",
+                "weekly_new",
+                "weekly_renewal",
+                "weekly_total",
+                "beds_left",
+                "vel_90",
+                "vel_95",
+                "vel_100"
+              )
+
+              pct_cols <- c(
+                "current_occupancy",
+                "current_preleased_percent",
+                "prior_preleased_percent",
+                "yoy_variance_percent",
+                "weekly_percent_gained"
+              )
+
+              for (col in comma_cols) {
+                class(xl_data[[col]]) <- c("comma", class(xl_data[[col]]))
+              }
+
+              for (col in pct_cols) {
+                class(xl_data[[col]]) <- c("percentage", class(xl_data[[col]]))
+              }
+
+              shiny::setProgress(30, message = "Initializing Excel Template...")
+
+              wb_template <- openxlsx2::wb_load(
+                pkg_sys("templates/excel/pre-lease-summary-template.xlsx"),
+                sheet = "Pre-Lease Summary"
+              )
+
+              shiny::setProgress(40, message = "Writing Report Date to Excel...")
+
+              wb_template$add_data(
+                sheet = "Pre-Lease Summary",
+                x = report_date,
+                start_row = 2,
+                start_col = 2,
+                col_names = FALSE
+              )
+
+              setProgress(50, message = "Writing Leasing Season Ending Date to Excel...")
+
+              wb_template$add_data(
+                sheet = "Pre-Lease Summary",
+                x = leasing_season_ending,
+                start_row = 2,
+                start_col = 24,
+                col_names = FALSE
+              )
+
+              setProgress(60, message = "Writing Leasing Week to Excel...")
+
+              wb_template$add_data(
+                sheet = "Pre-Lease Summary",
+                x = leasing_week,
+                start_row = 3,
+                start_col = 2,
+                col_names = FALSE
+              )
+
+              setProgress(70, message = "Writing Weeks Left to Lease to Excel...")
+
+              wb_template$add_data(
+                sheet = "Pre-Lease Summary",
+                x = weeks_left_to_lease,
+                start_row = 3,
+                start_col = 24,
+                col_names = FALSE
+              )
+
+              setProgress(80, message = "Writing Data to Excel...")
+
+              wb_template$add_data(
+                sheet = "Pre-Lease Summary",
+                x = xl_data |>
+                  dplyr::select(property_name, investment_partner),
+                start_row = 6,
+                start_col = 1,
+                col_names = FALSE
+              )
+
+              wb_template$add_data(
+                sheet = "Pre-Lease Summary",
+                x = xl_data |>
+                  dplyr::select(
+                    total_beds:current_total_renewals
+                  ),
+                start_row = 6,
+                start_col = 3,
+                col_names = FALSE
+              )
+
+              wb_template$add_data(
+                sheet = "Pre-Lease Summary",
+                x = xl_data |>
+                  dplyr::select(
+                    prior_total_new:prior_total_renewals
+                  ),
+                start_row = 6,
+                start_col = 11,
+                col_names = FALSE
+              )
+
+              wb_template$add_data(
+                sheet = "Pre-Lease Summary",
+                x = xl_data |>
+                  dplyr::select(
+                    weekly_new:weekly_renewal
+                  ),
+                start_row = 6,
+                start_col = 17,
+                col_names = FALSE
+              )
+
+              setProgress(90, message = "Finalizing Excel File...")
+
+              wb_template$save(file, overwrite = TRUE)
+
+              setProgress(100, message = "Excel File Generated Successfully!")
+
+            }
           )
+
         }
       )
 
