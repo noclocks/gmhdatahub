@@ -395,7 +395,7 @@ mod_dashboard_server <- function(
 
         property_partner_names <- get_partner_name_by_id(property_partner_ids)
 
-        property_partners <- property_partner_ids |> setNames(property_partner_names)
+        property_partners <- property_partner_ids |> stats::setNames(property_partner_names)
 
         filters$partners <- property_partners
 
