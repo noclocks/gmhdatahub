@@ -20,6 +20,6 @@ safe_unnest <- function(data, id_col, path, names) {
       names_repair = "minimal"
     ) |>
     dplyr::select(
-      tidyselect::all_of(names)
+      dplyr::all_of(names)
     )
 }

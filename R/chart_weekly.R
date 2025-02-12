@@ -84,7 +84,7 @@ chart_weekly_activity <- function(data, id = NULL, height = 500, ...) {
       weekly_total
     ) |>
     tidyr::pivot_longer(
-      cols = tidyselect::starts_with("weekly"),
+      cols = dplyr::starts_with("weekly"),
       names_to = "metric",
       values_to = "value"
     ) |>

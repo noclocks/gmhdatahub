@@ -68,7 +68,7 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
   # coalesce all NA values to 0 for all numeric columns
   summary_data <- summary_data |>
     dplyr::mutate(
-      dplyr::across(tidyselect::where(is.numeric), ~dplyr::coalesce(.x, 0))
+      dplyr::across(dplyr::where(is.numeric), ~dplyr::coalesce(.x, 0))
     )
 
   totals <- calculate_pre_lease_summary_totals(summary_data)
@@ -367,7 +367,7 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
     dplyr::mutate(
       .actions = NA
     ) |>
-    dplyr::select(".actions", tidyselect::everything())
+    dplyr::select(".actions", dplyr::everything())
 
   reactable::reactable(
     data = summary_data,
@@ -463,17 +463,17 @@ tbl_entrata_pre_lease <- function(details_by_property_data, details_data) {
   totals <- details_by_property_data |>
     dplyr::summarise(
       dplyr::across(
-        tidyselect::all_of(sum_cols),
+        dplyr::all_of(sum_cols),
         ~sum(.x, na.rm = TRUE)
       ),
       dplyr::across(
-        tidyselect::all_of(avg_cols),
+        dplyr::all_of(avg_cols),
         ~mean(.x, na.rm = TRUE)
       )
     ) |>
     dplyr::mutate(
       dplyr::across(
-        tidyselect::all_of(avg_cols),
+        dplyr::all_of(avg_cols),
         ~round(.x, 0)
       )
     )
@@ -792,7 +792,7 @@ calculate_pre_lease_summary_totals <- function(summary_data) {
       dplyr::across(dplyr::all_of(avg_cols), function(x) mean(x, na.rm = TRUE))
     ) |>
     dplyr::mutate(
-      dplyr::across(tidyselect::starts_with("vel_"), function(x) round(x, 2)),
+      dplyr::across(dplyr::starts_with("vel_"), function(x) round(x, 2)),
       dplyr::across(dplyr::all_of(sum_cols), function(x) prettyNum(x, big.mark = ",")),
       dplyr::across(dplyr::all_of(avg_cols), function(x) scales::percent(x, accuracy = 0.1))
     )

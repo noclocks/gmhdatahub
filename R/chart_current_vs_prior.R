@@ -30,7 +30,7 @@ chart_current_vs_prior <- function(data, metric = c("leases", "renewals", "prele
   )
 
   chart_data <- data |>
-    dplyr::select(tidyselect::all_of(req_cols)) |>
+    dplyr::select(dplyr::all_of(req_cols)) |>
     tidyr::pivot_longer(
       cols = -property_name,
       names_to = "type",

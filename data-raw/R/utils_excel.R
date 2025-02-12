@@ -341,7 +341,7 @@ read_excel_ranges <- function(file, sheets, ranges, col_specs) {
       col_names = col_names
     ) |>
       dplyr::mutate(unit_name = .x) |>
-      dplyr::select(unit_name, tidyselect::everything())
+      dplyr::select(unit_name, dplyr::everything())
   )
 }
 

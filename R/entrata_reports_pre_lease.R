@@ -288,7 +288,7 @@ entrata_pre_lease_report_property_details <- function(summary_data, details_data
         "yoy_variance"
       ) |>
       dplyr::mutate(
-        dplyr::across(tidyselect::where(is.numeric), ~dplyr::coalesce(.x, 0))
+        dplyr::across(dplyr::where(is.numeric), ~dplyr::coalesce(.x, 0))
       ) |>
       dplyr::arrange(
         .data$property_name,

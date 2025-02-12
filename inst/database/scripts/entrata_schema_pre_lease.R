@@ -189,11 +189,11 @@ summary <- dat$summary |>
     excluded_unit_count,
     rentable_unit_count,
     avg_scheduled_rent,
-    tidyselect::starts_with("started_"),
-    tidyselect::starts_with("partially_completed_"),
-    tidyselect::starts_with("completed_"),
-    tidyselect::starts_with("approved_"),
-    tidyselect::starts_with("preleased_"),
+    dplyr::starts_with("started_"),
+    dplyr::starts_with("partially_completed_"),
+    dplyr::starts_with("completed_"),
+    dplyr::starts_with("approved_"),
+    dplyr::starts_with("preleased_"),
     variance
   )
 

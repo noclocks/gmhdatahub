@@ -31,7 +31,7 @@ db_read_gmh_properties_partners <- function(
       "partner_id",
       "property_name",
       "partner_name",
-      tidyselect::everything()
+      dplyr::everything()
     )
 
   if (collect) {

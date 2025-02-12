@@ -23,7 +23,7 @@ db_init_tbl <- function(pool, tbl_name, tbl_data, sql_file = NULL) {
   # read back
   hold <- db_read_tbl(pool, tbl_name = tbl_name)
   rm_cols <- c("created_at", "updated_at", "created_by", "updated_by", "modified_at", "modified_by")
-  hold <- hold |> dplyr::select(-tidyselect::any_of(rm_cols))
+  hold <- hold |> dplyr::select(-dplyr::any_of(rm_cols))
 
   # compare
   waldo::compare(hold, tbl_data)

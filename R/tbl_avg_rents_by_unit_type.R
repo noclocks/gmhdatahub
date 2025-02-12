@@ -54,7 +54,7 @@ tbl_avg_rents_by_unit_type <- function(rents_data) {
     ) |>
     dplyr::mutate(
       dplyr::across(
-        tidyselect::where(is.numeric),
+        dplyr::where(is.numeric),
         tidyr::replace_na,
         replace = 0
       ),
@@ -77,7 +77,7 @@ tbl_avg_rents_by_unit_type <- function(rents_data) {
     ) |>
     dplyr::mutate(
       dplyr::across(
-        tidyselect::where(is.numeric),
+        dplyr::where(is.numeric),
         function(x) {
           round(x, 2) |> prettyNum(big.mark = ",")
         }

@@ -6,7 +6,7 @@ prep_velocity_chart_data <- function(data, metrics) {
   data |>
     dplyr::select(
       property_name,
-      tidyselect::all_of(metrics)
+      dplyr::all_of(metrics)
     ) |>
     tidyr::pivot_longer(
       cols = -property_name,
@@ -43,10 +43,10 @@ prep_rates_chart_data <- function(data, rent_type, metrics) {
   data |>
     dplyr::select(
       property_name,
-      tidyselect::all_of(rent_cols)
+      dplyr::all_of(rent_cols)
     ) |>
     tidyr::pivot_longer(
-      cols = tidyselect::all_of(rent_cols),
+      cols = dplyr::all_of(rent_cols),
       names_to = "rent_type",
       values_to = "amount"
     )
@@ -176,7 +176,7 @@ chart_velocity_comparison <- function(data, id = NULL, ...) {
       vel_100
     ) |>
     tidyr::pivot_longer(
-      cols = tidyselect::starts_with("vel_"),
+      cols = dplyr::starts_with("vel_"),
       names_to = "velocity_type",
       values_to = "value"
     ) |>

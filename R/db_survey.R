@@ -832,7 +832,7 @@ db_read_survey_id <- function(pool, property_id = NULL, competitor_id = NULL, le
   hold_filtered <- hold |>
     dplyr::filter(
       dplyr::across(
-        tidyselect::all_of(names(filters)),
+        dplyr::all_of(names(filters)),
         ~ .x %in% filters[[dplyr::cur_column()]]
       )
     )

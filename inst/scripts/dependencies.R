@@ -75,7 +75,6 @@ to_install <- c(
   "stringr",
   "tibble",
   "tidyr",
-  "tidyselect",
   "waiter",
   "withr"
 )

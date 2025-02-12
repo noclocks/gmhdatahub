@@ -171,7 +171,7 @@ mod_survey_fees_server <- function(
         shiny::req(fees_data())
 
         tbl_data <- fees_data() |>
-          dplyr::select(tidyselect::contains("fee_"))
+          dplyr::select(dplyr::contains("fee_"))
 
         rhandsontable::rhandsontable(
           data = tbl_data,

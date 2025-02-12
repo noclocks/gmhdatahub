@@ -11,7 +11,7 @@ tbl_property_leasing_summary <- function(data, ...) {
   validate_col_names(data, req_cols)
 
   tbl_data <- data |>
-    dplyr::select(tidyselect::all_of(req_cols)) |>
+    dplyr::select(dplyr::all_of(req_cols)) |>
     dplyr::arrange(dplyr::desc(.data$total_beds))
 
   reactable::reactable(
