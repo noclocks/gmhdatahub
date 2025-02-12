@@ -21,10 +21,7 @@
 #' @importFrom conductor use_conductor
 #' @importFrom fontawesome fa_html_dependency
 #' @importFrom htmltools tags
-#' @importFrom rintrojs introjsUI
-#' @importFrom sever useSever
 #' @importFrom shiny addResourcePath
-#' @importFrom shinybrowser detect
 #' @importFrom shinybusy busy_start_up spin_epic
 #' @importFrom shinyjs useShinyjs
 #' @importFrom waiter use_waiter
@@ -37,17 +34,16 @@ add_external_resources <- function() {
   htmltools::tags$head(
     shinyjs::useShinyjs(),
     waiter::use_waiter(),
-    sever::useSever(),
+    # sever::useSever(),
     shinybusy::busy_start_up(
       loader = shinybusy::spin_epic("orbit", color = "#FFF"),
       text = "Initializing Data Hub...",
-      timeout = 1500,
+      mode = 'auto',
       color = "#FFF",
       background = gmh_colors("primary")
     ),
-    shinybrowser::detect(),
+    # shinybrowser::detect(),
     fontawesome::fa_html_dependency(),
-    rintrojs::introjsUI(),
     conductor::use_conductor(),
     htmltools::tags$link(href = "www/styles/css/custom-styles.css", rel = "stylesheet"),
     app_favicon()

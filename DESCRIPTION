@@ -51,13 +51,10 @@ Imports:
     reactablefmtr,
     readr,
     rhandsontable,
-    rintrojs,
     rlang (>= 1.1.0),
     RPostgres,
     scales,
-    sever,
     shiny,
-    shinybrowser,
     shinybusy,
     shinycustomloader,
     shinyjs,
@@ -71,7 +68,8 @@ Imports:
     utils,
     waiter,
     withr,
-    writexl
+    writexl,
+    yaml
 Suggests:
     httptest2,
     knitr,

@@ -63,7 +63,6 @@ to_install <- c(
   "purrr",
   "reactable",
   "readr",
-  "rintrojs",
   "rlang",
   "RPostgres",
   "scales",
