@@ -98,6 +98,7 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
     align = "center",
     headerVAlign = "center",
     vAlign = "center",
+    maxWidth = 75,
     format = reactable::colFormat(separators = TRUE),
     na = "N/A",
     headerStyle = htmltools::css(
@@ -116,27 +117,35 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
   col_defs <- list(
     .actions = reactable::colDef(
       name = "",
+      filterable = FALSE,
       sortable = FALSE,
-      width = 50,
+      width = 35,
       cell = function(value, index) {
         shiny::actionButton(
           inputId = ns(sprintf("edit_%d", index)),
           label = "",
           icon = shiny::icon("edit"),
-          onclick = sprintf("Shiny.setInputValue('%s', %d)", ns("edit_row"), index),
-          class = "btn-sm"
+          onclick = paste0(
+            sprintf("Shiny.setInputValue('%s', %s)", ns("edit_row"), 'null'),
+            '; ',
+            sprintf("Shiny.setInputValue('%s', %d)", ns("edit_row"), index),
+            ';'
+          ),
+          class = "btn-sm",
+          style = 'margin-inline: -2.5vw;'
         )
       },
       style = list(
         background = gmh_colors("light"),
-        cursor = "pointer"
+        cursor = "pointer",
+        padding = 0
       )
     ),
     report_date = reactable::colDef(show = FALSE),
     property_id = reactable::colDef(show = FALSE),
     property_name = reactable::colDef(
       name = "Property Name",
-      width = 200,
+      width = 100,
       style = list(fontWeight = 600, background = gmh_colors("light")),
       footer = "Total/Average",
       sticky = "left",
@@ -152,7 +161,7 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
     investment_partner = reactable::colDef(
       name = "Investment Partner",
       footer = "",
-      width = 200,
+      width = 100,
       cell = reactablefmtr::pill_buttons(data = summary_data),
       style = list(fontWeight = 600, background = gmh_colors("light"))
     ),
@@ -175,7 +184,7 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
       name = "Occupancy %",
       format = reactable::colFormat(percent = TRUE, digits = 1),
       aggregate = reactable::JS("function(values) { return values.reduce((a, b) => a + b, 0) / values.length }"),
-      width = 150,
+      # width = 150,
       align = "center",
       vAlign = "center"
     ),
@@ -197,7 +206,7 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
     current_preleased_percent = reactable::colDef(
       name = "Pre-Lease %",
       format = reactable::colFormat(percent = TRUE, digits = 1),
-      width = 150,
+      # width = 150,
       align = "center",
       vAlign = "center",
       aggregate = reactable::JS("function(values) { return values.reduce((a, b) => a + b, 0) / values.length }")
@@ -220,7 +229,7 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
     prior_preleased_percent = reactable::colDef(
       name = "Pre-Lease %",
       format = reactable::colFormat(percent = TRUE, digits = 1),
-      width = 150,
+      # width = 150,
       align = "center",
       vAlign = "center",
       aggregate = reactable::JS("function(values) { return values.reduce((a, b) => a + b, 0) / values.length }")
@@ -378,7 +387,9 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
     defaultSorted = list("property_name" = "asc"),
     showPagination = FALSE,
     showSortable = TRUE,
-    showSortIcon = TRUE
+    showSortIcon = TRUE,
+    # fullWidth = FALSE,
+    height = 500
   )
 }
 
@@ -407,6 +418,7 @@ tbl_entrata_pre_lease <- function(details_by_property_data, details_data) {
   )
 
   default_col_def <- reactable::colDef(
+    maxWidth = 75,
     align = "center",
     headerVAlign = "center",
     vAlign = "center",
@@ -485,7 +497,7 @@ tbl_entrata_pre_lease <- function(details_by_property_data, details_data) {
       property_id = reactable::colDef(show = FALSE),
       property_name = reactable::colDef(
         name = "Property",
-        width = 200,
+        width = 100,
         style = list(fontWeight = 600, background = "#f7f7f7"),
         footer = "Total/Average",
         sticky = "left",
