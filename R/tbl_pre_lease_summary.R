@@ -411,6 +411,7 @@ tbl_entrata_pre_lease <- function(details_by_property_data, details_data) {
     headerVAlign = "center",
     vAlign = "center",
     format = reactable::colFormat(separators = TRUE),
+    na = "N/A",
     headerStyle = htmltools::css(
       font_weight = 600,
       border_bottom = "2px solid black"
@@ -468,15 +469,7 @@ tbl_entrata_pre_lease <- function(details_by_property_data, details_data) {
 
   reactable::reactable(
     details_by_property_data,
-    theme = reactable::reactableTheme(
-        borderColor = "#dfe2e5",
-        stripedColor = "#f6f8fa",
-        highlightColor = "#f0f5f9",
-        cellPadding = "12px 15px",
-        headerStyle = header_style,
-        # groupHeaderStyle = header_group_style,
-        footerStyle = footer_style
-    ),
+    theme = pre_lease_reactable_theme(),
     defaultColDef = default_col_def,
     columns = list(
       report_date = reactable::colDef(show = FALSE),
@@ -621,25 +614,28 @@ tbl_entrata_pre_lease <- function(details_by_property_data, details_data) {
         return(div("No details available"))
       }
 
-      property_details <- property_details |>
-        dplyr::select(
-          property_name,
-          unit_type,
-          bldg_unit,
-          unit_status,
-          sqft,
-          lease_status,
-          lease_start,
-          lease_end,
-          resident,
-          deposit_charged,
-          deposit_held,
-          market_rent,
-          budgeted_rent,
-          advertised_rate,
-          scheduled_rent,
-          actual_charges
-        )
+      # property_details <- property_details |>
+      #   dplyr::select(
+      #     property_name,
+      #     unit_type,
+      #     bldg_unit,
+      #     # unit_status,
+      #     sqft,
+      #     lease_id,
+      #     lease_status,
+      #     lease_start_date,
+      #     lease_end_date,
+      #     resident_name,
+      #     deposit_charged,
+      #     deposit_held,
+      #     market_rent,
+      #     budgeted_rent,
+      #     advertised_rate,
+      #     scheduled_rent,
+      #     actual_charges
+      #   )
+
+      # browser()
 
       details_table <- reactable::reactable(
         property_details,
@@ -647,55 +643,55 @@ tbl_entrata_pre_lease <- function(details_by_property_data, details_data) {
         bordered = TRUE,
         striped = TRUE,
         highlight = TRUE,
-        columns = list(
-          property_name = reactable::colDef(show = FALSE),
-          unit_type = reactable::colDef(name = "Unit Type"),
-          bldg_unit = reactable::colDef(name = "Building/Unit"),
-          unit = reactable::colDef(name = "Unit"),
-          unit_status = reactable::colDef(name = "Unit Status"),
-          sqft = reactable::colDef(
-            name = "Square Feet",
-            format = reactable::colFormat(digits = 0, suffix = " sqft")
-          ),
-          lease_status = reactable::colDef(name = "Lease Status"),
-          lease_start = colDef(
-            name = "Start Date",
-            format = colFormat(date = TRUE)
-          ),
-          lease_end = colDef(
-            name = "End Date",
-            format = colFormat(date = TRUE)
-          ),
-          resident = reactable::colDef(name = "Resident"),
-          deposit_charged = reactable::colDef(
-            name = "Deposit Charged",
-            format = reactable::colFormat(prefix = "$", digits = 0)
-          ),
-          deposit_held = reactable::colDef(
-            name = "Deposit Held",
-            format = reactable::colFormat(prefix = "$", digits = 0)
-          ),
-          market_rent = reactable::colDef(
-            name = "Market Rent",
-            format = reactable::colFormat(prefix = "$", digits = 0)
-          ),
-          budgeted_rent = reactable::colDef(
-            name = "Budgeted Rent",
-            format = reactable::colFormat(prefix = "$", digits = 0)
-          ),
-          advertised_rate = reactable::colDef(
-            name = "Advertised Rate",
-            format = reactable::colFormat(prefix = "$", digits = 0)
-          ),
-          scheduled_rent = reactable::colDef(
-            name = "Scheduled Rent",
-            format = reactable::colFormat(prefix = "$", digits = 0)
-          ),
-          actual_charges = reactable::colDef(
-            name = "Actual Charges",
-            format = reactable::colFormat(prefix = "$", digits = 0)
-          )
-        ),
+        # columns = list(
+        #   property_name = reactable::colDef(show = FALSE),
+        #   unit_type = reactable::colDef(name = "Unit Type"),
+        #   bldg_unit = reactable::colDef(name = "Building/Unit"),
+        #   unit = reactable::colDef(name = "Unit"),
+        #   # unit_status = reactable::colDef(name = "Unit Status"),
+        #   sqft = reactable::colDef(
+        #     name = "Square Feet",
+        #     format = reactable::colFormat(digits = 0, suffix = " sqft")
+        #   ),
+        #   lease_status = reactable::colDef(name = "Lease Status"),
+        #   lease_start_date = colDef(
+        #     name = "Start Date",
+        #     format = colFormat(date = TRUE)
+        #   ),
+        #   lease_end_date = colDef(
+        #     name = "End Date",
+        #     format = colFormat(date = TRUE)
+        #   ),
+        #   resident_name = reactable::colDef(name = "Resident"),
+        #   deposit_charged = reactable::colDef(
+        #     name = "Deposit Charged",
+        #     format = reactable::colFormat(prefix = "$", digits = 0)
+        #   ),
+        #   deposit_held = reactable::colDef(
+        #     name = "Deposit Held",
+        #     format = reactable::colFormat(prefix = "$", digits = 0)
+        #   ),
+        #   market_rent = reactable::colDef(
+        #     name = "Market Rent",
+        #     format = reactable::colFormat(prefix = "$", digits = 0)
+        #   ),
+        #   budgeted_rent = reactable::colDef(
+        #     name = "Budgeted Rent",
+        #     format = reactable::colFormat(prefix = "$", digits = 0)
+        #   ),
+        #   advertised_rate = reactable::colDef(
+        #     name = "Advertised Rate",
+        #     format = reactable::colFormat(prefix = "$", digits = 0)
+        #   ),
+        #   scheduled_rent = reactable::colDef(
+        #     name = "Scheduled Rent",
+        #     format = reactable::colFormat(prefix = "$", digits = 0)
+        #   ),
+        #   actual_charges = reactable::colDef(
+        #     name = "Actual Charges",
+        #     format = reactable::colFormat(prefix = "$", digits = 0)
+        #   )
+        # ),
         defaultPageSize = 5
       )
 

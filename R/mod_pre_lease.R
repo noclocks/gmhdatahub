@@ -50,13 +50,6 @@ mod_pre_lease_ui <- function(id) {
 
   ns <- shiny::NS(id)
 
-  # get the default choices/values
-  # report_date_choices <- db_read_gmh_pre
-  default_report_date <- Sys.Date() |> lubridate::ymd()
-  default_leasing_date <- get_entrata_custom_pre_lease_date(default_report_date)
-  default_partners <- get_default_app_choices("partners") |> names()
-  default_properties <- get_default_app_choices("properties")
-
   htmltools::tagList(
     bslib::page_fluid(
       # value boxes -------------------------------------------------------------
@@ -92,16 +85,9 @@ mod_pre_lease_ui <- function(id) {
       # nav card ----------------------------------------------------------------
       bslib::navset_card_underline(
         id = ns("nav"),
-        full_screen = TRUE,
         sidebar = bslib::sidebar(
           id = ns("sidebar"),
           title = "Controls",
-          shiny::actionButton(
-            inputId = ns("entrata_settings"),
-            label = "Entrata Settings",
-            icon = shiny::icon("gear"),
-            class = "btn-primary"
-          ),
           bslib::accordion(
             id = ns("accordion"),
             bslib::accordion_panel(
@@ -111,29 +97,26 @@ mod_pre_lease_ui <- function(id) {
               shiny::selectInput(
                 ns("partners"),
                 label = "Investment Partners",
-                choices = default_partners,
-                selectize = FALSE,
-                selected = default_partners,
-                multiple = TRUE
+                multiple = TRUE,
+                choices = get_default_app_choices("partners") |> names()
               ),
               shiny::selectInput(
                 ns("properties"),
                 label = "Properties",
-                choices = default_properties,
-                selectize = FALSE,
-                selected = default_properties,
-                multiple = TRUE
+                multiple = TRUE,
+                choices = get_default_app_choices("properties") |> names()
               ),
               shiny::dateInput(
                 ns("report_date"),
                 label = "Report Date",
-                value = default_report_date
+                value = Sys.Date()
               ),
               shiny::dateInput(
                 ns("leasing_date"),
                 label = "Pre-Lease Date",
-                value = default_leasing_date
-              )
+                value = get_entrata_custom_pre_lease_date()
+              ) |>
+                shinyjs::disabled()
             )
           )
         ),
@@ -144,31 +127,41 @@ mod_pre_lease_ui <- function(id) {
           value = ns("summary"),
           # summary table -----------------------------------------------------------
           bslib::card(
-            full_screen = TRUE,
-            height = "100%",
-            class = "mb-4",
             bslib::card_header(
-              class = "bg-primary text-white d-flex justify-content-between align-items-center",
-              htmltools::div(
-                bsicons::bs_icon("table", class = "me-2"),
-                "Pre-Lease Summary"
-              ),
-              bslib::input_task_button(
-                id = ns("refresh"),
-                icon = bsicons::bs_icon("arrow-clockwise"),
-                label = "Refresh",
-                class = "btn-info btn-sm",
-                style = "margin-left: auto; display: inline-flex; align-items: center; padding: 2.5px 10px;"
-              ),
-              shiny::downloadButton(
-                ns("download"),
-                "Export to Excel",
-                class = "btn-success btn-sm",
-                style = "margin-left: 10px; display: inline-flex; align-items: center; padding: 2.5px 10px;"
+              class = "bg-primary text-white",
+              htmltools::tags$h2(
+                bsicons::bs_icon("table"),
+                "Pre-Lease Summary",
+                htmltools::tags$span(
+                  class = "float-end justify-content-between",
+                  shiny::actionButton(
+                    ns("refresh"),
+                    "Refresh Data",
+                    icon = shiny::icon("recycle"),
+                    class = "btn-sm btn-outline-light"
+                  ),
+                  shiny::actionButton(
+                    ns("entrata"),
+                    "Entrata API",
+                    icon = shiny::icon("sync"),
+                    class = "btn-sm btn-outline-light"
+                  ),
+                  shiny::downloadButton(
+                    ns("download"),
+                    "Export to Excel",
+                    class = "btn-sm btn-outline-light",
+                    icon = shiny::icon("file-excel")
+                  ),
+                  shiny::actionButton(
+                    inputId = ns("help"),
+                    label = "Help",
+                    icon = shiny::icon("question-circle"),
+                    class = "btn-sm btn-outline-light"
+                  )
+                )
               )
             ),
             bslib::card_body(
-              class = "p-0",
               reactable::reactableOutput(ns("summary_table")) |> with_loader()
             ),
             bslib::card_footer(
@@ -183,20 +176,7 @@ mod_pre_lease_ui <- function(id) {
           icon = bsicons::bs_icon("info-circle"),
           value = ns("details"),
           bslib::card(
-            full_screen = TRUE,
-            height = "100%",
-            class = "mb-4",
-            bslib::card_header(
-              class = "bg-primary text-white",
-              htmltools::div(
-                bsicons::bs_icon("table", class = "me-2"),
-                "Pre-Lease Details"
-              )
-            ),
-            bslib::card_body(
-              class = "p-0",
-              entrata_table_ui(ns("details_table"))
-            )
+            entrata_table_ui(ns("details_table"))
           )
         ),
         bslib::nav_panel(
@@ -298,82 +278,16 @@ mod_pre_lease_server <- function(
       selected_row <- shiny::reactiveVal(NULL)
       db_trigger <- shiny::reactiveVal(0)
 
-      # reactive values for filters
-      filters <- shiny::reactiveValues(
-        partners = NULL,
-        properties = NULL,
-        report_date = NULL,
-        leasing_date = NULL
+      iv <- shinyvalidate::InputValidator$new()
+      iv$add_rule("model_beds", rule = shinyvalidate::sv_gte(0))
+      iv$add_rule(
+        "investment_partner",
+        rule = shinyvalidate::sv_in_set(
+          db_read_tbl(pool, "gmh.partners") |>
+            dplyr::pull("partner_name") |>
+            unique()
+        )
       )
-
-      # observe inputs and update reactives
-      shiny::observe({
-        filters$partners <- input$partners
-        filters$properties <- input$properties
-        filters$report_date <- input$report_date
-        filters$leasing_date <- input$leasing_date
-      }) |>
-        shiny::bindEvent(
-          input$partners,
-          input$properties,
-          input$report_date,
-          input$leasing_date
-        )
-
-      # observe partners to update properties
-      shiny::observeEvent(filters$partners, {
-
-        partner_properties <- db_read_tbl(pool, "gmh.pre_lease_global_summary", collect = FALSE) |>
-          dplyr::filter(
-            investment_partner %in% filters$partners
-          ) |>
-          dplyr::select("property_id", "property_name") |>
-          dplyr::collect() |>
-          tibble::deframe()
-
-        shiny::updateSelectInput(
-          session,
-          "properties",
-          choices = partner_properties,
-          selected = partner_properties
-        )
-
-        cli::cli_alert_info(
-          c(
-            "Investment Partners selected: {.field {input$partners}}",
-            "Properties updated to: {.field {partner_properties}}"
-          )
-        )
-
-      }, ignoreInit = TRUE, ignoreNULL = TRUE)
-
-      # observe properties to update partners
-      shiny::observeEvent(filters$properties, {
-
-        prop_id <- as.integer(filters$properties)
-
-        property_partners <- db_read_tbl(pool, "gmh.pre_lease_global_summary", collect = FALSE) |>
-          dplyr::filter(
-            .data$property_id %in% .env$prop_id
-          ) |>
-          dplyr::pull("investment_partner") |>
-          unique()
-
-        shiny::updateSelectInput(
-          session,
-          "partners",
-          choices = property_partners,
-          selected = property_partners
-        )
-
-        cli::cli_alert_info(
-          c(
-            "Properties selected: {.field {input$properties}}. ",
-            "Investment Partners updated to: {.field {property_partner_names}}"
-          )
-        )
-
-      }, ignoreInit = TRUE, ignoreNULL = TRUE)
 
       # initial data
       pre_lease_summary_data <- shiny::reactive({
@@ -381,10 +295,49 @@ mod_pre_lease_server <- function(
         db_read_tbl(pool, "gmh.pre_lease_global_summary")
       })
 
+      shiny::observe({
+        report_date <- pre_lease_summary_data() |>
+          dplyr::pull("report_date") |>
+          lubridate::ymd() |>
+          max(na.rm = TRUE)
+        partner_choices <- pre_lease_summary_data() |>
+          dplyr::pull("investment_partner") |>
+          unique()
+        property_choices <- pre_lease_summary_data() |>
+          dplyr::pull("property_name") |>
+          unique()
+        shiny::updateDateInput(
+          session,
+          "report_date",
+          value = report_date
+        )
+        shiny::updateSelectInput(
+          session,
+          "partners",
+          choices = partner_choices,
+          selected = partner_choices
+        )
+        shiny::updateSelectInput(
+          session,
+          "properties",
+          choices = property_choices,
+          selected = property_choices
+        )
+      })
+
+      tbl_data <- shiny::reactive({
+        shiny::req(pre_lease_summary_data(), input$partners, input$properties)
+        pre_lease_summary_data() |>
+          dplyr::filter(
+            .data$investment_partner %in% input$partners,
+            .data$property_name %in% input$properties
+          )
+      })
+
       # summary table
       output$summary_table <- reactable::renderReactable({
-        shiny::req(pre_lease_summary_data())
-        tbl_pre_lease_summary(pre_lease_summary_data(), ns = ns)
+        shiny::req(tbl_data())
+        tbl_pre_lease_summary(tbl_data(), ns = ns)
       })
 
       shiny::observeEvent(input$edit_row, {
@@ -393,14 +346,16 @@ mod_pre_lease_server <- function(
         row_data <- pre_lease_summary_data() |>
           dplyr::filter(dplyr::row_number() == row)
         selected_property <- row_data |> dplyr::pull("property_name")
-        tit <- paste0("Edit Data for ", selected_property)
-
         shiny::showModal(
           shiny::modalDialog(
-            title = tit,
+            title = "Edit Data",
             size = "m",
             easyClose = TRUE,
             htmltools::tagList(
+              htmltools::tags$p(
+                "Editing data for: ",
+                htmltools::strong(selected_property)
+              ),
               shiny::numericInput(
                 ns("model_beds"),
                 label = "Model Beds",
@@ -427,48 +382,61 @@ mod_pre_lease_server <- function(
       })
 
       shiny::observeEvent(input$save, {
+
+        iv$enable()
+
         shiny::req(selected_row(), input$model_beds, input$investment_partner)
 
-        new_value <- input$model_beds
+        new_value_model_beds <- input$model_beds
+        new_value_investment_partner <- input$investment_partner
 
-        rept_date <- pre_lease_summary_data() |>
-          dplyr::pull("report_date") |>
-          lubridate::ymd() |>
-          max(na.rm = TRUE)
-
-        prop_id <- pre_lease_summary_data() |>
-          dplyr::filter(dplyr::row_number() == selected_row()) |>
-          dplyr::pull("property_id") |>
-          as.integer()
-
-        dat <- pre_lease_summary_data() |>
-          dplyr::filter(
-            .data$property_id == .env$prop_id,
-            .data$report_date == .env$rept_date
-          ) |>
-          dplyr::mutate(
-            model_beds = new_value
-          )
+        shiny::req(iv$is_valid())
 
         conn <- pool::poolCheckout(pool = pool)
 
         tryCatch({
+
+          prop_id <- pre_lease_summary_data() |>
+            dplyr::filter(dplyr::row_number() == selected_row()) |>
+            dplyr::pull("property_id") |>
+            as.integer()
+
+          model_beds_dat <- tibble::tibble(
+            property_id = prop_id,
+            model_bed_count = new_value_model_beds,
+            notes = "Updated via GMH DataHub"
+          )
+
           dbx::dbxUpdate(
             conn,
-            table = DBI::SQL("gmh.pre_lease_summary"),
-            records = dat,
-            where_cols = c("property_id", "report_date"),
+            table = DBI::SQL("gmh.model_beds"),
+            records = model_beds_dat,
+            where_cols = c("property_id"),
             transaction = TRUE
           )
-          cli::cli_alert_info("Model beds/Investment Partner updated successfully!")
-          shiny::showNotification("Database updated successfully!", type = "message")
-          db_trigger(db_trigger() + 1)
+
+        partner_id <- db_read_tbl(pool, "gmh.partners") |>
+          dplyr::filter(dplyr::pull("partner_name") == new_value_investment_partner) |>
+          dplyr::pull("partner_id") |>
+          as.integer()
+
+        dbx::dbxExecute(
+          conn,
+          statement = "UPDATE 'gmh'.'properties' SET partner_id = ? WHERE property_id = ?",
+          params = list(partner_id, prop_id)
+        )
+
+        cli::cli_alert_info("Model beds/Investment Partner updated successfully!")
+        shiny::showNotification("Database updated successfully!", type = "message")
+        db_trigger(db_trigger() + 1)
+
         }, error = function(e) {
           cli::cli_alert_danger("Error updating database: {.error e}")
           shiny::showNotification("Error updating database!", type = "error")
         }, finally = {
           shiny::removeModal()
           pool::poolReturn(conn)
+          iv$disable()
         })
 
       })
@@ -480,103 +448,102 @@ mod_pre_lease_server <- function(
       })
 
       # entrata settings
-      shiny::observeEvent(input$entrata_settings, {
+      shiny::observeEvent(input$entrata, {
         shiny::showModal(
           shiny::modalDialog(
             title = "Configure Entrata API",
             size = "l",
             easyClose = TRUE,
-            htmltools::tagList(
-              bslib::layout_columns(
-                col_widths = c(6, 6),
-                bslib::card(
-                  shiny::dateInput(
-                    ns("period_date"),
-                    label = "Period Date",
-                    value = get_entrata_custom_pre_lease_date()
-                  ),
-                  shiny::radioButtons(
-                    ns("summarize_by"),
-                    label = "Summarize By",
-                    choices = c(
-                      "Do Not Summarize" = "do_not_summarize",
-                      "Property" = "property",
-                      "Unit Type" = "unit_type",
-                      "Floorplan Name" = "floorplan_name"
-                    ),
-                    selected = "do_not_summarize"
-                  ),
-                  shiny::radioButtons(
-                    ns("group_by"),
-                    label = "Group By",
-                    choices = c(
-                      "Do Not Group" = "do_not_group",
-                      "Property" = "property",
-                      "Unit Type" = "unit_type",
-                      "Floorplan Name" = "floorplan_name",
-                      "Lease Term" = "lease_term"
-                    ),
-                    selected = "do_not_group"
-                  ),
-                  shiny::radioButtons(
-                    ns("consolidate_by"),
-                    label = "Consolidate By",
-                    choices = c(
-                      "No Consolidation" = "no_consolidation",
-                      "Consolidate All Properties" = "consolidate_all_properties",
-                      "Consolidate by Property Groups" = "consolidate_by_property_groups"
-                    ),
-                    selected = "no_consolidation"
-                  )
+            bslib::layout_columns(
+              col_widths = c(6, 6),
+              bslib::card(
+                shiny::dateInput(
+                  ns("period_date"),
+                  label = "Period Date",
+                  value = get_entrata_custom_pre_lease_date()
                 ),
-                bslib::card(
-                  bslib::input_switch(
-                    ns("space_options"),
-                    label = "Space Options?",
-                    value = FALSE
+                shiny::radioButtons(
+                  ns("summarize_by"),
+                  label = "Summarize By",
+                  choices = c(
+                    "Do Not Summarize" = "do_not_summarize",
+                    "Property" = "property",
+                    "Unit Type" = "unit_type",
+                    "Floorplan Name" = "floorplan_name"
                   ),
-                  bslib::input_switch(
-                    ns("charge_code_detail"),
-                    label = "Charge Code Detail?",
-                    value = TRUE
+                  selected = "do_not_summarize"
+                ),
+                shiny::radioButtons(
+                  ns("group_by"),
+                  label = "Group By",
+                  choices = c(
+                    "Do Not Group" = "do_not_group",
+                    "Property" = "property",
+                    "Unit Type" = "unit_type",
+                    "Floorplan Name" = "floorplan_name",
+                    "Lease Term" = "lease_term"
                   ),
-                  bslib::input_switch(
-                    ns("additional_units_show"),
-                    label = "Additional Units Shown?",
-                    value = FALSE
+                  selected = "do_not_group"
+                ),
+                shiny::radioButtons(
+                  ns("consolidate_by"),
+                  label = "Consolidate By",
+                  choices = c(
+                    "No Consolidation" = "no_consolidation",
+                    "Consolidate All Properties" = "consolidate_all_properties",
+                    "Consolidate by Property Groups" = "consolidate_by_property_groups"
                   ),
-                  bslib::input_switch(
-                    ns("combine_unit_spaces_with_same_lease"),
-                    label = "Combine Unit Spaces with Same Lease?",
-                    value = FALSE
+                  selected = "no_consolidation"
+                )
+              ),
+              bslib::card(
+                bslib::input_switch(
+                  ns("space_options"),
+                  label = "Space Options?",
+                  value = FALSE
+                ),
+                bslib::input_switch(
+                  ns("charge_code_detail"),
+                  label = "Charge Code Detail?",
+                  value = TRUE
+                ),
+                bslib::input_switch(
+                  ns("additional_units_show"),
+                  label = "Additional Units Shown?",
+                  value = FALSE
+                ),
+                bslib::input_switch(
+                  ns("combine_unit_spaces_with_same_lease"),
+                  label = "Combine Unit Spaces with Same Lease?",
+                  value = FALSE
+                ),
+                bslib::input_switch(
+                  ns("arrange_by_property"),
+                  label = "Arrange by Property?",
+                  value = FALSE
+                ),
+                bslib::input_switch(
+                  ns("yoy"),
+                  label = "Year-Over-Year?",
+                  value = TRUE
+                ),
+                shiny::checkboxGroupInput(
+                  ns("subtotals"),
+                  label = "Subtotals",
+                  choices = c(
+                    "Summary" = "summary",
+                    "Details" = "details"
                   ),
-                  bslib::input_switch(
-                    ns("arrange_by_property"),
-                    label = "Arrange by Property?",
-                    value = FALSE
-                  ),
-                  bslib::input_switch(
-                    ns("yoy"),
-                    label = "Year-Over-Year?",
-                    value = TRUE
-                  ),
-                  shiny::checkboxGroupInput(
-                    ns("subtotals"),
-                    label = "Subtotals",
-                    choices = c(
-                      "Summary" = "summary",
-                      "Details" = "details"
-                    ),
-                    selected = c("summary", "details")
-                  )
+                  selected = c("summary", "details")
                 )
               )
             ),
             footer = htmltools::tagList(
               shiny::modalButton("Cancel"),
-              shiny::actionButton(
-                ns("confirm"),
-                "Confirm",
+              bslib::input_task_button(
+                id = ns("entrata_refresh"),
+                label = "Refresh Entrata Data",
+                icon = bsicons::bs_icon("arrow-clockwise"),
                 class = "btn-primary"
               )
             )
@@ -585,28 +552,115 @@ mod_pre_lease_server <- function(
       })
 
       # confirm entrata
-      shiny::observeEvent(input$confirm, {
-        shiny::req(input$properties, input$period_date, input$summarize_by, input$group_by, input$consolidate_by, input$space_options, input$charge_code_detail, input$additional_units_show, input$combine_unit_spaces_with_same_lease, input$arrange_by_property, input$yoy, input$subtotals)
+      shiny::observeEvent(input$entrata_refresh, {
 
-        cli::cli_alert_info("Refreshing data...")
-        data <- shiny::withProgress(
-          message = "Refreshing data...",
+        cli::cli_alert_info("Refreshing Entrata API Pre-Lease Data...")
+
+        steps <- 10
+        incr <- 1 / steps
+
+        shiny::withProgress(
+          message = "Refreshing Entrata API Data...",
+          detail = "This may take a few minutes...",
           value = 0,
           {
-            shiny::setProgress(10, message = "Refreshing data...")
-            entrata_pre_lease_report(
-              property_ids = input$properties
-            )
-            shiny::setProgress(100, message = "Data refreshed successfully!")
+            shiny::incProgress(incr, detail = "Pre-Lease Report by Property")
+            pre_lease_by_property <- entrata_pre_lease_report(summarize_by = "property")
+
+            shiny::incProgress(incr, detail = "Pre-Lease Report by Unit")
+            pre_lease_by_unit <- entrata_pre_lease_report(summarize_by = "unit_type")
+
+            pre_lease_summary_by_property <- pre_lease_by_property$summary
+            pre_lease_summary_by_unit <- pre_lease_by_unit$summary
+            pre_lease_details <- pre_lease_by_property$details
+            pre_lease_params_by_property <- pre_lease_by_property$parameters
+            pre_lease_params_by_unit <- pre_lease_by_unit$parameters
+
+            shiny::incProgress(incr, detail = "Weekly Leasing Data")
+            weekly_leasing_data <- entrata_lease_execution_report()
+
+            tryCatch({
+              pool::poolWithTransaction(pool, {
+
+                conn <- pool::poolCheckout(pool)
+
+                shiny::incProgress(
+                  incr,
+                  message = "Updating Database",
+                  detail = "Weekly Leasing Data"
+                )
+
+                dbx::dbxUpsert(
+                  conn,
+                  table = DBI::SQL("entrata.pre_lease_weekly"),
+                  records = weekly_leasing_data |>
+                    dplyr::select(-property_name, -weekly_total),
+                  where_cols = c("report_date", "property_id"),
+                  skip_existing = FALSE
+                )
+
+                shiny::incProgress(incr, detail = "Pre-Lease Report by Property")
+
+                dbx::dbxUpsert(
+                  conn,
+                  table = DBI::SQL("entrata.pre_lease_summary_by_property"),
+                  records = pre_lease_summary_by_property,
+                  where_cols = c("report_date", "property_id"),
+                  skip_existing = FALSE
+                )
+
+                shiny::incProgress(incr, detail = "Pre-Lease Report by Unit")
+
+                dbx::dbxUpsert(
+                  conn,
+                  table = DBI::SQL("entrata.pre_lease_summary_by_unit"),
+                  records = pre_lease_summary_by_unit,
+                  where_cols = c("report_date", "property_id"),
+                  skip_existing = FALSE
+                )
+
+                shiny::incProgress(incr, detail = "Pre-Lease Report Details")
+
+                pool::dbAppendTable(
+                  pool,
+                  DBI::SQL("entrata.pre_lease_details_by_property"),
+                  value = pre_lease_details,
+                  append = TRUE
+                )
+              })
+            }, error = function(e) {
+              cli::cli_alert_danger("Error updating database: {.error {e}}")
+              shiny::showNotification("Error updating database!", type = "error")
+            }, finally = {
+              pool::poolReturn(conn)
+              cli::cli_alert_info("Data refreshed successfully!")
+              shiny::incProgress(incr, "Refreshing Views and Pulling New Data from Database")
+              db_trigger(db_trigger() + 1)
+              shiny::removeModal()
+              shiny::setProgress(100, detail = "Data refreshed successfully!")
+            })
           }
         )
-        cli::cli_alert_info("Data refreshed successfully!")
-        shiny::showNotification("Data refreshed successfully!", type = "message")
-        db_trigger(db_trigger() + 1)
-        shiny::removeModal()
       })
 
-
+      shiny::observeEvent(input$help, {
+        shiny::showModal(
+          shiny::modalDialog(
+            title = "Pre-Lease Summary Help",
+            size = "l",
+            easyClose = TRUE,htmltools::tags$iframe(
+              src = "www/content/pre_lease/pre_lease_summary_tbl.html",
+              width = "100%",
+              height = "600px",
+              scrolling = "auto",
+              frameborder = 0
+            ),
+            footer = htmltools::tagList(
+              shiny::modalButton("Close")
+            )
+          )
+        )
+      })
 
       # value boxes
       output$val_avg_occupancy <- shiny::renderText({
@@ -959,7 +1013,7 @@ mod_pre_lease_server <- function(
         shiny::req(pool, db_trigger())
         db_read_tbl(pool, "entrata.pre_lease_report_summary") |>
           dplyr::filter(
-            report_date == Sys.Date()
+            .data$report_date == max(.data$report_date, na.rm = TRUE)
           )
       })
 
@@ -967,7 +1021,7 @@ mod_pre_lease_server <- function(
         shiny::req(pool, db_trigger())
         db_read_tbl(pool, "entrata.pre_lease_report_details") |>
           dplyr::filter(
-            report_date == Sys.Date()
+            .data$report_date == max(.data$report_date, na.rm = TRUE)
           )
       })
 
@@ -975,7 +1029,7 @@ mod_pre_lease_server <- function(
         shiny::req(pool, db_trigger())
         db_read_tbl(pool, "entrata.pre_lease_report_details_by_property") |>
           dplyr::filter(
-            report_date == Sys.Date()
+            .data$report_date == max(.data$report_date, na.rm = TRUE)
           )
       })
 
@@ -1057,107 +1111,7 @@ mod_prelease_sidebar_filters_server <- function(id, pool = NULL) {
   )
 }
 
-# table -------------------------------------------------------------------
 
-pre_lease_tbl_ui <- function(id) {
-
-  ns <- shiny::NS(id)
-
-  htmltools::tagList(
-    htmltools::tags$script(
-      sprintf("window.handleEditClick_%s = function(index) {
-            Shiny.setInputValue('%s', {row: index}, {priority: 'event'});
-            }", ns('edit_row'), ns('edit_row'))),
-    reactable::reactableOutput(ns("table")) |> with_loader()
-  )
-
-}
-
-pre_lease_tbl_server <- function(id, summary_data) {
-
-  shiny::moduleServer(
-    id,
-    function(input, output, session) {
-
-      ns <- session$ns
-      cli::cat_rule("[Module]: pre_lease_tbl_server()")
-
-      summary_data <- shiny::reactiveValue({
-        summary_data() |>
-          dplyr::mutate(.actions = NA)
-      })
-      selected_row <- shiny::reactiveVal(NULL)
-
-      output$table <- reactable::renderReactable({
-        shiny::req(summary_data())
-        tbl_pre_lease_summary(summary_data(), ns = ns)
-      })
-
-      shiny::observeEvent(input$edit_row, {
-        row <- input$edit_row
-        selected_row(row)
-
-        row_data <- pre_lease_summary_data() |>
-          dplyr::filter(dplyr::row_number() == row)
-
-        selected_property <- row_data |> dplyr::pull("property_name")
-
-        tit <- paste0("Edit Data for ", selected_property)
-
-        shiny::showModal(
-          shiny::modalDialog(
-            title = tit,
-            size = "m",
-            easyClose = TRUE,
-            htmltools::tagList(
-              shiny::numericInput(
-                ns("model_beds"),
-                label = "Model Beds",
-                value = row_data |> dplyr::pull("model_beds"),
-                min = 0L
-              ),
-              shiny::selectInput(
-                ns("investment_partner"),
-                label = "Investment Partner",
-                choices = get_default_app_choices("partners"),
-                selected = row_data |> dplyr::pull("investment_partner")
-              )
-            ),
-            footer = htmltools::tagList(
-              shiny::modalButton("Cancel"),
-              shiny::actionButton(
-                ns("save"),
-                "Save",
-                class = "btn-primary"
-              )
-            )
-          )
-        )
-      })
-
-      shiny::observeEvent(input$save, {
-        req(input$modal_investment_partner, input$modal_model_beds)
-
-        data <- rv()
-        row <- selected_row()
-
-        if (!is.null(row) && row >= 1 && row <= nrow(data)) {
-          new_beds <- as.numeric(input$modal_model_beds)
-          new_partner <- trimws(input$modal_investment_partner)
-
-          if (!is.na(new_beds) && new_beds >= 0 && nchar(new_partner) > 0) {
-            data[row, "model_beds"] <- new_beds
-            data[row, "investment_partner"] <- new_partner
-            rv(data)
-          }
-        }
-        removeModal()
-      }, ignoreNULL = TRUE, ignoreInit = TRUE)
-
-      return(rv)
-    })
-
-}
 
 entrata_table_ui <- function(id) {
 
@@ -1190,99 +1144,5 @@ entrata_table_server <- function(id, summary_data, details_data) {
 
 }
 
-mod_entrata_settings_ui <- function(id) {
-
-  ns <- shiny::NS(id)
-
-
-}
-
-mod_entrata_settings_server <- function(id) {
-  shiny::moduleServer(
-    id,
-    function(input, output, session) {
-
-      ns <- session$ns
-      cli::cat_rule("[Module]: modal_refresh_server()")
-
-      # entrata
-      shiny::observeEvent(input$entrata_settings, {
-        shiny::showModal(
-          mod_entrata_settings_ui(ns("entrata_settings"))
-        )
-      })
-
-      shiny::observeEvent(input$confirm, {
-        shiny::req(
-          input$properties,
-          input$period_date,
-          input$summarize_by,
-          input$group_by,
-          input$consolidate_by,
-          input$space_options,
-          input$charge_code_detail,
-          input$additional_units_show,
-          input$combine_unit_spaces_with_same_lease,
-          input$arrange_by_property,
-          input$yoy,
-          input$subtotals
-        )
-
-      })
-
-    }
-  )
-}
-
-parse_pre_lease_report_filter_params <- function(
-    property_ids = NULL,
-    period_date = NULL,
-    summarize_by = "property",
-    group_by = "do_not_group",
-    consolidate_by = "no_consolidation",
-    consider_pre_leased_on = "332",
-    space_options = "do_not_show",
-    charge_code_detail = 1,
-    additional_units_shown = "available",
-    combine_unit_spaces_with_same_lease = 0,
-    arrange_by_property = 0,
-    subtotals = list("summary", "details"),
-    yoy = 1,
-    ...
-) {
-
-  group_by <- rlang::arg_match0(group_by, c("do_not_group", "unit_type", "floorplan_name", "lease_term"))
-  summarize_by <- rlang::arg_match0(summarize_by, c("property", "unit_type", "floorplan_name", "do_not_summarize"))
-  charge_code_detail <- purrr::pluck(additional_params, "charge_code_detail") %||% 1
-  space_options <- purrr::pluck(additional_params, "space_options") %||% "do_not_show"
-  additional_units_shown <- purrr::pluck(additional_params, "additional_units_shown") %||% "available"
-  combine_unit_spaces_with_same_lease <- purrr::pluck(additional_params, "combine_unit_spaces_with_same_lease") %||% 0
-  consolidate_by <- purrr::pluck(additional_params, "consolidate_by") %||% "no_consolidation"
-  arrange_by_property <- purrr::pluck(additional_params, "arrange_by_property") %||% 0
-  subtotals <- purrr::pluck(additional_params, "subtotals") %||% list("summary", "details")
-  yoy <- purrr::pluck(additional_params, "yoy") %||% 1
-
-  period_date <- get_entrata_custom_pre_lease_date(period_date) |> entrata_date()
-  period <- list(date = period_date, period_type = "date")
-
-  list(
-    property_ids = as.list(as.character(property_ids)),
-    period = period,
-    summarize_by = summarize_by,
-    group_by = group_by,
-    consider_pre_leased_on = as.character(consider_pre_leased_on),
-    charge_code_detail = charge_code_detail,
-    consolidate_by = consolidate_by,
-
-    space_options = space_options,
-    charge_code_detail = charge_code_detail,
-    additional_units_shown = additional_units_shown,
-    combine_unit_spaces_with_same_lease = combine_unit_spaces_with_same_lease,
-    arrange_by_property = arrange_by_property,
-    subtotals = subtotals,
-    yoy = yoy
-  )
-
-}
 
 

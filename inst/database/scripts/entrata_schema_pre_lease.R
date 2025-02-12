@@ -5,8 +5,7 @@ pre_lease_by_unit <- entrata_pre_lease_report(summarize_by = "unit_type")
 pre_lease_summary_by_property <- pre_lease_by_property$summary
 pre_lease_summary_by_unit <- pre_lease_by_unit$summary
 
-pre_lease_details_by_property <- pre_lease_by_property$details
-pre_lease_details_by_unit <- pre_lease_by_unit$details
+pre_lease_details <- pre_lease_by_property$details
 
 pre_lease_params_by_property <- pre_lease_by_property$parameters
 pre_lease_params_by_unit <- pre_lease_by_unit$parameters
@@ -14,10 +13,24 @@ pre_lease_params_by_unit <- pre_lease_by_unit$parameters
 weekly_leasing_data <- entrata_lease_execution_report()
 
 pool <- db_connect()
-conn <- pool::poolCheckout(pool)
-on.exit(pool::poolReturn(pool, conn))
 
-DBI::dbAppendTable(
+db_entrata_pre_lease_details <- db_read_tbl(pool, "entrata.pre_lease_details")
+
+pool::dbAppendTable(
+  pool,
+  DBI::SQL("entrata.pre_lease_summary_by_property"),
+  value = pre_lease_summary_by_property,
+  append = TRUE
+)
+
+pool::dbAppendTable(
+  pool,
+  DBI::SQL("entrata.pre_lease_summary_by_unit"),
+  value = pre_lease_summary_by_unit,
+  append = TRUE
+)
+
+pool::dbAppendTable(
   conn,
   DBI::SQL("entrata.pre_lease_weekly"),
   value = weekly_leasing_data |>
@@ -25,23 +38,7 @@ DBI::dbAppendTable(
   append = TRUE
 )
 
-dplyr::copy_to(
-  conn,
-  df = pre_lease_summary_by_property,
-  name = dbplyr::in_schema("entrata", "pre_lease_summary_by_property"),
-  temporary = FALSE,
-  overwrite = TRUE
-)
 
-dplyr::copy_to(
-  conn,
-  df = pre_lease_summary_by_unit,
-  name = dbplyr::in_schema("entrata", "pre_lease_summary_by_unit"),
-  temporary = FALSE,
-  overwrite = TRUE
-)
-
-db_entrata_pre_lease_details <- db_read_tbl(pool, "entrata.pre_lease_details")
 
 # figure out which columns are different between the two details tables (db and entrata)
 names(db_entrata_pre_lease_details) |>

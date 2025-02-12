@@ -1,20 +1,154 @@
 ---
-title: "Pre-Lease Summary Table"
+title: "Entrata Pre-Lease Summary Table"
 output:
   html_document:
     keep_md: true
 ---
 
-## Data Structure
+## Data Retrieval and Processing Pipeline
 
-The **Pre-Lease Summary Table** contains 23 columns with information on each
-property, including:
+::: {.callout-note}
+*This document outlines the Entrata Data Retrieval and Processing Pipeline with regard to the **Leasing Summary and Details Table(s)**.*
+:::
 
-- **Property Name**
-- **Investment Partner**
-- **Total Beds**
-- **Model Beds**
-- **Current Occupied**
-- **Current Occupancy**
+## Overview
 
+This pipeline retrieves and processes data from the [Entrata API](https://gmhcommunities.entrata.com/api/v1/documentation), combining it with manually managed supplementary data to produce detailed and actionable leasing summary and details tables. These outputs provide a comprehensive view of leasing activity, trends, and property-specific metrics, ready for integration into user-interfaces and dashboards.
+
+## Diagram
+
+```{mermaid}
+graph TD
+  A[Load Entrata Configuration] --> B[Retrieve Property Data]
+  B --> C[Request Leasing Summary Data]
+  C --> D[Retrieve Leasing Summary Data]
+  B --> E[Request Weekly Pre-Lease Data]
+  E --> F[Retrieve Weekly Pre-Lease Data]
+  B --> G[Load Supplementary Data]
+  G --> G1[Model Beds]
+  G --> G2[Investment Partners]
+  D --> H[Merge Data]
+  F --> H
+  G1 --> H
+  G2 --> H
+  H --> I[Calculate Derived Metrics]
+  I --> J[Finalize Leasing Summary Table]
+  I --> K[Finalize Leasing Details Table]
+  J --> L[Persist to Database]
+  K --> L
+```
+
+## Workflow
+
+1.   Load Entrata Configuration
+2.   Retrieve Initial Entrata Property Data via `getProperties` Entrata Method
+3.   Retrieve Leasing Summary and Details Pre-Lease Report Data Summarizing by Property via `pre_lease` Entrata Report
+4.   Retrieve Leasing Summary and Details Pre-Lease Report Data Summarizing by Unit via `pre_lease` Entrata Report.
+5.   Retrieve Weekly Leasing Data via the `lease_execution_report(applicant)` Entrata Report.
+6.   Cleanse, Tidy, Summarize, and Merge Data
+7.   Calculate Derived Metrics
+8.   Finalize Leasing Global Summary Table
+9.   Finalize Leasing Property Summary Tables
+10.   Finalize Leasing Property Details Tables
+11.   Persist to Database
+
+###  1) Load Entrata Configuration
+
+-   **Description**: Load the Entrata configuration details from a dedicated `config.yml` file.
+-   **Key Configured Parameters**:
+     -   **Base URL** (`base_url`): GMH Communities Entrata Tenant Base URL (`gmhcommunities.entrata.com/api/v1`)
+     -   **Authentication Credentials**: Basic Authentication Credentials (`username` and `password`)
+     -   **Policies**:
+         -   Request ID
+         -   Error Handling
+         -   Retry Policy
+         -   Throttling/Rate Limiting
+         -   Request/Response Logging and Hashing
+         -   Response Caching
+
+
+### 2) Retrieve Initial Entrata Property Data
+
+- **Description**: Connect to the Entrata API `/properties` endpoint to fetch property-level metadata
+- **Key Details**:
+     - Calls the `getProperties` method
+     - Cache the request and response, as property data changes infrequently
+     - Output: List of property IDs and names, used as filters for subsequent steps.
+
+### 3) Request Leasing Summary and Details Report Data
+
+- **Description**: Perform a request to the `/reports` endpoint for the `pre_lease` report.
+- **Key Actions**:
+     - Use the `getReportData` method using the appropriate report filter params and specifying the `pre_lease` report name.
+     - Queue the report for retrieval using the response's returned `queueId`
+
+### 4) Retrieve the Leasing Summary and Details Report Data
+
+- **Description**: Use the `queueId` to fetch generated data from the `/queue` endpoint
+- **Output**:
+    - **Summary Data**: Aggregated property-level metrics
+    - **Details Data**: More granular leasing data
+
+### 5) Request Weekly Leasing Data
+
+- **Description**: Perform a request for weekly leasing activity data.
+- **Key Actions**:
+     - Use the `getReportData` method on the `/reports` endpoint for the `lease_execution_(applicant)` report.
+     - Filter data by a 7-day date range by leveraging the available report filter params.
+     - Queue the report for retrieval using the returned `queueId`.
+
+### 6) Retrieve Weekly Leasing Data
+
+- **Description**: Use the `queueId` to fetch weekly data from the `/queue` endpoint.
+- **Output**:
+    - Weekly counts of signed leases and renewals, grouped by property and lease type.
+
+ ### 7) Load Supplementary Data
+
+**Description**: Load additional data sources that enhance the summary and details tables.
+**Sources**:
+-   **Model Beds**: Manually maintained data on units designated as models, stored in the backend database.
+-   **Investment Partners**: Portfolio-specific investment details, also stored in the backend database.
+
+### 8) Merge Data
+
+- **Description**: Combine all retrieved data into unified summary and details tables.
+- **Steps**:
+    - Merge property metadata, leasing summary data, weekly data, and supplementary data.
+    - Ensure consistent formatting and completeness across all rows.
+
+
+### 9) Calculate Derived Metrics
+
+- **Description**: Compute metrics to enrich the leasing summary.
+- **Metrics**:
+    - **Occupancy Rate**: `occupied_units / total_units`
+    - **Prelease Percentage**: `preleased_units / total_units`
+    - **Year-over-Year Variance**: Comparison of prelease percentages.
+    - **Weekly Velocity Needed**: `(total_units - preleased_units) / weeks_left_to_lease`
+
+### 10) Finalize Leasing Summary Table
+
+- **Description**: Prepare the final property-level summary table.
+- **Ouput**:
+    - Aggregated metrics for each property, ready for UI display or reporting.
+
+### 11) Finalize Leasing Details Table
+
+- **Description**: Prepare the final unit-level details table.
+- **Output**:
+    - Granular leasing data for in-depth analysis and reporting.
+
+### 12) Persist to Database
+
+- **Description**: Save the processed summary and details tables to the backend database.
+- **Purpose**:
+    - Ensure consistent data access for other systems or reports.
+    - Maintain a historical record of leasing data.
+
+***
+
+## Conclusion
+
+This structured pipeline streamlines data retrieval, processing, and integration, delivering actionable insights for property managers and stakeholders.
 
