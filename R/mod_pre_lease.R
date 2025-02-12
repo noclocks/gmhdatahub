@@ -117,6 +117,33 @@ mod_pre_lease_ui <- function(id) {
                 value = get_entrata_custom_pre_lease_date()
               ) |>
                 shinyjs::disabled()
+            ),
+            bslib::accordion_panel(
+              title = "Metrics",
+              value = ns("metrics"),
+              icon = bsicons::bs_icon("graph-up-arrow"),
+              shiny::selectInput(
+                ns("metric"),
+                "Metric",
+                choices = c("Leases" = "leases", "Renewals" = "renewals", "Pre-Lease %" = "prelease"),
+                selected = "leases"
+              ),
+              shiny::sliderInput(
+                ns("occupancy_target"),
+                "Occupancy Target %",
+                min = 0,
+                max = 1,
+                value = 0.95,
+                step = 0.05,
+                ticks = TRUE,
+                post = "%"
+              ),
+              shiny::radioButtons(
+                ns("group_by"),
+                "Group By",
+                choices = c("Property" = "property", "Investment Partner" = "partner"),
+                selected = "property"
+              )
             )
           )
         ),
@@ -152,35 +179,78 @@ mod_pre_lease_ui <- function(id) {
           value = "charts",
           bslib::layout_columns(
             col_widths = c(6, 6),
-            gap = "1rem",
             bslib::card(
               full_screen = TRUE,
-              class = "h-100",
-              bslib::card_header(
-                class = "bg-dark text-white",
-                htmltools::div(
-                  bsicons::bs_icon("bar-chart", class = "me-2"),
-                  "Occupancy vs. Target"
-                )
-              ),
-              bslib::card_body(
-                class = "p-3",
-                plotly::plotlyOutput(ns("occupancy_chart"), height = "400px")
+              apexcharter::apexchartOutput(
+                ns("current_vs_prior_chart"),
+                height = "400px"
               )
             ),
             bslib::card(
               full_screen = TRUE,
-              class = "h-100",
-              bslib::card_header(
-                class = "bg-dark text-white",
-                htmltools::div(
-                  bsicons::bs_icon("pie-chart", class = "me-2"),
-                  "New vs. Renewal Distribution"
-                )
-              ),
-              bslib::card_body(
-                class = "p-3",
-                plotly::plotlyOutput(ns("lease_type_chart"), height = "400px")
+              apexcharter::apexchartOutput(
+                ns("occupancy_chart"),
+                height = "400px"
+              )
+            )
+          ),
+          bslib::layout_columns(
+            col_widths = c(6, 6),
+            bslib::card(
+              full_screen = TRUE,
+              apexcharter::apexchartOutput(
+                ns("velocity_chart"),
+                height = "400px"
+              )
+            ),
+            bslib::card(
+              full_screen = TRUE,
+              apexcharter::apexchartOutput(
+                ns("pre_lease_rates_chart"),
+                height = "400px"
+              )
+            )
+          ),
+          bslib::layout_columns(
+            col_widths = c(6, 6),
+            bslib::card(
+              full_screen = TRUE,
+              apexcharter::apexchartOutput(
+                ns("partner_distribution_chart"),
+                height = "400px"
+              )
+            ),
+            bslib::card(
+              full_screen = TRUE,
+              apexcharter::apexchartOutput(
+                ns("portfolio_summary_chart"),
+                height = "400px"
+              )
+            )
+          ),
+          bslib::layout_columns(
+            col_widths = c(6, 6),
+            bslib::card(
+              full_screen = TRUE,
+              apexcharter::apexchartOutput(
+                ns("weekly_activity_chart"),
+                height = "400px"
+              )
+            ),
+            bslib::card(
+              full_screen = TRUE,
+              apexcharter::apexchartOutput(
+                ns("weekly_leasing_breakdown_chart"),
+                height = "400px"
+              )
+            )
+          ),
+          bslib::layout_columns(
+            bslib::card(
+              full_screen = TRUE,
+              apexcharter::apexchartOutput(
+                ns("yoy_variance_chart"),
+                height = "400px"
               )
             )
           )
@@ -671,21 +741,23 @@ mod_pre_lease_server <- function(
         pre_lease_summary_data() |>
           dplyr::pull("current_occupancy") |>
           mean(na.rm = TRUE) |>
-          scales::percent()
+          scales::percent(accuracy = 0.1)
       })
 
       output$val_new_leases <- shiny::renderText({
         shiny::req(pre_lease_summary_data())
         pre_lease_summary_data() |>
           dplyr::pull("current_total_new") |>
-          sum(na.rm = TRUE)
+          sum(na.rm = TRUE) |>
+          scales::comma()
       })
 
       output$val_new_renewals <- shiny::renderText({
         shiny::req(pre_lease_summary_data())
         pre_lease_summary_data() |>
           dplyr::pull("current_total_renewals") |>
-          sum(na.rm = TRUE)
+          sum(na.rm = TRUE) |>
+          scales::comma()
       })
 
       output$val_yoy_pct_change <- shiny::renderText({
@@ -693,7 +765,7 @@ mod_pre_lease_server <- function(
         pre_lease_summary_data() |>
           dplyr::pull("yoy_variance_percent") |>
           mean(na.rm = TRUE) |>
-          scales::percent()
+          scales::percent(accuracy = 0.1)
       })
 
       # last updated
@@ -905,111 +977,62 @@ mod_pre_lease_server <- function(
         }
       )
 
-      # occupancy chart
-      output$occupancy_chart <- plotly::renderPlotly({
+      # current vs prior
+      output$current_vs_prior_chart <- apexcharter::renderApexchart({
         shiny::req(pre_lease_summary_data())
-
-        df <- pre_lease_summary_data()
-
-        plot_height <- 400
-
-        p <- plotly::plot_ly(
-          data = df,
-          height = plot_height
-        ) |>
-          plotly::add_trace(
-            x = ~property_name,
-            y = ~current_occupancy,
-            type = "bar",
-            name = "Current Occupancy %",
-            marker = list(color = "#2C3E50")
-          ) |>
-          plotly::add_trace(
-            x = ~property_name,
-            y = ~ rep(0.90, nrow(df)),
-            type = "scatter",
-            mode = "lines",
-            name = "90% Target",
-            line = list(color = "#E74C3C", dash = "dash")
-          ) |>
-          plotly::layout(
-            autosize = TRUE,
-            height = plot_height,
-            margin = list(
-              l = 50,
-              r = 50,
-              b = 100,
-              t = 30,
-              pad = 4
-            ),
-            bargap = 0.2,
-            xaxis = list(
-              tickangle = 45,
-              automargin = TRUE,
-              title = list(text = "Property")
-            ),
-            yaxis = list(
-              tickformat = ".0%",
-              automargin = TRUE,
-              title = list(text = "Occupancy %"),
-              range = c(0, 1)
-            ),
-            showlegend = TRUE,
-            legend = list(
-              orientation = "h",
-              y = -0.2
-            ),
-            barmode = "group"
-          )
-
-        p
+        chart_current_vs_prior(data = pre_lease_summary_data(), metric = input$metric)
       })
 
-      # lease type chart
-      output$lease_type_chart <- plotly::renderPlotly({
+      # occupancy
+      output$occupancy_chart <- apexcharter::renderApexchart({
+        shiny::req(pre_lease_summary_data(), input$occupancy_target, input$group_by)
+        chart_occupancy(
+          data = pre_lease_summary_data(),
+          target = input$occupancy_target,
+          by = input$group_by
+        )
+      })
+
+      # velocity
+      output$velocity_chart <- apexcharter::renderApexchart({
         shiny::req(pre_lease_summary_data())
+        chart_velocity_comparison(data = pre_lease_summary_data())
+      })
 
-        df <- pre_lease_summary_data()
+      # pre-lease rates
+      output$pre_lease_rates_chart <- apexcharter::renderApexchart({
+        shiny::req(pre_lease_summary_data())
+        chart_pre_lease_rates(data = pre_lease_summary_data())
+      })
 
-        p <- plotly::plot_ly(
-          data = df,
-          height = 500 # Explicit height
-        ) |>
-          plotly::add_trace(
-            x = ~property_name,
-            y = ~current_total_new,
-            type = "bar",
-            name = "New Leases",
-            marker = list(color = "#2C3E50")
-          ) |>
-          plotly::add_trace(
-            x = ~property_name,
-            y = ~current_total_renewals,
-            type = "bar",
-            name = "Renewals",
-            marker = list(color = "#18BC9C")
-          ) |>
-          plotly::layout(
-            autosize = TRUE,
-            margin = list(
-              l = 50,
-              r = 50,
-              b = 100,
-              t = 50,
-              pad = 4
-            ),
-            xaxis = list(
-              tickangle = 45,
-              automargin = TRUE
-            ),
-            yaxis = list(
-              automargin = TRUE
-            ),
-            showlegend = TRUE,
-            barmode = "stack"
-          )
+      # partner distribution
+      output$partner_distribution_chart <- apexcharter::renderApexchart({
+        shiny::req(pre_lease_summary_data())
+        chart_partner_distribution(data = pre_lease_summary_data())
+      })
 
-        p
+      # portfolio summary
+      output$portfolio_summary_chart <- apexcharter::renderApexchart({
+        shiny::req(pre_lease_summary_data())
+        chart_portfolio_summary(data = pre_lease_summary_data())
+      })
+
+      # weekly activity
+      output$weekly_activity_chart <- apexcharter::renderApexchart({
+        shiny::req(pre_lease_summary_data())
+        chart_weekly_activity(data = pre_lease_summary_data())
+      })
+
+      # weekly leasing breakdown
+      output$weekly_leasing_breakdown_chart <- apexcharter::renderApexchart({
+        shiny::req(pre_lease_summary_data())
+        chart_weekly_leasing_breakdown(data = pre_lease_summary_data())
+      })
+
+      # yoy variance
+      output$yoy_variance_chart <- apexcharter::renderApexchart({
+        shiny::req(pre_lease_summary_data(), input$group_by)
+        chart_yoy_variance(data = pre_lease_summary_data(), by = input$group_by)
       })
 
       entrata_pre_lease_summary_data <- shiny::reactive({

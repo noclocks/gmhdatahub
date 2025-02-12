@@ -61,7 +61,7 @@ chart_occupancy <- function(data, target = 0.9, by = c("property", "partner"), i
     elementId = id
   ) |>
     apexcharter::ax_title(
-      text = "Occupancy Percentage",
+      text = "Occupancy %",
       align = "center"
     ) |>
     apexcharter::ax_subtitle(

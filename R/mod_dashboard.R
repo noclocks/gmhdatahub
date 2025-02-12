@@ -178,8 +178,7 @@ mod_dashboard_ui <- function(id) {
 #' @importFrom cli cat_rule
 mod_dashboard_server <- function(
     id,
-    pool = NULL,
-    global_filters = NULL
+    pool = NULL
 ) {
 
   shiny::moduleServer(
