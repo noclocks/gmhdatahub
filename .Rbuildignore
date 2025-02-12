@@ -33,3 +33,4 @@ config.yml
 ^repomixignore$
 ^repomix.config.json$
 ^repomix.*
+~$*
