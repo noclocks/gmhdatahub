@@ -854,3 +854,18 @@ db_read_survey_id <- function(pool, property_id = NULL, competitor_id = NULL, le
 
   dplyr::pull(hold_filtered, "survey_id")
 }
+
+db_read_survey_property_ids <- function(pool, ...) {
+  db_read_tbl(pool, "mkt.properties", collect = FALSE) |>
+    dplyr::filter(.data$is_competitor == FALSE) |>
+    dplyr::pull("property_id")
+}
+
+db_read_survey_hours_tbl <- function(pool, selected_property_name = NULL) {
+  check_db_pool(pool)
+  hold <- db_read_tbl(pool, "survey.hours", collect = FALSE)
+  if (!is.null(selected_property_name)) {
+    hold <- dplyr::filter(hold, .data$property_name == .env$selected_property_name)
+  }
+  dplyr::collect(hold)
+}
