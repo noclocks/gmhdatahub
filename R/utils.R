@@ -137,6 +137,27 @@ get_competitor_id_by_name <- function(competitor_name) {
   get_default_app_choices("competitors")[[competitor_name]]
 }
 
+get_partner_name_by_id <- function(partner_id) {
+  valid_partner_ids <- get_default_app_choices("partners")
+
+  if (!partner_id %in% valid_partner_ids) {
+    cli::cli_abort("{.arg partner_id} is not a valid partner ID.")
+  }
+
+  names(
+    get_default_app_choices("partners")
+  )[which(get_default_app_choices("partners") == partner_id)]
+}
+
+get_partner_id_by_name <- function(partner_name) {
+  valid_partner_names <- names(get_default_app_choices("partners"))
+  if (!partner_name %in% valid_partner_names) {
+    cli::cli_abort("{.arg partner_name} is not a valid partner name.")
+  }
+
+  get_default_app_choices("partners")[[partner_name]]
+}
+
 get_amenity_id_by_name <- function(amenity_name) {
   amenity_name <- tolower(amenity_name)
 

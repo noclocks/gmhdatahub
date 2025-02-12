@@ -66,9 +66,18 @@ validate_entrata_method_params <- function(
     method_params,
     method_version = get_default_entrata_method_version(endpoint, method_name),
     arg = rlang::caller_arg(method_params),
-    call = rlang::caller_env()) {
-  stopifnot(rlang::is_list(method_params) && rlang::is_named(method_params))
-  validate_entrata_method_name(endpoint, method_name)
+    call = rlang::caller_env()
+) {
+
+  if (!is.null(method_version)) {
+    validate_entrata_method_version(method_name, method_version)
+  }
+
+  if (is.null(method_params) || length(purrr::flatten(method_params)) == 0) {
+    return(invisible())
+  } else {
+    validate_entrata_method_name(method_name)
+  }
 
   params_tbl <- entrata_params_tbl |>
     dplyr::filter(
@@ -145,12 +154,14 @@ validate_entrata_method_params <- function(
 validate_entrata_report_name <- function(
     report_name,
     arg = rlang::caller_arg(report_name),
-    call = rlang::caller_env()) {
+    call = rlang::caller_env()
+) {
+
   if (!(report_name %in% entrata_report_names_lst)) {
     cli::cli_abort(
       c(
         "Invalid Entrata Report Name Provided: {.arg {arg}}",
-        "i" = "Valid Entrata Report Names: {.field {.entrata_report_names}}"
+        "i" = "Valid Entrata Report Names: {.field {.entrata_report_names_lst}}"
       ),
       call = call
     )
@@ -163,7 +174,8 @@ validate_entrata_report_version <- function(
     report_name,
     report_version,
     arg = rlang::caller_arg(report_version),
-    call = rlang::caller_env()) {
+    call = rlang::caller_env()
+) {
   validate_entrata_report_name(report_name, call = call)
   default_version <- entrata_report_versions_lst[[report_name]]
   valid_versions <- if (default_version == "r3") {

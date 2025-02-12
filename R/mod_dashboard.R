@@ -292,7 +292,7 @@ mod_dashboard_demo <- function() {
   ui <- bslib::page_navbar(
     title = "Demo: Dashboard",
     window_title = "Demo: Dashboard",
-    theme = app_theme(),
+    theme = app_theme_ui(),
     lang = "en",
     bslib::nav_spacer(),
     bslib::nav_panel(

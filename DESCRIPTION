@@ -52,7 +52,7 @@ Imports:
     readr,
     rhandsontable,
     rintrojs,
-    rlang,
+    rlang (>= 1.1.0),
     RPostgres,
     scales,
     sever,
@@ -83,7 +83,7 @@ Suggests:
     testthat (>= 3.0.0)
 VignetteBuilder:
     knitr
-Remotes:  
+Remotes: 
     noclocks/noClocksAuthR,
     kcuilla/reactablefmtr,
     tiledb-inc/shinybg,
