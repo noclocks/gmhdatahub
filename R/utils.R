@@ -30,8 +30,15 @@ gmaps_properties_map_embed_iframe <- function(width = "100%", height = "500px") 
   )
 }
 
-with_loader <- function(x) {
-  shinycustomloader::withLoader(x)
+with_loader <- function(x, height = NULL) {
+  if (is.null(height)) {
+    height <- if (grepl("height:\\s*\\d", x)) NULL else "400px"
+  }
+
+  shinycustomloader::withLoader(
+    x,
+    proxy.height = height
+  )
 }
 
 with_tooltip <- function(input, tooltip_text, placement = "right") {

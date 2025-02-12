@@ -138,6 +138,8 @@ mod_dashboard_ui <- function(id) {
           title = "Summary",
           icon = bsicons::bs_icon("clipboard-data"),
           value = "summary",
+          reactable::reactableOutput(ns("summary_table"), height = '100%') |>
+            with_loader(height = '500px')
           # summary table -----------------------------------------------------------
           # bslib::card(
           #   fill = FALSE,
