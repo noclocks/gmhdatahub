@@ -2,7 +2,7 @@
 % Please edit documentation in R/entrata_response.R
 \name{as_entrata_response}
 \alias{as_entrata_response}
-\title{Handle Entrata API Response}
+\title{Handle \code{Entrata} API Response}
 \usage{
 as_entrata_response(resp, endpoint = NULL, method = NULL)
 }
@@ -14,6 +14,6 @@ as_entrata_response(resp, endpoint = NULL, method = NULL)
 \item{method}{The API method that was used}
 }
 \description{
-Handle Entrata API Response
+Handle \code{Entrata} API Response
 }
 \keyword{internal}

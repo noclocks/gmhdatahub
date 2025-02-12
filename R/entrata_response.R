@@ -6,7 +6,7 @@
 #
 #  ------------------------------------------------------------------------
 
-#' Handle Entrata API Response
+#' Handle `Entrata` API Response
 #'
 #' @param resp Response object from httr2
 #' @param endpoint The API endpoint that was called
@@ -26,6 +26,8 @@ as_entrata_response <- function(resp, endpoint = NULL, method = NULL) {
   )
 }
 
+#' Print `Entrata` response
+#'
 #' @export
 #' @rdname entrata_response
 #' @keywords internal
