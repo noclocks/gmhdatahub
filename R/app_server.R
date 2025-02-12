@@ -71,7 +71,7 @@ app_server <- function(input, output, session) {
   mod_residents_data <- mod_residents_server("residents", pool = pool, global_filters = global_filters)
 
   # report modules
-  mod_pre_lease_data <- mod_pre_lease_server("pre_lease", pool = pool, selected_property_id = get_default_app_choices("properties"))
+  mod_pre_lease_data <- mod_pre_lease_server("pre_lease", pool = pool)
   mod_box_score_data <- mod_box_score_server("box_score", pool = pool, global_filters = global_filters)
   mod_performance_data <- mod_performance_server("performance", pool = pool, global_filters = global_filters)
 
