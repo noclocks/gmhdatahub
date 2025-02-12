@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS gmh.model_beds CASCADE;
 CREATE TABLE gmh.model_beds (
     property_id      INTEGER PRIMARY KEY REFERENCES gmh.properties(property_id) ON DELETE CASCADE,
     model_bed_count  INT DEFAULT 0,
-    notes            TEXT,
+    notes            TEXT DEFAULT '',
     updated_at       TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
