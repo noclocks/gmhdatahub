@@ -4,7 +4,7 @@
 \alias{app_theme_ui}
 \title{App Theme}
 \usage{
-app_theme_ui(preset = "shiny", ...)
+app_theme_ui(preset = "bootstrap", ...)
 }
 \arguments{
 \item{preset}{The name of a theme preset, either a built-in theme provided by
