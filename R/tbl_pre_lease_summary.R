@@ -94,7 +94,11 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
           inputId = ns(sprintf("edit_%d", index)),
           label = "",
           icon = shiny::icon("edit"),
-          onclick = sprintf("Shiny.setInputValue('%s', %d)", ns("edit_row"), index),
+          onclick = paste0(
+            sprintf("Shiny.setInputValue('%s', %s)", ns("null"), index),
+            "; ",
+            sprintf("Shiny.setInputValue('%s', %d)", ns("edit_row"), index), ";"
+          ),
           class = "btn-sm btn-primary"
         )
       },
