@@ -1,4 +1,4 @@
-FROM rocker/r-ver:latest
+FROM rocker/r-ver:4.4.2
 
 ARG USER=shiny
 ARG UID=10001
