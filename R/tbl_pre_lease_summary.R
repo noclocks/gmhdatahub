@@ -390,7 +390,7 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
     showSortable = TRUE,
     showSortIcon = TRUE,
     # fullWidth = FALSE,
-    height = 500
+    height = 700
   )
 }
 
