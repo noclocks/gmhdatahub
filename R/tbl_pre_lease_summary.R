@@ -98,7 +98,7 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
     align = "center",
     headerVAlign = "center",
     vAlign = "center",
-    maxWidth = 75,
+    resizable = TRUE,
     format = reactable::colFormat(separators = TRUE),
     na = "N/A",
     headerStyle = htmltools::css(
@@ -145,7 +145,7 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
     property_id = reactable::colDef(show = FALSE),
     property_name = reactable::colDef(
       name = "Property Name",
-      width = 100,
+      width = 200,
       style = list(fontWeight = 600, background = gmh_colors("light")),
       footer = "Total/Average",
       sticky = "left",
@@ -382,8 +382,9 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
     compact = TRUE,
     bordered = TRUE,
     striped = TRUE,
-    highlight = TRUE,
-    defaultPageSize = -1,
+    # highlight = TRUE,
+    highlight = FALSE,
+    defaultPageSize = nrow(summary_data),
     defaultSorted = list("property_name" = "asc"),
     showPagination = FALSE,
     showSortable = TRUE,
@@ -792,7 +793,7 @@ calculate_pre_lease_summary_totals <- function(summary_data) {
       dplyr::across(dplyr::all_of(avg_cols), function(x) mean(x, na.rm = TRUE))
     ) |>
     dplyr::mutate(
-      dplyr::across(dplyr::starts_with("vel_"), function(x) round(x, 2)),
+      dplyr::across(dplyr::starts_with("vel_"), function(x) round(x, 1)),
       dplyr::across(dplyr::all_of(sum_cols), function(x) prettyNum(x, big.mark = ",")),
       dplyr::across(dplyr::all_of(avg_cols), function(x) scales::percent(x, accuracy = 0.1))
     )
