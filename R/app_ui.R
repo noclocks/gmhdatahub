@@ -28,7 +28,7 @@
 #' - [run_app()]: Run the GMH DataHub Shiny app.
 #' - [bslib::page_navbar()]: Create a Bootstrap navbar.
 #'
-#' @importFrom bslib page_navbar nav_spacer nav_panel nav_menu nav_item input_dark_mode
+#' @importFrom bslib page_navbar nav_spacer nav_panel nav_menu nav_item
 #' @importFrom shiny actionLink
 #' @importFrom htmltools tagList tags
 #' @importFrom bsicons bs_icon
@@ -37,7 +37,7 @@
 #' shiny::shinyApp(ui = app_ui, server = app_server)
 #'
 #' @importFrom bsicons bs_icon
-#' @importFrom bslib page_navbar nav_spacer nav_panel nav_menu nav_item input_dark_mode
+#' @importFrom bslib page_navbar nav_spacer nav_panel nav_menu nav_item
 #' @importFrom htmltools tagList tags
 #' @importFrom shiny icon textOutput actionLink
 app_ui <- function(req = NULL) {
@@ -71,7 +71,6 @@ app_ui <- function(req = NULL) {
         mod_dashboard_ui("dashboard")
       ),
       bslib::nav_spacer(),
-      bslib::nav_item(bslib::input_dark_mode(id = "dark_mode", mode = "light")),
       # bslib::nav_menu(
       #   title = "Links",
       #   align = "right",
@@ -235,7 +234,6 @@ app_ui <- function(req = NULL) {
         )
       ),
       bslib::nav_spacer(),
-      bslib::nav_item(bslib::input_dark_mode(id = "dark_mode", mode = "light")),
       # bslib::nav_menu(
       #   title = "Links",
       #   align = "right",
