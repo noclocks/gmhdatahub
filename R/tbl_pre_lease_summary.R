@@ -669,15 +669,7 @@ tbl_entrata_pre_lease <- function(details_by_property_data, details_data) {
         defaultPageSize = 5
       )
 
-      div(
-        style = list(
-          margin = "12px 45px",
-          padding = "16px",
-          background = "#f7f7f7",
-          borderRadius = "8px"
-        ),
-        details_table
-      )
+      details_table
     }
   )
 }
