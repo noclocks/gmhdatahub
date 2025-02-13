@@ -36,7 +36,7 @@ RUN Rscript -e 'install.packages("pak", repos = sprintf("https://r-lib.github.io
 RUN mkdir /build
 COPY . /build/
 WORKDIR /build
-RUN Rscript -e 'pak::local_install(ask = FALSE)'
+RUN Rscript -e 'options(warn=2); pak::local_install(ask = FALSE)'
 WORKDIR /
 RUN rm -rf /build
 RUN mkdir -p /etc/gmhdatahub
