@@ -6,8 +6,53 @@
 #
 #  ------------------------------------------------------------------------
 
+source("data-raw/R/utils_entrata.R")
+
 # entrata properties
-entrata_property_data <- db_read_tbl(pool, "entrata.properties")
+entrata_properties_req <- entrata_properties_request()
+entrata_properties_resp <- entrata_req_perform_save(entrata_properties_req)
+
+entrata_config <- get_entrata_config()
+resp_properties <- entrata_properties_request() |>
+  entrata_req_perform()
+resp_properties_json <- resp_properties |> httr2::resp_body_json()
+
+entrata_properties <- resp_properties_json |>
+  purrr::pluck("response", "result", "PhysicalProperty", "Property") |>
+  purrr::map(function(x) {
+    property_id <- purrr::pluck(x, "PropertyID")
+    property_name <- purrr::pluck(x, "MarketingName")
+    property_type <- purrr::pluck(x, "Type")
+    property_website <- purrr::pluck(x, "webSite")
+    browser()
+    property_is_disabled <- purrr::pluck(x, "IsDisabled")
+    property_is_featured <- purrr::pluck(x, "IsFeaturedProperty")
+
+    property_address <- purrr::pluck(x, "Address") |>
+      purrr::map(function(y) {
+        property_id <- property_id
+        browser()
+        address_street <- purrr::pluck(y, "Address")
+        address_city <- purrr::pluck(y, "City")
+        address_state <- purrr::pluck(y, "State")
+        address_postal_code <- purrr::pluck(y, "PostalCode")
+        address_country <- purrr::pluck(y, "Country")
+        list(
+          address_type = address_type,
+          address_street = address_street,
+          address_city = address_city,
+          address_state = address_state,
+          address_postal_code = address_postal_code,
+          address_country = address_country
+        )
+      })
+
+    out <- list(name = name, id = id)
+  }) |>
+  purrr::map_dfr(~ tibble::tibble(name = .x$name, id = .x$id))
+
+db_entrata_properties <- db_read_tbl(pool, "entrata.properties")
+
 entrata_property_address_data <- db_read_tbl(pool, "entrata.property_addresses")
 entrata_property_phone_data <- db_read_tbl(pool, "entrata.property_phones")
 entrata_property_phone_numbers_data <- db_read_tbl(pool, "entrata.property_phone_numbers")

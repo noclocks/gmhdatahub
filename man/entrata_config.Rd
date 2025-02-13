@@ -103,7 +103,8 @@ To validate the credentials provided in the configuration use the
 values from configuration files.
 
 Other Entrata: 
-\code{\link{entrata_reports}()}
+\code{\link{entrata_reports}()},
+\code{\link{entrata_response}}
 }
 \concept{Configuration}
 \concept{Entrata}

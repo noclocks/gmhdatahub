@@ -70,7 +70,8 @@ The \verb{/reports} endpoint provides the following methods:
 \code{\link[=entrata_request]{entrata_request()}}, \code{\link[=entrata_response]{entrata_response()}}, \code{\link[=entrata_errors]{entrata_errors()}}
 
 Other Entrata: 
-\code{\link{entrata_config}}
+\code{\link{entrata_config}},
+\code{\link{entrata_response}}
 }
 \concept{Entrata}
 \concept{Reports}

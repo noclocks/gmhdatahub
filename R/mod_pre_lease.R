@@ -50,7 +50,17 @@ mod_pre_lease_ui <- function(id) {
 
   ns <- shiny::NS(id)
 
+  # get the default choices/values
+  # report_date_choices <- db_read_gmh_pre
+  default_report_date <- Sys.Date() |> lubridate::ymd()
+  default_leasing_date <- get_entrata_custom_pre_lease_date(default_report_date)
+  default_partners <- get_default_app_choices("partners")
+  default_properties <- get_default_app_choices("properties")
+
   htmltools::tagList(
+    htmltools::tags$head(
+      shinyjs::useShinyjs()
+    ),
     bslib::page_fluid(
       # value boxes -------------------------------------------------------------
       htmltools::div(
@@ -62,34 +72,41 @@ mod_pre_lease_ui <- function(id) {
           bslib::value_box(
             title = "Average Occupancy %",
             value = shiny::textOutput(ns("val_avg_occupancy"), inline = TRUE),
-            showcase = bsicons::bs_icon("percent")
+            showcase = bsicons::bs_icon("percent"),
+            theme = "primary"
           ),
           bslib::value_box(
             title = "New Leases",
             subtitle = "Total new leases signed this period",
             value = shiny::textOutput(ns("val_new_leases"), inline = TRUE),
-            showcase = bsicons::bs_icon("file-earmark-plus")
+            showcase = bsicons::bs_icon("file-earmark-plus"),
+            theme = "primary"
           ),
           bslib::value_box(
             title = "Renewals",
             value = shiny::textOutput(ns("val_new_renewals"), inline = TRUE),
-            showcase = bsicons::bs_icon("arrow-repeat")
+            showcase = bsicons::bs_icon("arrow-repeat"),
+            theme = "primary"
           ),
           bslib::value_box(
             title = "Year-Over-Year Change",
             value = shiny::textOutput(ns("val_yoy_pct_change"), inline = TRUE),
-            showcase = bsicons::bs_icon("graph-up-arrow")
+            showcase = bsicons::bs_icon("graph-up-arrow"),
+            theme = "primary"
           )
         )
-      ),
+      ) |>
+        shinyjs::hidden(),
       # nav card ----------------------------------------------------------------
       bslib::navset_card_underline(
         id = ns("nav"),
         sidebar = bslib::sidebar(
           id = ns("sidebar"),
-          title = "Controls",
+          title = htmltools::tags$p("Controls"),
+          open = FALSE,
           bslib::accordion(
             id = ns("accordion"),
+            open = FALSE,
             bslib::accordion_panel(
               title = "Filters",
               value = ns("filters"),
@@ -99,24 +116,36 @@ mod_pre_lease_ui <- function(id) {
                 label = "Investment Partners",
                 multiple = TRUE,
                 choices = get_default_app_choices("partners") |> names()
-              ),
+              ) |>
+                with_tooltip(
+                  "Select Investment Partners associated with certain properties."
+                ),
               shiny::selectInput(
                 ns("properties"),
                 label = "Properties",
                 multiple = TRUE,
                 choices = get_default_app_choices("properties") |> names()
-              ),
+              ) |>
+                with_tooltip(
+                  "Select the Properties to include in the display."
+                ),
               shiny::dateInput(
                 ns("report_date"),
                 label = "Report Date",
                 value = Sys.Date()
-              ),
+              ) |>
+                with_tooltip(
+                  "Select a report date to view historical data pulled from the Entrata API."
+                ),
               shiny::dateInput(
                 ns("leasing_date"),
                 label = "Pre-Lease Date",
                 value = get_entrata_custom_pre_lease_date()
               ) |>
-                shinyjs::disabled()
+                shinyjs::disabled() |>
+                with_tooltip(
+                  "This is the date used when performing the API request to Entrata API."
+                )
             ),
             bslib::accordion_panel(
               title = "Metrics",
@@ -143,6 +172,16 @@ mod_pre_lease_ui <- function(id) {
                 "Group By",
                 choices = c("Property" = "property", "Investment Partner" = "partner"),
                 selected = "property"
+              )
+            ),
+            bslib::accordion_panel(
+              title = "Options",
+              value = ns("options"),
+              icon = bsicons::bs_icon("gear"),
+              bslib::input_switch(
+                id = ns("toggle_val_boxes"),
+                label = "Display KPI Metrics?",
+                value = FALSE
               )
             )
           )
@@ -255,44 +294,6 @@ mod_pre_lease_ui <- function(id) {
             )
           )
         ),
-        bslib::nav_panel(
-          title = "About",
-          icon = bsicons::bs_icon("info-circle"),
-          value = "about",
-          bslib::card(
-            class = "mb-4",
-            bslib::card_header(
-              class = "bg-dark text-white",
-              htmltools::div(
-                bsicons::bs_icon("info-circle", class = "me-2"),
-                "About"
-              )
-            ),
-            bslib::card_body(
-              htmltools::tags$p(
-                bsicons::bs_icon("clipboard-data", class = "me-2"),
-                "This pre-lease summary dashboard provides a comprehensive overview of property leasing performance across multiple locations.
-              The data includes detailed metrics on current occupancy, lease types, and velocity targets.",
-                class = "mb-3"
-              ),
-              htmltools::tags$ul(
-                class = "list-unstyled",
-                htmltools::tags$li(bsicons::bs_icon("house-check", class = "me-2"), "Current Occupancy: Shows the current percentage of occupied beds", class = "mb-2"),
-                htmltools::tags$li(bsicons::bs_icon("file-earmark-text", class = "me-2"), "Lease Types: Breakdown between new leases and renewals", class = "mb-2"),
-                htmltools::tags$li(bsicons::bs_icon("graph-up", class = "me-2"), "YOY Performance: Year-over-year comparison of leasing metrics", class = "mb-2"),
-                htmltools::tags$li(bsicons::bs_icon("speedometer", class = "me-2"), "Velocity Targets: Progress towards 90%, 95%, and 100% occupancy goals")
-              ),
-              htmltools::tags$hr(),
-              htmltools::tags$iframe(
-                src = "www/content/pre_lease/pre_lease_summary_tbl.html",
-                width = "100%",
-                height = "600px",
-                scrolling = "auto",
-                frameborder = 0
-              )
-            )
-          )
-        ),
         bslib::nav_spacer(),
         bslib::nav_item(
           shiny::downloadButton(
@@ -346,6 +347,8 @@ mod_pre_lease_server <- function(
   shiny::moduleServer(
     id,
     function(input, output, session) {
+
+      Sys.setenv(CLI_NO_COLOR = "TRUE")
 
       ns <- session$ns
       cli::cat_rule("[Module]: mod_pre_lease_server()")
@@ -522,8 +525,59 @@ mod_pre_lease_server <- function(
 
       # refresh
       shiny::observeEvent(input$refresh, {
-        db_trigger(db_trigger() + 1)
-        shiny::showNotification("Data refreshed successfully!", type = "message")
+
+        shiny::showModal(
+          shiny::modalDialog(
+            title = "Refresh Data",
+            size = "m",
+            easyClose = TRUE,
+            htmltools::tagList(
+              htmltools::tags$p(
+                "Would you like to refresh the data from the Entrata API or just from the database?"
+              ),
+              shiny::radioButtons(
+                ns("refresh_type"),
+                label = "Refresh Type",
+                choices = c(
+                  "Entrata API" = "entrata",
+                  "Database" = "database"
+                ),
+                selected = "database"
+              )
+            ),
+            footer = htmltools::tagList(
+              shiny::modalButton("Cancel"),
+              shiny::actionButton(
+                ns("refresh_confirm"),
+                "Refresh",
+                class = "btn-primary"
+              )
+            )
+          )
+        )
+      })
+
+      # confirm refresh
+      shiny::observeEvent(input$refresh_confirm, {
+        shiny::req(input$refresh_type)
+        if (input$refresh_type == "entrata") {
+          # emulate clicking the entrata button
+          js <- glue::glue("$('#{ns('entrata')}').click();")
+          shinyjs::runjs(js)
+        } else {
+          db_trigger(db_trigger() + 1)
+          shiny::showNotification("Data refreshed successfully!", type = "message")
+        }
+        shiny::removeModal()
+      })
+
+      # toggle metrics (value boxes)
+      shiny::observeEvent(input$toggle_val_boxes, {
+        shinyjs::toggle(
+          "value_boxes",
+          anim = TRUE,
+          condition = input$toggle_val_boxes
+        )
       })
 
       # entrata settings
@@ -545,24 +599,24 @@ mod_pre_lease_server <- function(
                   ns("summarize_by"),
                   label = "Summarize By",
                   choices = c(
+                    "Unit Type" = "unit_type",
                     "Do Not Summarize" = "do_not_summarize",
                     "Property" = "property",
-                    "Unit Type" = "unit_type",
                     "Floorplan Name" = "floorplan_name"
                   ),
-                  selected = "do_not_summarize"
+                  selected = "unit_type"
                 ),
                 shiny::radioButtons(
                   ns("group_by"),
                   label = "Group By",
                   choices = c(
-                    "Do Not Group" = "do_not_group",
-                    "Property" = "property",
                     "Unit Type" = "unit_type",
+                    "Property" = "property",
                     "Floorplan Name" = "floorplan_name",
-                    "Lease Term" = "lease_term"
+                    "Lease Term" = "lease_term",
+                    "Do Not Group" = "do_not_group"
                   ),
-                  selected = "do_not_group"
+                  selected = "unit_type"
                 ),
                 shiny::radioButtons(
                   ns("consolidate_by"),
@@ -614,6 +668,12 @@ mod_pre_lease_server <- function(
                     "Details" = "details"
                   ),
                   selected = c("summary", "details")
+                ),
+                shiny::textInput(
+                  ns("request_id"),
+                  label = "Request ID",
+                  value = "",
+                  placeholder = "(Optional) Enter Request ID:"
                 )
               )
             ),
@@ -700,40 +760,124 @@ mod_pre_lease_server <- function(
 
                 shiny::incProgress(incr, detail = "Pre-Lease Report Details")
 
+                browser()
+
                 pool::dbAppendTable(
                   pool,
-                  DBI::SQL("entrata.pre_lease_details_by_property"),
+                  DBI::SQL("entrata.pre_lease_details"),
                   value = pre_lease_details,
                   append = TRUE
                 )
+
+                cli::cli_alert_info("Data refreshed successfully!")
+                shiny::incProgress(incr, "Refreshing Views and Pulling New Data from Database")
+                shiny::setProgress(100, detail = "Data refreshed successfully!")
               })
             }, error = function(e) {
               cli::cli_alert_danger("Error updating database: {.error {e}}")
               shiny::showNotification("Error updating database!", type = "error")
             }, finally = {
               pool::poolReturn(conn)
-              cli::cli_alert_info("Data refreshed successfully!")
-              shiny::incProgress(incr, "Refreshing Views and Pulling New Data from Database")
               db_trigger(db_trigger() + 1)
               shiny::removeModal()
-              shiny::setProgress(100, detail = "Data refreshed successfully!")
             })
           }
         )
       })
 
-      # shiny::observeEvent(input$help, {
-      #   shiny::showModal(
-      #     shiny::modalDialog(
-      #       title = "Pre-Lease Summary Help",
-      #       size = "l",
-      #       easyClose = TRUE,
-      #       footer = htmltools::tagList(
-      #         shiny::modalButton("Close")
-      #       )
-      #     )
-      #   )
-      # })
+      shiny::observeEvent(input$help, {
+        shiny::showModal(
+          shiny::modalDialog(
+            title = "Pre-Lease Summary Help",
+            size = "l",
+            easyClose = TRUE,
+            footer = htmltools::tagList(
+              shiny::actionButton(
+                ns("view_docs"),
+                "View Technical Documentation",
+                icon = shiny::icon("book"),
+                class = "btn-primary"
+              ),
+              shiny::modalButton("Close")
+            ),
+            bslib::card(
+              class = "mb-4",
+              bslib::card_header(
+                class = "bg-primary text-white",
+                htmltools::div(
+                  bsicons::bs_icon("info-circle", class = "me-2"),
+                  "About"
+                )
+              ),
+              bslib::card_body(
+                htmltools::tags$p(
+                  bsicons::bs_icon("clipboard-data", class = "me-2"),
+                  "This pre-lease summary dashboard provides a comprehensive overview of property leasing performance across multiple locations.
+              The data includes detailed metrics on current occupancy, lease types, and velocity targets.",
+                  class = "mb-3"
+                ),
+                htmltools::tags$ul(
+                  class = "list-unstyled",
+                  htmltools::tags$li(bsicons::bs_icon("house-check", class = "me-2"), "Current Occupancy: Shows the current percentage of occupied beds", class = "mb-2"),
+                  htmltools::tags$li(bsicons::bs_icon("file-earmark-text", class = "me-2"), "Lease Types: Breakdown between new leases and renewals", class = "mb-2"),
+                  htmltools::tags$li(bsicons::bs_icon("graph-up", class = "me-2"), "YOY Performance: Year-over-year comparison of leasing metrics", class = "mb-2"),
+                  htmltools::tags$li(bsicons::bs_icon("speedometer", class = "me-2"), "Velocity Targets: Progress towards 90%, 95%, and 100% occupancy goals")
+                )
+              )
+            )
+          )
+        )
+      })
+
+      shiny::observeEvent(input$view_docs, {
+        shiny::showModal(
+          shiny::modalDialog(
+            title = "Technical Documentation",
+            size = "l",
+            easyClose = TRUE,
+            footer = htmltools::tagList(
+              shiny::modalButton("Close")
+            ),
+            bslib::card(
+              class = "mb-4",
+              bslib::card_header(
+                class = "bg-primary text-white",
+                htmltools::div(
+                  bsicons::bs_icon("book", class = "me-2"),
+                  "Technical Documentation"
+                )
+              ),
+              bslib::card_body(
+                htmltools::tags$p(
+                  bsicons::bs_icon("info-circle", class = "me-2"),
+                  "This section provides detailed technical documentation for the pre-lease summary dashboard.
+              The documentation includes information on the data sources, metrics, and calculations used in the dashboard."
+                ),
+              )
+            ),
+            htmltools::tags$hr(),
+            bslib::card(
+              class = "mb-4",
+              bslib::card_header(
+                class = "bg-primary text-white",
+                htmltools::div(
+                  bsicons::bs_icon("database", class = "me-2"),
+                  "Data Pipeline"
+                )
+              ),
+              bslib::card_body(
+                htmltools::tags$iframe(
+                  src = "www/content/pre_lease/pre_lease_summary_tbl.html",
+                  width = "100%",
+                  height = "600px",
+                  scrolling = "auto",
+                  frameborder = 0
+                )
+              )
+            )
+          )
+        )
+      })
 
       # value boxes
       output$val_avg_occupancy <- shiny::renderText({
@@ -1039,7 +1183,8 @@ mod_pre_lease_server <- function(
         shiny::req(pool, db_trigger())
         db_read_tbl(pool, "entrata.pre_lease_report_summary") |>
           dplyr::filter(
-            .data$report_date == max(.data$report_date, na.rm = TRUE)
+            .data$report_date == max(.data$report_date, na.rm = TRUE),
+            .data$property_name %in% input$properties
           )
       })
 
@@ -1047,7 +1192,8 @@ mod_pre_lease_server <- function(
         shiny::req(pool, db_trigger())
         db_read_tbl(pool, "entrata.pre_lease_report_details") |>
           dplyr::filter(
-            .data$report_date == max(.data$report_date, na.rm = TRUE)
+            .data$report_date == max(.data$report_date, na.rm = TRUE),
+            .data$property_name %in% input$properties
           )
       })
 
@@ -1055,7 +1201,8 @@ mod_pre_lease_server <- function(
         shiny::req(pool, db_trigger())
         db_read_tbl(pool, "entrata.pre_lease_report_details_by_property") |>
           dplyr::filter(
-            .data$report_date == max(.data$report_date, na.rm = TRUE)
+            .data$report_date == max(.data$report_date, na.rm = TRUE),
+            .data$property_name %in% input$properties
           )
       })
 
@@ -1068,8 +1215,10 @@ mod_pre_lease_server <- function(
 
       return(
         list(
-          # summary_data = pre_lease_summary_data,
-          # details_data = pre_lease_details_data
+          pre_lease_summary_data = pre_lease_summary_data,
+          entrata_pre_lease_summary_data = entrata_pre_lease_summary_data,
+          entrata_pre_lease_details_data = entrata_pre_lease_details_data,
+          entrata_pre_lease_details_by_property_data = entrata_pre_lease_details_by_property_data
         )
       )
     }
@@ -1109,34 +1258,6 @@ mod_pre_lease_demo <- function() {
 
   shiny::shinyApp(ui, server)
 }
-
-mod_prelease_sidebar_ui <- function(id) {
-
-  ns <- shiny::NS(id)
-
-
-}
-
-mod_prelease_sidebar_filters_server <- function(id, pool = NULL) {
-
-  shiny::moduleServer(
-    id,
-    function(input, output, session) {
-
-      ns <- session$ns
-      cli::cat_rule("[Module]: mod_prelease_sidebar_filters_server()")
-
-      # check database
-      if (is.null(pool)) pool <- session$userData$pool %||% db_connect()
-      check_db_conn(pool)
-
-
-
-      return(filters)
-    }
-  )
-}
-
 
 
 entrata_table_ui <- function(id) {

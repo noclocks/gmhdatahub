@@ -9,7 +9,7 @@
 \usage{
 mod_dashboard_ui(id)
 
-mod_dashboard_server(id, pool = NULL, global_filters = NULL)
+mod_dashboard_server(id, pool = NULL)
 
 mod_dashboard_demo()
 }

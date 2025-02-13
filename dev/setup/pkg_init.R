@@ -127,6 +127,7 @@ usethis::use_covr_ignore("inst/")
 usethis::use_covr_ignore("data-raw")
 usethis::use_build_ignore("codecov.yml")
 usethis::use_build_ignore(".covrignore")
+usethis::use_build_ignore("~\\$.*", escape = FALSE)
 
 # initial tests
 usethis::use_test("gmhdatahub")

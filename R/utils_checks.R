@@ -92,7 +92,7 @@ check_response <- function(
     call = rlang::caller_env()
 ) {
   # if (is_http_response(resp) && !is_entrata_response(resp)) {
-    # resp <- as_entrata_response(resp)
+  # resp <- as_entrata_response(resp)
   # }
   if (is_http_response(resp)) { return(invisible(resp)) }
   stop_input_type(
@@ -102,6 +102,22 @@ check_response <- function(
     arg = arg,
     call = call
   )
+}
+
+check_response_json <- function(
+    resp,
+    arg = rlang::caller_arg(resp),
+    call = rlang::caller_env()
+) {
+  if (httr2::resp_content_type(resp) != "application/json") {
+    cli::cli_abort(
+      c(
+        "Provided API response {.arg {arg}} is not JSON.",
+        " Detected content type of: {.field {httr2::resp_content_type(resp)}}"
+      ),
+      call = call
+    )
+  }
 }
 
 check_http_response <- function(

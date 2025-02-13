@@ -1,8 +1,21 @@
 create_leasing_calendar <- function(start_year = 2023, num_years = 3) {
+
+  leasing_season_end <- function(year) {
+    lubridate::make_date(year, month = 9L, day = 1L)
+  }
+
+  leasing_season_start <- function(year) {
+    lubridate::ymd(paste0(year - 1, "-09-01"))
+  }
+
+  pre_lease_season_start <- function(year) {
+    lubridate::ymd(paste0(year - 1, "09-01"))
+  }
+
   # Helper functions for season dates
-  leasing_season_end <- function(year) lubridate::ymd(paste0(year, "-08-01"))
-  leasing_season_start <- function(year) lubridate::ymd(paste0(year - 1, "-09-01"))
-  pre_lease_season_start <- function(year) lubridate::ymd(paste0(year - 1, "-09-01"))
+  # leasing_season_end <- function(year) lubridate::ymd(paste0(year, "-08-01"))
+  # leasing_season_start <- function(year) lubridate::ymd(paste0(year - 1, "-09-01"))
+  # pre_lease_season_start <- function(year) lubridate::ymd(paste0(year - 1, "-09-01"))
 
   # Generate date sequence
   date_seq <- dplyr::tibble(

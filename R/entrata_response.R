@@ -6,41 +6,49 @@
 #
 #  ------------------------------------------------------------------------
 
-#' Handle Entrata API Response
+#' Entrata Response
 #'
-#' @param resp Response object from httr2
-#' @param endpoint The API endpoint that was called
-#' @param method The API method that was used
+#' @family Entrata
+#' @name entrata_response
+#'
+#' @description
+#' Functions for working with API responses from the Entrata API.
+#'
+#' @param resp An [httr2::response()] object.
+#'
+#' @seealso [entrata_request()]
+NULL
+
+#' Entrata Response Body
+#'
+#' @description
+#' Extract the response body from the Entrata API response.
+#'
+#' @param resp `httr2::response` object.
+#'
+#' @returns `list` with the response body.
+#'
+#' @export
+#'
 #' @importFrom httr2 resp_body_json
-#' @keywords internal
-as_entrata_response <- function(resp, endpoint = NULL, method = NULL) {
-  structure(
-    list(
-      status = resp$status_code,
-      headers = resp$headers,
-      body = httr2::resp_body_json(resp),
-      endpoint = endpoint,
-      method = method
-    ),
-    class = "entrata_response"
-  )
+#' @importFrom purrr pluck
+entrata_resp_body <- function(resp) {
+  check_response(resp)
+  check_response_json(resp)
+  httr2::resp_body_json(resp)
 }
 
-#' @export
-#' @rdname entrata_response
-#' @keywords internal
-print.entrata_response <- function(x, ...) {
-  cli::cli_h1("Entrata API Response")
-  cli::cli_text("Endpoint: {.field {x$endpoint}}")
-  cli::cli_text("Method: {.field {x$method}}")
-  cli::cli_text("Status: {.field {x$status}}")
-
-  if (!is.null(x$body$error)) {
-    cli::cli_alert_danger("Error: {x$body$error$message}")
+entrata_resp_status <- function(resp) {
+  check_response(resp)
+  resp_body <- httr2::resp_body_json(resp)
+  if (entrata_resp_is_error(resp)) {
+    return(purrr::pluck(resp_body, "response", "error", "code"))
   } else {
-    cli::cli_alert_success("Success!")
+    return(purrr::pluck(resp_body, "response", "result", "status"))
   }
 }
+
+
 
 entrata_resp_is_error <- function(resp) {
   check_response(resp)
@@ -93,33 +101,7 @@ entrata_resp_is_transient <- function(resp) {
   }
 }
 
-#' Entrata Response Body
-#'
-#' @description
-#' Extract the response body from the Entrata API response.
-#'
-#' @param resp `httr2::response` object.
-#'
-#' @returns `list` with the response body.
-#'
-#' @export
-#'
-#' @importFrom httr2 resp_body_json
-#' @importFrom purrr pluck
-entrata_resp_body <- function(resp) {
-  check_response(resp)
-  return(httr2::resp_body_json(resp))
-}
 
-entrata_resp_status <- function(resp) {
-  check_response(resp)
-  resp_body <- httr2::resp_body_json(resp)
-  if (entrata_resp_is_error(resp)) {
-    return(purrr::pluck(resp_body, "response", "error", "code"))
-  } else {
-    return(purrr::pluck(resp_body, "response", "result", "status"))
-  }
-}
 
 entrata_resp_check_status <- function(resp, error_call = rlang::caller_env()) {
 

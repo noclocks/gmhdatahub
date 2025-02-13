@@ -28,6 +28,7 @@ Imports:
     DBI,
     dbplyr,
     dbx,
+    digest,
     dplyr,
     fontawesome,
     fs,
@@ -41,8 +42,11 @@ Imports:
     leaflet,
     logger,
     lubridate,
+    memoise,
     mime,
     noClocksAuthR,
+    openxlsx,
+    openxlsx2,
     pkgload,
     plotly,
     pool,
@@ -66,13 +70,14 @@ Imports:
     snakecase,
     stringr,
     tibble,
+    tibblify,
     tidyr,
     tidyselect,
     tools,
     utils,
     waiter,
     withr,
-    writexl
+    yaml
 Suggests:
     httptest2,
     knitr,
@@ -83,11 +88,12 @@ Suggests:
     testthat (>= 3.0.0)
 VignetteBuilder:
     knitr
-Remotes: 
+Remotes:  
     noclocks/noClocksAuthR,
     kcuilla/reactablefmtr,
     tiledb-inc/shinybg,
-    dreamRs/shinyWidgets
+    dreamRs/shinyWidgets,
+    mgirlich/tibblify
 Config/coverage/needs: covr covrpage
 Config/database/needs: config, DBI, pool, dbx, dplyr, dbplyr, RPostgres
 Config/excel/needs: openxlsx2, readxl, writexl, cellranger
