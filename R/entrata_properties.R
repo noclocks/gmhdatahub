@@ -127,14 +127,14 @@ entrata_properties_getProperties <- function(
   req <- entrata_request(entrata_config) |>
     entrata_req_endpoint("properties") |>
     entrata_req_body(
-      id = req_id,
-      method = "getProperties",
-      version = get_default_entrata_method_version("properties", "getProperties"),
-      params = list(
+      method_name = "getProperties",
+      method_version = get_default_entrata_method_version("properties", "getProperties"),
+      method_params = list(
         propertyIds = property_ids,
         propertyLookupCode = property_lookup_code,,
         showAllStatus = as.integer(show_all_status)
-      )
+      ),
+      request_id = req_id
     )
 
   entrata_req_perform(req) |>
@@ -191,14 +191,14 @@ entrata_properties_getFloorPlans <- function(
   req <- entrata_request(entrata_config) |>
     entrata_req_endpoint("properties") |>
     entrata_req_body(
-      id = req_id,
-      method = "getFloorPlans",
-      version = get_default_entrata_method_version("properties", "getFloorPlans"),
-      params = list(
+      method_name = "getFloorPlans",
+      method_version = get_default_entrata_method_version("properties", "getFloorPlans"),
+      method_params = list(
         propertyId = property_id,
         usePropertyPreferences = as.integer(use_property_preferences),
         includeDisabledFloorplans = as.integer(include_disabled_floorplans)
-      )
+      ),
+      request_id = req_id
     )
 
   resp <- httr2::req_perform(req)
@@ -206,22 +206,6 @@ entrata_properties_getFloorPlans <- function(
   parse_floorplans_response(resp)
 
 }
-
-# {
-#   "auth": {
-#     "type" : "basic"
-#   },
-#   "requestId" : 15,
-#   "method": {
-#     "name": "getFloorPlans",
-#     "version":"r1",
-#     "params": {
-#       "propertyId" : "739085",
-#       "usePropertyPreferences" : "0",
-#       "includeDisabledFloorplans" : "0"
-#     }
-#   }
-# }
 
 get_entrata_property_ids <- function(entrata_config = get_entrata_config()) {
 

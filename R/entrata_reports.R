@@ -277,9 +277,12 @@ entrata_reports_info <- function(
   req <- entrata_request(entrata_config = entrata_config) |>
     entrata_req_endpoint("reports") |>
     entrata_req_body(
-      method = "getReportInfo",
-      version = get_default_method_version("reports", "getReportInfo"),
-      report = report
+      method_name = "getReportInfo",
+      method_version = get_default_method_version("reports", "getReportInfo"),
+      method_params = list(
+        report = report_name,
+        version = report_version
+      )
     )
 
   resp <- httr2::req_perform(req)
