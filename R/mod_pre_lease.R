@@ -718,17 +718,17 @@ mod_pre_lease_server <- function(
             shiny::incProgress(incr, detail = "Weekly Leasing Data")
             weekly_leasing_data <- entrata_lease_execution_report()
 
-            tryCatch({
-              pool::poolWithTransaction(pool, {
+            pool::poolWithTransaction(pool, {
 
-                conn <- pool::poolCheckout(pool)
+              conn <- pool::poolCheckout(pool)
 
-                shiny::incProgress(
-                  incr,
-                  message = "Updating Database",
-                  detail = "Weekly Leasing Data"
-                )
+              shiny::incProgress(
+                incr,
+                message = "Updating Database",
+                detail = "Weekly Leasing Data"
+              )
 
+              tryCatch({
                 dbx::dbxUpsert(
                   conn,
                   table = DBI::SQL("entrata.pre_lease_weekly"),
@@ -737,9 +737,15 @@ mod_pre_lease_server <- function(
                   where_cols = c("report_date", "property_id"),
                   skip_existing = FALSE
                 )
+                cli::cli_alert_success("Weekly Leasing Data updated successfully!")
+              }, error = function(e) {
+                cli::cli_alert_danger("Error updating Weekly Leasing Data: {.error {e}}")
+                shiny::showNotification("Error updating Weekly Leasing Data!", type = "error")
+              })
 
-                shiny::incProgress(incr, detail = "Pre-Lease Report by Property")
+              shiny::incProgress(incr, detail = "Pre-Lease Report by Property")
 
+              tryCatch({
                 dbx::dbxUpsert(
                   conn,
                   table = DBI::SQL("entrata.pre_lease_summary_by_property"),
@@ -747,41 +753,59 @@ mod_pre_lease_server <- function(
                   where_cols = c("report_date", "property_id"),
                   skip_existing = FALSE
                 )
+                cli::cli_alert_success("Pre-Lease Report by Property updated successfully!")
+              }, error = function(e) {
+                cli::cli_alert_danger("Error updating Pre-Lease Report by Property: {.error {e}}")
+                shiny::showNotification("Error updating Pre-Lease Report by Property!", type = "error")
+              })
 
-                shiny::incProgress(incr, detail = "Pre-Lease Report by Unit")
+              shiny::incProgress(incr, detail = "Pre-Lease Report by Unit")
 
+              tryCatch({
                 dbx::dbxUpsert(
                   conn,
                   table = DBI::SQL("entrata.pre_lease_summary_by_unit"),
                   records = pre_lease_summary_by_unit,
-                  where_cols = c("report_date", "property_id"),
+                  where_cols = c("report_date", "property_id", "unit_type"),
                   skip_existing = FALSE
                 )
+                cli::cli_alert_success("Pre-Lease Report by Unit updated successfully!")
+              }, error = function(e) {
+                cli::cli_alert_danger("Error updating Pre-Lease Report by Unit: {.error {e}}")
+                shiny::showNotification("Error updating Pre-Lease Report by Unit!", type = "error")
+              })
 
-                shiny::incProgress(incr, detail = "Pre-Lease Report Details")
+              shiny::incProgress(incr, detail = "Pre-Lease Report Details")
 
+              tryCatch({
                 pool::dbWriteTable(
                   pool,
                   DBI::SQL("entrata.pre_lease_report_details"),
                   value = pre_lease_details,
                   overwrite = TRUE
                 )
-
-                cli::cli_alert_info("Data refreshed successfully!")
-                shiny::incProgress(incr, "Refreshing Views and Pulling New Data from Database")
-                shiny::setProgress(100, detail = "Data refreshed successfully!")
+                cli::cli_alert_success("Pre-Lease Report Details updated successfully!")
+              }, error = function(e) {
+                cli::cli_alert_danger("Error updating Pre-Lease Report Details: {.error {e}}")
+                shiny::showNotification("Error updating Pre-Lease Report Details!", type = "error")
               })
-            }, error = function(e) {
-              cli::cli_alert_danger("Error updating database: {.error {e}}")
-              shiny::showNotification("Error updating database!", type = "error")
-            }, finally = {
+
+              shiny::incProgress(incr, detail = "Refreshing Views and Pulling New Data from Database")
+              cli::cli_alert_info("Data refreshed successfully!")
+              shiny::setProgress(100, detail = "Data refreshed successfully!")
+              shiny::showNotification("Data refreshed successfully!", type = "message")
+
               pool::poolReturn(conn)
               db_trigger(db_trigger() + 1)
               shiny::removeModal()
+
             })
+
           }
         )
+
       })
+
 
       shiny::observeEvent(input$help, {
         shiny::showModal(
