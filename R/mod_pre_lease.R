@@ -760,13 +760,11 @@ mod_pre_lease_server <- function(
 
                 shiny::incProgress(incr, detail = "Pre-Lease Report Details")
 
-                browser()
-
-                pool::dbAppendTable(
+                pool::dbWriteTable(
                   pool,
-                  DBI::SQL("entrata.pre_lease_details"),
+                  DBI::SQL("entrata.pre_lease_report_details"),
                   value = pre_lease_details,
-                  append = TRUE
+                  overwrite = TRUE
                 )
 
                 cli::cli_alert_info("Data refreshed successfully!")
@@ -1179,14 +1177,14 @@ mod_pre_lease_server <- function(
         chart_yoy_variance(data = pre_lease_summary_data(), by = input$group_by)
       })
 
-      entrata_pre_lease_summary_data <- shiny::reactive({
-        shiny::req(pool, db_trigger())
-        db_read_tbl(pool, "entrata.pre_lease_report_summary") |>
-          dplyr::filter(
-            .data$report_date == max(.data$report_date, na.rm = TRUE),
-            .data$property_name %in% input$properties
-          )
-      })
+      # entrata_pre_lease_summary_data <- shiny::reactive({
+      #   shiny::req(pool, db_trigger())
+      #   db_read_tbl(pool, "entrata.pre_lease_report_summary") |>
+      #     dplyr::filter(
+      #       .data$report_date == max(.data$report_date, na.rm = TRUE),
+      #       .data$property_name %in% input$properties
+      #     )
+      # })
 
       entrata_pre_lease_details_data <- shiny::reactive({
         shiny::req(pool, db_trigger())
@@ -1216,7 +1214,6 @@ mod_pre_lease_server <- function(
       return(
         list(
           pre_lease_summary_data = pre_lease_summary_data,
-          entrata_pre_lease_summary_data = entrata_pre_lease_summary_data,
           entrata_pre_lease_details_data = entrata_pre_lease_details_data,
           entrata_pre_lease_details_by_property_data = entrata_pre_lease_details_by_property_data
         )

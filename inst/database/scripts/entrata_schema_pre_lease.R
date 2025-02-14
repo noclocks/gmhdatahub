@@ -38,6 +38,13 @@ pool::dbAppendTable(
   append = TRUE
 )
 
+pool::dbAppendTable(
+  pool,
+  DBI::SQL("entrata.pre_lease_report_details"),
+  value = pre_lease_details,
+  append = TRUE
+)
+
 
 
 # figure out which columns are different between the two details tables (db and entrata)
@@ -198,8 +205,8 @@ dplyr::copy_to(conn, df = summary, name = dbplyr::in_schema("entrata", "pre_leas
 
 dplyr::copy_to(
   conn,
-  df = entrata_pre_lease_details_by_property,
-  name = dbplyr::in_schema("entrata", "pre_lease_report_details_by_property"),
+  df = details_data,
+  name = dbplyr::in_schema("entrata", "pre_lease_report_details"),
   temporary = FALSE,
   overwrite = TRUE
 )

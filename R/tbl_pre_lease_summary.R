@@ -417,10 +417,6 @@ tbl_entrata_pre_lease <- function(details_by_property_data, details_data) {
     }
   )
 
-  sticky_style <- list(
-    backgroundColor = gmh_colors("light")
-  )
-
   avg_cols <- c(
     "avg_market_rent",
     "avg_budgeted_rent",

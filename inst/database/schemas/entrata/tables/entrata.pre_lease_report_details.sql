@@ -6,11 +6,13 @@ CREATE TABLE IF NOT EXISTS entrata.pre_lease_report_details (
     property_name TEXT NOT NULL,
     bldg_unit TEXT,
     unit_type TEXT,
+    unit_status TEXT DEFAULT NULL,
+    floorplan_name TEXT DEFAULT NULL,
     sqft NUMERIC(10, 2),
     resident_id INTEGER,
     resident_name TEXT,
     resident_email TEXT,
-    resident_phone_number TEXT,
+    resident_phone TEXT,
     resident_gender TEXT,
     lease_id TEXT,
     lease_status TEXT,
@@ -27,6 +29,7 @@ CREATE TABLE IF NOT EXISTS entrata.pre_lease_report_details (
     lease_completed_on_date DATE,
     lease_approved_on_date DATE,
     move_in_date DATE,
+    leasing_agent TEXT DEFAULT NULL,
     deposit_charged NUMERIC(10, 2),
     deposit_held NUMERIC(10, 2),
     market_rent NUMERIC(10, 2),
@@ -37,9 +40,7 @@ CREATE TABLE IF NOT EXISTS entrata.pre_lease_report_details (
     scheduled_rent NUMERIC(10, 2),
     actual_charges NUMERIC(10, 2),
     scheduled_rent_total NUMERIC(10, 2),
-    leasing_agent TEXT DEFAULT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (report_date, property_id, unit_type, resident_id, lease_id, charge_code)
 );
-
-SELECT * FROM entrata.pre_lease_report_details	ORDER BY report_date DESC
