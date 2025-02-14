@@ -677,6 +677,22 @@ mod_pre_lease_server <- function(
                 )
               )
             ),
+            # warning section that says could take up to 5 minutes
+            bslib::card(
+              height = "auto",
+              bslib::card_header(
+                class = "bg-warning",
+                htmltools::div(
+                  bsicons::bs_icon("exclamation-triangle", class = "me-2"),
+                  "Warning"
+                )
+              ),
+              bslib::card_body(
+                htmltools::tags$p(
+                  "Refreshing the Entrata API data may take up to 5 minutes. Please be patient."
+                )
+              )
+            ),
             footer = htmltools::tagList(
               shiny::modalButton("Cancel"),
               bslib::input_task_button(
@@ -718,9 +734,7 @@ mod_pre_lease_server <- function(
             shiny::incProgress(incr, detail = "Weekly Leasing Data")
             weekly_leasing_data <- entrata_lease_execution_report()
 
-            pool::poolWithTransaction(pool, {
-
-              conn <- pool::poolCheckout(pool)
+            pool::poolWithTransaction(pool, function(conn) {
 
               shiny::incProgress(
                 incr,
@@ -795,11 +809,10 @@ mod_pre_lease_server <- function(
               shiny::setProgress(100, detail = "Data refreshed successfully!")
               shiny::showNotification("Data refreshed successfully!", type = "message")
 
-              pool::poolReturn(conn)
-              db_trigger(db_trigger() + 1)
-              shiny::removeModal()
-
             })
+
+            db_trigger(db_trigger() + 1)
+            shiny::removeModal()
 
           }
         )
