@@ -677,7 +677,6 @@ mod_pre_lease_server <- function(
                 )
               )
             ),
-            # warning section that says could take up to 5 minutes
             bslib::card(
               height = "auto",
               bslib::card_header(
@@ -1299,7 +1298,43 @@ entrata_table_ui <- function(id) {
   ns <- shiny::NS(id)
 
   htmltools::tagList(
-    reactable::reactableOutput(ns("table")) |> with_loader()
+    bslib::card(
+      full_screen = TRUE,
+      bslib::card_header(
+        class = "bg-primary text-white",
+        htmltools::div(
+          bsicons::bs_icon("table", class = "me-2"),
+          "Entrata Pre-Lease Details"
+        )
+      ),
+      bslib::card_body(
+        bslib::card(
+          height = "auto",
+          bslib::card_header(
+            class = "bg-info",
+            htmltools::div(
+              bsicons::bs_icon("info-circle", class = "me-2"),
+              "Information"
+            )
+          ),
+          bslib::card_body(
+            htmltools::tags$p(
+              "This page is still under development. Please check back later for updates."
+            )
+          )
+        ),
+        htmltools::tags$hr(),
+        reactable::reactableOutput(ns("table")) |>
+          with_loader()
+      ),
+      bslib::card_footer(
+        class = "bg-light",
+        htmltools::tags$small(
+          "Last updated: ",
+          shiny::textOutput(ns("last_updated"), inline = TRUE)
+        )
+      )
+    )
   )
 
 }
@@ -1315,6 +1350,14 @@ entrata_table_server <- function(id, summary_data, details_data) {
 
       output$table <- reactable::renderReactable({
         tbl_entrata_pre_lease(summary_data(), details_data())
+      })
+
+      output$last_updated <- shiny::renderText({
+        summary_data() |>
+          dplyr::pull("report_date") |>
+          lubridate::ymd() |>
+          max(na.rm = TRUE) |>
+          format("%B %d, %Y")
       })
 
       return(list(
