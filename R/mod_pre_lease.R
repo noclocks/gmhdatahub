@@ -348,7 +348,7 @@ mod_pre_lease_server <- function(
     id,
     function(input, output, session) {
 
-      Sys.setenv(CLI_NO_COLOR = "TRUE")
+      Sys.setenv(CLI_NO_COLOR = TRUE)
 
       ns <- session$ns
       cli::cat_rule("[Module]: mod_pre_lease_server()")
