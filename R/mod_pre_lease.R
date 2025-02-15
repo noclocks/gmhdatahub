@@ -1482,14 +1482,15 @@ mod_pre_lease_server <- function(
           tbl_data,
           selection = "single",
           onClick = "select",
-          filterable = TRUE,
-          searchable = TRUE,
           highlight = TRUE,
           striped = TRUE,
           bordered = TRUE,
-          resizable = TRUE,
           outlined = TRUE,
           compact = TRUE,
+          sortable = TRUE,
+          defaultSorted = c("property_name"),
+          showSortIcon = TRUE,
+          showSortable = TRUE,
           theme = reactable::reactableTheme(
             headerStyle = list(
               background = gmh_colors("primary"),
@@ -1521,7 +1522,7 @@ mod_pre_lease_server <- function(
             property_name = reactable::colDef(
               name = "Property Name",
               width = 250,
-              footer = "Total/Average",
+              sticky = "left",
               cell = function(value, index) {
                 property_id <- tbl_data$property_id[index]
                 property_id <- if (!is.na(property_id)) property_id else "Unknown"
@@ -1550,7 +1551,7 @@ mod_pre_lease_server <- function(
               vAlign = "center"
             ),
             current_total_new = reactable::colDef(
-              name = "New",
+              name = "New Leases",
               format = reactable::colFormat(separators = TRUE, digits = 0),
               aggregate = "sum"
             ),
@@ -1560,7 +1561,7 @@ mod_pre_lease_server <- function(
               aggregate = "sum"
             ),
             current_total_leases = reactable::colDef(
-              name = "Total",
+              name = "Total New",
               format = reactable::colFormat(separators = TRUE, digits = 0),
               aggregate = "sum"
             ),
@@ -1573,22 +1574,22 @@ mod_pre_lease_server <- function(
               aggregate = reactable::JS("function(values) { return values.reduce((a, b) => a + b, 0) / values.length }")
             ),
             prior_total_new = reactable::colDef(
-              name = "New",
+              name = "Prior New Leases",
               format = reactable::colFormat(separators = TRUE, digits = 0),
               aggregate = "sum"
             ),
             prior_total_renewals = reactable::colDef(
-              name = "Renewals",
+              name = "Prior Renewals",
               format = reactable::colFormat(separators = TRUE, digits = 0),
               aggregate = "sum"
             ),
             prior_total_leases = reactable::colDef(
-              name = "Total",
+              name = "Prior Total New",
               format = reactable::colFormat(separators = TRUE, digits = 0),
               aggregate = "sum"
             ),
             prior_preleased_percent = reactable::colDef(
-              name = "Pre-Lease %",
+              name = "Prior Pre-Lease %",
               format = reactable::colFormat(percent = TRUE, digits = 1),
               width = 150,
               align = "center",
@@ -1596,12 +1597,12 @@ mod_pre_lease_server <- function(
               aggregate = reactable::JS("function(values) { return values.reduce((a, b) => a + b, 0) / values.length }")
             ),
             yoy_variance_count = reactable::colDef(
-              name = "Count",
+              name = "YoY Change",
               format = reactable::colFormat(separators = TRUE, digits = 0),
               aggregate = "sum"
             ),
             yoy_variance_percent = reactable::colDef(
-              name = "Percent",
+              name = "Yoy % Change",
               format = reactable::colFormat(percent = TRUE, digits = 1),
               aggregate = reactable::JS("function(values) { return values.reduce((a, b) => a + b, 0) / values.length }")
             ),
@@ -1637,8 +1638,6 @@ mod_pre_lease_server <- function(
           unit_data(),
           selection = "single",
           onClick = "select",
-          filterable = TRUE,
-          searchable = TRUE,
           highlight = TRUE,
           striped = TRUE,
           bordered = TRUE,
@@ -1800,12 +1799,9 @@ mod_pre_lease_server <- function(
 
         reactable::reactable(
           tbl_data,
-          filterable = TRUE,
-          searchable = TRUE,
           highlight = TRUE,
           striped = TRUE,
           bordered = TRUE,
-          resizable = TRUE,
           outlined = TRUE,
           compact = TRUE,
           theme = reactable::reactableTheme(
