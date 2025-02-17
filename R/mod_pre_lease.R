@@ -208,8 +208,59 @@ mod_pre_lease_ui <- function(id) {
           title = "Details",
           icon = bsicons::bs_icon("info-circle"),
           value = ns("details"),
-          bslib::card(
-            entrata_table_ui(ns("details_table"))
+          bslib::accordion(
+            open = TRUE,
+            id = ns("accordion"),
+            bslib::accordion_panel(
+              title = "Property Level Summary",
+              value = ns("property_level"),
+              icon = bsicons::bs_icon("building-fill"),
+              bslib::card(
+                full_screen = TRUE,
+                reactable::reactableOutput(ns("property_table")) |> with_loader()
+              )
+            ),
+            bslib::accordion_panel(
+              title = "Unit Level Summary",
+              value = ns("unit_level"),
+              icon = bsicons::bs_icon("house-door"),
+              bslib::card(
+                full_screen = TRUE,
+                shiny::uiOutput(ns("selected_property_info")),
+                shiny::conditionalPanel(
+                  condition = paste0("!output['", ns("has_property_selection"), "']"),
+                  htmltools::tags$div(
+                    class = "alert alert-info m-3",
+                    htmltools::tags$div(
+                      class = "d-flex align-items-center gap-2",
+                      bsicons::bs_icon("arrow-up-circle"),
+                      "Select a property from the table above to view its unit details."
+                    )
+                  )
+                ),
+                shiny::conditionalPanel(
+                  condition = paste0("output['", ns("has_property_selection"), "'] == true"),
+                  reactable::reactableOutput(ns("unit_table")) |> with_loader()
+                )
+              )
+            ),
+            bslib::accordion_panel(
+              title = "Unit Level Details",
+              value = ns("details_level"),
+              icon = bsicons::bs_icon("info-circle"),
+              bslib::card(
+                full_screen = TRUE,
+                shiny::uiOutput(ns("selected_unit_info")),
+                shiny::conditionalPanel(
+                  condition = paste0("!output['", ns("has_unit_selection"), "']"),
+                  htmltools::tags$div(
+                    class = "alert alert-info m-3",
+                    "Please select a unit from the table above to view lease details."
+                  )
+                ),
+                reactable::reactableOutput(ns("detail_table")) |> with_loader()
+              )
+            )
           )
         ),
         bslib::nav_panel(
@@ -348,7 +399,7 @@ mod_pre_lease_server <- function(
     id,
     function(input, output, session) {
 
-      Sys.setenv(CLI_NO_COLOR = "TRUE")
+      Sys.setenv(CLI_NO_COLOR = TRUE)
 
       ns <- session$ns
       cli::cat_rule("[Module]: mod_pre_lease_server()")
@@ -677,6 +728,21 @@ mod_pre_lease_server <- function(
                 )
               )
             ),
+            bslib::card(
+              height = "auto",
+              bslib::card_header(
+                class = "bg-warning",
+                htmltools::div(
+                  bsicons::bs_icon("exclamation-triangle", class = "me-2"),
+                  "Warning"
+                )
+              ),
+              bslib::card_body(
+                htmltools::tags$p(
+                  "Refreshing the Entrata API data may take up to 5 minutes. Please be patient."
+                )
+              )
+            ),
             footer = htmltools::tagList(
               shiny::modalButton("Cancel"),
               bslib::input_task_button(
@@ -718,17 +784,15 @@ mod_pre_lease_server <- function(
             shiny::incProgress(incr, detail = "Weekly Leasing Data")
             weekly_leasing_data <- entrata_lease_execution_report()
 
-            tryCatch({
-              pool::poolWithTransaction(pool, {
+            pool::poolWithTransaction(pool, function(conn) {
 
-                conn <- pool::poolCheckout(pool)
+              shiny::incProgress(
+                incr,
+                message = "Updating Database",
+                detail = "Weekly Leasing Data"
+              )
 
-                shiny::incProgress(
-                  incr,
-                  message = "Updating Database",
-                  detail = "Weekly Leasing Data"
-                )
-
+              tryCatch({
                 dbx::dbxUpsert(
                   conn,
                   table = DBI::SQL("entrata.pre_lease_weekly"),
@@ -737,9 +801,15 @@ mod_pre_lease_server <- function(
                   where_cols = c("report_date", "property_id"),
                   skip_existing = FALSE
                 )
+                cli::cli_alert_success("Weekly Leasing Data updated successfully!")
+              }, error = function(e) {
+                cli::cli_alert_danger("Error updating Weekly Leasing Data: {.error {e}}")
+                shiny::showNotification("Error updating Weekly Leasing Data!", type = "error")
+              })
 
-                shiny::incProgress(incr, detail = "Pre-Lease Report by Property")
+              shiny::incProgress(incr, detail = "Pre-Lease Report by Property")
 
+              tryCatch({
                 dbx::dbxUpsert(
                   conn,
                   table = DBI::SQL("entrata.pre_lease_summary_by_property"),
@@ -747,43 +817,58 @@ mod_pre_lease_server <- function(
                   where_cols = c("report_date", "property_id"),
                   skip_existing = FALSE
                 )
+                cli::cli_alert_success("Pre-Lease Report by Property updated successfully!")
+              }, error = function(e) {
+                cli::cli_alert_danger("Error updating Pre-Lease Report by Property: {.error {e}}")
+                shiny::showNotification("Error updating Pre-Lease Report by Property!", type = "error")
+              })
 
-                shiny::incProgress(incr, detail = "Pre-Lease Report by Unit")
+              shiny::incProgress(incr, detail = "Pre-Lease Report by Unit")
 
+              tryCatch({
                 dbx::dbxUpsert(
                   conn,
                   table = DBI::SQL("entrata.pre_lease_summary_by_unit"),
                   records = pre_lease_summary_by_unit,
-                  where_cols = c("report_date", "property_id"),
+                  where_cols = c("report_date", "property_id", "unit_type"),
                   skip_existing = FALSE
                 )
-
-                shiny::incProgress(incr, detail = "Pre-Lease Report Details")
-
-                browser()
-
-                pool::dbAppendTable(
-                  pool,
-                  DBI::SQL("entrata.pre_lease_details"),
-                  value = pre_lease_details,
-                  append = TRUE
-                )
-
-                cli::cli_alert_info("Data refreshed successfully!")
-                shiny::incProgress(incr, "Refreshing Views and Pulling New Data from Database")
-                shiny::setProgress(100, detail = "Data refreshed successfully!")
+                cli::cli_alert_success("Pre-Lease Report by Unit updated successfully!")
+              }, error = function(e) {
+                cli::cli_alert_danger("Error updating Pre-Lease Report by Unit: {.error {e}}")
+                shiny::showNotification("Error updating Pre-Lease Report by Unit!", type = "error")
               })
-            }, error = function(e) {
-              cli::cli_alert_danger("Error updating database: {.error {e}}")
-              shiny::showNotification("Error updating database!", type = "error")
-            }, finally = {
-              pool::poolReturn(conn)
-              db_trigger(db_trigger() + 1)
-              shiny::removeModal()
+
+              shiny::incProgress(incr, detail = "Pre-Lease Report Details")
+
+              tryCatch({
+                pool::dbWriteTable(
+                  pool,
+                  DBI::SQL("entrata.pre_lease_report_details"),
+                  value = pre_lease_details,
+                  overwrite = TRUE
+                )
+                cli::cli_alert_success("Pre-Lease Report Details updated successfully!")
+              }, error = function(e) {
+                cli::cli_alert_danger("Error updating Pre-Lease Report Details: {.error {e}}")
+                shiny::showNotification("Error updating Pre-Lease Report Details!", type = "error")
+              })
+
+              shiny::incProgress(incr, detail = "Refreshing Views and Pulling New Data from Database")
+              cli::cli_alert_info("Data refreshed successfully!")
+              shiny::setProgress(100, detail = "Data refreshed successfully!")
+              shiny::showNotification("Data refreshed successfully!", type = "message")
+
             })
+
+            db_trigger(db_trigger() + 1)
+            shiny::removeModal()
+
           }
         )
+
       })
+
 
       shiny::observeEvent(input$help, {
         shiny::showModal(
@@ -1179,46 +1264,745 @@ mod_pre_lease_server <- function(
         chart_yoy_variance(data = pre_lease_summary_data(), by = input$group_by)
       })
 
-      entrata_pre_lease_summary_data <- shiny::reactive({
-        shiny::req(pool, db_trigger())
-        db_read_tbl(pool, "entrata.pre_lease_report_summary") |>
-          dplyr::filter(
-            .data$report_date == max(.data$report_date, na.rm = TRUE),
-            .data$property_name %in% input$properties
+      # Selected property/unit reactive values
+      selected_property <- shiny::reactiveVal(NULL)
+      selected_unit <- shiny::reactiveVal(NULL)
+
+      # Property info panel
+      output$selected_property_info <- shiny::renderUI({
+        shiny::req(selected_property())
+        prop_data <- pre_lease_summary_data() |>
+          dplyr::filter(property_name == selected_property())
+
+        htmltools::tags$div(
+          class = "alert alert-info m-3",
+          htmltools::tags$div(
+            class = "d-flex justify-content-between align-items-center",
+            htmltools::tags$h4(class = "mb-0", selected_property()),
+            htmltools::tags$span(
+              class = "badge bg-primary",
+              sprintf("Occupancy: %.1f%%", prop_data$current_occupancy * 100)
+            )
           )
+        )
       })
+
+      # Unit info panel
+      output$selected_unit_info <- shiny::renderUI({
+        shiny::req(selected_property(), selected_unit())
+        unit_data <- entrata_pre_lease_details_by_property_data() |>
+          dplyr::filter(
+            property_name == selected_property(),
+            unit_type == selected_unit()
+          )
+
+        htmltools::tags$div(
+          class = "alert alert-info m-3",
+          htmltools::tags$div(
+            class = "d-flex justify-content-between align-items-center",
+            htmltools::tags$h4(class = "mb-0", paste("Unit Type:", selected_unit())),
+            htmltools::tags$span(
+              class = "badge bg-primary",
+              sprintf("Available Units: %d", unit_data$available_units)
+            )
+          )
+        )
+      })
+
+      # Selection state outputs
+      output$has_property_selection <- shiny::reactive({
+        !is.null(selected_property()) && length(selected_property()) > 0
+      })
+      shiny::outputOptions(output, "has_property_selection", suspendWhenHidden = FALSE)
+
+      output$has_unit_selection <- shiny::reactive({
+        !is.null(selected_unit()) && length(selected_unit()) > 0
+      })
+      shiny::outputOptions(output, "has_unit_selection", suspendWhenHidden = FALSE)
+
+
+      # Property table selection
+      shiny::observe({
+        hold <- reactable::getReactableState("property_table", "selected")
+        if (is.null(hold) || length(hold) == 0) {
+          selected_property(NULL)
+        } else {
+          selected_property(pre_lease_summary_data()$property_name[hold])
+        }
+      })
+
+      # Unit table selection
+      shiny::observe({
+        hold <- reactable::getReactableState("unit_table", "selected")
+        if (is.null(hold) || length(hold) == 0) {
+          selected_unit(NULL)
+        } else {
+          selected_unit(unit_data()$unit_type[hold])
+        }
+      })
+
+      shiny::observe({
+        shiny::req(selected_property(), selected_unit())
+        cli::cli_alert_info(
+          c(
+            "Selected Property: {.field {selected_property()}}; ",
+            "Selected Unit: {.field {selected_unit()}}"
+          )
+        )
+      })
+
+
+      # entrata_pre_lease_summary_data <- shiny::reactive({
+      #   shiny::req(pool, db_trigger())
+      #   db_read_tbl(pool, "entrata.pre_lease_report_summary") |>
+      #     dplyr::filter(
+      #       .data$report_date == max(.data$report_date, na.rm = TRUE),
+      #       .data$property_name %in% input$properties
+      #     )
+      # })
 
       entrata_pre_lease_details_data <- shiny::reactive({
         shiny::req(pool, db_trigger())
-        db_read_tbl(pool, "entrata.pre_lease_report_details") |>
+        db_read_tbl(pool, "entrata.pre_lease_report_details_w_charge_codes") |>
           dplyr::filter(
             .data$report_date == max(.data$report_date, na.rm = TRUE),
             .data$property_name %in% input$properties
+          ) |>
+          dplyr::select(
+            -lease_started_on_date,
+            -lease_partially_completed_on_date,
+            -lease_approved_on_date,
+            -ledger_name,
+            -deposit_held,
+            -advertised_rate,
+            -scheduled_rent_total
+          ) |>
+          dplyr::mutate(
+            dplyr::across(tidyselect::where(is.numeric),
+                          function(x) {
+                            as.numeric(x) |> dplyr::coalesce(0.00)
+                          }
+            ),
+            dplyr::across(tidyselect::where(is.integer),
+                          function(x) {
+                            as.integer(x) |> dplyr::coalesce(0L)
+                          }
+            )
           )
       })
 
       entrata_pre_lease_details_by_property_data <- shiny::reactive({
         shiny::req(pool, db_trigger())
-        db_read_tbl(pool, "entrata.pre_lease_report_details_by_property") |>
+        db_read_tbl(pool, "entrata.pre_lease_summary_by_unit") |>
           dplyr::filter(
             .data$report_date == max(.data$report_date, na.rm = TRUE),
             .data$property_name %in% input$properties
+          ) |>
+          dplyr::transmute(
+            report_date = .data$report_date,
+            property_id = .data$property_id,
+            property_name = .data$property_name,
+            unit_type = .data$unit_type,
+            total_units = .data$total_unit_count,
+            excluded_units = .data$excluded_unit_count,
+            rentable_units = .data$rentable_unit_count,
+            available_units = .data$available_count,
+            avg_scheduled_charges = .data$avg_scheduled_rent,
+            current_occupied = .data$occupied_count,
+            current_occupancy = .data$occupied_count / .data$available_count,
+            current_total_new = .data$approved_new_count + .data$partially_completed_new_count + .data$completed_new_count,
+            current_total_renewals = .data$approved_renewal_count + .data$partially_completed_renewal_count + .data$completed_renewal_count,
+            current_total_leases = .data$current_total_new + .data$current_total_renewals,
+            current_preleased_percent = .data$current_total_leases / .data$available_count,
+            prior_total_new = .data$approved_new_count_prior + .data$partially_completed_new_count_prior + .data$completed_new_count_prior,
+            prior_total_renewals = .data$approved_renewal_count_prior + .data$partially_completed_renewal_count_prior + .data$completed_renewal_count_prior,
+            prior_total_leases = .data$approved_count_prior + .data$partially_completed_count_prior + .data$completed_count_prior,
+            prior_preleased_percent = .data$prior_total_leases / .data$available_count,
+            yoy_variance_count = .data$current_total_leases - .data$prior_total_leases,
+            yoy_variance_percent = .data$current_preleased_percent - .data$prior_preleased_percent,
+          ) |>
+          dplyr::mutate(
+            dplyr::across(tidyselect::where(is.numeric),
+                          function(x) {
+                            as.numeric(x) |> dplyr::coalesce(0.00)
+                          }
+            ),
+            dplyr::across(tidyselect::where(is.integer),
+                          function(x) {
+                            as.integer(x) |> dplyr::coalesce(0L)
+                          }
+            )
           )
       })
 
-      # details table
-      entrata_table_server(
-        id = "details_table",
-        summary_data = entrata_pre_lease_details_by_property_data,
-        details_data = entrata_pre_lease_details_data
-      )
+      unit_data <- shiny::reactive({
+        shiny::req(selected_property())
+        entrata_pre_lease_details_by_property_data() |>
+          dplyr::filter(property_name == selected_property())
+
+      })
+
+      detail_data <- shiny::reactive({
+        shiny::req(selected_property(), selected_unit())
+        entrata_pre_lease_details_data() |>
+          dplyr::filter(
+            property_name == selected_property(),
+            unit_type == selected_unit()
+          )
+      })
+
+      # Property level table
+      output$property_table <- reactable::renderReactable({
+
+        tbl_data <- pre_lease_summary_data() |>
+          dplyr::select(
+            report_date,
+            property_id,
+            property_name,
+            total_beds,
+            current_occupied,
+            current_occupancy,
+            current_total_new,
+            current_total_renewals,
+            current_total_leases,
+            current_preleased_percent,
+            prior_total_new,
+            prior_total_renewals,
+            prior_total_leases,
+            prior_preleased_percent,
+            yoy_variance_count,
+            yoy_variance_percent,
+            beds_left,
+            vel_90,
+            vel_95,
+            vel_100
+          )
+
+        reactable::reactable(
+          tbl_data,
+          selection = "single",
+          onClick = "select",
+          highlight = TRUE,
+          striped = TRUE,
+          bordered = TRUE,
+          outlined = TRUE,
+          compact = TRUE,
+          sortable = TRUE,
+          defaultSorted = c("property_name"),
+          showSortIcon = TRUE,
+          showSortable = TRUE,
+          theme = reactable::reactableTheme(
+            headerStyle = list(
+              background = gmh_colors("primary"),
+              color = gmh_colors("light"),
+              "&:hover[aria-sort]" = list(background = gmh_colors("secondary")),
+              "&[aria-sort]" = list(background = gmh_colors("secondary")),
+              borderRight = paste0("1px solid ", gmh_colors("light"))
+            ),
+            rowSelectedStyle = list(
+              backgroundColor = "#eee",
+              boxShadow = paste0("inset 2px 0 0 0 ", gmh_colors("primary"))
+            )
+          ),
+          defaultColDef = reactable::colDef(
+            align = "center",
+            headerVAlign = "center",
+            vAlign = "center",
+            format = reactable::colFormat(separators = TRUE),
+            na = "-"
+          ),
+          columns = list(
+            .selection = reactable::colDef(
+              width = 50,
+              sticky = "left",
+              style = list(cursor = "pointer")
+            ),
+            report_date = reactable::colDef(show = FALSE),
+            property_id = reactable::colDef(show = FALSE),
+            property_name = reactable::colDef(
+              name = "Property Name",
+              width = 250,
+              sticky = "left",
+              cell = function(value, index) {
+                property_id <- tbl_data$property_id[index]
+                property_id <- if (!is.na(property_id)) property_id else "Unknown"
+                htmltools::tags$div(
+                  htmltools::tags$div(style = "font-weight: 600;", value),
+                  htmltools::tags$div(style = "font-size: 0.75rem; color: #666;", property_id)
+                )
+              }
+            ),
+            total_beds = reactable::colDef(
+              name = "Total Beds",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            ),
+            current_occupied = reactable::colDef(
+              name = "Occupied",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            ),
+            current_occupancy = reactable::colDef(
+              name = "Occupancy %",
+              format = reactable::colFormat(percent = TRUE, digits = 1),
+              aggregate = reactable::JS("function(values) { return values.reduce((a, b) => a + b, 0) / values.length }"),
+              width = 150,
+              align = "center",
+              vAlign = "center"
+            ),
+            current_total_new = reactable::colDef(
+              name = "New Leases",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            ),
+            current_total_renewals = reactable::colDef(
+              name = "Renewals",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            ),
+            current_total_leases = reactable::colDef(
+              name = "Total New",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            ),
+            current_preleased_percent = reactable::colDef(
+              name = "Pre-Lease %",
+              format = reactable::colFormat(percent = TRUE, digits = 1),
+              width = 150,
+              align = "center",
+              vAlign = "center",
+              aggregate = reactable::JS("function(values) { return values.reduce((a, b) => a + b, 0) / values.length }")
+            ),
+            prior_total_new = reactable::colDef(
+              name = "Prior New Leases",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            ),
+            prior_total_renewals = reactable::colDef(
+              name = "Prior Renewals",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            ),
+            prior_total_leases = reactable::colDef(
+              name = "Prior Total New",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            ),
+            prior_preleased_percent = reactable::colDef(
+              name = "Prior Pre-Lease %",
+              format = reactable::colFormat(percent = TRUE, digits = 1),
+              width = 150,
+              align = "center",
+              vAlign = "center",
+              aggregate = reactable::JS("function(values) { return values.reduce((a, b) => a + b, 0) / values.length }")
+            ),
+            yoy_variance_count = reactable::colDef(
+              name = "YoY Change",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            ),
+            yoy_variance_percent = reactable::colDef(
+              name = "Yoy % Change",
+              format = reactable::colFormat(percent = TRUE, digits = 1),
+              aggregate = reactable::JS("function(values) { return values.reduce((a, b) => a + b, 0) / values.length }")
+            ),
+            beds_left = reactable::colDef(
+              name = "Beds Left",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            ),
+            vel_90 = reactable::colDef(
+              name = "90% Velocity",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            ),
+            vel_95 = reactable::colDef(
+              name = "95% Velocity",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            ),
+            vel_100 = reactable::colDef(
+              name = "100% Velocity",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            )
+          )
+        )
+      })
+
+      # Unit level table
+      output$unit_table <- reactable::renderReactable({
+        req(unit_data())
+
+        reactable::reactable(
+          unit_data(),
+          selection = "single",
+          onClick = "select",
+          highlight = TRUE,
+          striped = TRUE,
+          bordered = TRUE,
+          resizable = TRUE,
+          outlined = TRUE,
+          compact = TRUE,
+          theme = reactable::reactableTheme(
+            headerStyle = list(
+              background = gmh_colors("primary"),
+              color = gmh_colors("light"),
+              "&:hover[aria-sort]" = list(background = gmh_colors("secondary")),
+              "&[aria-sort]" = list(background = gmh_colors("secondary")),
+              borderRight = paste0("1px solid ", gmh_colors("light"))
+            ),
+            rowSelectedStyle = list(
+              backgroundColor = "#eee",
+              boxShadow = paste0("inset 2px 0 0 0 ", gmh_colors("primary"))
+            )
+          ),
+          defaultColDef = reactable::colDef(
+            align = "center",
+            headerVAlign = "center",
+            vAlign = "center",
+            format = reactable::colFormat(separators = TRUE)
+          ),
+          columns = list(
+            .selection = reactable::colDef(
+              width = 50,
+              sticky = "left",
+              style = list(cursor = "pointer")
+            ),
+            report_date = reactable::colDef(show = FALSE),
+            property_id = reactable::colDef(show = FALSE),
+            property_name = reactable::colDef(show = FALSE),
+            unit_type = reactable::colDef(
+              name = "Unit Type",
+              width = 150,
+              sticky = "left"
+            ),
+            total_units = reactable::colDef(
+              name = "Total Units",
+              format = reactable::colFormat(digits = 0, separators = TRUE),
+              aggregate = "sum"
+            ),
+            excluded_units = reactable::colDef(
+              name = "Excluded Units",
+              format = reactable::colFormat(digits = 0, separators = TRUE),
+              aggregate = "sum"
+            ),
+            rentable_units = reactable::colDef(
+              name = "Rentable Units",
+              format = reactable::colFormat(digits = 0, separators = TRUE),
+              aggregate = "sum"
+            ),
+            available_units = reactable::colDef(
+              name = "Available Units",
+              format = reactable::colFormat(digits = 0, separators = TRUE),
+              aggregate = "sum"
+            ),
+            avg_scheduled_charges = reactable::colDef(
+              name = "Avg Scheduled Charges",
+              format = reactable::colFormat(currency = "USD", digits = 1),
+              aggregate = reactable::JS("function(values) { return values.reduce((a, b) => a + b, 0) / values.length }")
+            ),
+            current_occupied = reactable::colDef(
+              name = "Current Occupied",
+              format = reactable::colFormat(digits = 0, separators = TRUE),
+              aggregate = "sum"
+            ),
+            current_occupancy = reactable::colDef(
+              name = "Occupancy %",
+              format = reactable::colFormat(percent = TRUE, digits = 1),
+              aggregate = reactable::JS("function(values) { return values.reduce((a, b) => a + b, 0) / values.length }"),
+              width = 150,
+              align = "center",
+              vAlign = "center"
+            ),
+            current_total_new = reactable::colDef(
+              name = "New Leases",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            ),
+            current_total_renewals = reactable::colDef(
+              name = "Renewals",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            ),
+            current_total_leases = reactable::colDef(
+              name = "Total New Leases",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            ),
+            current_preleased_percent = reactable::colDef(
+              name = "Pre-Lease %",
+              format = reactable::colFormat(percent = TRUE, digits = 1),
+              width = 150,
+              align = "center",
+              vAlign = "center",
+              aggregate = reactable::JS("function(values) { return values.reduce((a, b) => a + b, 0) / values.length }")
+            ),
+            prior_total_new = reactable::colDef(
+              name = "Prior New Leases",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            ),
+            prior_total_renewals = reactable::colDef(
+              name = "Prior Renewals",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            ),
+            prior_total_leases = reactable::colDef(
+              name = "Prior Total New",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            ),
+            prior_preleased_percent = reactable::colDef(
+              name = "Prior Pre-Lease %",
+              format = reactable::colFormat(percent = TRUE, digits = 1),
+              width = 150,
+              align = "center",
+              vAlign = "center",
+              aggregate = reactable::JS("function(values) { return values.reduce((a, b) => a + b, 0) / values.length }")
+            ),
+            yoy_variance_count = reactable::colDef(
+              name = "YoY Change",
+              format = reactable::colFormat(separators = TRUE, digits = 0),
+              aggregate = "sum"
+            ),
+            yoy_variance_percent = reactable::colDef(
+              name = "YoY % Change",
+              format = reactable::colFormat(percent = TRUE, digits = 1),
+              aggregate = reactable::JS("function(values) { return values.reduce((a, b) => a + b, 0) / values.length }")
+            )
+          )
+        )
+      })
+
+      # Detail level table
+      output$detail_table <- reactable::renderReactable({
+        shiny::req(detail_data())
+
+        tbl_data <- detail_data() |>
+          dplyr::arrange(
+            .data$bldg_unit,
+            .data$move_in_date
+          ) |>
+          dplyr::mutate(
+            dplyr::across(tidyselect::where(is.numeric),
+                          function(x) {
+                            as.numeric(x) |> dplyr::coalesce(0.00)
+                          }
+            ),
+            dplyr::across(tidyselect::where(is.integer),
+                          function(x) {
+                            as.integer(x) |> dplyr::coalesce(0L)
+                          }
+            )
+          )
+
+        reactable::reactable(
+          tbl_data,
+          highlight = TRUE,
+          striped = TRUE,
+          bordered = TRUE,
+          outlined = TRUE,
+          compact = TRUE,
+          theme = reactable::reactableTheme(
+            highlightColor = "#f0f0f0",
+            borderColor = "#dfe2e5",
+            stripedColor = "#f6f8fa",
+            cellPadding = "8px 12px",
+            headerStyle = list(
+              background = gmh_colors("primary"),
+              color = gmh_colors("light"),
+              "&:hover[aria-sort]" = list(background = gmh_colors("secondary")),
+              "&[aria-sort]" = list(background = gmh_colors("secondary")),
+              borderRight = paste0("1px solid ", gmh_colors("light"))
+            )
+          ),
+          defaultColDef = reactable::colDef(
+            align = "center",
+            headerVAlign = "center",
+            vAlign = "center",
+            format = reactable::colFormat(separators = TRUE)
+          ),
+          columns = list(
+            report_date = reactable::colDef(show = FALSE),
+            property_id = reactable::colDef(show = FALSE),
+            property_name = reactable::colDef(show = FALSE),
+            unit_type = reactable::colDef(show = FALSE),
+            floorplan_name = reactable::colDef(show = FALSE),
+            sqft = reactable::colDef(show = FALSE),
+            resident_id = reactable::colDef(show = FALSE),
+            resident_name = reactable::colDef(show = FALSE),
+            resident_email = reactable::colDef(show = FALSE),
+            resident_phone = reactable::colDef(show = FALSE),
+            resident_gender = reactable::colDef(show = FALSE),
+            leasing_agent = reactable::colDef(show = FALSE),
+            lease_id = reactable::colDef(show = FALSE),
+            lease_sub_status = reactable::colDef(show = FALSE),
+            lease_occupancy_type = reactable::colDef(show = FALSE),
+            lease_term_name = reactable::colDef(show = FALSE),
+            lease_term_month = reactable::colDef(show = FALSE),
+            space_option_preferred = reactable::colDef(show = FALSE),
+            space_option = reactable::colDef(show = FALSE),
+            move_in_date = reactable::colDef(show = FALSE),
+            lease_start_date = reactable::colDef(show = FALSE),
+            lease_end_date = reactable::colDef(show = FALSE),
+            lease_completed_on_date = reactable::colDef(show = FALSE),
+            bldg_unit = reactable::colDef(name = "Building", width = 100),
+            unit_status = reactable::colDef(name = "Unit Status", width = 150),
+            lease_status = reactable::colDef(name = "Lease Status"),
+            charge_code = reactable::colDef(name = "Charge Code"),
+            deposit_charged = reactable::colDef(name = "Deposit Charged", format = reactable::colFormat(currency = "USD", digits = 1)),
+            market_rent = reactable::colDef(name = "Market Rent", format = reactable::colFormat(currency = "USD", digits = 1)),
+            budgeted_rent = reactable::colDef(name = "Budgeted Rent", format = reactable::colFormat(currency = "USD", digits = 1)),
+            scheduled_rent = reactable::colDef(name = "Scheduled Rent", format = reactable::colFormat(currency = "USD", digits = 1)),
+            actual_charges = reactable::colDef(name = "Actual Charges", format = reactable::colFormat(currency = "USD", digits = 1))
+          ),
+
+          details = function(index) {
+            detail <- tbl_data[index, ]
+            htmltools::div(
+              class = "p-3",
+              htmltools::div(
+                style = "display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;",
+                htmltools::tags$div(
+                  class = "card",
+                  htmltools::tags$div(
+                    class = "card-header",
+                    "Additional Information"
+                  ),
+                  htmltools::div(
+                    class = "card-body",
+                    htmltools::tags$table(
+                      class = "table table-sm table-borderless",
+                      htmltools::tags$tbody(
+                        htmltools::tags$tr(
+                          htmltools::tags$td(htmltools::tags$strong("Floor Plan:")),
+                          htmltools::tags$td(detail$floorplan_name)
+                        ),
+                        htmltools::tags$tr(
+                          htmltools::tags$td(htmltools::tags$strong("Square Footage:")),
+                          htmltools::tags$td(detail$sqft)
+                        )
+                      )
+                    )
+                  )
+                ),
+                htmltools::div(
+                  class = "card",
+                  htmltools::div(
+                    class = "card-header",
+                    "Lease Information"
+                  ),
+                  htmltools::div(
+                    class = "card-body",
+                    htmltools::tags$table(
+                      class = "table table-sm table-borderless",
+                      htmltools::tags$tbody(
+                        htmltools::tags$tr(
+                          htmltools::tags$td(htmltools::tags$strong("Lease ID:")),
+                          htmltools::tags$td(detail$lease_id)
+                        ),
+                        htmltools::tags$tr(
+                          htmltools::tags$td(htmltools::tags$strong("Lease Sub Status:")),
+                          htmltools::tags$td(detail$lease_sub_status)
+                        ),
+                        htmltools::tags$tr(
+                          htmltools::tags$td(htmltools::tags$strong("Move In Date:")),
+                          htmltools::tags$td(detail$move_in_date)
+                        )
+                      )
+                    )
+                  )
+                ),
+                htmltools::div(
+                  class = "card",
+                  htmltools::div(
+                    class = "card-header",
+                    "Resident Information"
+                  ),
+                  htmltools::div(
+                    class = "card-body",
+                    htmltools::tags$table(
+                      class = "table table-sm table-borderless",
+                      htmltools::tags$tbody(
+                        htmltools::tags$tr(
+                          htmltools::tags$td(htmltools::tags$strong("Resident ID:")),
+                          htmltools::tags$td(detail$resident_id)
+                        ),
+                        htmltools::tags$tr(
+                          htmltools::tags$td(htmltools::tags$strong("Resident Name:")),
+                          htmltools::tags$td(detail$resident_name)
+                        ),
+                        htmltools::tags$tr(
+                          htmltools::tags$td(htmltools::tags$strong("Resident Gender:")),
+                          htmltools::tags$td(detail$resident_gender)
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          }
+        )
+
+      })
+
+      shiny::observeEvent(selected_property(), {
+        if (!is.null(selected_property()) && length(selected_property()) > 0) {
+          shinyjs::runjs(
+            sprintf(
+              "setTimeout(function() {
+                document.querySelector(\"[data-value=\'%s\']\").scrollIntoView({
+                  behavior: \"smooth\",
+                  block: \"start\"
+                });
+              }, 100);",
+              ns("unit_level")
+            )
+          )
+          bslib::accordion_panel_open(
+            id = "accordion",
+            values = ns("unit_level")
+          )
+          bslib::accordion_panel_close(
+            id = "accordion",
+            values = ns("property_level")
+          )
+        }
+      })
+
+      shiny::observeEvent(selected_unit(), {
+        if (!is.null(selected_unit()) && length(selected_unit()) > 0) {
+          shinyjs::runjs(
+            sprintf(
+              "setTimeout(function() {
+                document.querySelector(\"[data-value=\'%s\']\").scrollIntoView({
+                  behavior: \"smooth\",
+                  block: \"start\"
+                });
+              }, 100);",
+              ns("details_level")
+            )
+          )
+          bslib::accordion_panel_open(
+            id = "accordion",
+            values = ns("details_level")
+          )
+          bslib::accordion_panel_close(
+            id = "accordion",
+            values = ns("unit_level")
+          )
+        }
+      })
 
       return(
         list(
           pre_lease_summary_data = pre_lease_summary_data,
-          entrata_pre_lease_summary_data = entrata_pre_lease_summary_data,
           entrata_pre_lease_details_data = entrata_pre_lease_details_data,
-          entrata_pre_lease_details_by_property_data = entrata_pre_lease_details_by_property_data
+          entrata_pre_lease_details_by_property_data = entrata_pre_lease_details_by_property_data,
+          unit_data = unit_data,
+          detail_data = detail_data
         )
       )
     }
@@ -1265,7 +2049,43 @@ entrata_table_ui <- function(id) {
   ns <- shiny::NS(id)
 
   htmltools::tagList(
-    reactable::reactableOutput(ns("table")) |> with_loader()
+    bslib::card(
+      full_screen = TRUE,
+      bslib::card_header(
+        class = "bg-primary text-white",
+        htmltools::div(
+          bsicons::bs_icon("table", class = "me-2"),
+          "Entrata Pre-Lease Details"
+        )
+      ),
+      bslib::card_body(
+        bslib::card(
+          height = "auto",
+          bslib::card_header(
+            class = "bg-info",
+            htmltools::div(
+              bsicons::bs_icon("info-circle", class = "me-2"),
+              "Information"
+            )
+          ),
+          bslib::card_body(
+            htmltools::tags$p(
+              "This page is still under development. Please check back later for updates."
+            )
+          )
+        ),
+        htmltools::tags$hr(),
+        reactable::reactableOutput(ns("table")) |>
+          with_loader()
+      ),
+      bslib::card_footer(
+        class = "bg-light",
+        htmltools::tags$small(
+          "Last updated: ",
+          shiny::textOutput(ns("last_updated"), inline = TRUE)
+        )
+      )
+    )
   )
 
 }
@@ -1281,6 +2101,14 @@ entrata_table_server <- function(id, summary_data, details_data) {
 
       output$table <- reactable::renderReactable({
         tbl_entrata_pre_lease(summary_data(), details_data())
+      })
+
+      output$last_updated <- shiny::renderText({
+        summary_data() |>
+          dplyr::pull("report_date") |>
+          lubridate::ymd() |>
+          max(na.rm = TRUE) |>
+          format("%B %d, %Y")
       })
 
       return(list(

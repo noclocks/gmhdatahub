@@ -94,7 +94,12 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
           inputId = ns(sprintf("edit_%d", index)),
           label = "",
           icon = shiny::icon("edit"),
-          onclick = sprintf("Shiny.setInputValue('%s', %d)", ns("edit_row"), index),
+          onclick = paste0(
+            sprintf("Shiny.setInputValue('%s', %s)", ns("edit_row"), 'null'),
+            '; ',
+            sprintf("Shiny.setInputValue('%s', %d)", ns("edit_row"), index),
+            ';'
+          ),
           class = "btn-sm btn-primary"
         )
       },
@@ -418,10 +423,6 @@ tbl_entrata_pre_lease <- function(details_by_property_data, details_data) {
     }
   )
 
-  sticky_style <- list(
-    backgroundColor = gmh_colors("light")
-  )
-
   avg_cols <- c(
     "avg_market_rent",
     "avg_budgeted_rent",
@@ -671,15 +672,7 @@ tbl_entrata_pre_lease <- function(details_by_property_data, details_data) {
         defaultPageSize = 5
       )
 
-      div(
-        style = list(
-          margin = "12px 45px",
-          padding = "16px",
-          background = "#f7f7f7",
-          borderRadius = "8px"
-        ),
-        details_table
-      )
+      details_table
     }
   )
 }

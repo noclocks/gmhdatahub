@@ -33,5 +33,7 @@ config.yml
 ^repomixignore$
 ^repomix.config.json$
 ^repomix.*
-
+^Dockerfile.prelease$
+^Dockerfile$
+^.dockerignore$
 ~\$.*

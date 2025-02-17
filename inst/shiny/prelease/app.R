@@ -1,8 +1,9 @@
 library(gmhdatahub)
 library(shiny)
+require(config)
 
-auth_config <- get_auth_config()
-app_config <- get_app_config()
+auth_config <- config::get("auth")
+app_config <- config::get("app")
 
 noClocksAuthR:::set_api_url(api_url = auth_config$base_url)
 
@@ -14,26 +15,26 @@ ui <- function(req) {
     http_method <- req$REQUEST_METHOD
     path_info <- req$PATH_INFO
     if (http_method == "GET" && path_info == "/health") {
-      return(app_healthcheck(req))
+      return(gmhdatahub:::app_healthcheck(req))
     }
   }
 
   htmltools::tagList(
-    add_external_resources(),
+    gmhdatahub:::add_external_resources(),
     bslib::page_navbar(
       id = "nav",
       lang = "en",
       window_title = "GMH DataHub",
       position = "static-top",
-      theme = app_theme_ui(),
-      title = app_title_ui(),
-      footer = app_footer_ui(),
+      theme = gmhdatahub:::app_theme_ui(),
+      title = gmhdatahub:::app_title_ui(),
+      footer = gmhdatahub:::app_footer_ui(),
       bslib::nav_spacer(),
       bslib::nav_panel(
         title = "Pre Lease",
         value = "pre_lease",
         icon = bsicons::bs_icon("house"),
-        mod_pre_lease_ui("prelease")
+        gmhdatahub:::mod_pre_lease_ui("prelease")
       ),
       bslib::nav_spacer(),
       bslib::nav_menu(
@@ -41,8 +42,8 @@ ui <- function(req) {
         align = "right",
         icon = bsicons::bs_icon("envelope"),
         bslib::nav_item(
-          tags$a(
-            icon("envelope"),
+          htmltools::tags$a(
+            shiny::icon("envelope"),
             "Email Support",
             href = "mailto:support@noclocks.dev",
             target = "_blank"
@@ -77,10 +78,10 @@ ui <- function(req) {
 
 secure_ui <- noClocksAuthR::secure_ui(
   ui = ui,
-  sign_in_page_ui = custom_sign_in_ui,
+  sign_in_page_ui = gmhdatahub:::custom_sign_in_ui,
   custom_admin_button_ui = noClocksAuthR::admin_button_ui(align = "left")
 ) |>
-  healthcheck_ui()
+  gmhdatahub:::healthcheck_ui()
 
 
 server <- function(input, output, session) {
@@ -95,14 +96,14 @@ server <- function(input, output, session) {
   })
 
   # initialize database connection pool
-  pool <- db_connect()
+  pool <- gmhdatahub:::db_connect()
   session$userData$pool <- pool
 
   # waiter
   waiter::waiter_hide()
 
 
-  mod_pre_lease_server(
+  gmhdatahub:::mod_pre_lease_server(
     "prelease",
     pool = pool
   )
