@@ -2,6 +2,17 @@ library(gmhdatahub)
 library(shiny)
 require(config)
 
+# ensure config file is present
+Sys.setenv(R_CONFIG_FILE = "config.yml")
+if (!file.exists(Sys.getenv("R_CONFIG_FILE"))) {
+  cli::cli_abort(
+    c(
+      "Configuration file {.field config.yml} not found. ",
+      "Please ensure the file exists."
+    )
+  )
+}
+
 auth_config <- config::get("auth")
 app_config <- config::get("app")
 
