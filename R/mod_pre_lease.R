@@ -413,14 +413,14 @@ mod_pre_lease_server <- function(
 
       iv <- shinyvalidate::InputValidator$new()
       iv$add_rule("model_beds", rule = shinyvalidate::sv_gte(0))
-      iv$add_rule(
-        "investment_partner",
-        rule = shinyvalidate::sv_in_set(
-          db_read_tbl(pool, "gmh.partners") |>
-            dplyr::pull("partner_name") |>
-            unique()
-        )
-      )
+      # iv$add_rule(
+      #   "investment_partner",
+      #   rule = shinyvalidate::sv_in_set(
+      #     db_read_tbl(pool, "gmh.partners") |>
+      #       dplyr::pull("partner_name") |>
+      #       unique()
+      #   )
+      # )
 
       # initial data
       pre_lease_summary_data <- shiny::reactive({
@@ -498,7 +498,7 @@ mod_pre_lease_server <- function(
               shiny::selectInput(
                 ns("investment_partner"),
                 label = "Investment Partner",
-                choices = get_default_app_choices("partners"),
+                choices = get_default_app_choices("partners") |> names(),
                 selected = row_data |> dplyr::pull("investment_partner")
               )
             ),
