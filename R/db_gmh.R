@@ -115,6 +115,39 @@ db_read_gmh_model_beds <- function(pool, property_ids = NULL, collect = TRUE) {
 
 }
 
+db_update_gmh_model_beds <- function(pool, property_id, model_bed_count, notes = NULL) {
+
+  check_db_pool(pool)
+
+  property_id <- as.integer(property_id)
+  model_bed_count <- as.integer(model_bed_count)
+  notes <- if (is.null(notes)) character() else notes
+
+  qry <- glue::glue_sql("
+    UPDATE gmh.model_beds
+    SET model_bed_count = {model_bed_count}, notes = {notes}
+    WHERE property_id = {property_id}
+  ", .con = pool)
+
+  tryCatch({
+    pool::dbExecute(
+      pool,
+      qry
+    )
+    cli::cli_alert_success("Updated property's model bed count: {.field {property_id}} -> {.field {model_bed_count}}")
+    cli::cli_alert_info("Executed SQL: {.field {qry}}")
+  }, error = function(e) {
+    cli::cli_alert_danger(
+      c(
+        "Failed to update property's model bed count: {.field {property_id}} -> {.field {model_bed_count}}",
+        "Executed SQL: {.field {qry}}",
+        "Error: {.error_message {e}}"
+      )
+    )
+  })
+
+}
+
 db_read_gmh_partners <- function(pool, partner_ids = NULL, collect = TRUE) {
 
   check_db_pool(pool)
@@ -130,6 +163,38 @@ db_read_gmh_partners <- function(pool, partner_ids = NULL, collect = TRUE) {
   } else {
     return(hold)
   }
+
+}
+
+db_update_gmh_property_partner <- function(pool, property_id, partner_id) {
+
+  check_db_pool(pool)
+
+  property_id <- as.integer(property_id)
+  partner_id <- as.integer(partner_id)
+
+  qry <- glue::glue_sql("
+    UPDATE gmh.properties
+    SET partner_id = {partner_id}
+    WHERE property_id = {property_id}
+  ", .con = pool)
+
+  tryCatch({
+    pool::dbExecute(
+      pool,
+      qry
+    )
+    cli::cli_alert_success("Updated property's partner: {.field {property_id}} -> {.field {partner_id}}")
+    cli::cli_alert_info("Executed SQL: {.field {qry}}")
+  }, error = function(e) {
+    cli::cli_alert_danger(
+      c(
+        "Failed to update property's partner: {.field {property_id}} -> {.field {partner_id}}",
+        "Executed SQL: {.field {qry}}",
+        "Error: {.error_message {e}}"
+      )
+    )
+  })
 
 }
 

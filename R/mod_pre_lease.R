@@ -520,12 +520,10 @@ mod_pre_lease_server <- function(
 
         shiny::req(selected_row(), input$model_beds, input$investment_partner)
 
-        new_value_model_beds <- input$model_beds
+        new_value_model_beds <- as.integer(input$model_beds)
         new_value_investment_partner <- input$investment_partner
 
         shiny::req(iv$is_valid())
-
-        conn <- pool::poolCheckout(pool = pool)
 
         tryCatch({
 
@@ -534,41 +532,42 @@ mod_pre_lease_server <- function(
             dplyr::pull("property_id") |>
             as.integer()
 
-          model_beds_dat <- tibble::tibble(
-            property_id = prop_id,
-            model_bed_count = new_value_model_beds,
-            notes = "Updated via GMH DataHub"
-          )
+          orig_model_beds <- pre_lease_summary_data() |>
+            dplyr::filter(dplyr::row_number() == selected_row()) |>
+            dplyr::pull("model_beds") |>
+            as.integer()
 
-          dbx::dbxUpdate(
-            conn,
-            table = DBI::SQL("gmh.model_beds"),
-            records = model_beds_dat,
-            where_cols = c("property_id"),
-            transaction = TRUE
-          )
+          if (new_value_model_beds != orig_model_beds) {
+            db_update_gmh_model_beds(pool, prop_id, new_value_model_beds)
+          } else {
+            cli::cli_alert_info("Model beds did not change.")
+          }
 
-        partner_id <- db_read_tbl(pool, "gmh.partners") |>
-          dplyr::filter(dplyr::pull("partner_name") == new_value_investment_partner) |>
-          dplyr::pull("partner_id") |>
-          as.integer()
+          partner_id <- db_read_tbl(pool, "gmh.partners") |>
+            dplyr::filter(.data$partner_name == new_value_investment_partner) |>
+            dplyr::pull("partner_id") |>
+            as.integer()
 
-        dbx::dbxExecute(
-          conn,
-          statement = "UPDATE 'gmh'.'properties' SET partner_id = ? WHERE property_id = ?",
-          params = list(partner_id, prop_id)
-        )
+          orig_partner_id <- pre_lease_summary_data() |>
+            dplyr::filter(dplyr::row_number() == selected_row()) |>
+            dplyr::pull("investment_partner") |>
+            get_partner_id_by_name() |>
+            as.integer()
 
-        cli::cli_alert_info("Model beds/Investment Partner updated successfully!")
-        shiny::showNotification("Database updated successfully!", type = "message")
-        db_trigger(db_trigger() + 1)
+          if (partner_id != orig_partner_id) {
+            db_update_gmh_property_partner(pool, prop_id, partner_id)
+          } else {
+            cli::cli_alert_info("Investment partner did not change.")
+          }
+
+          shiny::showNotification("Database updated successfully!", type = "message")
+          db_trigger(db_trigger() + 1)
 
         }, error = function(e) {
-          cli::cli_alert_danger("Error updating database: {.error e}")
+          cli::cli_alert_danger("Error updating database: {.error {e}}")
           shiny::showNotification("Error updating database!", type = "error")
         }, finally = {
           shiny::removeModal()
-          pool::poolReturn(conn)
           iv$disable()
         })
 
