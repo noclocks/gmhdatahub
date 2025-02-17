@@ -277,12 +277,6 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
 
   col_groups <- list(
     reactable::colGroup(
-      name = "",
-      columns = c(".actions"),
-      headerStyle = list(borderRight = paste0("2px solid ", gmh_colors("light"))),
-      sticky = "left"
-    ),
-    reactable::colGroup(
       name = "Property Information",
       columns = c(".actions", "property_name", "investment_partner"),
       sticky = "left",
@@ -341,7 +335,7 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
     columns = col_defs,
     columnGroups = col_groups,
     filterable = TRUE,
-    # searchable = TRUE,
+    searchable = TRUE,
     # resizable = TRUE,
     outlined = TRUE,
     compact = TRUE,
