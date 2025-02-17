@@ -347,8 +347,8 @@ mod_pre_lease_ui <- function(id) {
         ),
         bslib::nav_spacer(),
         bslib::nav_item(
-          shiny::downloadButton(
-            ns("download"),
+          shiny::actionButton(
+            ns("excel"),
             "Export to Excel",
             class = "btn-sm btn-success",
             icon = shiny::icon("file-excel")
@@ -1006,10 +1006,78 @@ mod_pre_lease_server <- function(
           format("%B %d, %Y")
       })
 
+      # excel
+      shiny::observeEvent(input$excel, {
+        shiny::showModal(
+          shiny::modalDialog(
+            title = "Excel Report Options",
+            size = "l",
+            easyClose = TRUE,
+            footer = htmltools::tagList(
+              shiny::modalButton("Cancel"),
+              shiny::downloadButton(
+                ns("download"),
+                "Export to Excel",
+                class = "btn-success",
+                icon = shiny::icon("file-excel")
+              )
+            ),
+            bslib::card(
+              bslib::card_header(
+                class = "bg-primary text-white",
+                htmltools::div(
+                  bsicons::bs_icon("file-excel", class = "me-2"),
+                  "Report Name"
+                )
+              ),
+              bslib::layout_columns(
+                col_widths = c(6, 6),
+                shiny::textInput(
+                  ns("report_name"),
+                  label = "Report Name",
+                  value = "GMH Pre-Lease Summary"
+                ),
+                bslib::input_switch(
+                  ns("include_current_date"),
+                  label = "Include Current Date in File Name?",
+                  value = TRUE
+                )
+              ),
+              bslib::card_footer(
+                htmltools::tags$p(
+                  "Derived Report File Name: ",
+                  htmltools::tags$strong(
+                    shiny::textOutput(
+                      ns("report_file_name"),
+                      inline = TRUE
+                    )
+                  )
+                )
+              )
+            ),
+            shiny::radioButtons(
+              ns("export_data"),
+              label = "Export Data",
+              choices = c(
+                "All Data" = "all",
+                "Filtered Data" = "filtered"
+              ),
+              selected = "filtered",
+              width = "100%"
+            )
+          )
+        )
+      })
+
+      output$report_file_name <- shiny::renderText({
+        get_xl_report_file_name(report_name = input$report_name,
+                                report_date = Sys.Date())
+      })
+
       # download
       output$download <- shiny::downloadHandler(
         filename = function() {
-          get_xl_report_file_name(report_name = "GMH Pre-Lease Summary",
+          get_xl_report_file_name(report_name = input$report_name,
                                   report_date = Sys.Date())
         },
         content = function(file) {
@@ -1064,6 +1132,14 @@ mod_pre_lease_server <- function(
                   )
                 )
 
+              if (input$export_data == "filtered") {
+                xl_data <- xl_data |>
+                  dplyr::filter(
+                    .data$investment_partner %in% input$partners,
+                    .data$property_name %in% input$properties
+                  )
+              }
+
               shiny::setProgress(20, message = "Formatting Data for Excel...")
 
               comma_cols <- c(
@@ -1104,55 +1180,94 @@ mod_pre_lease_server <- function(
 
               shiny::setProgress(30, message = "Initializing Excel Template...")
 
+              # wb_template <- openxlsx2::wb_load(
+              #   pkg_sys("templates/excel/pre-lease-summary-template.xlsx"),
+              #   sheet = "Pre-Lease Summary"
+              # )
+
               wb_template <- openxlsx2::wb_load(
-                pkg_sys("templates/excel/pre-lease-summary-template.xlsx"),
-                sheet = "Pre-Lease Summary"
+                pkg_sys("templates/excel/template.xlsx"),
+                sheet = "Summary"
               )
+
+              wb_init <- wb_template
 
               shiny::setProgress(40, message = "Writing Report Date to Excel...")
 
-              wb_template$add_data(
-                sheet = "Pre-Lease Summary",
+              wb_init$add_data(
+                sheet = "Summary",
                 x = report_date,
                 start_row = 2,
                 start_col = 2,
-                col_names = FALSE
+                col_names = FALSE,
+                name = "report_date"
+              )
+
+              wb_init$add_named_region(
+                sheet = "Summary",
+                dims = "B2",
+                name = "report_date",
+                overwrite = TRUE
               )
 
               setProgress(50, message = "Writing Leasing Season Ending Date to Excel...")
 
-              wb_template$add_data(
-                sheet = "Pre-Lease Summary",
+              wb_init$add_data(
+                sheet = "Summary",
                 x = leasing_season_ending,
                 start_row = 2,
                 start_col = 24,
-                col_names = FALSE
+                col_names = FALSE,
+                name = "leasing_season_ending"
+              )
+
+              wb_init$add_named_region(
+                sheet = "Summary",
+                dims = "X2",
+                name = "leasing_season_ending",
+                overwrite = TRUE
               )
 
               setProgress(60, message = "Writing Leasing Week to Excel...")
 
-              wb_template$add_data(
-                sheet = "Pre-Lease Summary",
+              wb_init$add_data(
+                sheet = "Summary",
                 x = leasing_week,
                 start_row = 3,
                 start_col = 2,
-                col_names = FALSE
+                col_names = FALSE,
+                name = "leasing_week"
+              )
+
+              wb_init$add_named_region(
+                sheet = "Summary",
+                dims = "B3",
+                name = "leasing_week",
+                overwrite = TRUE
               )
 
               setProgress(70, message = "Writing Weeks Left to Lease to Excel...")
 
-              wb_template$add_data(
-                sheet = "Pre-Lease Summary",
+              wb_init$add_data(
+                sheet = "Summary",
                 x = weeks_left_to_lease,
                 start_row = 3,
                 start_col = 24,
-                col_names = FALSE
+                col_names = FALSE,
+                name = "weeks_left_to_lease"
+              )
+
+              wb_init$add_named_region(
+                sheet = "Summary",
+                dims = "X3",
+                name = "weeks_left_to_lease",
+                overwrite = TRUE
               )
 
               setProgress(80, message = "Writing Data to Excel...")
 
-              wb_template$add_data(
-                sheet = "Pre-Lease Summary",
+              wb_init$add_data(
+                sheet = "Summary",
                 x = xl_data |>
                   dplyr::select(property_name, investment_partner),
                 start_row = 6,
@@ -1160,8 +1275,8 @@ mod_pre_lease_server <- function(
                 col_names = FALSE
               )
 
-              wb_template$add_data(
-                sheet = "Pre-Lease Summary",
+              wb_init$add_data(
+                sheet = "Summary",
                 x = xl_data |>
                   dplyr::select(
                     total_beds:current_total_renewals
@@ -1171,8 +1286,8 @@ mod_pre_lease_server <- function(
                 col_names = FALSE
               )
 
-              wb_template$add_data(
-                sheet = "Pre-Lease Summary",
+              wb_init$add_data(
+                sheet = "Summary",
                 x = xl_data |>
                   dplyr::select(
                     prior_total_new:prior_total_renewals
@@ -1182,8 +1297,8 @@ mod_pre_lease_server <- function(
                 col_names = FALSE
               )
 
-              wb_template$add_data(
-                sheet = "Pre-Lease Summary",
+              wb_init$add_data(
+                sheet = "Summary",
                 x = xl_data |>
                   dplyr::select(
                     weekly_new:weekly_renewal
@@ -1193,9 +1308,219 @@ mod_pre_lease_server <- function(
                 col_names = FALSE
               )
 
-              setProgress(90, message = "Finalizing Excel File...")
+              setProgress(90, message = "Writing Formulas to Excel...")
 
-              wb_template$save(file, overwrite = TRUE)
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = "SUM(G6:H6)",
+                dims = paste0("I6:I", nrow(xl_data) + 5),
+                shared = TRUE
+              )
+
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = "I6 / $C6",
+                dims = paste0("J6:J", nrow(xl_data) + 5),
+                shared = TRUE
+              )
+
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = "SUM(K6:L6)",
+                dims = paste0("M6:M", nrow(xl_data) + 5),
+                shared = TRUE
+              )
+
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = "M6 / $C6",
+                dims = paste0("N6:N", nrow(xl_data) + 5),
+                shared = TRUE
+              )
+
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = "I6 - M6",
+                dims = paste0("O6:O", nrow(xl_data) + 5),
+                shared = TRUE
+              )
+
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = "O6 / M6",
+                dims = paste0("P6:P", nrow(xl_data) + 5),
+                shared = TRUE
+              )
+
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = "SUM(Q6:R6)",
+                dims = paste0("S6:S", nrow(xl_data) + 5),
+                shared = TRUE
+              )
+
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = "S6 / $U6",
+                dims = paste0("T6:T", nrow(xl_data) + 5),
+                shared = TRUE
+              )
+
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = "$C6 - $I6",
+                dims = paste0("U6:U", nrow(xl_data) + 5),
+                shared = TRUE
+              )
+
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = "($U6 * V$5) / weeks_left_to_lease",
+                dims = paste0("V6:X", nrow(xl_data) + 5),
+                shared = TRUE
+              )
+
+              setProgress(90, message = "Styling Excel Data...")
+
+              tbl_row_sty <- wb_init$get_cell_style(sheet = "Summary", dims = "A6:X6")
+
+              wb_init$set_cell_style(
+                sheet = "Summary",
+                dims = paste0("A7:X", nrow(xl_data) + 5),
+                style = tbl_row_sty
+              )
+
+              tot_row_num <- nrow(xl_data) + 7
+
+              tot_row_cell_sty <- wb_init$get_cell_style(sheet = "Summary", dims = "A5")
+
+              setProgress(90, message = "Creating Totals...")
+
+              wb_init$add_data(
+                sheet = "Summary",
+                x = "Total/Average",
+                start_row = tot_row_num,
+                start_col = 1,
+                col_names = FALSE
+              )
+
+              wb_init$set_cell_style(
+                sheet = "Summary",
+                dims = paste0("A", tot_row_num, ":X", tot_row_num),
+                style = tbl_row_sty
+              )
+
+              wb_init$set_cell_style(
+                sheet = "Summary",
+                dims = paste0("A", tot_row_num),
+                style = tot_row_cell_sty
+              )
+
+              # wb_init$set_row_heights(
+              #   sheet = "Summary",
+              #   rows = tot_row_num,
+              #   heights = 30
+              # )
+
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = paste0("SUM(C6:C", tot_row_num - 2, ")"),
+                dims = paste0("C", tot_row_num, ":E", tot_row_num),
+                shared = TRUE
+              )
+
+              # =SUMPRODUCT(F6:F26, $C$6:$C$26) / $C$28
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = paste0("SUMPRODUCT(F6:F", tot_row_num - 2, ", $C$6:$C$", tot_row_num - 2, ") / $C$", tot_row_num),
+                dims = paste0("F", tot_row_num)
+              )
+
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = paste0("SUM(G6:G", tot_row_num - 2, ")"),
+                dims = paste0("G", tot_row_num, ":I", tot_row_num),
+                shared = TRUE
+              )
+
+              # =SUMPRODUCT(J6:J26, $C$6:$C$26) / $C$28
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = paste0("SUMPRODUCT(J6:J", tot_row_num - 2, ", $C$6:$C$", tot_row_num - 2, ") / $C$", tot_row_num),
+                dims = paste0("J", tot_row_num)
+              )
+
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = paste0("SUM(K6:K", tot_row_num - 2, ")"),
+                dims = paste0("K", tot_row_num, ":M", tot_row_num),
+                shared = TRUE
+              )
+
+              # =SUMPRODUCT(N6:N26, $C$6:$C$26) / $C$28
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = paste0("SUMPRODUCT(N6:N", tot_row_num - 2, ", $C$6:$C$", tot_row_num - 2, ") / $C$", tot_row_num),
+                dims = paste0("N", tot_row_num)
+              )
+
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = paste0("I", tot_row_num, " - M", tot_row_num),
+                dims = paste0("O", tot_row_num)
+              )
+
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = paste0("J", tot_row_num, " - N", tot_row_num),
+                dims = paste0("P", tot_row_num)
+              )
+
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = paste0("SUM(Q6:Q", tot_row_num - 2, ")"),
+                dims = paste0("Q", tot_row_num, ":S", tot_row_num),
+                shared = TRUE
+              )
+
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = paste0("S", tot_row_num, " / $C$", tot_row_num),
+                dims = paste0("T", tot_row_num)
+              )
+
+              wb_init$add_formula(
+                sheet = "Summary",
+                x = paste0("SUM(U6:U", tot_row_num - 2, ")"),
+                dims = paste0("U", tot_row_num, ":X", tot_row_num),
+                shared = TRUE
+              )
+
+
+              # # remove rows if filtered / nrows between template and data differ
+              # nrow_template <- 21
+              # nrow_data <- nrow(xl_data)
+              #
+              # if (nrow_data < nrow_template) {
+              #   start_row <- 6L
+              #   end_row <- start_row + nrow_data - 1L
+              #   remove_start_row <- end_row + 1L
+              #   remove_end_row <- nrow_template + 5L
+              #
+              #   remove_dims <- openxlsx2::wb_dims(
+              #     rows = remove_start_row:remove_end_row,
+              #     cols = 1:10000000
+              #   )
+              #
+              #   wb_template$clean_sheet(
+              #     sheet = "Pre-Lease Summary",
+              #     dims = remove_dims
+              #   )
+              # }
+
+              setProgress(95, message = "Finalizing Excel File...")
+
+              wb_init$save(file, overwrite = TRUE)
 
               setProgress(100, message = "Excel File Generated Successfully!")
 

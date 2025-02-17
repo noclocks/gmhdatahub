@@ -123,19 +123,559 @@ wb_init <- openxlsx2::wb_add_worksheet(wb_init, "Summary", tab_color = "red")
 wb_init <- openxlsx2::wb_add_worksheet(wb_init, "Details", tab_color = "red")
 wb_init <- openxlsx2::wb_add_worksheet(wb_init, "Parameters", tab_color = "blue")
 
+
+# dd ----------------------------------------------------------------------
+
+
+
+wb_template <- openxlsx2::wb_load(
+  pkg_sys("templates/excel/template.xlsx"),
+  sheet = "Summary"
+)
+
 # data
-report_date <- pre_lease_data$report_date[[1]]
-current_year_txt <- paste0(lubridate::year(report_date), "-", lubridate::year(report_date) + 1)
-prior_year_txt <- paste0(lubridate::year(report_date) - 1, "-", lubridate::year(report_date))
+report_date <- pre_lease_summary_data |>
+  dplyr::pull("report_date") |>
+  max(na.rm = TRUE)
+
+leasing_week <- get_leasing_week_number(report_date)
+
 weeks_left_to_lease <- get_weeks_left_to_lease(report_date)
+
+leasing_season_ending <- get_pre_lease_season_start_date(report_date)
+
+xl_data <- pre_lease_summary_data |>
+  dplyr::select(
+    property_name,
+    investment_partner,
+    total_beds,
+    model_beds,
+    current_occupied,
+    current_occupancy,
+    current_total_new,
+    current_total_renewals,
+    current_total_leases,
+    current_preleased_percent,
+    prior_total_new,
+    prior_total_renewals,
+    prior_total_leases,
+    prior_preleased_percent,
+    yoy_variance_count,
+    yoy_variance_percent,
+    weekly_new,
+    weekly_renewal,
+    weekly_total,
+    weekly_percent_gained,
+    beds_left,
+    vel_90,
+    vel_95,
+    vel_100
+  ) |>
+  dplyr::mutate(
+    dplyr::across(
+      tidyselect::where(is.numeric),
+      dplyr::coalesce,
+      0
+    )
+  )
+
+comma_cols <- c(
+  "total_beds",
+  "model_beds",
+  "current_occupied",
+  "current_total_new",
+  "current_total_renewals",
+  "current_total_leases",
+  "prior_total_new",
+  "prior_total_renewals",
+  "prior_total_leases",
+  "yoy_variance_count",
+  "weekly_new",
+  "weekly_renewal",
+  "weekly_total",
+  "beds_left",
+  "vel_90",
+  "vel_95",
+  "vel_100"
+)
+
+pct_cols <- c(
+  "current_occupancy",
+  "current_preleased_percent",
+  "prior_preleased_percent",
+  "yoy_variance_percent",
+  "weekly_percent_gained"
+)
+
+for (col in comma_cols) {
+  class(xl_data[[col]]) <- c("comma", class(xl_data[[col]]))
+}
+
+for (col in pct_cols) {
+  class(xl_data[[col]]) <- c("percentage", class(xl_data[[col]]))
+}
 
 wb_init$add_data(
   sheet = "Summary",
-  x = "GMH Communities Pre-Lease Summary Report",
-  start_col = 1,
-  start_row = 1,
-  name = "Summary"
+  x = report_date,
+  start_row = 2,
+  start_col = 2,
+  col_names = FALSE,
+  name = "report_date"
 )
+
+wb_init$add_data(
+  sheet = "Summary",
+  x = leasing_season_ending,
+  start_row = 2,
+  start_col = 24,
+  col_names = FALSE,
+  name = "leasing_season_ending"
+)
+
+wb_init$add_data(
+  sheet = "Summary",
+  x = leasing_week,
+  start_row = 3,
+  start_col = 2,
+  col_names = FALSE,
+  name = "leasing_week"
+)
+
+wb_init$add_data(
+  sheet = "Summary",
+  x = weeks_left_to_lease,
+  start_row = 3,
+  start_col = 24,
+  col_names = FALSE,
+  name = "weeks_left_to_lease"
+)
+
+wb_init$add_data(
+  sheet = "Summary",
+  x = xl_data |>
+    dplyr::select(property_name, investment_partner),
+  start_row = 6,
+  start_col = 1,
+  col_names = FALSE
+)
+
+wb_init$add_data(
+  sheet = "Summary",
+  x = xl_data |>
+    dplyr::select(
+      total_beds:current_total_renewals
+    ),
+  start_row = 6,
+  start_col = 3,
+  col_names = FALSE
+)
+
+wb_init$add_formula(
+  sheet = "Summary",
+  x = "SUM(G6:H6)",
+  dims = paste0("I6:I", nrow(xl_data) + 5),
+  shared = TRUE
+)
+
+wb_init$add_formula(
+  sheet = "Summary",
+  x = "I6 / $C6",
+  dims = paste0("J6:J", nrow(xl_data) + 5),
+  shared = TRUE
+)
+
+wb_init$add_data(
+  sheet = "Summary",
+  x = xl_data |>
+    dplyr::select(
+      prior_total_new:prior_total_renewals
+    ),
+  start_row = 6,
+  start_col = 11,
+  col_names = FALSE
+)
+
+wb_init$add_formula(
+  sheet = "Summary",
+  x = "SUM(K6:L6)",
+  dims = paste0("M6:M", nrow(xl_data) + 5),
+  shared = TRUE
+)
+
+wb_init$add_formula(
+  sheet = "Summary",
+  x = "M6 / $C6",
+  dims = paste0("N6:N", nrow(xl_data) + 5),
+  shared = TRUE
+)
+
+wb_init$add_formula(
+  sheet = "Summary",
+  x = "I6 - M6",
+  dims = paste0("O6:O", nrow(xl_data) + 5),
+  shared = TRUE
+)
+
+wb_init$add_formula(
+  sheet = "Summary",
+  x = "O6 / M6",
+  dims = paste0("P6:P", nrow(xl_data) + 5),
+  shared = TRUE
+)
+
+wb_init$add_data(
+  sheet = "Summary",
+  x = xl_data |>
+    dplyr::select(
+      weekly_new:weekly_renewal
+    ),
+  start_row = 6,
+  start_col = 17,
+  col_names = FALSE
+)
+
+wb_init$add_formula(
+  sheet = "Summary",
+  x = "SUM(Q6:R6)",
+  dims = paste0("S6:S", nrow(xl_data) + 5),
+  shared = TRUE
+)
+
+wb_init$add_formula(
+  sheet = "Summary",
+  x = "S6 / $U6",
+  dims = paste0("T6:T", nrow(xl_data) + 5),
+  shared = TRUE
+)
+
+wb_init$add_formula(
+  sheet = "Summary",
+  x = "$C6 - $D6",
+  dims = paste0("U6:U", nrow(xl_data) + 5),
+  shared = TRUE
+)
+
+wb_init$add_formula(
+  sheet = "Summary",
+  x = "($U6 * V$5) / weeks_left_to_lease",
+  dims = paste0("V6:X", nrow(xl_data) + 5),
+  shared = TRUE
+)
+
+# ?wb_add_data_table
+#
+# xl_data_w_formulas <- xl_data |>
+#   dplyr::mutate(
+#     current_total_leases = "[[$This Row], [current_total_new]]+[[$This Row], [current_total_renewals]]",
+#     current_preleased_percent = "pre_lease_tbl[[$This Row], [current_total_leases]] / pre_lease_tbl[[$This Row], [total_beds]]",
+#     prior_total_leases = "pre_lease_tbl[[$This Row], [prior_total_new]] + pre_lease_tbl[[$This Row], [prior_total_renewals]]",
+#     prior_preleased_percent = "pre_lease_tbl[[$This Row], [prior_total_leases]] / pre_lease_tbl[[$This Row], [total_beds]]",
+#     yoy_variance_count = "pre_lease_tbl[[$This Row], [current_total_leases]] - pre_lease_tbl[[$This Row], [prior_total_leases]]",
+#     yoy_variance_percent = "pre_lease_tbl[[$This Row], [yoy_variance_count]] / pre_lease_tbl[[$This Row], [prior_total_leases]]",
+#     weekly_total = "pre_lease_tbl[[$This Row], [weekly_new]] + pre_lease_tbl[[$This Row], [weekly_renewal]]",
+#     weekly_percent_gained = "pre_lease_tbl[[$This Row], [weekly_total]] / pre_lease_tbl[[$This Row], [beds_left]]",
+#     beds_left = "pre_lease_tbl[[$This Row], [total_beds]] - pre_lease_tbl[[$This Row], [current_occupied]]",
+#     vel_90 = "(0.90 * pre_lease_tbl[[$This Row], [beds_left]]) / weeks_left_to_lease",
+#     vel_95 = "(0.95 * pre_lease_tbl[[$This Row], [beds_left]]) / weeks_left_to_lease",
+#     vel_100 = "(1.00 * pre_lease_tbl[[$This Row], [beds_left]]) / weeks_left_to_lease"
+#   )
+#
+# formula_cols <- c(
+#   "current_total_leases",
+#   "current_preleased_percent",
+#   "prior_total_leases",
+#   "prior_preleased_percent",
+#   "yoy_variance_count",
+#   "yoy_variance_percent",
+#   "weekly_total",
+#   "weekly_percent_gained",
+#   "beds_left",
+#   "vel_90",
+#   "vel_95",
+#   "vel_100"
+# )
+#
+# for (col in formula_cols) {
+#   class(xl_data_w_formulas[[col]]) <- c(class(xl_data_w_formulas[[col]]), "formula")
+# }
+#
+
+
+
+
+
+
+content = function(file) {
+  shiny::withProgress(
+    message = "Generating Excel Pre-Lease Report Export...",
+    value = 0,
+    {
+      shiny::setProgress(10, message = "Collecting Data and Information...")
+
+      browser()
+
+      report_date <- pre_lease_summary_data() |>
+        dplyr::pull("report_date") |>
+        max(na.rm = TRUE)
+
+      leasing_week <- get_leasing_week_number(report_date)
+
+      weeks_left_to_lease <- get_weeks_left_to_lease(report_date)
+
+      leasing_season_ending <- get_pre_lease_season_start_date(report_date)
+
+      xl_data <- pre_lease_summary_data() |>
+        dplyr::select(
+          property_name,
+          investment_partner,
+          total_beds,
+          model_beds,
+          current_occupied,
+          current_occupancy,
+          current_total_new,
+          current_total_renewals,
+          current_total_leases,
+          current_preleased_percent,
+          prior_total_new,
+          prior_total_renewals,
+          prior_total_leases,
+          prior_preleased_percent,
+          yoy_variance_count,
+          yoy_variance_percent,
+          weekly_new,
+          weekly_renewal,
+          weekly_total,
+          weekly_percent_gained,
+          beds_left,
+          vel_90,
+          vel_95,
+          vel_100
+        ) |>
+        dplyr::mutate(
+          dplyr::across(
+            tidyselect::where(is.numeric),
+            dplyr::coalesce,
+            0
+          )
+        )
+
+      if (input$export_data == "filtered") {
+        xl_data <- xl_data |>
+          dplyr::filter(
+            .data$investment_partner %in% input$partners,
+            .data$property_name %in% input$properties
+          )
+      }
+
+      shiny::setProgress(20, message = "Formatting Data for Excel...")
+
+      comma_cols <- c(
+        "total_beds",
+        "model_beds",
+        "current_occupied",
+        "current_total_new",
+        "current_total_renewals",
+        "current_total_leases",
+        "prior_total_new",
+        "prior_total_renewals",
+        "prior_total_leases",
+        "yoy_variance_count",
+        "weekly_new",
+        "weekly_renewal",
+        "weekly_total",
+        "beds_left",
+        "vel_90",
+        "vel_95",
+        "vel_100"
+      )
+
+      pct_cols <- c(
+        "current_occupancy",
+        "current_preleased_percent",
+        "prior_preleased_percent",
+        "yoy_variance_percent",
+        "weekly_percent_gained"
+      )
+
+      for (col in comma_cols) {
+        class(xl_data[[col]]) <- c("comma", class(xl_data[[col]]))
+      }
+
+      for (col in pct_cols) {
+        class(xl_data[[col]]) <- c("percentage", class(xl_data[[col]]))
+      }
+
+      shiny::setProgress(30, message = "Initializing Excel Template...")
+
+
+
+      shiny::setProgress(40, message = "Writing Report Date to Excel...")
+
+      wb_template$add_data(
+        sheet = "Pre-Lease Summary",
+        x = report_date,
+        start_row = 2,
+        start_col = 2,
+        col_names = FALSE
+      )
+
+      setProgress(50, message = "Writing Leasing Season Ending Date to Excel...")
+
+      wb_template$add_data(
+        sheet = "Pre-Lease Summary",
+        x = leasing_season_ending,
+        start_row = 2,
+        start_col = 24,
+        col_names = FALSE
+      )
+
+      setProgress(60, message = "Writing Leasing Week to Excel...")
+
+      wb_template$add_data(
+        sheet = "Pre-Lease Summary",
+        x = leasing_week,
+        start_row = 3,
+        start_col = 2,
+        col_names = FALSE
+      )
+
+      setProgress(70, message = "Writing Weeks Left to Lease to Excel...")
+
+      wb_template$add_data(
+        sheet = "Pre-Lease Summary",
+        x = weeks_left_to_lease,
+        start_row = 3,
+        start_col = 24,
+        col_names = FALSE
+      )
+
+      setProgress(80, message = "Writing Data to Excel...")
+
+      wb_template$add_data(
+        sheet = "Pre-Lease Summary",
+        x = xl_data |>
+          dplyr::select(property_name, investment_partner),
+        start_row = 6,
+        start_col = 1,
+        col_names = FALSE
+      )
+
+      wb_template$add_data(
+        sheet = "Pre-Lease Summary",
+        x = xl_data |>
+          dplyr::select(
+            total_beds:current_total_renewals
+          ),
+        start_row = 6,
+        start_col = 3,
+        col_names = FALSE
+      )
+
+      wb_template$add_data(
+        sheet = "Pre-Lease Summary",
+        x = xl_data |>
+          dplyr::select(
+            prior_total_new:prior_total_renewals
+          ),
+        start_row = 6,
+        start_col = 11,
+        col_names = FALSE
+      )
+
+      wb_template$add_data(
+        sheet = "Pre-Lease Summary",
+        x = xl_data |>
+          dplyr::select(
+            weekly_new:weekly_renewal
+          ),
+        start_row = 6,
+        start_col = 17,
+        col_names = FALSE
+      )
+
+      # remove rows if filtered / nrows between template and data differ
+      nrow_template <- 21
+      nrow_data <- nrow(xl_data)
+
+      if (nrow_data < nrow_template) {
+        start_row <- 6L
+        end_row <- start_row + nrow_data - 1L
+        remove_start_row <- end_row + 1L
+        remove_end_row <- nrow_template + 5L
+
+        remove_dims <- openxlsx2::wb_dims(
+          rows = remove_start_row:remove_end_row,
+          cols = 1:10000000
+        )
+
+        wb_template$clean_sheet(
+          sheet = "Pre-Lease Summary",
+          dims = remove_dims
+        )
+      }
+
+      setProgress(90, message = "Finalizing Excel File...")
+
+      wb_template$save(file, overwrite = TRUE)
+
+      setProgress(100, message = "Excel File Generated Successfully!")
+
+    }
+  )
+
+}
+)
+
+
+wb_template$add_data(
+  sheet = "Pre-Lease Summary",
+  x = xl_data |>
+    dplyr::select(
+      prior_total_new:prior_total_renewals
+    ),
+  start_row = 6,
+  start_col = 11,
+  col_names = FALSE
+)
+
+wb_template$add_data(
+  sheet = "Pre-Lease Summary",
+  x = xl_data |>
+    dplyr::select(
+      weekly_new:weekly_renewal
+    ),
+  start_row = 6,
+  start_col = 17,
+  col_names = FALSE
+)
+
+# remove rows if filtered / nrows between template and data differ
+nrow_template <- 21
+nrow_data <- nrow(xl_data)
+
+if (nrow_data < nrow_template) {
+  start_row <- 6L
+  end_row <- start_row + nrow_data - 1L
+  remove_start_row <- end_row + 1L
+  remove_end_row <- nrow_template + 5L
+
+  remove_dims <- openxlsx2::wb_dims(
+    rows = remove_start_row:remove_end_row,
+    cols = 1:10000000
+  )
+
+  wb_template$clean_sheet(
+    sheet = "Pre-Lease Summary",
+    dims = remove_dims
+  )
+}
+
+setProgress(90, message = "Finalizing Excel File...")
+
+wb_template$save(file, overwrite = TRUE)
+
+
 
 wb_init$set_cell_style(
   sheet = "Summary",
