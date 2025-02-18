@@ -35,7 +35,9 @@ gmh_colors <- function(...) {
     dark = "#031633",
     white = "#ffffff",
     black = "#000000",
-    gray = "#6c757d"
+    gray = "#6c757d",
+    dark_gray = "#2c3e50",
+    royal_blue = "#1e4d92"
   )
   dots <- list(...)
   if (length(dots) == 0) {
