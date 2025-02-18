@@ -21,7 +21,7 @@ Depends:
 Imports:
     apexcharter,
     bsicons,
-    bslib (>= 0.7),
+    bslib (>= 0.9),
     cli,
     conductor,
     config,
@@ -60,7 +60,7 @@ Imports:
     RPostgres,
     scales,
     sever,
-    shiny,
+    shiny (>= 1.10),
     shinybrowser,
     shinybusy,
     shinycustomloader,

@@ -37,7 +37,7 @@
 #' shiny::shinyApp(ui = app_ui, server = app_server)
 #'
 #' @importFrom bsicons bs_icon
-#' @importFrom bslib page_navbar nav_spacer nav_panel nav_menu nav_item input_dark_mode
+#' @importFrom bslib page_navbar nav_spacer nav_panel nav_menu nav_item input_dark_mode navbar_options
 #' @importFrom htmltools tagList tags
 #' @importFrom shiny icon textOutput actionLink
 app_ui <- function(req = NULL) {
@@ -58,7 +58,13 @@ app_ui <- function(req = NULL) {
       id = "nav",
       lang = "en",
       window_title = "GMH DataHub",
-      position = "static-top",
+      navbar_options = bslib::navbar_options(
+        class = "bg-light",
+        position = "static-top",
+        theme = "light",
+        collapsible = TRUE,
+        underline = TRUE
+      ),
       selected = "survey_forms",
       theme = app_theme_ui(),
       title = app_title_ui(),
