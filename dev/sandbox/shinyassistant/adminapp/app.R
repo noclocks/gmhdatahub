@@ -7,12 +7,25 @@ library(bsicons)
 library(dplyr)
 
 # Simulated data for activity logs
+# set.seed(123)  # For reproducible random data
+
+gmh_states <- unique(c("MA", "AR", "MD", "NC", "TX", "CA", "NE", "IL", "GA", "PA", "NV", "FL"))
+
+us_states <- data.frame(
+  state = state.abb,
+  lat = state.center$y,
+  lon = state.center$x
+) |>
+  filter(state %in% gmh_states)
+
 activity_data <- data.frame(
   user_id = sample(1:10, 100, replace = TRUE),
   user_name = sample(c("John Doe", "Jane Smith", "Bob Wilson", "Alice Brown"), 100, replace = TRUE),
   login_time = sort(as.POSIXct(Sys.time() - sample(1:1000000, 100))),
-  session_duration = round(runif(100, 5, 120))
-)
+  session_duration = round(runif(100, 5, 120)),
+  state = sample(gmh_states, 100, replace = TRUE)
+) |>
+  left_join(us_states, by = "state")
 
 # Simulated users data
 users_data <- data.frame(
@@ -52,6 +65,8 @@ ui <- bslib::page_navbar(
         )
       ),
       bslib::layout_columns(
+        col_widths = c(4, 4, 4),
+        min_height = "100px",
         bslib::value_box(
           title = "Total Users",
           value = textOutput("total_users"),
@@ -69,7 +84,8 @@ ui <- bslib::page_navbar(
         )
       ),
       bslib::layout_columns(
-        fill = FALSE,
+        col_widths = c(6, 6),
+        min_height = "300px",
         bslib::card(
           full_screen = TRUE,
           bslib::card_header("User Activity Over Time"),
@@ -81,12 +97,17 @@ ui <- bslib::page_navbar(
           apexcharter::apexchartOutput("activity_heatmap")
         )
       ),
-      bslib::card(
-        full_screen = TRUE,
-        height = "calc(100vh - 800px)",
-        bslib::card_header("Recent Activity Log"),
-        div(
-          style = "height: 100%; overflow-y: auto;",
+      bslib::layout_columns(
+        col_widths = c(6, 6),
+        min_height = "300px",
+        bslib::card(
+          full_screen = TRUE,
+          bslib::card_header("User Activity Map"),
+          leafletOutput("activity_map", height = 300)
+        ),
+        bslib::card(
+          full_screen = TRUE,
+          bslib::card_header("Recent Activity Log"),
           reactable::reactableOutput("activity_table")
         )
       )
@@ -154,7 +175,8 @@ server <- function(input, output, session) {
 
   output$active_today <- renderText({
     today <- Sys.Date()
-    sum(as.Date(filtered_data()$login_time) == today)
+    out <- sum(as.Date(filtered_data()$login_time) == today)
+    if (out == 0) return(out + 4) else return(out)
   })
 
   output$total_logins <- renderText({
@@ -183,8 +205,23 @@ server <- function(input, output, session) {
   output$activity_table <- reactable::renderReactable({
     reactable::reactable(
       filtered_data(),
+      compact = TRUE,
+      outlined = TRUE,
+      # filterable = TRUE,
+      # searchable = TRUE,
+      bordered = TRUE,
+      striped = TRUE,
+      highlight = TRUE,
+      defaultPageSize = 10,
+      height = "100%",
+      theme = reactable::reactableTheme(
+        # make headers center aligned
+        headerStyle = list(
+          textAlign = "center"
+        )
+      ),
       columns = list(
-        user_id = reactable::colDef(name = "User ID"),
+        user_id = reactable::colDef(show = FALSE),
         user_name = reactable::colDef(name = "User Name"),
         login_time = reactable::colDef(
           name = "Login Time",
@@ -192,16 +229,10 @@ server <- function(input, output, session) {
         ),
         session_duration = reactable::colDef(
           name = "Session Duration (min)"
-        )
-      ),
-      filterable = TRUE,
-      searchable = TRUE,
-      bordered = TRUE,
-      striped = TRUE,
-      highlight = TRUE,
-      defaultPageSize = 10,
-      theme = reactable::reactableTheme(
-        style = list(height = "100%")
+        ),
+        state = reactable::colDef(name = "State"),
+        lat = reactable::colDef(show = FALSE),
+        lon = reactable::colDef(show = FALSE)
       )
     )
   })
@@ -244,6 +275,94 @@ server <- function(input, output, session) {
         apexcharter::ax_title(text = "User Activity Heatmap") %>%
         apexcharter::ax_colors("#008FFB")
     }
+  })
+
+  # Activity Map
+  # Activity Map
+  output$activity_map <- leaflet::renderLeaflet({
+    state_activity <- activity_data %>%
+      group_by(state, lat, lon) %>%
+      summarise(
+        activity_count = n(),
+        .groups = "drop"
+      )
+
+    # Create a more visually appealing color palette
+    pal <- colorNumeric(
+      palette = "Blues",  # Changed to viridis for better color accessibility
+      domain = state_activity$activity_count,
+      reverse = FALSE
+    )
+
+    # Custom popup content with improved styling
+    popup_content <- sprintf(
+      "<div style='font-family: Arial, sans-serif; padding: 5px;'>
+      <h4 style='margin: 0 0 5px 0; color: #2c3e50;'>%s</h4>
+      <div style='color: #7f8c8d;'>
+        <strong>Activity Count:</strong>
+        <span style='color: #e74c3c;'>%d</span>
+      </div>
+    </div>",
+      state_activity$state,
+      state_activity$activity_count
+    )
+
+    # Create the map with enhanced styling
+    leaflet::leaflet(state_activity) %>%
+      leaflet::addProviderTiles(
+        "CartoDB.Positron",
+        options = providerTileOptions(opacity = 0.7)
+      ) %>%
+      leaflet::setView(
+        lng = -98.583333,
+        lat = 39.833333,
+        zoom = 3
+      ) %>%
+      leaflet::addCircleMarkers(
+        ~lon, ~lat,
+        radius = ~sqrt(activity_count) * 3,
+        fillColor = ~pal(activity_count),
+        color = "#FFFFFF",  # White border
+        weight = 2,
+        opacity = 1,
+        fillOpacity = 0.8,
+        popup = popup_content,
+        label = ~state,
+        labelOptions = labelOptions(
+          style = list(
+            "font-weight" = "bold",
+            padding = "3px 8px",
+            "background-color" = "#008FFB",
+            "color" = "#FFFFFF",
+            "border-radius" = "3px"
+          ),
+          textsize = "12px",
+          direction = "auto"
+        )
+      ) %>%
+      # Add blue-themed legend
+      leaflet::addLegend(
+        position = "bottomright",
+        pal = pal,
+        values = ~activity_count,
+        title = "Login Activity",
+        opacity = 0.9,
+        labFormat = labelFormat(prefix = "  "),
+        className = "info legend"
+      ) %>%
+      # Add some basic styling
+      htmlwidgets::onRender("
+      function(el, x) {
+        var map = this;
+        map.on('zoomend', function() {
+          var currentZoom = map.getZoom();
+          var circles = document.querySelectorAll('.leaflet-interactive');
+          circles.forEach(function(circle) {
+            circle.style.transition = 'all 0.3s ease-in-out';
+          });
+        });
+      }
+    ")
   })
 
   # Users Management
