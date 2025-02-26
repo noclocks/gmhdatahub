@@ -40,6 +40,7 @@
 
 ## Documentation
 
+- Readme link to live apps ([c48acdd](https://github.com/noclocks/gmhdatahub/commit/c48acdd3e75a39ae3ceeca6d1934af00dd03f1bb))  - (Jimmy Briggs)
 - Pkgdown ([c4d7d24](https://github.com/noclocks/gmhdatahub/commit/c4d7d2419f393d9b9b59c2965a0a994e34c6cedd))  - (Jimmy Briggs)
 - Updated man pages ([602784f](https://github.com/noclocks/gmhdatahub/commit/602784ff9b9a61a0d7c7b083e7df3f10aa5d92d3))  - (Jimmy Briggs)
 - Roxygenize ([4eb2495](https://github.com/noclocks/gmhdatahub/commit/4eb2495f7fd5e798c55ab887c4813590fbabc36d))  - (Jimmy Briggs)
