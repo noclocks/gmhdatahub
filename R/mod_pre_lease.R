@@ -1347,7 +1347,7 @@ mod_pre_lease_server <- function(
 
               wb_init$add_formula(
                 sheet = "Summary",
-                x = "O6 / M6",
+                x = "J6 - N6",
                 dims = paste0("P6:P", nrow(xl_data) + 5),
                 shared = TRUE
               )
