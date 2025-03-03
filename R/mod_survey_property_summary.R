@@ -13,7 +13,7 @@
 #' @name mod_survey_property_summary
 #'
 #' @description
-#' A Shiny Module for the GMH Data Hub's Survey Property Summary page.
+#' A Shiny Module for the Market Survey's Property Summary Section.
 #'
 #' Includes the following functions:
 #'
@@ -23,6 +23,11 @@
 #'
 #' @param id Module's namespace ID.
 #' @param pool Database connection pool.
+#' @param survey_data Reactive data for the survey.
+#' @param map_data Reactive data for the map.
+#' @param selected_filters Reactive data for the selected filters.
+#' @param db_trigger_func Reactive Function to trigger database updates.
+#' @param edit_survey_section Reactive Function representing the action button to edit the survey section.
 #'
 #' @returns
 #' - `mod_survey_property_summary_ui()`: UI output
@@ -38,10 +43,13 @@ NULL
 
 #' @rdname mod_survey_property_summary
 #' @export
-#' @importFrom shiny NS
+#' @importFrom bsicons bs_icon
+#' @importFrom bslib page_fluid card card_header card_body layout_columns card_footer
 #' @importFrom htmltools tagList tags
-#' @importFrom bslib card
+#' @importFrom leaflet leafletOutput
+#' @importFrom shiny NS textOutput actionButton icon uiOutput
 mod_survey_property_summary_ui <- function(id) {
+
   ns <- shiny::NS(id)
 
   htmltools::tagList(
@@ -253,8 +261,17 @@ mod_survey_property_summary_ui <- function(id) {
 
 #' @rdname mod_survey_property_summary
 #' @export
-#' @importFrom shiny moduleServer reactive
+#' @importFrom bslib layout_columns card card_body card_header
 #' @importFrom cli cat_rule
+#' @importFrom dplyr filter
+#' @importFrom htmltools tags tagList
+#' @importFrom leaflet renderLeaflet setView addProviderTiles leaflet providers flyTo clearPopups leafletProxy
+#' @importFrom lubridate today year
+#' @importFrom shiny moduleServer reactiveVal observe req reactive renderText renderUI icon observeEvent showModal
+#' @importFrom shiny modalDialog textInput sliderInput dateInput radioButtons conditionalPanel fileInput selectInput
+#' @importFrom shiny numericInput textAreaInput uiOutput actionButton modalButton removeModal withProgress incProgress showNotification
+#' @importFrom tibble tibble
+#' @importFrom tools toTitleCase
 mod_survey_property_summary_server <- function(
     id,
     pool = NULL,
@@ -289,16 +306,75 @@ mod_survey_property_summary_server <- function(
       })
 
       # data --------------------------------------------------------------------
+
+      # initial section data
       property_data <- shiny::reactive({
         shiny::req(survey_data$property_summary)
         survey_data$property_summary
       })
 
-      # render UI ---------------------------------------------------------------
+      # inputs data
+      inputs_data <- shiny::reactive({
+        shiny::req(
+          selected_filters,
+          input$property_name_input,
+          input$website_input,
+          input$address_input,
+          input$email_input,
+          input$phone_input,
+          input$developer_input,
+          input$manager_input,
+          input$owner_input,
+          input$type_input,
+          input$rating_input,
+          input$status_input,
+          input$comp_status_input,
+          input$year_built_input,
+          input$last_sale_input,
+          input$distance_input,
+          input$image_url_input,
+          input$description_input
+        )
+        tibble::tibble(
+          property_id = selected_filters$property_id,
+          competitor_id = selected_filters$competitor_id,
+          property_name = input$property_name_input,
+          property_website = input$website_input,
+          property_address = input$address_input,
+          property_email = input$email_input,
+          property_phone = input$phone_input,
+          property_developer = input$developer_input,
+          property_manager = input$manager_input,
+          property_owner = input$owner_input,
+          property_type = input$type_input,
+          property_rating = input$rating_input,
+          property_status = input$status_input,
+          comp_status = input$comp_status_input,
+          year_built = input$year_built_input,
+          most_recent_sale = input$last_sale_input,
+          distance_from_campus = input$distance_input,
+          property_image_url = input$image_url_input,
+          property_description = input$description_input
+        )
+      })
+
+      # UI outputs ------------------------------------------------------------------------------------------------------
+
+      # last updated
+      output$last_updated_at <- shiny::renderText({
+        shiny::req(property_data())
+        property_data()$updated_at |>
+          max(na.rm = TRUE) |>
+          format("%B %d, %Y %I:%M %p")
+      })
+
+      # property name
       output$property_name <- shiny::renderText({
         shiny::req(property_data())
         property_data()$property_name
       })
+
+      # property name title
       output$property_name_title <- shiny::renderText({
         shiny::req(property_data())
         prop_id <- property_data()$property_id
@@ -310,26 +386,37 @@ mod_survey_property_summary_server <- function(
           paste0(name, " (Competitor #", comp_id, ")")
         }
       })
+
+      # website url
       output$website_url <- shiny::renderText({
         shiny::req(property_data())
         property_data()$property_website
       })
+
+      # address
       output$address <- shiny::renderText({
         shiny::req(property_data())
         property_data()$property_address
       })
+
+      # phone
       output$phone <- shiny::renderText({
         shiny::req(property_data())
         property_data()$property_phone |> format_phone_number()
       })
+
+      # developer
       output$developer <- shiny::renderText({
         shiny::req(property_data())
         property_data()$property_developer
       })
+
+      # manager
       output$manager <- shiny::renderText({
         shiny::req(property_data())
         property_data()$property_manager
       })
+
       output$owner <- shiny::renderText({
         shiny::req(property_data())
         property_data()$property_owner
@@ -365,7 +452,10 @@ mod_survey_property_summary_server <- function(
       })
       output$property_image_card <- shiny::renderUI({
         data <- property_data()
+
         img_src <- data$property_image_url %||% "https://placehold.co/600x400.png"
+        # img_src <- get_property_image_url(pool, data$property_id) |>
+
         htmltools::tags$img(
           src = img_src,
           class = "img-fluid",
@@ -400,12 +490,6 @@ mod_survey_property_summary_server <- function(
           }
         })
         htmltools::tags$span(stars, style = "font-size: 1.25rem;")
-      })
-      output$last_updated_at <- shiny::renderText({
-        shiny::req(property_data())
-        property_data()$updated_at |>
-          max(na.rm = TRUE) |>
-          format("%B %d, %Y %I:%M %p")
       })
       output$property_description <- shiny::renderText({
         shiny::req(property_data())
@@ -474,7 +558,7 @@ mod_survey_property_summary_server <- function(
 
       # edit modal --------------------------------------------------------------
       shiny::observeEvent(edit_survey_section(), {
-        shiny::req(session$userData$selected_survey_tab, property_data())
+        shiny::req(session$userData$selected_survey_tab(), property_data())
 
         if (session$userData$selected_survey_tab() != "nav_property_summary") {
           return()
@@ -655,6 +739,96 @@ mod_survey_property_summary_server <- function(
         )
       })
 
+      # changes -----------------------------------------------------------------
+      changes <- shiny::reactive({
+        shiny::req(property_data(), inputs_data())
+
+        original_data <- property_data()
+        new_data <- inputs_data()
+
+        changes <- purrr::map(
+          names(new_data),
+          function(field) {
+            if (!is.na(new_data[[field]]) && !isTRUE(all.equal(new_data[[field]], original_data[[field]]))) {
+              old_value <- if (is.numeric(original_data[[field]])) {
+                round(original_data[[field]], 2)
+              } else {
+                original_data[[field]]
+              }
+              new_value <- if (is.numeric(new_data[[field]])) {
+                round(new_data[[field]], 2)
+              } else {
+                new_data[[field]]
+              }
+              if (!isTRUE(all.equal(old_value, new_value))) {
+                list(
+                  field = field,
+                  old = old_value,
+                  new = new_value
+                )
+              }
+            }
+          }
+        ) |>
+          rlang::set_names(names(new_data)) |>
+          purrr::compact()
+
+        changes
+
+      })
+
+      shiny::observe({
+        shiny::req(changes())
+        num_changes <- length(changes())
+        cli::cli_alert_info("{.field {num_changes}} changes detected in the Property Summary.")
+        cli::cli_alert_info(changes())
+      })
+
+      # changes preview UI
+      output$changes_preview <- shiny::renderUI({
+        shiny::req(changes())
+
+        changes_data <- changes()
+
+        if (length(changes_data) == 0) {
+          return(htmltools::tags$p("No changes detected.", class = "text-muted"))
+        }
+
+        changes_ui <- lapply(names(changes_data), function(field) {
+          htmltools::tags$div(
+            htmltools::tags$p(
+              htmltools::tags$strong(
+                paste0(
+                  tools::toTitleCase(
+                    gsub("_", " ", field)
+                  ),
+                  ":"
+                )
+              ),
+              htmltools::tags$span(
+                paste(
+                  "Current:",
+                  changes_data[[field]]$old
+                ),
+                style = "color: #666;"
+              ),
+              htmltools::tags$span(
+                "→",
+                style = "margin: 0 10px;"
+              ),
+              htmltools::tags$span(
+                paste(
+                  "New:",
+                  changes_data[[field]]$new
+                ),
+                style = "color: #007bff;"
+              )
+            )
+          )
+        })
+        do.call(htmltools::tagList, changes_ui)
+      })
+
       # save --------------------------------------------------------------------
       shiny::observeEvent(input$save, {
         shiny::req(changes())
@@ -698,65 +872,7 @@ mod_survey_property_summary_server <- function(
         shiny::removeModal()
       })
 
-      # changes -----------------------------------------------------------------
-      changes <- shiny::reactive({
-        shiny::req(property_data())
 
-        new_values <- list(
-          property_name = input$property_name_input,
-          property_website = input$website_input,
-          property_address = input$address_input,
-          property_email = input$email_input,
-          property_phone = input$phone_input,
-          property_developer = input$developer_input,
-          property_manager = input$manager_input,
-          property_owner = input$owner_input,
-          property_type = input$type_input,
-          property_rating = input$rating_input,
-          property_status = input$status_input,
-          comp_status = input$comp_status_input,
-          year_built = input$year_built_input,
-          most_recent_sale = input$last_sale_input,
-          distance_from_campus = input$distance_input,
-          property_image_url = input$image_url_input,
-          property_description = input$description_input
-        )
-
-        modified <- list()
-
-        for (field in names(new_values)) {
-          if (!is.null(new_values[[field]]) && new_values[[field]] != property_data()[[field]]) {
-            modified[[field]] <- list(
-              old = property_data()[[field]],
-              new = new_values[[field]]
-            )
-          }
-        }
-
-        modified
-      })
-
-      output$changes_preview <- shiny::renderUI({
-        shiny::req(changes())
-        if (length(changes()) == 0) {
-          return(htmltools::tags$p("No changes detected.", class = "text-muted"))
-        }
-
-        change_list <- lapply(names(changes()), function(field) {
-          old_val <- changes()[[field]]$old
-          new_val <- changes()[[field]]$new
-          htmltools::tags$div(
-            htmltools::tags$p(
-              htmltools::tags$strong(paste0(tools::toTitleCase(gsub("_", " ", field)), ":")),
-              htmltools::tags$span(paste("Current:", old_val), class = "text-muted"),
-              htmltools::tags$span(" → ", style = "margin: 0 10px;"),
-              htmltools::tags$span(paste("New:", new_val), class = "text-primary fw-bold")
-            )
-          )
-        })
-
-        do.call(htmltools::tagList, change_list)
-      })
 
       # # enable "Save" button only if changes exist
       # shiny::observe({
@@ -809,10 +925,11 @@ mod_survey_property_summary_server <- function(
 
 #' @rdname mod_survey_property_summary
 #' @export
-#' @importFrom pkgload load_all
-#' @importFrom bslib page_navbar nav_panel
 #' @importFrom bsicons bs_icon
-#' @importFrom shiny shinyApp
+#' @importFrom bslib page_navbar nav_spacer nav_panel
+#' @importFrom pkgload load_all
+#' @importFrom shiny actionButton icon reactive reactiveValues isolate reactiveVal shinyApp
+#' @importFrom shinyjs useShinyjs
 mod_survey_property_summary_demo <- function(pool = NULL) {
   pkgload::load_all()
 
