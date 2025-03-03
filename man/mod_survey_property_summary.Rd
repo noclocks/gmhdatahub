@@ -25,6 +25,16 @@ mod_survey_property_summary_demo(pool = NULL)
 \item{id}{Module's namespace ID.}
 
 \item{pool}{Database connection pool.}
+
+\item{survey_data}{Reactive data for the survey.}
+
+\item{map_data}{Reactive data for the map.}
+
+\item{selected_filters}{Reactive data for the selected filters.}
+
+\item{db_trigger_func}{Reactive Function to trigger database updates.}
+
+\item{edit_survey_section}{Reactive Function representing the action button to edit the survey section.}
 }
 \value{
 \itemize{
@@ -34,7 +44,7 @@ mod_survey_property_summary_demo(pool = NULL)
 }
 }
 \description{
-A Shiny Module for the GMH Data Hub's Survey Property Summary page.
+A Shiny Module for the Market Survey's Property Summary Section.
 
 Includes the following functions:
 \itemize{
