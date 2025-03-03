@@ -25,17 +25,21 @@
 #' gmh_colors("primary", "secondary")
 gmh_colors <- function(...) {
   colors <- c(
-    primary = "#0e2b4c",
-    secondary = "#6c757d",
+    primary = "#063C6C",
+    secondary = "#0E2B4C",
     success = "#28a745",
-    danger = "#dc3545",
+    danger = "#B22222",
     warning = "#ffc107",
-    info = "#17a2b8",
-    light = "#f8f9fa",
-    dark = "#343a40",
+    info = "#6BD3D0",
+    neutral = "#95A5A6",
+    light = "#f5f5f5",
+    dark = "#031633",
     white = "#ffffff",
     black = "#000000",
-    gray = "#6c757d"
+    gray = "#6c757d",
+    orange = "#E74C3C",
+    dark_gray = "#2c3e50",
+    royal_blue = "#1e4d92"
   )
   dots <- list(...)
   if (length(dots) == 0) {
@@ -61,17 +65,18 @@ gmh_colors <- function(...) {
 #' @examples
 #' chart_colors("primary", "secondary")
 chart_colors <- function(...) {
+
   colors <- c(
     "primary" = "#0e2b4c",
     "secondary" = "#18BC9C",
     "tertiary" = "#86a5b1",
     "accent1" = "#f8b400",
     "accent2" = "#f78e69",
-    "accent3" = "#2a9d8f",
+    "accent3" = "#a8dadc",
     "accent4" = "#e76f51",
     "accent5" = "#264653",
     "accent6" = "#457b9d",
-    "accent7" = "#a8dadc",
+    "accent7" = "#2a9d8f",
     "accent8" = "#f4a261",
     "accent9" = "#e9c46a",
     "accent10" = "#f4a261"
@@ -83,6 +88,9 @@ chart_colors <- function(...) {
     return(colors)
   } else {
     requested_colors <- unlist(dots)
+    if (length(requested_colors) > length(colors)) {
+      colors <- rep(colors, length.out = length(requested_colors))
+    }
     return(unname(unlist(colors[requested_colors])))
   }
 }
@@ -107,7 +115,25 @@ chart_colors <- function(...) {
 #' @seealso [preview_app_theme()] to preview the theme.
 #'
 #' @importFrom bslib bs_theme
-app_theme_ui <- function(preset = "shiny", ...) {
+app_theme_ui <- function(preset = "bootstrap", ...) {
+
+  accordion_rules <- glue::glue(
+    .open = "{{",
+    .close = "}}",
+    "/* Styles for the open (expanded) accordion panel */
+      .accordion-button:not(.collapsed) {
+        background-color: {{gmh_colors('primary')}};
+        color: #ffffff;
+        font-weight: bold;
+      }
+
+      /* Styles for the collapsed accordion panels */
+      .accordion-button {
+        background-color: {{gmh_colors('light')}};
+        color: #000000;
+      }"
+    )
+
   bslib::bs_theme(
     version = 5,
     preset = preset,
@@ -124,7 +150,8 @@ app_theme_ui <- function(preset = "shiny", ...) {
     light = gmh_colors("light"),
     dark = gmh_colors("dark"),
     ...
-  )
+  ) |>
+    bslib::bs_add_rules(accordion_rules)
 }
 
 #' Preview App Theme
@@ -171,7 +198,6 @@ reactable_theme <- function(...) {
     stripedColor = "#f6f8fa",
     highlightColor = "#e8eef7",
     style = list(fontSize = "0.8rem"),
-    searchInputStyle = list(width = "100%"),
     headerStyle = reactable_header_style(),
     groupHeaderStyle = reactable_header_groups_style(),
     footerStyle = reactable_footer_style(),

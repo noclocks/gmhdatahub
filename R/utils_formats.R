@@ -1,3 +1,36 @@
+
+format_status <- function(value) {
+  class <- paste0("badge status-", tolower(value))
+  htmltools::tags$div(class = class, value)
+}
+
+status_badge <- function(color = "#aaa", width = "0.55rem", height = width) {
+  htmltools::tags$span(style = list(
+    display = "inline-block",
+    marginRight = "0.5rem",
+    width = width,
+    height = height,
+    backgroundColor = color,
+    borderRadius = "50%"
+  ))
+}
+
+rating_stars <- function(rating, max_rating = 5) {
+  star_icon <- function(empty = FALSE) {
+    htmltools::tagAppendAttributes(
+      shiny::icon("star"),
+      style = paste("color:", if (empty) "#edf0f2" else "orange"),
+      "aria-hidden" = "true"
+    )
+  }
+  rounded_rating <- floor(rating + 0.5)  # always round up
+  stars <- lapply(seq_len(max_rating), function(i) {
+    if (i <= rounded_rating) star_icon() else star_icon(empty = TRUE)
+  })
+  label <- sprintf("%s out of %s stars", rating, max_rating)
+  htmltools::tags$div(title = label, role = "img", stars)
+}
+
 format_boolean <- function(value) {
   if (is.null(value) || is.na(value)) {
     return("N/A")

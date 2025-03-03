@@ -28,7 +28,9 @@
 check_db_conn <- function(
     conn,
     arg = rlang::caller_arg(conn),
-    call = rlang::caller_env()) {
+    call = rlang::caller_env()
+) {
+
   is_dbi <- inherits(conn, "PqConnection")
   is_pool <- inherits(conn, "Pool")
   is_rstudio_conn <- inherits(conn, "connConnection")

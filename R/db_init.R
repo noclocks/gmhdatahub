@@ -1,3 +1,14 @@
+
+#  ------------------------------------------------------------------------
+#
+# Title : Database Initialization
+#    By : Jimmy Briggs
+#  Date : 2025-03-02
+#
+#  ------------------------------------------------------------------------
+
+
+
 db_read_sql_file <- function(sql_file) {
   readr::read_file(sql_file) |>
     purrr::pluck(1) |>

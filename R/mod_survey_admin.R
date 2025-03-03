@@ -238,7 +238,9 @@ mod_survey_admin_server <- function(
     id,
     pool = NULL,
     global_filters = NULL,
-    navigate = NULL) {
+    navigate = NULL
+) {
+
   # validation of reactives
   if (!is.null(global_filters)) {
     stopifnot(shiny::is.reactive(global_filters))

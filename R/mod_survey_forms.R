@@ -38,9 +38,10 @@ NULL
 
 #' @rdname mod_survey_forms
 #' @export
-#' @importFrom shiny NS
-#' @importFrom htmltools tagList tags
-#' @importFrom bslib card
+#' @importFrom bsicons bs_icon
+#' @importFrom bslib page_fluid navset_card_underline sidebar nav_panel nav_spacer nav_item
+#' @importFrom htmltools tagList
+#' @importFrom shiny NS selectizeInput dateInput actionButton icon
 mod_survey_forms_ui <- function(id) {
   ns <- shiny::NS(id)
 
@@ -160,8 +161,9 @@ mod_survey_forms_ui <- function(id) {
 
 #' @rdname mod_survey_forms
 #' @export
-#' @importFrom shiny moduleServer reactive
-#' @importFrom cli cat_rule
+#' @importFrom cli cat_rule cli_alert_info cli_alert_success
+#' @importFrom shiny moduleServer reactiveValues reactiveVal observeEvent updateSelectizeInput req observe reactive
+#' @importFrom shiny bindEvent withProgress incProgress setProgress showNotification
 mod_survey_forms_server <- function(
     id,
     pool = NULL) {
@@ -194,7 +196,7 @@ mod_survey_forms_server <- function(
 
       # property ID & name
       shiny::observeEvent(input$property, {
-        prop_id <- input$property
+        prop_id <- as.integer(input$property)
         prop_name <- get_property_name_by_id(input$property)
         selected_filters$property_id <- prop_id
         selected_filters$property_name <- prop_name
@@ -312,6 +314,7 @@ mod_survey_forms_server <- function(
         leasing_summary = NULL,
         short_term_leases = NULL,
         fees = NULL,
+        fee_structures = NULL,
         property_amenities = NULL,
         unit_amenities = NULL,
         unit_amenities_rates_premiums = NULL,
@@ -329,13 +332,18 @@ mod_survey_forms_server <- function(
       })
 
       # database data -----------------------------------------------------------
+
+      # setup db_refresh_trigger reactive value for session
       session$userData$db_refresh_trigger <- shiny::reactiveVal(0)
+
+      # create db_trigger function to increment db_refresh_trigger and to pass to section modules
       db_trigger <- function() {
         session$userData$db_refresh_trigger(
           session$userData$db_refresh_trigger() + 1
         )
       }
 
+      # observe db_refresh_trigger to trigger db_read_survey_data for refreshing database data across sections
       shiny::observe({
         session$userData$db_refresh_trigger()
         prop_id <- selected_filters$property_id
@@ -374,6 +382,11 @@ mod_survey_forms_server <- function(
               property_id = prop_id,
               competitor_id = comp_id,
               leasing_week_id = week_id
+            )
+            survey_data$fee_structures <- db_read_survey_fee_structures(
+              pool,
+              property_id = prop_id,
+              competitor_id = comp_id
             )
             shiny::incProgress(1 / 13, detail = "Retrieving Property Amenities Data...")
             survey_data$property_amenities <- db_read_survey_property_amenities(
@@ -506,7 +519,10 @@ mod_survey_forms_server <- function(
         pool = pool,
         survey_data = survey_data,
         selected_filters = selected_filters,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+        db_trigger_func = db_trigger,
+        edit_survey_section = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
       # parking
@@ -515,7 +531,10 @@ mod_survey_forms_server <- function(
         pool = pool,
         survey_data = survey_data,
         selected_filters = selected_filters,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+        db_trigger_func = db_trigger,
+        edit_survey_section = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
       # utilities
@@ -534,6 +553,7 @@ mod_survey_forms_server <- function(
         pool = pool,
         survey_data = survey_data,
         selected_filters = selected_filters,
+        db_trigger_func = db_trigger,
         edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
@@ -543,6 +563,7 @@ mod_survey_forms_server <- function(
         pool = pool,
         survey_data = survey_data,
         selected_filters = selected_filters,
+        db_trigger_func = db_trigger,
         edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
@@ -552,6 +573,7 @@ mod_survey_forms_server <- function(
         pool = pool,
         survey_data = survey_data,
         selected_filters = selected_filters,
+        db_trigger_func = db_trigger,
         edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
@@ -588,9 +610,9 @@ mod_survey_forms_server <- function(
 
 #' @rdname mod_survey_forms
 #' @export
-#' @importFrom pkgload load_all
-#' @importFrom bslib page_navbar nav_panel
 #' @importFrom bsicons bs_icon
+#' @importFrom bslib page_navbar nav_spacer nav_panel
+#' @importFrom pkgload load_all
 #' @importFrom shiny shinyApp
 mod_survey_forms_demo <- function(pool = NULL) {
   pkgload::load_all()

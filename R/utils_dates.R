@@ -118,8 +118,9 @@ NULL
 #'
 #' @export
 create_leasing_calendar <- function(start_year = 2023, num_years = 3) {
+
   leasing_season_end <- function(year) {
-    lubridate::ymd(paste0(year, "-08-01"))
+    lubridate::make_date(year, month = 9L, day = 1L)
   }
 
   leasing_season_start <- function(year) {
@@ -456,7 +457,7 @@ get_weekly_period <- function(as_of_date = Sys.Date()) {
   as_of_date <- coerce_date(as_of_date)
   start <- get_weekly_period_start_date(as_of_date)
   end <- as_of_date
-  list(start = start, end = end)
+  c(start, end)
 }
 
 #' @rdname weekly_period
@@ -582,6 +583,12 @@ utc_date <- function(str) {
 entrata_date <- function(date) {
   date <- coerce_date(date)
   format(date, format = "%m/%d/%Y")
+}
+
+#' @rdname date_formatting
+#' @export
+format_date_for_entrata <- function(date, format = "%m/%d/%Y") {
+  format(date, format) |> as.character()
 }
 
 #' @rdname date_formatting

@@ -37,7 +37,7 @@
 #' shiny::shinyApp(ui = app_ui, server = app_server)
 #'
 #' @importFrom bsicons bs_icon
-#' @importFrom bslib page_navbar nav_spacer nav_panel nav_menu nav_item input_dark_mode
+#' @importFrom bslib page_navbar nav_spacer nav_panel nav_menu nav_item input_dark_mode navbar_options
 #' @importFrom htmltools tagList tags
 #' @importFrom shiny icon textOutput actionLink
 app_ui <- function(req = NULL) {
@@ -58,7 +58,13 @@ app_ui <- function(req = NULL) {
       id = "nav",
       lang = "en",
       window_title = "GMH DataHub",
-      position = "static-top",
+      navbar_options = bslib::navbar_options(
+        class = "bg-light",
+        position = "static-top",
+        theme = "light",
+        collapsible = TRUE,
+        underline = TRUE
+      ),
       selected = "survey_forms",
       theme = app_theme_ui(),
       title = app_title_ui(),
@@ -66,86 +72,92 @@ app_ui <- function(req = NULL) {
       # header = app_header_ui(),
       # sidebar = app_sidebar_ui("sidebar"),
       bslib::nav_spacer(),
+      # bslib::nav_panel(
+      #   title = "Home",
+      #   value = "home",
+      #   icon = bsicons::bs_icon("house"),
+      #   mod_home_ui("home")
+      # ),
+      # bslib::nav_panel(
+      #   title = "Dashboard",
+      #   value = "dashboard",
+      #   icon = bsicons::bs_icon("speedometer2"),
+      #   mod_dashboard_ui("dashboard")
+      # ),
+      # bslib::nav_menu(
+      #   title = "Data",
+      #   value = "data",
+      #   icon = bsicons::bs_icon("database"),
+      #   bslib::nav_panel(
+      #     title = "Properties",
+      #     value = "properties",
+      #     icon = bsicons::bs_icon("buildings"),
+      #     mod_properties_ui("properties")
+      #   ),
+      #   bslib::nav_panel(
+      #     title = "Property Units",
+      #     value = "property_units",
+      #     icon = bsicons::bs_icon("door-open"),
+      #     mod_property_units_ui("property_units")
+      #   ),
+      #   bslib::nav_panel(
+      #     title = "Leases",
+      #     value = "leases",
+      #     icon = bsicons::bs_icon("file-earmark-text"),
+      #     mod_leases_ui("leases")
+      #   ),
+      #   bslib::nav_panel(
+      #     title = "Floorplans",
+      #     value = "floorplans",
+      #     icon = bsicons::bs_icon("file-earmark-image"),
+      #     mod_floorplans_ui("floorplans")
+      #   ),
+      #   bslib::nav_panel(
+      #     title = "Residents",
+      #     value = "residents",
+      #     icon = bsicons::bs_icon("people"),
+      #     mod_residents_ui("residents")
+      #   )
+      # ),
+      # bslib::nav_menu(
+      #   title = "Reports",
+      #   value = "reports",
+      #   icon = bsicons::bs_icon("file-earmark-text"),
+      #   bslib::nav_panel(
+      #     title = "Pre Lease",
+      #     value = "pre_lease",
+      #     icon = bsicons::bs_icon("file-check"),
+      #     mod_pre_lease_ui("pre_lease")
+      #   ),
+      #   bslib::nav_panel(
+      #     title = "Box Score",
+      #     value = "box_score",
+      #     icon = bsicons::bs_icon("file-earmark-bar-graph"),
+      #     mod_box_score_ui("box_score")
+      #   ),
+      #   bslib::nav_panel(
+      #     title = "Performance",
+      #     value = "performance",
+      #     icon = bsicons::bs_icon("graph-up-arrow"),
+      #     mod_performance_ui("performance")
+      #   )
+      # ),
       bslib::nav_panel(
-        title = "Home",
-        value = "home",
-        icon = bsicons::bs_icon("house"),
-        mod_home_ui("home")
-      ),
-      bslib::nav_panel(
-        title = "Dashboard",
-        value = "dashboard",
-        icon = bsicons::bs_icon("speedometer2"),
-        mod_dashboard_ui("dashboard")
-      ),
-      bslib::nav_menu(
-        title = "Data",
-        value = "data",
-        icon = bsicons::bs_icon("database"),
-        bslib::nav_panel(
-          title = "Properties",
-          value = "properties",
-          icon = bsicons::bs_icon("buildings"),
-          mod_properties_ui("properties")
-        ),
-        bslib::nav_panel(
-          title = "Property Units",
-          value = "property_units",
-          icon = bsicons::bs_icon("door-open"),
-          mod_property_units_ui("property_units")
-        ),
-        bslib::nav_panel(
-          title = "Leases",
-          value = "leases",
-          icon = bsicons::bs_icon("file-earmark-text"),
-          mod_leases_ui("leases")
-        ),
-        bslib::nav_panel(
-          title = "Floorplans",
-          value = "floorplans",
-          icon = bsicons::bs_icon("file-earmark-image"),
-          mod_floorplans_ui("floorplans")
-        ),
-        bslib::nav_panel(
-          title = "Residents",
-          value = "residents",
-          icon = bsicons::bs_icon("people"),
-          mod_residents_ui("residents")
-        )
-      ),
-      bslib::nav_menu(
-        title = "Reports",
-        value = "reports",
-        icon = bsicons::bs_icon("file-earmark-text"),
-        bslib::nav_panel(
-          title = "Pre Lease",
-          value = "pre_lease",
-          icon = bsicons::bs_icon("file-check"),
-          mod_pre_lease_ui("pre_lease")
-        ),
-        bslib::nav_panel(
-          title = "Box Score",
-          value = "box_score",
-          icon = bsicons::bs_icon("file-earmark-bar-graph"),
-          mod_box_score_ui("box_score")
-        ),
-        bslib::nav_panel(
-          title = "Performance",
-          value = "performance",
-          icon = bsicons::bs_icon("graph-up-arrow"),
-          mod_performance_ui("performance")
-        )
+        title = "Pre-Lease",
+        value = "pre_lease",
+        icon = bsicons::bs_icon("file-check"),
+        mod_pre_lease_ui("pre_lease")
       ),
       bslib::nav_menu(
         title = "Market Survey",
         value = "market_survey",
         icon = bsicons::bs_icon("clipboard-data"),
-        bslib::nav_panel(
-          title = "Survey Admin",
-          value = "survey_admin",
-          icon = bsicons::bs_icon("person-gear"),
-          mod_survey_admin_ui("survey_admin")
-        ),
+        # bslib::nav_panel(
+        #   title = "Survey Admin",
+        #   value = "survey_admin",
+        #   icon = bsicons::bs_icon("person-gear"),
+        #   mod_survey_admin_ui("survey_admin")
+        # ),
         bslib::nav_panel(
           title = "Survey Forms",
           value = "survey_forms",

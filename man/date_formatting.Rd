@@ -5,6 +5,7 @@
 \alias{coerce_date}
 \alias{http_date}
 \alias{entrata_date}
+\alias{format_date_for_entrata}
 \alias{parse_entrata_date}
 \title{Date Formatting and Coercion}
 \usage{
@@ -13,6 +14,8 @@ coerce_date(date)
 http_date(str)
 
 entrata_date(date)
+
+format_date_for_entrata(date, format = "\%m/\%d/\%Y")
 
 parse_entrata_date(date)
 }

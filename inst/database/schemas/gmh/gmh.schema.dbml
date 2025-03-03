@@ -13,6 +13,238 @@ TableGroup "GMH Schema" [color: #1E69FD] {
   '''
 }
 
+Table "gmh"."competitors" {
+  "competitor_id" INTEGER [pk, not null, increment, note: 'Unique identifier for the competitor.']
+  "competitor_name" TEXT [not null, note: 'Name of the competitor.']
+  "competitor_website" TEXT [note: 'Website for the competitor.']
+  "competitor_address" TEXT [note: 'Address for the competitor.']
+  "competitor_image_url" TEXT [note: 'URL for an image of the competitor.']
+  "property_id" INTEGER [not null, note: 'The property that the competitor is associated with.']
+  "created_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the competitor was created.']
+  "updated_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the competitor was last updated.']
+  Note: 'Competitors represent other apartment communities in the area.'
+}
+
+Table "gmh"."excel_reports" {
+  "report_id" INTEGER [pk, not null, increment]
+  "report_name" TEXT [not null]
+  "report_file_name" TEXT [not null]
+  "report_data" bytea [not null]
+  "report_version" INTEGER [default: 1]
+  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`]
+  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "gmh"."investment_partner_assignments" {
+  "gmh_property_id" INTEGER [not null]
+  "entrata_property_id" INTEGER
+  "partner_id" INTEGER [not null]
+  "partner_name" TEXT
+  "created_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`]
+  "updated_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (gmh_property_id, partner_id) [type: btree, name: "investment_partner_assignments_pkey"]
+  }
+}
+
+Table "gmh"."investment_partners" {
+  "partner_id" INTEGER [pk, not null, increment]
+  "partner_name" TEXT [not null]
+  "created_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "gmh"."leasing_calendar" {
+  "date_key" date [pk, not null, note: 'Date Key']
+  "calendar_year" INTEGER [not null, note: 'Calendar Year']
+  "leasing_year" INTEGER [not null, note: 'Leasing Year']
+  "pre_lease_year" INTEGER [not null, note: 'Pre-Lease Year']
+  "fiscal_year" INTEGER [not null, note: 'Fiscal Year']
+  "academic_year" TEXT [not null, note: 'Academic Year']
+  "calendar_week_number" INTEGER [not null, note: 'Calendar Week Number']
+  "leasing_season_start_date" date [not null, note: 'Leasing Season Start Date']
+  "leasing_season_end_date" date [not null, note: 'Leasing Season End Date']
+  "pre_lease_season_start_date" date [not null, note: 'Pre-Lease Season Start Date']
+  "leasing_week_start_date" date [not null, note: 'Leasing Week Start Date']
+  "leasing_week_end_date" date [not null, note: 'Leasing Week End Date']
+  "weekly_period_start_date" date [not null, note: 'Weekly Period Start Date']
+  "weekly_period_end_date" date [not null, note: 'Weekly Period End Date']
+  "leasing_week_number" INTEGER [not null, note: 'Leasing Week Number']
+  "leasing_weeks_left_to_lease" INTEGER [not null, note: 'Leasing Weeks Left to Lease']
+  "entrata_formatted_date" TEXT [not null, note: 'Entrata Formatted Date']
+  "http_date" TEXT [not null, note: 'HTTP Date']
+  "utc_date" TEXT [not null, note: 'UTC Date']
+  "is_current_leasing_season" bool [not null, note: 'Is Current Leasing Season']
+  "is_weekend" bool [not null, note: 'Is Weekend']
+  "is_holiday" bool [not null, note: 'Is Holiday']
+  "day_of_week" TEXT [not null, note: 'Day of Week']
+  "day_of_month" INTEGER [not null, note: 'Day of Month']
+  "day_of_year" numeric [not null, note: 'Day of Year']
+  "month_of_year" TEXT [not null, note: 'Month of Year']
+  "quarter_of_year" INTEGER [not null, note: 'Quarter of Year']
+
+  Indexes {
+    date_key [type: btree, name: "idx_leasing_calendar_date_key"]
+    leasing_season_end_date [type: btree, name: "idx_leasing_calendar_leasing_season_end_date"]
+    leasing_season_start_date [type: btree, name: "idx_leasing_calendar_leasing_season_start_date"]
+    leasing_week_end_date [type: btree, name: "idx_leasing_calendar_leasing_week_end_date"]
+    leasing_week_start_date [type: btree, name: "idx_leasing_calendar_leasing_week_start_date"]
+    pre_lease_season_start_date [type: btree, name: "idx_leasing_calendar_pre_lease_season_start_date"]
+    weekly_period_end_date [type: btree, name: "idx_leasing_calendar_weekly_period_end_date"]
+    weekly_period_start_date [type: btree, name: "idx_leasing_calendar_weekly_period_start_date"]
+  }
+  Note: 'Leasing Calendar'
+}
+
+Table "gmh"."locations" {
+  "location_id" INTEGER [pk, not null, increment, note: 'Unique identifier for the location.']
+  "location_name" TEXT [not null, note: 'Name of the location.']
+  "address" TEXT [not null, note: 'Street address of the location.']
+  "city" TEXT [not null, note: 'City of the location.']
+  "state" TEXT [not null, note: 'State of the location.']
+  "postal_code" TEXT [not null, note: 'Postal code of the location.']
+  "country" TEXT [not null, default: 'USA', note: 'Country of the location.']
+  "latitude" numeric(9,6) [note: 'Latitude of the location.']
+  "longitude" numeric(9,6) [note: 'Longitude of the location.']
+  "geom" public.geometry [note: 'PostGIS geometry point for the location.']
+  "phone_number" TEXT [note: 'Phone number of the location.']
+  "email" TEXT [note: 'Email address of the location.']
+  "website" TEXT [note: 'Website URL of the location.']
+  "image_url" TEXT [note: 'Image URL of the location.']
+  "rating" numeric(2,1) [note: 'Rating of the location.']
+  "gmaps_url" TEXT [note: 'Google Maps URL of the location.']
+  "gmaps_place_id" TEXT [note: 'Google Maps Place ID of the location.']
+  "gmaps_rating" numeric(2,1) [note: 'Google Maps rating of the location.']
+  "gmaps_reviews_count" INTEGER [note: 'Google Maps reviews count of the location.']
+  "map_layer" TEXT [note: 'Map layer of the location.']
+  "map_marker_icon" TEXT [note: 'Map marker icon of the location.']
+  "map_marker_color" TEXT [note: 'Map marker color of the location.']
+  "map_popup_html" TEXT [note: 'Map popup HTML of the location.']
+  "is_active" bool [not null, default: true, note: 'Is the location active?']
+  "created_at" TIMESTAMPTZTZ [not null, default: `now()`, note: 'TIMESTAMPTZ when the location was created.']
+  "updated_at" TIMESTAMPTZTZ [not null, default: `now()`, note: 'TIMESTAMPTZ when the location was last updated.']
+  Note: 'Locations consolidated into a central table for all address/coordinate data.'
+}
+
+Table "gmh"."model_beds" {
+  "property_id" INTEGER [pk, not null, note: 'Property ID for the model beds.']
+  "model_bed_count" INTEGER [default: 0, note: 'Number of model beds for the property.']
+  "notes" TEXT [default: '', note: 'Notes for the model beds.']
+  "updated_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the model beds were last updated.']
+  Note: 'Model beds represent the number of beds representing models for each property.'
+}
+
+Table "gmh"."partners" {
+  "partner_id" INTEGER [pk, not null, increment, note: 'Unique identifier for the partner.']
+  "partner_name" TEXT [not null, note: 'Name of the partner.']
+  "partner_type" TEXT [not null, default: 'Equity Partner', note: 'Type of partner (Equity Partner or Owner).']
+  "partner_description" TEXT [default: 'No Description', note: 'Description of the partner.']
+  "partner_website" TEXT [note: 'URL for the partner.']
+  "tenant_id" uuid [note: 'Tenant ID for the partner.']
+  "created_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the partner was created.']
+  "updated_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the partner was last updated.']
+  Note: 'Partners represent external (or internal) investment or ownership entities.'
+}
+
+Table "gmh"."portfolio_types" {
+  "portfolio_type_id" INTEGER [pk, not null, increment, note: 'Unique Identifier for the portfolio type.']
+  "portfolio_type" varchar(255) [not null, note: 'Name of the portfolio type.']
+  "created_at" TIMESTAMPTZ [default: `now()`, note: 'TIMESTAMPTZ this record was created.']
+  "updated_at" TIMESTAMPTZ [default: `now()`, note: 'TIMESTAMPTZ this record was last updated.']
+  Note: 'Stores various types of portfolios at GMH. Used by the gmh.portfolios table.'
+}
+
+Table "gmh"."portfolios" {
+  "portfolio_id" INTEGER [pk, not null, increment, note: 'Unique identifier for the portfolio.']
+  "portfolio_name" TEXT [unique, not null, note: 'Name of the portfolio.']
+  "portfolio_full_name" TEXT
+  "portfolio_type" TEXT [not null, default: 'Equity Partner', note: 'Type of portfolio (Equity Partner or Owner).']
+  "portfolio_description" TEXT [default: 'No Description', note: 'Description of the portfolio.']
+  "portfolio_status" TEXT [default: 'Active', note: 'Status of the portfolio.']
+  "portfolio_website" TEXT [note: 'URL for the portfolio.']
+  "portfolio_logo_url" TEXT [note: 'Logo URL for the portfolio.']
+  "portfolio_icon_url" TEXT [note: 'Icon URL for the portfolio.']
+  "partner_id" INTEGER [not null, note: 'Partner ID for the portfolio.']
+  "created_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the portfolio was created.']
+  "updated_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the portfolio was last updated.']
+  Note: 'Portfolios represent a collection of properties owned or managed by a partner.'
+}
+
+Table "gmh"."pre_lease_summary" {
+  "report_date" date
+  "property_id" INTEGER
+  "property_name" TEXT
+  "investment_partner" TEXT
+  "total_beds" INTEGER
+  "model_beds" INTEGER
+  "current_occupied" INTEGER
+  "current_occupancy" float8
+  "current_total_new" INTEGER
+  "current_total_renewals" INTEGER
+  "current_total_leases" INTEGER
+  "current_preleased_percent" float8
+  "prior_total_new" INTEGER
+  "prior_total_renewals" INTEGER
+  "prior_total_leases" INTEGER
+  "prior_preleased_percent" float8
+  "yoy_variance_count" INTEGER
+  "yoy_variance_percent" float8
+  "weekly_new" INTEGER
+  "weekly_renewal" INTEGER
+  "weekly_total" INTEGER
+  "weekly_percent_gained" float8
+  "beds_left" INTEGER
+  "vel_90" float8
+  "vel_95" float8
+  "vel_100" float8
+}
+
+Table "gmh"."properties" {
+  "property_id" INTEGER [pk, not null, note: 'Unique identifier for the property.']
+  "property_name" TEXT [not null, note: 'Name of the property.']
+  "parent_property_id" INTEGER [note: 'Reference to the parent property, if applicable.']
+  "property_type" TEXT [not null, default: 'Apartment', note: 'Type of property (e.g. Apartment, Condo, etc.).']
+  "property_status" TEXT [not null, default: 'Active', note: 'Status of the property (e.g. Active, Inactive, etc.).']
+  "property_website" TEXT [note: 'Website for the property.']
+  "property_email" TEXT [note: 'Email address for the property.']
+  "property_phone_number" TEXT [note: 'Phone number for the property.']
+  "property_address" TEXT [note: 'Address for the property.']
+  "property_description" TEXT [note: 'Description of the property.']
+  "portfolio_id" INTEGER [not null, note: 'Reference to the portfolio that the property belongs to.']
+  "partner_id" INTEGER [not null, note: 'Reference to the partner that the property belongs to.']
+  "created_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the property was created.']
+  "updated_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the property was last updated.']
+  Note: 'Properties represent individual apartment communities.'
+}
+
+
+
+Table "gmh"."universities" {
+  "university_id" INTEGER [pk, not null, increment, note: 'Unique identifier for the university.']
+  "university_name" TEXT [not null, note: 'Name of the university.']
+  "university_address" TEXT [not null, note: 'Address of the university.']
+  "university_url" TEXT [note: 'URL for the university.']
+  "property_id" INTEGER [not null, note: 'Property ID for the university.']
+  "location_id" INTEGER [note: 'Location ID for the university.']
+  "created_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the university was created.']
+  "updated_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the university was last updated.']
+  Note: 'Universities represent local colleges or universities.'
+}
+
+Table "gmh"."segments" {
+  "segment_id" INTEGER [pk, not null, increment, note: 'Unique identifier for the segment.']
+  "segment_name" TEXT [unique, not null, note: 'Name of the segment.']
+  "segment_description" TEXT [note: 'Description of the segment.']
+  "segment_url" TEXT [note: 'URL for the segment.']
+  "segment_logo_url" TEXT [note: 'Logo URL for the segment.']
+  "segment_banner_url" TEXT [note: 'Banner URL for the segment.']
+  "created_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the segment was created.']
+  "updated_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the segment was last updated.']
+  Note: 'Segments represent high-level GMH business units or divisions.'
+}
+
+####
+
 Table "gmh"."segments" {
   "segment_id" INTEGER [pk, increment, note: 'Unique identifier for the segment.']
   "segment_name" TEXT [unique, not null, note: 'Name of the segment.']
@@ -20,7 +252,7 @@ Table "gmh"."segments" {
   "segment_url" TEXT [note: 'URL for the segment.']
   "segment_logo_url" TEXT [note: 'Logo URL for the segment.']
   "segment_banner_url" TEXT [note: 'Banner URL for the segment.']
-  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the segment was created.']
+  "created_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the segment was created.']
   Note: 'Segments represent high-level GMH business units or divisions.'
 }
 
@@ -30,8 +262,8 @@ Table "gmh"."partners" {
   "partner_type" TEXT [not null, default: 'Equity Partner', note: 'Type of partner (Equity Partner or Owner).']
   "partner_description" TEXT [default: 'No Description', note: 'Description of the partner.']
   "partner_url" TEXT [note: 'URL for the partner.']
-  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the partner was created.']
-  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the partner was last updated.']
+  "created_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the partner was created.']
+  "updated_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the partner was last updated.']
   Note: 'Partners represent external (or internal) investment or ownership entities.'
 }
 
@@ -42,8 +274,8 @@ Table "gmh"."portfolios" {
   "portfolio_description" TEXT [default: 'No Description', note: 'Description of the portfolio.']
   "segment_id" INT [not null, note: 'Segment ID for the portfolio.']
   "partner_id" INT [not null, note: 'Partner ID for the portfolio.']
-  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the portfolio was created.']
-  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the portfolio was last updated.']
+  "created_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the portfolio was created.']
+  "updated_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the portfolio was last updated.']
   Note: 'Portfolios represent a collection of properties owned or managed by a partner.'
 }
 
@@ -73,8 +305,8 @@ Table "gmh"."locations" {
   "map_marker_color" TEXT [note: 'Map marker color of the location.']
   "map_popup_html" TEXT [note: 'Map popup HTML of the location.']
   "is_active" BOOLEAN [not null, default: TRUE, note: 'Is the location active?']
-  "created_at" TIMESTAMPTZ [not null, default: `NOW()`, note: 'Timestamp when the location was created.']
-  "updated_at" TIMESTAMPTZ [not null, default: `NOW()`, note: 'Timestamp when the location was last updated.']
+  "created_at" TIMESTAMPTZTZ [not null, default: `NOW()`, note: 'TIMESTAMPTZ when the location was created.']
+  "updated_at" TIMESTAMPTZTZ [not null, default: `NOW()`, note: 'TIMESTAMPTZ when the location was last updated.']
   Note: 'Locations consolidated into a central table for all address/coordinate data.'
 }
 
@@ -88,8 +320,8 @@ Table "gmh"."properties" {
   "is_active" BOOLEAN [default: TRUE, note: 'Is the property active?']
   "portfolio_id" INT [not null, note: 'Portfolio ID for the property.']
   "location_id" INT [not null, note: 'Location ID for the property.']
-  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the property was created.']
-  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the property was last updated.']
+  "created_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the property was created.']
+  "updated_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the property was last updated.']
   Note: 'Properties represent individual apartment communities.'
 }
 
@@ -99,8 +331,8 @@ Table "gmh"."competitors" {
   "competitor_url" TEXT [note: 'URL for the competitor.']
   "property_id" INTEGER [not null, note: 'Property ID for the competitor.']
   "location_id" INTEGER [note: 'Location ID for the competitor.']
-  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the competitor was created.']
-  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the competitor was last updated.']
+  "created_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the competitor was created.']
+  "updated_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the competitor was last updated.']
   Note: 'Competitors represent other apartment communities in the area.'
 }
 
@@ -111,8 +343,8 @@ Table "gmh"."universities" {
   "university_url" TEXT [note: 'URL for the university.']
   "property_id" INT [not null, note: 'Property ID for the university.']
   "location_id" INT [note: 'Location ID for the university.']
-  "created_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the university was created.']
-  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the university was last updated.']
+  "created_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the university was created.']
+  "updated_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the university was last updated.']
   Note: 'Universities represent local colleges or universities.'
 }
 
@@ -120,7 +352,7 @@ Table "gmh"."model_beds" {
   "property_id" INTEGER [pk, note: 'Property ID for the model beds.']
   "model_bed_count" INT [default: 0, note: 'Number of model beds for the property.']
   "notes" TEXT [note: 'Notes for the model beds.']
-  "updated_at" TIMESTAMPTZ [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the model beds were last updated.']
+  "updated_at" TIMESTAMPTZTZ [default: `CURRENT_TIMESTAMP`, note: 'TIMESTAMPTZ when the model beds were last updated.']
   Note: 'Model beds represent the number of beds representing models for each property.'
 }
 

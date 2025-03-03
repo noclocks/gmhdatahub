@@ -314,10 +314,10 @@ db_read_survey_property_summary <- function(
 
 db_read_survey_leasing_summary <- function(
     pool,
-    survey_id = NULL,
     property_id = NULL,
     competitor_id = NULL,
     leasing_week_id = NULL,
+    survey_id = NULL,
     collect = TRUE
 ) {
 
@@ -333,24 +333,101 @@ db_read_survey_leasing_summary <- function(
     }
   }
 
+  hold_filt <- hold
+
   if (!is.null(competitor_id)) {
-    hold <- dplyr::filter(hold, .data$competitor_id == .env$competitor_id)
+    hold_filt <- dplyr::filter(hold_filt, .data$competitor_id == .env$competitor_id)
   } else {
-    hold <- dplyr::filter(hold, .data$property_id == .env$property_id)
+    if (!is.null(property_id)) {
+      hold_filt <- dplyr::filter(hold_filt, .data$property_id == as.integer(.env$property_id))
+    }
   }
 
+  available_leasing_weeks <- hold_filt |>
+    dplyr::collect() |>
+    dplyr::pull("leasing_week_id") |>
+    unique()
+
+  max_available_leasing_week <- max(available_leasing_weeks, na.rm = TRUE)
+
   if (!is.null(leasing_week_id)) {
-    hold <- dplyr::filter(hold, .data$leasing_week_id == .env$leasing_week_id)
+    if (!leasing_week_id %in% available_leasing_weeks) {
+      cli::cli_alert_warning(
+        c(
+          "[db_read_survey_leasing_summary()]: ",
+          "No data found for the specified leasing week id: {.field {leasing_week_id}}. ",
+          "Returning data for the latest leasing week ID: {.field {max_available_leasing_week}}"
+        )
+      )
+      hold_filt <- hold |>
+        dplyr::filter(
+          .data$leasing_week_id == max(.data$leasing_week_id, na.rm = TRUE)
+        )
+    } else {
+      hold_filt <- dplyr::filter(hold_filt, .data$leasing_week_id == as.integer(.env$leasing_week_id))
+    }
   }
 
   if (!is.null(survey_id)) {
-    hold <- dplyr::filter(hold, .data$survey_id == .env$survey_id)
+    hold_filt <- dplyr::filter(hold_filt, .data$survey_id == as.integer(.env$survey_id))
   }
 
   if (collect) {
-    return(dplyr::collect(hold))
+    return(dplyr::collect(hold_filt))
   } else {
-    return(hold)
+    return(hold_filt)
+  }
+}
+
+db_read_survey_rents_by_floorplan <- function(
+    pool,
+    property_id = NULL,
+    competitor_id = NULL,
+    leasing_week_id = NULL,
+    collect = TRUE
+) {
+
+  check_db_pool(pool)
+
+  hold <- db_read_tbl(pool, "survey.rents_by_floorplan", collect = FALSE)
+
+  if (is.null(property_id) && is.null(competitor_id) && is.null(leasing_week_id)) {
+    if (collect) {
+      return(dplyr::collect(hold))
+    } else {
+      return(hold)
+    }
+  }
+
+  hold_filt <- hold
+
+  if (!is.null(competitor_id)) {
+    hold_filt <- dplyr::filter(hold, .data$competitor_id == .env$competitor_id)
+  } else {
+    hold_filt <- dplyr::filter(hold, .data$property_id == .env$property_id)
+  }
+
+  if (!is.null(leasing_week_id)) {
+    hold_filt <- dplyr::filter(hold, .data$leasing_week_id == .env$leasing_week_id)
+    if (nrow(dplyr::collect(hold_filt)) == 0) {
+      cli::cli_alert_warning(
+        c(
+          "[db_read_survey_rents_by_floorplan()]: ",
+          "No data found for the specified leasing week id: {.field {leasing_week_id}}",
+          "Returning data for the latest leasing week id."
+        )
+      )
+      hold_filt <- hold |>
+        dplyr::filter(
+          .data$leasing_week_id == max(.data$leasing_week_id, na.rm = TRUE)
+        )
+    }
+  }
+
+  if (collect) {
+    return(dplyr::collect(hold_filt))
+  } else {
+    return(hold_filt)
   }
 }
 
@@ -359,7 +436,6 @@ db_read_survey_short_term_leases <- function(
     property_id = NULL,
     competitor_id = NULL,
     leasing_week_id = NULL,
-    property_name = NULL,
     collect = TRUE
 ) {
 
@@ -367,15 +443,7 @@ db_read_survey_short_term_leases <- function(
 
   hold <- db_read_tbl(pool, "survey.short_term_leases", collect = FALSE)
 
-  filters <- list(
-    property_id = property_id,
-    competitor_id = competitor_id,
-    leasing_week_id = leasing_week_id,
-    property_name = property_name
-  ) |>
-    purrr::compact()
-
-  if (length(filters) == 0) {
+  if (is.null(property_id) && is.null(competitor_id) && is.null(leasing_week_id)) {
     if (collect) {
       return(dplyr::collect(hold))
     } else {
@@ -383,18 +451,45 @@ db_read_survey_short_term_leases <- function(
     }
   }
 
-  hold_filtered <- purrr::reduce(
-    names(filters),
-    function(acc, col) {
-      dplyr::filter(acc, !!rlang::sym(col) == !!filters[[col]])
-    },
-    .init = hold
-  )
+  hold_filt <- hold
+
+  if (!is.null(competitor_id)) {
+    hold_filt <- dplyr::filter(hold_filt, .data$competitor_id == .env$competitor_id)
+  } else {
+    if (!is.null(property_id)) {
+      hold_filt <- dplyr::filter(hold_filt, .data$property_id == as.integer(.env$property_id))
+    }
+  }
+
+  available_leasing_weeks <- hold_filt |>
+    dplyr::collect() |>
+    dplyr::pull("leasing_week_id") |>
+    unique()
+
+  max_available_leasing_week <- max(available_leasing_weeks, na.rm = TRUE)
+
+  if (!is.null(leasing_week_id)) {
+    if (!leasing_week_id %in% available_leasing_weeks) {
+      cli::cli_alert_warning(
+        c(
+          "[db_read_survey_short_term_leases()]: ",
+          "No data found for the specified leasing week id: {.field {leasing_week_id}}. ",
+          "Returning data for the latest leasing week ID: {.field {max_available_leasing_week}}"
+        )
+      )
+      hold_filt <- hold_filt |>
+        dplyr::filter(
+          .data$leasing_week_id == max(.data$leasing_week_id, na.rm = TRUE)
+        )
+    } else {
+      hold_filt <- dplyr::filter(hold_filt, .data$leasing_week_id == as.integer(.env$leasing_week_id))
+    }
+  }
 
   if (collect) {
-    return(dplyr::collect(hold_filtered))
+    return(dplyr::collect(hold_filt))
   } else {
-    return(hold_filtered)
+    return(hold_filt)
   }
 }
 
@@ -403,21 +498,14 @@ db_read_survey_fees <- function(
     property_id = NULL,
     competitor_id = NULL,
     leasing_week_id = NULL,
-    property_name = NULL,
-    collect = TRUE) {
+    collect = TRUE
+) {
+
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.fees", collect = FALSE)
 
-  filters <- list(
-    property_id = property_id,
-    competitor_id = competitor_id,
-    leasing_week_id = leasing_week_id,
-    property_name = property_name
-  ) |>
-    purrr::compact()
-
-  if (length(filters) == 0) {
+  if (is.null(property_id) && is.null(competitor_id) && is.null(leasing_week_id)) {
     if (collect) {
       return(dplyr::collect(hold))
     } else {
@@ -425,19 +513,82 @@ db_read_survey_fees <- function(
     }
   }
 
-  hold_filtered <- purrr::reduce(
-    names(filters),
-    function(acc, col) {
-      dplyr::filter(acc, !!rlang::sym(col) == !!filters[[col]])
-    },
-    .init = hold
-  )
+  hold_filt <- hold
+
+  if (!is.null(competitor_id)) {
+    hold_filt <- dplyr::filter(hold_filt, .data$competitor_id == as.integer(.env$competitor_id))
+  } else {
+    if (!is.null(property_id)) {
+      hold_filt <- dplyr::filter(hold_filt, .data$property_id == as.integer(.env$property_id))
+    }
+  }
+
+  available_leasing_weeks <- hold_filt |>
+    dplyr::collect() |>
+    dplyr::pull("leasing_week_id") |>
+    unique()
+
+  max_available_leasing_week <- max(available_leasing_weeks, na.rm = TRUE)
+
+  if (!is.null(leasing_week_id)) {
+    if (!leasing_week_id %in% available_leasing_weeks) {
+      cli::cli_alert_warning(
+        c(
+          "[db_read_survey_fees()]: ",
+          "No data found for the specified leasing week id: {.field {leasing_week_id}}. ",
+          "Returning data for the latest leasing week ID: {.field {max_available_leasing_week}}"
+        )
+      )
+      hold_filt <- hold_filt |>
+        dplyr::filter(
+          .data$leasing_week_id == max(.data$leasing_week_id, na.rm = TRUE)
+        )
+    } else {
+      hold_filt <- dplyr::filter(hold_filt, .data$leasing_week_id == as.integer(.env$leasing_week_id))
+    }
+  }
 
   if (collect) {
-    return(dplyr::collect(hold_filtered))
+    return(dplyr::collect(hold_filt))
   } else {
-    return(hold_filtered)
+    return(hold_filt)
   }
+}
+
+db_read_survey_fee_structures <- function(
+    pool,
+    property_id = NULL,
+    competitor_id = NULL,
+    collect = TRUE
+) {
+
+  check_db_pool(pool)
+
+  hold <- db_read_tbl(pool, "survey.fee_structures", collect = FALSE)
+
+  if (is.null(property_id) && is.null(competitor_id)) {
+    if (collect) {
+      return(dplyr::collect(hold))
+    } else {
+      return(hold)
+    }
+  }
+
+  if (!is.null(competitor_id)) {
+    hold <- dplyr::filter(hold, .data$competitor_id == as.integer(.env$competitor_id))
+  } else {
+    if (!is.null(property_id)) {
+      hold <- dplyr::filter(hold, .data$property_id == as.integer(.env$property_id))
+    }
+  }
+
+  # collect and return
+  if (collect) {
+    return(dplyr::collect(hold))
+  } else {
+    return(hold)
+  }
+
 }
 
 db_read_survey_property_amenities <- function(
@@ -445,7 +596,9 @@ db_read_survey_property_amenities <- function(
     property_id = NULL,
     competitor_id = NULL,
     property_name = NULL,
-    collect = TRUE) {
+    collect = TRUE
+) {
+
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.property_amenities", collect = FALSE)
@@ -853,4 +1006,19 @@ db_read_survey_id <- function(pool, property_id = NULL, competitor_id = NULL, le
   }
 
   dplyr::pull(hold_filtered, "survey_id")
+}
+
+db_read_survey_property_ids <- function(pool, ...) {
+  db_read_tbl(pool, "mkt.properties", collect = FALSE) |>
+    dplyr::filter(.data$is_competitor == FALSE) |>
+    dplyr::pull("property_id")
+}
+
+db_read_survey_hours_tbl <- function(pool, selected_property_name = NULL) {
+  check_db_pool(pool)
+  hold <- db_read_tbl(pool, "survey.hours", collect = FALSE)
+  if (!is.null(selected_property_name)) {
+    hold <- dplyr::filter(hold, .data$property_name == .env$selected_property_name)
+  }
+  dplyr::collect(hold)
 }

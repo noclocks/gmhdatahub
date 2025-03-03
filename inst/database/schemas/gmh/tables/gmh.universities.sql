@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS gmh.universities;
 
 CREATE TABLE gmh.universities (
     university_id        INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    university_name      TEXT NOT NULL,
+    university_name      TEXT NOT NULL UNIQUE,
     university_website   TEXT,
     university_address   TEXT,
     university_image_url TEXT,

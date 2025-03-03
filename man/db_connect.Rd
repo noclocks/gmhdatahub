@@ -5,6 +5,7 @@
 \alias{db_disconnect}
 \alias{db_checkout}
 \alias{db_return}
+\alias{db_connect_and_checkout}
 \title{Connect to GMH Database}
 \usage{
 db_connect(db_config = get_db_config(), user_id = NULL)
@@ -14,6 +15,8 @@ db_disconnect(conn)
 db_checkout(conn)
 
 db_return(conn)
+
+db_connect_and_checkout(db_config = get_db_config(), user_id = NULL)
 }
 \arguments{
 \item{db_config}{Database configuration values as a list. The configuration

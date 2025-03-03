@@ -21,13 +21,15 @@ Depends:
 Imports:
     apexcharter,
     bsicons,
-    bslib (>= 0.7),
+    bslib (>= 0.9),
     cli,
     conductor,
     config,
     DBI,
     dbplyr,
     dbx,
+    digest,
+    dint,
     dplyr,
     fontawesome,
     fs,
@@ -37,12 +39,16 @@ Imports:
     htmltools,
     htmlwidgets,
     httr2,
+    janitor,
     jsonlite,
     leaflet,
     logger,
     lubridate,
+    memoise,
     mime,
     noClocksAuthR,
+    openxlsx,
+    openxlsx2,
     pkgload,
     plotly,
     pool,
@@ -52,11 +58,11 @@ Imports:
     readr,
     rhandsontable,
     rintrojs,
-    rlang,
+    rlang (>= 1.1.0),
     RPostgres,
     scales,
     sever,
-    shiny,
+    shiny (>= 1.10),
     shinybrowser,
     shinybusy,
     shinycustomloader,
@@ -66,13 +72,14 @@ Imports:
     snakecase,
     stringr,
     tibble,
+    tibblify,
     tidyr,
     tidyselect,
     tools,
     utils,
     waiter,
     withr,
-    writexl
+    yaml
 Suggests:
     httptest2,
     knitr,
@@ -83,11 +90,12 @@ Suggests:
     testthat (>= 3.0.0)
 VignetteBuilder:
     knitr
-Remotes:  
-    noclocks/noClocksAuthR,
+Remotes: 
+    dreamRs/shinyWidgets,
     kcuilla/reactablefmtr,
-    tiledb-inc/shinybg,
-    dreamRs/shinyWidgets
+    mgirlich/tibblify,
+    noclocks/noClocksAuthR,
+    tiledb-inc/shinybg
 Config/coverage/needs: covr covrpage
 Config/database/needs: config, DBI, pool, dbx, dplyr, dbplyr, RPostgres
 Config/excel/needs: openxlsx2, readxl, writexl, cellranger

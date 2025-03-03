@@ -272,9 +272,10 @@ db_update_survey_leasing_summary <- function(pool, new_values) {
   data <- new_values
 
   if (!all(c("property_name", "competitor_id") %in% colnames(data))) {
-    # get id (property id for property and competitor id for competitor)
+
     comp_names <- db_read_tbl(pool, "survey.competitors", collect = FALSE) |>
       dplyr::pull(competitor_name)
+
     prop_names <- db_read_tbl(pool, "survey.properties", collect = FALSE) |>
       dplyr::pull(property_name)
 
@@ -297,7 +298,7 @@ db_update_survey_leasing_summary <- function(pool, new_values) {
     data$leasing_week_id <- get_leasing_week_id_by_date(get_leasing_week_start_date())
   }
 
-  if (!all(c("updated_by") %in% colnames(data))) {
+  if (!"updated_by" %in% colnames(data)) {
     data$updated_by <- get_user_id_by_email(pool, "default_user@example.com")
   }
 
@@ -455,6 +456,48 @@ db_update_survey_fees <- function(pool, new_values) {
       )
       shiny::showNotification(
         "Failed to update fees.",
+        type = "error"
+      )
+    }
+  )
+}
+
+db_update_survey_fee_structure <- function(
+  pool,
+  fee_structure_data
+) {
+
+  check_db_conn(pool)
+
+  data <- fee_structure_data
+
+  conn <- pool::poolCheckout(pool)
+  on.exit(pool::poolReturn(conn))
+
+  tryCatch(
+    {
+      dbx::dbxUpsert(
+        conn,
+        DBI::SQL("survey.fee_structures"),
+        records = data,
+        where_cols = c("property_name", "fee_structure"),
+        skip_existing = FALSE
+      )
+
+      cli::cli_alert_success(
+        "Successfully updated fee structure."
+      )
+
+      shiny::showNotification(
+        "Successfully updated fee structures."
+      )
+    },
+    error = function(e) {
+      cli::cli_alert_danger(
+        "Failed to update fee structure: {.error {e$message}}"
+      )
+      shiny::showNotification(
+        "Failed to update fee structure.",
         type = "error"
       )
     }

@@ -142,6 +142,7 @@ mod_survey_short_term_leases_server <- function(
       # data --------------------------------------------------------------------
       short_term_leases_data <- shiny::reactive({
         shiny::req(survey_data$short_term_leases)
+
         if (nrow(survey_data$short_term_leases == 0)) {
           default_tbl_survey_short_term_leases()
         } else {
