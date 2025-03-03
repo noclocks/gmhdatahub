@@ -1,3 +1,5 @@
+-- !preview conn=gmhdatahub::db_connect_and_checkout()
+
 SELECT pg_terminate_backend(pid)
 FROM pg_stat_activity
 WHERE datname = 'gmh_leasing_dev'

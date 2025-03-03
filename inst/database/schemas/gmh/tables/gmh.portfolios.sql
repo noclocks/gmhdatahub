@@ -3,8 +3,8 @@ DROP TABLE IF EXISTS gmh.portfolios CASCADE;
 CREATE TABLE IF NOT EXISTS gmh.portfolios (
   portfolio_id          INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   portfolio_name        TEXT NOT NULL UNIQUE,
-  portfolio_full_name   TEXT,
-  portfolio_type        TEXT NOT NULL DEFAULT 'Equity Partner',
+  portfolio_full_name   TEXT NOT NULL UNIQUE,
+  portfolio_type_id     INTEGER NOT NULL REFERENCES gmh.portfolio_types(portfolio_type_id),
   portfolio_description TEXT DEFAULT 'No Description',
   portfolio_status      TEXT DEFAULT 'Active',
   portfolio_website     TEXT,
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS gmh.portfolios (
 COMMENT ON TABLE gmh.portfolios IS 'Portfolios represent a collection of properties owned or managed by a partner.';
 COMMENT ON COLUMN gmh.portfolios.portfolio_id IS 'Unique identifier for the portfolio.';
 COMMENT ON COLUMN gmh.portfolios.portfolio_name IS 'Name of the portfolio.';
-COMMENT ON COLUMN gmh.portfolios.portfolio_type IS 'Type of portfolio (Equity Partner or Owner).';
+COMMENT ON COLUMN gmh.portfolios.portfolio_type_id IS 'Foreign key referencing the portfolio type.';
 COMMENT ON COLUMN gmh.portfolios.portfolio_description IS 'Description of the portfolio.';
 COMMENT ON COLUMN gmh.portfolios.portfolio_status IS 'Status of the portfolio.';
 COMMENT ON COLUMN gmh.portfolios.portfolio_website IS 'URL for the portfolio.';

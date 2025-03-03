@@ -1,15 +1,15 @@
+-- Schema
 DROP SCHEMA IF EXISTS gmh CASCADE;
 CREATE SCHEMA IF NOT EXISTS gmh;
+COMMENT ON SCHEMA gmh IS 'GMH Schema housing GMH Communities Data';
 
 -- Segments
 DROP TABLE IF EXISTS gmh.segments CASCADE;
 CREATE TABLE IF NOT EXISTS gmh.segments (
   segment_id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   segment_name TEXT NOT NULL UNIQUE,
-  segment_description TEXT,
-  segment_url TEXT,
-  segment_logo_url TEXT,
-  segment_banner_url TEXT,
+  segment_website TEXT UNIQUE DEFAULT NULL,
+  segment_description TEXT DEFAULT 'No Description',
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
@@ -17,23 +17,19 @@ CREATE TABLE IF NOT EXISTS gmh.segments (
 COMMENT ON TABLE gmh.segments IS 'Segments represent high-level GMH business units or divisions.';
 COMMENT ON COLUMN gmh.segments.segment_id IS 'Unique identifier for the segment.';
 COMMENT ON COLUMN gmh.segments.segment_name IS 'Name of the segment.';
+COMMENT ON COLUMN gmh.segments.segment_website IS 'Website URL for the segment.';
 COMMENT ON COLUMN gmh.segments.segment_description IS 'Description of the segment.';
-COMMENT ON COLUMN gmh.segments.segment_url IS 'URL for the segment.';
-COMMENT ON COLUMN gmh.segments.segment_logo_url IS 'Logo URL for the segment.';
-COMMENT ON COLUMN gmh.segments.segment_banner_url IS 'Banner URL for the segment.';
 COMMENT ON COLUMN gmh.segments.created_at IS 'Timestamp when the segment was created.';
 COMMENT ON COLUMN gmh.segments.updated_at IS 'Timestamp when the segment was last updated.';
 
 -- Partners
 DROP TABLE IF EXISTS gmh.partners CASCADE;
-
 CREATE TABLE IF NOT EXISTS gmh.partners (
     partner_id          INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     partner_name        TEXT NOT NULL,
-    partner_type        TEXT NOT NULL DEFAULT 'Equity Partner',  -- or 'Owner'
-    partner_description TEXT DEFAULT 'No Description',
+    partner_type        TEXT NOT NULL DEFAULT 'Equity Partner' CHECK (partner_type IN ('Equity Partner', 'Owner')),
     partner_website     TEXT,
-    tenant_id           UUID DEFAULT NULL,
+    partner_description TEXT DEFAULT 'No Description',
     created_at          TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at          TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
@@ -42,57 +38,26 @@ COMMENT ON TABLE gmh.partners IS 'Partners represent external (or internal) inve
 COMMENT ON COLUMN gmh.partners.partner_id IS 'Unique identifier for the partner.';
 COMMENT ON COLUMN gmh.partners.partner_name IS 'Name of the partner.';
 COMMENT ON COLUMN gmh.partners.partner_type IS 'Type of partner (Equity Partner or Owner).';
+COMMENT ON COLUMN gmh.partners.partner_website IS 'Website URL for the partner.';
 COMMENT ON COLUMN gmh.partners.partner_description IS 'Description of the partner.';
-COMMENT ON COLUMN gmh.partners.partner_website IS 'URL for the partner.';
-COMMENT ON COLUMN gmh.partners.tenant_id IS 'Tenant ID for the partner.';
 COMMENT ON COLUMN gmh.partners.created_at IS 'Timestamp when the partner was created.';
 COMMENT ON COLUMN gmh.partners.updated_at IS 'Timestamp when the partner was last updated.';
-
--- Portfolios
-DROP TABLE IF EXISTS gmh.portfolios CASCADE;
-CREATE TABLE IF NOT EXISTS gmh.portfolios (
-  portfolio_id          INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  portfolio_name        TEXT NOT NULL UNIQUE,
-  portfolio_type        TEXT NOT NULL DEFAULT 'Equity Partner',  -- or 'Owner'
-  portfolio_description TEXT DEFAULT 'No Description',
-  portfolio_status      TEXT DEFAULT 'Active',
-  portfolio_website     TEXT,
-  portfolio_logo_url    TEXT,
-  portfolio_icon_url    TEXT,
-  partner_id            INTEGER NOT NULL REFERENCES gmh.partners(partner_id),
-  created_at            TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  updated_at            TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-);
-
-COMMENT ON TABLE gmh.portfolios IS 'Portfolios represent a collection of properties owned or managed by a partner.';
-COMMENT ON COLUMN gmh.portfolios.portfolio_id IS 'Unique identifier for the portfolio.';
-COMMENT ON COLUMN gmh.portfolios.portfolio_name IS 'Name of the portfolio.';
-COMMENT ON COLUMN gmh.portfolios.portfolio_type IS 'Type of portfolio (Equity Partner or Owner).';
-COMMENT ON COLUMN gmh.portfolios.portfolio_description IS 'Description of the portfolio.';
-COMMENT ON COLUMN gmh.portfolios.portfolio_status IS 'Status of the portfolio.';
-COMMENT ON COLUMN gmh.portfolios.portfolio_website IS 'URL for the portfolio.';
-COMMENT ON COLUMN gmh.portfolios.portfolio_logo_url IS 'Logo URL for the portfolio.';
-COMMENT ON COLUMN gmh.portfolios.portfolio_icon_url IS 'Icon URL for the portfolio.';
-COMMENT ON COLUMN gmh.portfolios.partner_id IS 'Partner ID for the portfolio.';
-COMMENT ON COLUMN gmh.portfolios.created_at IS 'Timestamp when the portfolio was created.';
-COMMENT ON COLUMN gmh.portfolios.updated_at IS 'Timestamp when the portfolio was last updated.';
 
 -- Properties
 DROP TABLE IF EXISTS gmh.properties CASCADE;
 CREATE TABLE gmh.properties (
   property_id          INTEGER PRIMARY KEY, -- No autoincrement here, will leverage entrata property_id
   property_name        TEXT NOT NULL,
-  parent_property_id   INTEGER REFERENCES gmh.properties(property_id),
   property_type        TEXT NOT NULL DEFAULT 'Apartment',
   property_status      TEXT NOT NULL DEFAULT 'Active',
-  property_description TEXT,
   property_website     TEXT,
   property_phone       TEXT,
   property_email       TEXT,
   property_address     TEXT,
-  property_image_url   TEXT,
-  portfolio_id         INTEGER NOT NULL REFERENCES gmh.portfolios(portfolio_id),
+  property_description TEXT,
+  parent_property_id   INTEGER REFERENCES gmh.properties(property_id),
   partner_id           INTEGER NOT NULL REFERENCES gmh.partners(partner_id),
+  segment_id           INTEGER NOT NULL REFERENCES gmh.segments(segment_id),
   created_at           TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   updated_at           TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
@@ -102,29 +67,28 @@ COMMENT ON COLUMN gmh.properties.property_id IS 'Unique identifier for the prope
 COMMENT ON COLUMN gmh.properties.property_name IS 'Name of the property.';
 COMMENT ON COLUMN gmh.properties.property_type IS 'Type of property (Apartment, Office, Retail, etc.).';
 COMMENT ON COLUMN gmh.properties.property_status IS 'Status of the property (Active, Inactive, etc.).';
-COMMENT ON COLUMN gmh.properties.property_description IS 'Description of the property.';
 COMMENT ON COLUMN gmh.properties.property_website IS 'Website for the property.';
 COMMENT ON COLUMN gmh.properties.property_phone IS 'Phone number for the property.';
 COMMENT ON COLUMN gmh.properties.property_email IS 'Email address for the property.';
 COMMENT ON COLUMN gmh.properties.property_address IS 'Address for the property.';
-COMMENT ON COLUMN gmh.properties.property_image_url IS 'URL for the property image.';
-COMMENT ON COLUMN gmh.properties.portfolio_id IS 'Portfolio ID for the property.';
-COMMENT ON COLUMN gmh.properties.partner_id IS 'Partner ID for the property.';
+COMMENT ON COLUMN gmh.properties.property_description IS 'Description of the property.';
+COMMENT ON COLUMN gmh.properties.parent_property_id IS 'Parent Property ID for hierarchical relationships.';
+COMMENT ON COLUMN gmh.properties.partner_id IS 'Associated Investment Partner ID for the property.';
+COMMENT ON COLUMN gmh.properties.segment_id IS 'Segment ID that the property belongs to.';
 COMMENT ON COLUMN gmh.properties.created_at IS 'Timestamp when the property was created.';
 COMMENT ON COLUMN gmh.properties.updated_at IS 'Timestamp when the property was last updated.';
 
 -- Competitors
 DROP TABLE IF EXISTS gmh.competitors;
-
 CREATE TABLE gmh.competitors (
-    competitor_id        INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    competitor_name      TEXT NOT NULL,
-    competitor_website   TEXT,
-    competitor_address   TEXT,
-    competitor_image_url TEXT,
-    property_id          INTEGER NOT NULL REFERENCES gmh.properties(property_id),
-    created_at           TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at           TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    competitor_id          INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    competitor_name        TEXT NOT NULL,
+    competitor_website     TEXT,
+    competitor_address     TEXT,
+    competitor_description TEXT
+    property_id            INTEGER NOT NULL REFERENCES gmh.properties(property_id),
+    created_at             TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at             TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 COMMENT ON TABLE gmh.competitors IS 'Competitors represent other apartment communities in the area.';
@@ -132,23 +96,22 @@ COMMENT ON COLUMN gmh.competitors.competitor_id IS 'Unique identifier for the co
 COMMENT ON COLUMN gmh.competitors.competitor_name IS 'Name of the competitor.';
 COMMENT ON COLUMN gmh.competitors.competitor_website IS 'Website for the competitor.';
 COMMENT ON COLUMN gmh.competitors.competitor_address IS 'Address for the competitor.';
-COMMENT ON COLUMN gmh.competitors.competitor_image_url IS 'URL for an image of the competitor.';
+COMMENT ON COLUMN gmh.competitors.competitor_description IS 'Description of the competitor.';
 COMMENT ON COLUMN gmh.competitors.property_id IS 'The property that the competitor is associated with.';
 COMMENT ON COLUMN gmh.competitors.created_at IS 'Timestamp when the competitor was created.';
 COMMENT ON COLUMN gmh.competitors.updated_at IS 'Timestamp when the competitor was last updated.';
 
 -- Universities
 DROP TABLE IF EXISTS gmh.universities;
-
 CREATE TABLE gmh.universities (
-    university_id        INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    university_name      TEXT NOT NULL,
-    university_website   TEXT,
-    university_address   TEXT,
-    university_image_url TEXT,
-    property_id          INTEGER NOT NULL REFERENCES gmh.properties(property_id),
-    created_at           TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at           TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    university_id          INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    university_name        TEXT NOT NULL,
+    university_website     TEXT,
+    university_address     TEXT,
+    university_description TEXT,
+    property_id            INTEGER NOT NULL REFERENCES gmh.properties(property_id),
+    created_at             TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at             TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 COMMENT ON TABLE gmh.universities IS 'Universities represent local colleges or universities.';
@@ -156,39 +119,34 @@ COMMENT ON COLUMN gmh.universities.university_id IS 'Unique identifier for the u
 COMMENT ON COLUMN gmh.universities.university_name IS 'Name of the university.';
 COMMENT ON COLUMN gmh.universities.university_website IS 'Website URL for the university.';
 COMMENT ON COLUMN gmh.universities.university_address IS 'Physical address of the university.';
-COMMENT ON COLUMN gmh.universities.university_image_url IS 'URL for the university logo or image.';
+COMMENT ON COLUMN gmh.universities.university_description IS 'Description of the university.';
 COMMENT ON COLUMN gmh.universities.property_id IS 'Property ID that the university is associated with.';
 COMMENT ON COLUMN gmh.universities.created_at IS 'Date and time when the university was created.';
 COMMENT ON COLUMN gmh.universities.updated_at IS 'Date and time when the university was last updated.';
 
 -- Locations
-/* gmh.location table */
-
 DROP TABLE IF EXISTS gmh.locations CASCADE;
-
 CREATE TABLE IF NOT EXISTS gmh.locations (
     location_id         INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    location_name       TEXT NOT NULL,
     entity_type         TEXT NOT NULL CHECK (entity_type IN ('property', 'competitor', 'university')),
     entity_id           INTEGER NOT NULL,
-    address             TEXT NOT NULL,
-    street              TEXT NOT NULL,
-    city                TEXT NOT NULL,
-    state               TEXT NOT NULL,
-    postal_code         TEXT NOT NULL,
-    country             TEXT NOT NULL DEFAULT 'USA',
+    location_name       TEXT NOT NULL,
+    location_address             TEXT NOT NULL,
+    location_street              TEXT NOT NULL,
+    location_city                TEXT NOT NULL,
+    location_state               TEXT NOT NULL,
+    location_postal_code         TEXT NOT NULL,
+    location_country             TEXT NOT NULL DEFAULT 'USA',
+    location_phone        TEXT,
+    location_email       TEXT,
+    location_website     TEXT,
     latitude            DECIMAL(9,6),
     longitude           DECIMAL(9,6),
-    phone_number        TEXT,
-    email               TEXT,
-    website             TEXT,
-    image_url           TEXT,
-    rating              DECIMAL(2,1) CHECK (rating >= 0 AND rating <= 5),
-    gmaps_url           TEXT,
-    gmaps_place_id      TEXT,
+    gmaps_place_id      TEXT UNIQUE,
+    gmaps_url           TEXT UNIQUE,
     gmaps_rating        DECIMAL(2,1) CHECK (gmaps_rating >= 0 AND gmaps_rating <= 5),
-    gmaps_reviews_count INTEGER,
-    map_layer           TEXT,
+    gmaps_reviews_count INTEGER CHECK (gmaps_reviews_count >= 0),
+    map_layer           TEXT NOT NULL CHECK (map_layer IN ('properties', 'competitors', 'universities')),
     map_marker_icon     TEXT,
     map_marker_color    TEXT,
     map_popup_html      TEXT,
@@ -198,24 +156,22 @@ CREATE TABLE IF NOT EXISTS gmh.locations (
 
 COMMENT ON TABLE gmh.locations IS 'Locations consolidated into a central table for all address/coordinate data.';
 COMMENT ON COLUMN gmh.locations.location_id IS 'Unique identifier for the location.';
-COMMENT ON COLUMN gmh.locations.location_name IS 'Name of the location.';
 COMMENT ON COLUMN gmh.locations.entity_type IS 'Type of entity the location is associated with.';
 COMMENT ON COLUMN gmh.locations.entity_id IS 'Unique identifier of the entity the location is associated with.';
-COMMENT ON COLUMN gmh.locations.address IS 'Full address of the location.';
-COMMENT ON COLUMN gmh.locations.street IS 'Street address of the location.';
-COMMENT ON COLUMN gmh.locations.city IS 'City of the location.';
-COMMENT ON COLUMN gmh.locations.state IS 'State of the location.';
-COMMENT ON COLUMN gmh.locations.postal_code IS 'Postal code of the location.';
-COMMENT ON COLUMN gmh.locations.country IS 'Country of the location.';
+COMMENT ON COLUMN gmh.locations.location_name IS 'Name of the location.';
+COMMENT ON COLUMN gmh.locations.location_address IS 'Full address of the location.';
+COMMENT ON COLUMN gmh.locations.location_street IS 'Street address of the location.';
+COMMENT ON COLUMN gmh.locations.location_city IS 'City where the location is situated.';
+COMMENT ON COLUMN gmh.locations.location_state IS 'State where the location is situated.';
+COMMENT ON COLUMN gmh.locations.location_postal_code IS 'Postal code of the location.';
+COMMENT ON COLUMN gmh.locations.location_country IS 'Country where the location is situated.';
+COMMENT ON COLUMN gmh.locations.location_phone IS 'Phone number of the location.';
+COMMENT ON COLUMN gmh.locations.location_email IS 'Email address of the location.';
+COMMENT ON COLUMN gmh.locations.location_website IS 'Website URL of the location.';
 COMMENT ON COLUMN gmh.locations.latitude IS 'Latitude coordinate of the location.';
 COMMENT ON COLUMN gmh.locations.longitude IS 'Longitude coordinate of the location.';
-COMMENT ON COLUMN gmh.locations.phone_number IS 'Phone number of the location.';
-COMMENT ON COLUMN gmh.locations.email IS 'Email address of the location.';
-COMMENT ON COLUMN gmh.locations.website IS 'Website URL of the location.';
-COMMENT ON COLUMN gmh.locations.image_url IS 'Image URL of the location.';
-COMMENT ON COLUMN gmh.locations.rating IS 'User rating of the location.';
-COMMENT ON COLUMN gmh.locations.gmaps_url IS 'Google Maps URL of the location.';
 COMMENT ON COLUMN gmh.locations.gmaps_place_id IS 'Google Maps Place ID of the location.';
+COMMENT ON COLUMN gmh.locations.gmaps_url IS 'Google Maps URL of the location.';
 COMMENT ON COLUMN gmh.locations.gmaps_rating IS 'Google Maps rating of the location.';
 COMMENT ON COLUMN gmh.locations.gmaps_reviews_count IS 'Number of Google Maps reviews for the location.';
 COMMENT ON COLUMN gmh.locations.map_layer IS 'Map layer of the location.';
@@ -225,22 +181,36 @@ COMMENT ON COLUMN gmh.locations.map_popup_html IS 'HTML content for the map popu
 COMMENT ON COLUMN gmh.locations.created_at IS 'Timestamp when the location was created.';
 COMMENT ON COLUMN gmh.locations.updated_at IS 'Timestamp when the location was last updated.';
 
+-- assets
+DROP TABLE IF EXISTS gmh.assets CASCADE;
+CREATE TABLE IF NOT EXISTS gmh.assets (
+  asset_id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  entity_type TEXT NOT NULL CHECK (entity_type IN ('property', 'competitor', 'university', 'segment', 'partner', 'other')),
+  entity_id           INTEGER NOT NULL,
+  asset_type TEXT,
+  asset_url TEXT,
+  asset_alt_text TEXT,
+  asset_href TEXT,
+  asset_description TEXT,
+  asset_content_type TEXT,
+  asset_color TEXT,
+  asset_size TEXT,
+  gcs_bucket TEXT,
+  gcs_path TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Model Beds
 DROP TABLE IF EXISTS gmh.model_beds CASCADE;
 
 CREATE TABLE gmh.model_beds (
     property_id      INTEGER PRIMARY KEY REFERENCES gmh.properties(property_id) ON DELETE CASCADE,
     model_bed_count  INT DEFAULT 0,
-    notes            TEXT,
+    model_bed_notes            TEXT,
+    created_at       TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
     updated_at       TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
-
-COMMENT ON TABLE gmh.model_beds IS 'Model beds represent the number of beds representing models for each property.';
-COMMENT ON COLUMN gmh.model_beds.property_id IS 'Property ID for the model beds.';
-COMMENT ON COLUMN gmh.model_beds.model_bed_count IS 'Number of model beds for the property.';
-COMMENT ON COLUMN gmh.model_beds.notes IS 'Notes for the model beds.';
-COMMENT ON COLUMN gmh.model_beds.updated_at IS 'Timestamp when the model beds were last updated.';
-
 
 -- Leasing Calendar
 DROP TABLE IF EXISTS gmh.leasing_calendar CASCADE;

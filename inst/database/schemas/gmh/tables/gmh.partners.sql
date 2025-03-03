@@ -2,11 +2,10 @@ DROP TABLE IF EXISTS gmh.partners CASCADE;
 
 CREATE TABLE IF NOT EXISTS gmh.partners (
     partner_id          INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    partner_name        TEXT NOT NULL,
+    partner_name        TEXT NOT NULL UNIQUE,
     partner_type        TEXT NOT NULL DEFAULT 'Equity Partner',
     partner_description TEXT DEFAULT 'No Description',
     partner_website     TEXT,
-    tenant_id           UUID,
     created_at          TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at          TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
