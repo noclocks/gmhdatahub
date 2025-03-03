@@ -272,9 +272,10 @@ db_update_survey_leasing_summary <- function(pool, new_values) {
   data <- new_values
 
   if (!all(c("property_name", "competitor_id") %in% colnames(data))) {
-    # get id (property id for property and competitor id for competitor)
+
     comp_names <- db_read_tbl(pool, "survey.competitors", collect = FALSE) |>
       dplyr::pull(competitor_name)
+
     prop_names <- db_read_tbl(pool, "survey.properties", collect = FALSE) |>
       dplyr::pull(property_name)
 
@@ -297,7 +298,7 @@ db_update_survey_leasing_summary <- function(pool, new_values) {
     data$leasing_week_id <- get_leasing_week_id_by_date(get_leasing_week_start_date())
   }
 
-  if (!all(c("updated_by") %in% colnames(data))) {
+  if (!"updated_by" %in% colnames(data)) {
     data$updated_by <- get_user_id_by_email(pool, "default_user@example.com")
   }
 
