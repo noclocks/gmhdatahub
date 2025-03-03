@@ -24,6 +24,12 @@
 #' @importFrom waiter waiter_hide
 #' @importFrom shiny reactive
 app_server <- function(input, output, session) {
+
+  logger::log_info("Starting Shiny App Session Started")
+  session$onSessionEnded(function() {
+    logger::log_info("Shiny App Session Ended")
+  })
+
   # sever::sever()
   # sever::rupture(ms = 10000)
 
