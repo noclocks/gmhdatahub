@@ -38,6 +38,8 @@ run_app <- function(
     ...
 ) {
 
+  Sys.setenv(SHINY_LOG_STDERR = 1)
+
   noClocksAuthR:::set_api_url(api_url = auth_config$base_url)
 
   ui <- noClocksAuthR::secure_ui(
