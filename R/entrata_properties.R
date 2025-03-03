@@ -68,15 +68,13 @@ entrata_properties <- function(
     req <- httr2::req_progress(req)
   }
 
-  browser()
-
   resp <- httr2::req_perform(req)
 
   parser <- switch(
     method_name,
-    "getProperties" = parse_properties_response,
-    "getFloorPlans" = parse_floorplans_response,
-    "getWebsites" = parse_websites_response,
+    "getProperties" = entrata_resp_parse_properties,
+    "getFloorPlans" = entrata_resp_parse_floorplans,
+    "getWebsites" = entrata_resp_parse_property_websites
   )
 
   parser(resp)
@@ -137,8 +135,7 @@ entrata_properties_getProperties <- function(
       request_id = req_id
     )
 
-  entrata_req_perform(req) |>
-    entrata_resp_parse()
+  entrata_req_perform(req)
 
 }
 

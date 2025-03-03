@@ -29,6 +29,7 @@ Imports:
     dbplyr,
     dbx,
     digest,
+    dint,
     dplyr,
     fontawesome,
     fs,
@@ -38,6 +39,7 @@ Imports:
     htmltools,
     htmlwidgets,
     httr2,
+    janitor,
     jsonlite,
     leaflet,
     logger,
@@ -88,12 +90,12 @@ Suggests:
     testthat (>= 3.0.0)
 VignetteBuilder:
     knitr
-Remotes:  
-    noclocks/noClocksAuthR,
-    kcuilla/reactablefmtr,
-    tiledb-inc/shinybg,
+Remotes: 
     dreamRs/shinyWidgets,
-    mgirlich/tibblify
+    kcuilla/reactablefmtr,
+    mgirlich/tibblify,
+    noclocks/noClocksAuthR,
+    tiledb-inc/shinybg
 Config/coverage/needs: covr covrpage
 Config/database/needs: config, DBI, pool, dbx, dplyr, dbplyr, RPostgres
 Config/excel/needs: openxlsx2, readxl, writexl, cellranger
