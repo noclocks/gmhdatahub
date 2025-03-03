@@ -478,9 +478,9 @@ db_update_survey_fee_structure <- function(
     {
       dbx::dbxUpsert(
         conn,
-        DBI::SQL("survey.fee_structure"),
+        DBI::SQL("survey.fee_structures"),
         records = data,
-        where_cols = c("property_name", "leasing_week_id", "fee_name"),
+        where_cols = c("property_name", "fee_structure"),
         skip_existing = FALSE
       )
 
@@ -489,7 +489,7 @@ db_update_survey_fee_structure <- function(
       )
 
       shiny::showNotification(
-        "Successfully updated fee structure."
+        "Successfully updated fee structures."
       )
     },
     error = function(e) {

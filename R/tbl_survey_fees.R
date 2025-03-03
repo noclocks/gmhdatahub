@@ -62,7 +62,7 @@ tbl_survey_fees <- function(fees_data) {
       cell = reactablefmtr::pill_buttons(
         data = fees_data,
         number_fmt = scales::dollar,
-        colors = c("darkgreen")
+        colors = c("darkgray", "darkgreen")
       )
     ),
     # Monthly vs. Annual
@@ -85,8 +85,8 @@ tbl_survey_fees <- function(fees_data) {
     theme = reactable_theme(),
     defaultColDef = reactable_default_col_def(totals = totals),
     columns = col_defs,
-    filterable = TRUE,
-    searchable = TRUE,
+    filterable = FALSE,
+    searchable = FALSE,
     bordered = TRUE,
     striped = TRUE,
     highlight = TRUE,

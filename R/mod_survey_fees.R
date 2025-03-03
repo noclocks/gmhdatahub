@@ -76,7 +76,7 @@ mod_survey_fees_ui <- function(id) {
           # fee structure
           htmltools::tags$h5("Fee Structure"),
           htmltools::tags$div(
-            class = "d-flex flex-wrap gap-2",
+            class = "d-flex justify-content-between float-end",
             htmltools::tags$span(
               class = "badge bg-primary",
               bsicons::bs_icon("info-circle-fill"),
@@ -200,25 +200,23 @@ mod_survey_fees_server <- function(
             fee_name <- .x
             fee_amount <- fees_data()$fee_amount[fees_data()$fee_name == fee_name][1]
             fee_frequency <- fees_data()$fee_frequency[fees_data()$fee_name == fee_name][1]
-            htmltools::tagList(
-              htmltools::tags$h5(.x),
-              bslib::layout_columns(
-                col_widths = c(6, 6),
-                shiny::numericInput(
-                  ns(paste0("fee_amount_", .x)),
-                  label = "Amount:",
-                  value = fee_amount,
-                  min = 0,
-                  step = 1,
-                  width = "100%"
-                ),
-                shiny::radioButtons(
-                  ns(paste0("fee_frequency_", .x)),
-                  label = "Frequency:",
-                  choices = get_survey_choices("fees", "fee_frequency"),
-                  selected = fee_frequency,
-                  inline = TRUE
-                )
+
+            bslib::layout_columns(
+              col_widths = c(4, 4, 4),
+              row_heights = 1,
+              htmltools::tags$h5(fee_name),
+              shiny::numericInput(
+                ns(paste0("fee_amount_", .x)),
+                label = "Amount:",
+                value = fee_amount,
+                min = 0,
+                step = 1,
+              ),
+              shiny::selectInput(
+                ns(paste0("fee_frequency_", .x)),
+                label = "Frequency:",
+                choices = get_survey_choices("fees", "fee_frequency"),
+                selected = fee_frequency
               )
             )
           }
@@ -230,15 +228,15 @@ mod_survey_fees_server <- function(
             size = "xl",
             easyClose = TRUE,
             # fee structure
+            htmltools::tags$h5("Fee Structure"),
             shiny::selectInput(
               ns("fee_structure"),
               "Fee Structure:",
               choices = get_survey_choices("fees", "fee_structure"),
               selected = fee_structure_data()$fee_structure[1]
             ),
-            # fees inputs (for each fee, have a "row" layout with the fee name, amount, and frequency)
             htmltools::tags$hr(),
-            htmltools::tags$h5("Fees"),
+            htmltools::tags$h5("Fee Amounts and Frequencies"),
             do.call(htmltools::tagList, inputs),
             footer = htmltools::tagList(
               shiny::actionButton(
@@ -252,55 +250,7 @@ mod_survey_fees_server <- function(
         )
       })
 
-      # output$modal_survey_fees_table <- rhandsontable::renderRHandsontable({
-      #   shiny::req(fees_data())
-      #
-      #   tbl_data <- fees_data() |>
-      #     dplyr::select(tidyselect::contains("fee_"))
-      #
-      #   rhandsontable::rhandsontable(
-      #     data = tbl_data,
-      #     contextMenu = FALSE,
-      #     rowHeaders = NULL,
-      #     colHeaders = c("Fee Name", "Amount", "Frequency")
-      #   ) |>
-      #     rhandsontable::hot_cols(
-      #       colWidths = 200
-      #     ) |>
-      #     rhandsontable::hot_col(
-      #       col = 1,
-      #       readOnly = TRUE,
-      #       renderer = "
-      #         function(instance, td, row, col, prop, value, cellProperties) {
-      #           Handsontable.renderers.TextRenderer.apply(this, arguments);
-      #
-      #           // Set text to black
-      #           td.style.color = 'black';
-      #         }
-      #       "
-      #     ) |>
-      #     rhandsontable::hot_col(
-      #       col = 2,
-      #       renderer = "
-      #         function(instance, td, row, col, prop, value, cellProperties) {
-      #           Handsontable.renderers.TextRenderer.apply(this, arguments);
-      #
-      #           if (col === 0) {
-      #             // Don't allow editing
-      #             cellProperties.readOnly = true;
-      #           } else if (col == 1 && row == 2) {
-      #             cellProperties.type = 'dropdown';
-      #             cellProperties.source = ['App Fee Waived-Admin Due', 'Admin Fee Waived-App Due', 'Both Fees Waived', 'Both Fees Due']
-      #           }
-      #         }"
-      #     ) |>
-      #     rhandsontable::hot_col(
-      #       col = 3,
-      #       type = "dropdown",
-      #       source = c("Monthly", "Annual")
-      #     )
-      # })
-
+      # save ------------------------------------------------------------------------------------------------------------
       shiny::observeEvent(input$save, {
 
         if (!is.na(selected_filters$competitor_id) && !is.null(selected_filters$competitor_id)) {
@@ -311,55 +261,69 @@ mod_survey_fees_server <- function(
           comp_id <- NA_integer_
         }
 
-        browser()
+        property_name <- selected_filters$property_name
+        leasing_week_id <- selected_filters$leasing_week_id
+        user_id <- selected_filters$user_id
 
-        new_values <- data.frame(
+        fee_names <- fees_data()$fee_name |> unique()
+        fee_amounts <- purrr::map_dbl(fee_names, ~ input[[paste0("fee_amount_", .x)]])
+        fee_frequencies <- purrr::map_chr(fee_names, ~ input[[paste0("fee_frequency_", .x)]])
+
+        new_fees_data <- tibble::tibble(
           property_id = prop_id,
           competitor_id = comp_id,
-          property_name = selected_filters$property_name,
-          leasing_week_id = selected_filters$leasing_week_id,
-          updated_by = selected_filters$user_id,
-          fee_name = fees_data()$fee_name |> unique(),
-          fee_amount = purrr::map(
-            fees_data()$fee_name |> unique(),
-            ~ input[[paste0("fee_amount_", .x)]]
-          ) |> unlist(),
-          fee_frequency = purrr::map(
-            fees_data()$fee_name |> unique(),
-            ~ input[[paste0("fee_frequency_", .x)]]
-          ) |> unlist()
+          property_name = property_name,
+          leasing_week_id = leasing_week_id,
+          fee_name = fee_names,
+          fee_amount = fee_amounts,
+          fee_frequency = fee_frequencies,
+          updated_at = lubridate::now(tzone = "UTC"),
+          updated_by = user_id
         )
 
-        # new_values <- rhandsontable::hot_to_r(input$modal_survey_fees_table) |>
-        #   dplyr::mutate(
-        #     property_id = prop_id,
-        #     competitor_id = comp_id,
-        #     property_name = selected_filters$property_name,
-        #     leasing_week_id = selected_filters$leasing_week_id,
-        #     updated_by = selected_filters$user_id
-        #   ) |>
-        #   dplyr::select(
-        #     property_id,
-        #     competitor_id,
-        #     property_name,
-        #     leasing_week_id,
-        #     fee_name,
-        #     fee_amount,
-        #     fee_frequency,
-        #     updated_by
-        #   )
+        new_fee_structure_data <- tibble::tibble(
+          property_id = prop_id,
+          competitor_id = comp_id,
+          property_name = property_name,
+          fee_structure = input$fee_structure,
+          updated_at = lubridate::now(tzone = "UTC"),
+          updated_by = user_id
+        )
 
-        db_update_survey_fees(pool, new_values)
+        tryCatch({
+          db_update_survey_fees(pool, new_fees_data)
+          db_update_survey_fee_structure(pool, new_fee_structure_data)
 
-        # Trigger a refresh of the property data
-        db_refresh_trigger(db_refresh_trigger() + 1)
-        db_trigger_func()
-        shiny::removeModal()
+          # Trigger a refresh of the database data
+          db_refresh_trigger(db_refresh_trigger() + 1)
+          db_trigger_func()
+
+        }, error = function(e) {
+
+          cli::cli_alert_danger(
+            c(
+              "An error occurred while saving the survey.fees and survey.fee_structures data.\n",
+              "Details: {conditionMessage(e)}"
+            )
+          )
+
+        }, finally = {
+          shiny::removeModal()
+        })
+
       })
 
+      # refresh -------------------------------------------------------------------------------------------
+      shiny::observeEvent(input$refresh, {
+        db_refresh_trigger(db_refresh_trigger() + 1)
+        db_trigger_func()
+      })
+
+      # return -------------------------------------------------------------------------------------------
       return(
         list(
-          # reactive values
+          fees_data = fees_data,
+          fee_structure_data = fee_structure_data
         )
       )
     }

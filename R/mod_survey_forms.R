@@ -519,7 +519,10 @@ mod_survey_forms_server <- function(
         pool = pool,
         survey_data = survey_data,
         selected_filters = selected_filters,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+        db_trigger_func = db_trigger,
+        edit_survey_section = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
       # parking
@@ -528,7 +531,10 @@ mod_survey_forms_server <- function(
         pool = pool,
         survey_data = survey_data,
         selected_filters = selected_filters,
-        edit_survey_section = shiny::reactive({ input$edit_survey_section })
+        db_trigger_func = db_trigger,
+        edit_survey_section = shiny::reactive({
+          input$edit_survey_section
+        })
       )
 
       # utilities
@@ -547,6 +553,7 @@ mod_survey_forms_server <- function(
         pool = pool,
         survey_data = survey_data,
         selected_filters = selected_filters,
+        db_trigger_func = db_trigger,
         edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
@@ -556,6 +563,7 @@ mod_survey_forms_server <- function(
         pool = pool,
         survey_data = survey_data,
         selected_filters = selected_filters,
+        db_trigger_func = db_trigger,
         edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 
@@ -565,6 +573,7 @@ mod_survey_forms_server <- function(
         pool = pool,
         survey_data = survey_data,
         selected_filters = selected_filters,
+        db_trigger_func = db_trigger,
         edit_survey_section = shiny::reactive({ input$edit_survey_section })
       )
 

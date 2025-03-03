@@ -348,13 +348,15 @@ db_read_survey_leasing_summary <- function(
     dplyr::pull("leasing_week_id") |>
     unique()
 
+  max_available_leasing_week <- max(available_leasing_weeks, na.rm = TRUE)
+
   if (!is.null(leasing_week_id)) {
     if (!leasing_week_id %in% available_leasing_weeks) {
       cli::cli_alert_warning(
         c(
           "[db_read_survey_leasing_summary()]: ",
           "No data found for the specified leasing week id: {.field {leasing_week_id}}. ",
-          "Returning data for the latest leasing week ID: {.field {max(available_leasing_weeks)}}"
+          "Returning data for the latest leasing week ID: {.field {max_available_leasing_week}}"
         )
       )
       hold_filt <- hold |>
@@ -464,13 +466,15 @@ db_read_survey_short_term_leases <- function(
     dplyr::pull("leasing_week_id") |>
     unique()
 
+  max_available_leasing_week <- max(available_leasing_weeks, na.rm = TRUE)
+
   if (!is.null(leasing_week_id)) {
     if (!leasing_week_id %in% available_leasing_weeks) {
       cli::cli_alert_warning(
         c(
           "[db_read_survey_short_term_leases()]: ",
           "No data found for the specified leasing week id: {.field {leasing_week_id}}. ",
-          "Returning data for the latest leasing week ID: {.field {max(available_leasing_weeks)}}"
+          "Returning data for the latest leasing week ID: {.field {max_available_leasing_week}}"
         )
       )
       hold_filt <- hold_filt |>
@@ -524,13 +528,15 @@ db_read_survey_fees <- function(
     dplyr::pull("leasing_week_id") |>
     unique()
 
+  max_available_leasing_week <- max(available_leasing_weeks, na.rm = TRUE)
+
   if (!is.null(leasing_week_id)) {
     if (!leasing_week_id %in% available_leasing_weeks) {
       cli::cli_alert_warning(
         c(
           "[db_read_survey_fees()]: ",
           "No data found for the specified leasing week id: {.field {leasing_week_id}}. ",
-          "Returning data for the latest leasing week ID: {.field {max(available_leasing_weeks)}}"
+          "Returning data for the latest leasing week ID: {.field {max_available_leasing_week}}"
         )
       )
       hold_filt <- hold_filt |>
@@ -590,7 +596,9 @@ db_read_survey_property_amenities <- function(
     property_id = NULL,
     competitor_id = NULL,
     property_name = NULL,
-    collect = TRUE) {
+    collect = TRUE
+) {
+
   check_db_pool(pool)
 
   hold <- db_read_tbl(pool, "survey.property_amenities", collect = FALSE)
