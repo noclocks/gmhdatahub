@@ -28,14 +28,16 @@ gmh_colors <- function(...) {
     primary = "#063C6C",
     secondary = "#0E2B4C",
     success = "#28a745",
-    danger = "#87202a",
+    danger = "#B22222",
     warning = "#ffc107",
     info = "#6BD3D0",
+    neutral = "#95A5A6",
     light = "#f5f5f5",
     dark = "#031633",
     white = "#ffffff",
     black = "#000000",
     gray = "#6c757d",
+    orange = "#E74C3C",
     dark_gray = "#2c3e50",
     royal_blue = "#1e4d92"
   )
@@ -63,17 +65,18 @@ gmh_colors <- function(...) {
 #' @examples
 #' chart_colors("primary", "secondary")
 chart_colors <- function(...) {
+
   colors <- c(
     "primary" = "#0e2b4c",
     "secondary" = "#18BC9C",
     "tertiary" = "#86a5b1",
     "accent1" = "#f8b400",
     "accent2" = "#f78e69",
-    "accent3" = "#2a9d8f",
+    "accent3" = "#a8dadc",
     "accent4" = "#e76f51",
     "accent5" = "#264653",
     "accent6" = "#457b9d",
-    "accent7" = "#a8dadc",
+    "accent7" = "#2a9d8f",
     "accent8" = "#f4a261",
     "accent9" = "#e9c46a",
     "accent10" = "#f4a261"
@@ -85,6 +88,9 @@ chart_colors <- function(...) {
     return(colors)
   } else {
     requested_colors <- unlist(dots)
+    if (length(requested_colors) > length(colors)) {
+      colors <- rep(colors, length.out = length(requested_colors))
+    }
     return(unname(unlist(colors[requested_colors])))
   }
 }
