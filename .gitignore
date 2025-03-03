@@ -12,3 +12,4 @@ config.yml
 repomix.config.json
 repomix*
 ~$*
+.Renviron
