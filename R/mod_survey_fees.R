@@ -23,6 +23,11 @@
 #'
 #' @param id Module's namespace ID.
 #' @param pool Database connection pool.
+#' @param survey_data Reactive data for the survey.
+#' @param map_data Reactive data for the map.
+#' @param selected_filters Reactive data for the selected filters.
+#' @param db_trigger_func Reactive Function to trigger database updates.
+#' @param edit_survey_section Reactive Function representing the action button to edit the survey section.
 #'
 #' @returns
 #' - `mod_survey_fees_ui()`: UI output
@@ -50,8 +55,6 @@ mod_survey_fees_ui <- function(id) {
     bslib::page_fluid(
       # card --------------------------------------------------------------------
       bslib::card(
-        full_screen = TRUE,
-        class = "mx-auto",
         bslib::card_header(
           class = "bg-primary text-white",
           htmltools::tags$h4(
@@ -70,11 +73,20 @@ mod_survey_fees_ui <- function(id) {
           )
         ),
         bslib::card_body(
-          bslib::layout_columns(
-            col_widths = c(12),
-            reactable::reactableOutput(ns("survey_fees_tbl")) |>
-              with_loader()
-          )
+          # fee structure
+          htmltools::tags$h5("Fee Structure"),
+          htmltools::tags$div(
+            class = "d-flex flex-wrap gap-2",
+            htmltools::tags$span(
+              class = "badge bg-primary",
+              bsicons::bs_icon("info-circle-fill"),
+              shiny::textOutput(ns("fee_structure"), inline = TRUE)
+            )
+          ),
+          htmltools::tags$hr(),
+          # fees table
+          reactable::reactableOutput(ns("survey_fees_tbl")) |>
+            with_loader()
         ),
         bslib::card_footer(
           class = "text-center",
@@ -135,6 +147,40 @@ mod_survey_fees_server <- function(
         survey_data$fees
       })
 
+      fee_structure_data <- shiny::reactive({
+        shiny::req(survey_data$fee_structures)
+        survey_data$fee_structures
+      })
+
+      # UI outputs -------------------------------------------------------------
+
+      # last updated
+      output$last_updated <- shiny::renderText({
+        shiny::req(fees_data())
+        fees_data()$updated_at |>
+          max(na.rm = TRUE) |>
+          format("%B %d, %Y %I:%M %p")
+      })
+
+      output$property_name_title <- shiny::renderText({
+        shiny::req(fees_data())
+
+        prop_id <- fees_data()$property_id |> unique()
+        comp_id <- fees_data()$competitor_id |> unique()
+        name <- fees_data()$property_name |> unique()
+
+        if (is.na(comp_id)) {
+          paste0(name, " (", prop_id, ")")
+        } else {
+          paste0(name, " (Competitor #", comp_id, ")")
+        }
+      })
+
+      output$fee_structure <- shiny::renderText({
+        shiny::req(fee_structure_data())
+        fee_structure_data()$fee_structure |> unique()
+      })
+
       # table -------------------------------------------------------------------
       output$survey_fees_tbl <- reactable::renderReactable({
         shiny::req(fees_data())
@@ -143,18 +189,57 @@ mod_survey_fees_server <- function(
 
       # edit --------------------------------------------------------------------
       shiny::observeEvent(edit_survey_section(), {
+
         if (session$userData$selected_survey_tab() != "nav_fees") {
           return()
         }
 
+        inputs <- purrr::map(
+          fees_data()$fee_name |> unique(),
+          ~ {
+            fee_name <- .x
+            fee_amount <- fees_data()$fee_amount[fees_data()$fee_name == fee_name][1]
+            fee_frequency <- fees_data()$fee_frequency[fees_data()$fee_name == fee_name][1]
+            htmltools::tagList(
+              htmltools::tags$h5(.x),
+              bslib::layout_columns(
+                col_widths = c(6, 6),
+                shiny::numericInput(
+                  ns(paste0("fee_amount_", .x)),
+                  label = "Amount:",
+                  value = fee_amount,
+                  min = 0,
+                  step = 1,
+                  width = "100%"
+                ),
+                shiny::radioButtons(
+                  ns(paste0("fee_frequency_", .x)),
+                  label = "Frequency:",
+                  choices = get_survey_choices("fees", "fee_frequency"),
+                  selected = fee_frequency,
+                  inline = TRUE
+                )
+              )
+            )
+          }
+        )
+
         shiny::showModal(
           shiny::modalDialog(
             title = "Fees",
-            size = "l",
-            bslib::layout_columns(
-              col_widths = c(12),
-              rhandsontable::rHandsontableOutput(ns("modal_survey_fees_table"))
+            size = "xl",
+            easyClose = TRUE,
+            # fee structure
+            shiny::selectInput(
+              ns("fee_structure"),
+              "Fee Structure:",
+              choices = get_survey_choices("fees", "fee_structure"),
+              selected = fee_structure_data()$fee_structure[1]
             ),
+            # fees inputs (for each fee, have a "row" layout with the fee name, amount, and frequency)
+            htmltools::tags$hr(),
+            htmltools::tags$h5("Fees"),
+            do.call(htmltools::tagList, inputs),
             footer = htmltools::tagList(
               shiny::actionButton(
                 ns("save"),
@@ -167,54 +252,54 @@ mod_survey_fees_server <- function(
         )
       })
 
-      output$modal_survey_fees_table <- rhandsontable::renderRHandsontable({
-        shiny::req(fees_data())
-
-        tbl_data <- fees_data() |>
-          dplyr::select(tidyselect::contains("fee_"))
-
-        rhandsontable::rhandsontable(
-          data = tbl_data,
-          contextMenu = FALSE,
-          rowHeaders = NULL,
-          colHeaders = c("Fee Name", "Amount", "Frequency")
-        ) |>
-          rhandsontable::hot_cols(
-            colWidths = 200
-          ) |>
-          rhandsontable::hot_col(
-            col = 1,
-            readOnly = TRUE,
-            renderer = "
-              function(instance, td, row, col, prop, value, cellProperties) {
-                Handsontable.renderers.TextRenderer.apply(this, arguments);
-
-                // Set text to black
-                td.style.color = 'black';
-              }
-            "
-          ) |>
-          rhandsontable::hot_col(
-            col = 2,
-            renderer = "
-              function(instance, td, row, col, prop, value, cellProperties) {
-                Handsontable.renderers.TextRenderer.apply(this, arguments);
-
-                if (col === 0) {
-                  // Don't allow editing
-                  cellProperties.readOnly = true;
-                } else if (col == 1 && row == 2) {
-                  cellProperties.type = 'dropdown';
-                  cellProperties.source = ['App Fee Waived-Admin Due', 'Admin Fee Waived-App Due', 'Both Fees Waived', 'Both Fees Due']
-                }
-              }"
-          ) |>
-          rhandsontable::hot_col(
-            col = 3,
-            type = "dropdown",
-            source = c("Monthly", "Annual")
-          )
-      })
+      # output$modal_survey_fees_table <- rhandsontable::renderRHandsontable({
+      #   shiny::req(fees_data())
+      #
+      #   tbl_data <- fees_data() |>
+      #     dplyr::select(tidyselect::contains("fee_"))
+      #
+      #   rhandsontable::rhandsontable(
+      #     data = tbl_data,
+      #     contextMenu = FALSE,
+      #     rowHeaders = NULL,
+      #     colHeaders = c("Fee Name", "Amount", "Frequency")
+      #   ) |>
+      #     rhandsontable::hot_cols(
+      #       colWidths = 200
+      #     ) |>
+      #     rhandsontable::hot_col(
+      #       col = 1,
+      #       readOnly = TRUE,
+      #       renderer = "
+      #         function(instance, td, row, col, prop, value, cellProperties) {
+      #           Handsontable.renderers.TextRenderer.apply(this, arguments);
+      #
+      #           // Set text to black
+      #           td.style.color = 'black';
+      #         }
+      #       "
+      #     ) |>
+      #     rhandsontable::hot_col(
+      #       col = 2,
+      #       renderer = "
+      #         function(instance, td, row, col, prop, value, cellProperties) {
+      #           Handsontable.renderers.TextRenderer.apply(this, arguments);
+      #
+      #           if (col === 0) {
+      #             // Don't allow editing
+      #             cellProperties.readOnly = true;
+      #           } else if (col == 1 && row == 2) {
+      #             cellProperties.type = 'dropdown';
+      #             cellProperties.source = ['App Fee Waived-Admin Due', 'Admin Fee Waived-App Due', 'Both Fees Waived', 'Both Fees Due']
+      #           }
+      #         }"
+      #     ) |>
+      #     rhandsontable::hot_col(
+      #       col = 3,
+      #       type = "dropdown",
+      #       source = c("Monthly", "Annual")
+      #     )
+      # })
 
       shiny::observeEvent(input$save, {
 
@@ -226,24 +311,43 @@ mod_survey_fees_server <- function(
           comp_id <- NA_integer_
         }
 
-        new_values <- rhandsontable::hot_to_r(input$modal_survey_fees_table) |>
-          dplyr::mutate(
-            property_id = prop_id,
-            competitor_id = comp_id,
-            property_name = selected_filters$property_name,
-            leasing_week_id = selected_filters$leasing_week_id,
-            updated_by = selected_filters$user_id
-          ) |>
-          dplyr::select(
-            property_id,
-            competitor_id,
-            property_name,
-            leasing_week_id,
-            fee_name,
-            fee_amount,
-            fee_frequency,
-            updated_by
-          )
+        browser()
+
+        new_values <- data.frame(
+          property_id = prop_id,
+          competitor_id = comp_id,
+          property_name = selected_filters$property_name,
+          leasing_week_id = selected_filters$leasing_week_id,
+          updated_by = selected_filters$user_id,
+          fee_name = fees_data()$fee_name |> unique(),
+          fee_amount = purrr::map(
+            fees_data()$fee_name |> unique(),
+            ~ input[[paste0("fee_amount_", .x)]]
+          ) |> unlist(),
+          fee_frequency = purrr::map(
+            fees_data()$fee_name |> unique(),
+            ~ input[[paste0("fee_frequency_", .x)]]
+          ) |> unlist()
+        )
+
+        # new_values <- rhandsontable::hot_to_r(input$modal_survey_fees_table) |>
+        #   dplyr::mutate(
+        #     property_id = prop_id,
+        #     competitor_id = comp_id,
+        #     property_name = selected_filters$property_name,
+        #     leasing_week_id = selected_filters$leasing_week_id,
+        #     updated_by = selected_filters$user_id
+        #   ) |>
+        #   dplyr::select(
+        #     property_id,
+        #     competitor_id,
+        #     property_name,
+        #     leasing_week_id,
+        #     fee_name,
+        #     fee_amount,
+        #     fee_frequency,
+        #     updated_by
+        #   )
 
         db_update_survey_fees(pool, new_values)
 
