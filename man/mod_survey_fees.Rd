@@ -24,6 +24,16 @@ mod_survey_fees_demo()
 \item{id}{Module's namespace ID.}
 
 \item{pool}{Database connection pool.}
+
+\item{survey_data}{Reactive data for the survey.}
+
+\item{selected_filters}{Reactive data for the selected filters.}
+
+\item{db_trigger_func}{Reactive Function to trigger database updates.}
+
+\item{edit_survey_section}{Reactive Function representing the action button to edit the survey section.}
+
+\item{map_data}{Reactive data for the map.}
 }
 \value{
 \itemize{
