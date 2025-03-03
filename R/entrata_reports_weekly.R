@@ -149,7 +149,13 @@ entrata_lease_execution_report <- function(
   report_data <- httr2::resp_body_json(queue_resp) |>
     pluck("response", "result", "reportData")
 
-  report_data |>
+  # ensure all properties
+  props <- memoise::memoise(get_entrata_property_ids)() |>
+    tibble::enframe(name = "property_name", value = "property_id") |>
+    dplyr::mutate(property_id = as.integer(.data$property_id),
+                  report_date = .env$report_date)
+
+  out <- report_data |>
     jsonlite::toJSON(auto_unbox = TRUE, pretty = TRUE) |>
     jsonlite::fromJSON(flatten = TRUE) |>
     tibble::as_tibble() |>
@@ -171,5 +177,51 @@ entrata_lease_execution_report <- function(
       weekly_new,
       weekly_renewal,
       weekly_total
+    ) |>
+    dplyr::right_join(
+      props,
+      by = c("property_id", "property_name", "report_date")
+    ) |>
+    dplyr::mutate(
+      dplyr::across(
+        tidyselect::where(is.numeric),
+        ~dplyr::coalesce(.x, 0)
+      )
     )
+
+  params_tbl <- tibble::tibble(
+    request_id = request_id,
+    report_date = report_date,
+    report_name = "lease_execution_(applicant)",
+    report_version = report_version,
+    report_queue_id = .env$queue_id,
+    property_ids = "ALL",
+    period = paste0(weekly_period[[1]], " to ", weekly_period[[2]]),
+    results_based_on = "Activity",
+    lease_type = "New Lease, Renewal",
+    summarize_by = "Lease Type",
+    group_by = "Property",
+    consolidate_by = "No Consolidation",
+    arrange_by_property = "FALSE",
+    subtotals = "FALSE"
+  )
+
+  initial_req_json <- jsonlite::toJSON(req_body, auto_unbox = TRUE, pretty = TRUE)
+  initial_resp_json <- jsonlite::toJSON(httr2::resp_body_json(resp), auto_unbox = TRUE, pretty = TRUE)
+
+  queue_req_json <- jsonlite::toJSON(queue_req$body$data, auto_unbox = TRUE, pretty = TRUE)
+  queue_resp_json <- jsonlite::toJSON(httr2::resp_body_json(queue_resp), auto_unbox = TRUE, pretty = TRUE)
+
+  list(
+    report_data = out,
+    parameters = params_tbl,
+    metadata = list(
+      report_request = initial_req_json,
+      report_response = initial_resp_json,
+      queue_id = queue_id,
+      queue_request = queue_req_json,
+      queue_response = queue_resp_json
+    )
+  )
+
 }

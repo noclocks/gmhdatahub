@@ -378,20 +378,21 @@ entrata_req_perform <- function(
     logger = NULL,
     ...
 ) {
+
   check_request(req)
   config <- get_entrata_config()
 
   # Add retry logic
-  req <- req |>
-    entrata_req_retry(
-      max_tries = config$max_tries,
-      max_seconds = config$max_seconds
-    ) |>
-    # Add rate limiting
-    entrata_req_throttle(
-      rate = config$rate_limits$minute,
-      realm = "minute"
-    )
+  # req <- req |>
+  #   entrata_req_retry(
+  #     max_tries = config$max_tries,
+  #     max_seconds = config$max_seconds
+  #   ) |>
+  #   # Add rate limiting
+  #   entrata_req_throttle(
+  #     rate = ,
+  #     realm = "minute"
+  #   )
 
   if (debug) {
     return(httr2::req_dry_run(req))
@@ -406,11 +407,8 @@ entrata_req_perform <- function(
       )
     }
 
-    as_entrata_response(
-      resp,
-      endpoint = get_request_endpoint(req),
-      method = get_request_method_name(req)
-    )
+    return(resp)
+
   }, error = function(e) {
     cli::cli_abort(
       c("Entrata API request failed",

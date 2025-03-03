@@ -46,9 +46,9 @@ entrata_properties <- function(
 ) {
 
   method_name <- match.arg(method_name)
-  validate_entrata_method_name(endpoint = "properties", method = method_name)
+  validate_entrata_method_name(method_name = method_name)
   method_version <- get_default_entrata_method_version("properties", method_name)
-  validate_entrata_method_params(endpoint = "properties", method_name = method_name, method_params = method_params)
+  validate_entrata_method_params(endpoint = "properties", method_name = method_name, method_version = method_version, method_params = method_params)
   request_id <- request_id %||% as.integer(Sys.time())
 
   req <- entrata_request(entrata_config) |>
@@ -119,8 +119,7 @@ entrata_properties_getProperties <- function(
 ) {
 
   validate_entrata_config(entrata_config)
-
-  req_id <- req_id %||% as.integer(Sys.time())
+  request_id <- request_id %||% as.integer(Sys.time())
 
   req <- entrata_request(entrata_config) |>
     entrata_req_endpoint("properties") |>
@@ -129,10 +128,10 @@ entrata_properties_getProperties <- function(
       method_version = get_default_entrata_method_version("properties", "getProperties"),
       method_params = list(
         propertyIds = property_ids,
-        propertyLookupCode = property_lookup_code,,
+        propertyLookupCode = property_lookup_code,
         showAllStatus = as.integer(show_all_status)
       ),
-      request_id = req_id
+      request_id = request_id
     )
 
   entrata_req_perform(req)
