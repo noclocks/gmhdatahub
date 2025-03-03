@@ -103,3 +103,27 @@ validate_db_config <- function(cfg, arg = rlang::caller_arg(cfg), call = rlang::
   }
   return(invisible(NULL))
 }
+
+
+# connection string -------------------------------------------------------
+
+get_db_conn_str <- function(schemas = NULL, db_config = get_db_config()) {
+
+  validate_db_config(db_config)
+
+  if (!is.null(schemas)) {
+    schemas <- rlang::arg_match(
+      schemas,
+      c("public", "app", "auth", "gmh", "entrata", "survey", "mkt", "logs"),
+      multiple = TRUE
+    ) |>
+      stringr::str_c(collapse = ",")
+    schemas <- paste0("?schemas=", schemas)
+  } else {
+    schemas <- ""
+  }
+
+  glue::glue(
+    "postgresql://{db_config$user}:{URLencode(db_config$password, reserved = TRUE)}@{db_config$host}:{db_config$port}/{db_config$dbname}{schemas}"
+  )
+}

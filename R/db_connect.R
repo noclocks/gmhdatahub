@@ -127,6 +127,20 @@ db_return <- function(conn) {
   pool::poolReturn(conn)
 }
 
+#' @rdname db_connect
+#' @export
+#' @importFrom pool poolCheckout
+db_connect_and_checkout <- function(db_config = get_db_config(), user_id = NULL) {
+
+  validate_db_config(db_config)
+
+  pool <- db_connect(db_config = db_config, user_id = user_id)
+  conn <- db_checkout(pool)
+
+  return(conn)
+
+}
+
 #' Get the Database Connection
 #'
 #' @description
