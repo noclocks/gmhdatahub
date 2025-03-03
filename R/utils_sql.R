@@ -7,6 +7,7 @@
 #  ------------------------------------------------------------------------
 
 generate_sql_tbl_ddl <- function(df, table_name, schema = "public") {
+
   # Map R types to PostgreSQL types
   pg_type_map <- list(
     "numeric" = "NUMERIC",
@@ -19,7 +20,7 @@ generate_sql_tbl_ddl <- function(df, table_name, schema = "public") {
   )
 
   # Get column definitions
-  col_defs <- map_chr(df, function(col) {
+  col_defs <- purrr::map_chr(df, function(col) {
     base_type <- class(col)[1]
     sql_type <- pg_type_map[[base_type]] %||% "TEXT"
 

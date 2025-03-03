@@ -1,3 +1,13 @@
+
+#  ------------------------------------------------------------------------
+#
+# Title : Excel Utilities
+#    By : Jimmy Briggs
+#  Date : 2025-02-18
+#
+#  ------------------------------------------------------------------------
+
+
 get_xl_report_file_name <- function(
     report_name,
     report_date = Sys.Date(),
@@ -11,7 +21,6 @@ get_xl_report_file_name <- function(
 
   report_name <- snakecase::to_title_case(report_name) |>
     stringr::str_replace_all(" ", "_") |>
-    # replace all abbreviations with uppercase
     stringr::str_replace_all(replace)
 
   paste0(

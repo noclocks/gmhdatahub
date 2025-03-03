@@ -2,7 +2,7 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
 
   validate_col_names(
     data = summary_data,
-    cols = c(
+    req_cols = c(
       "report_date",
       "property_id",
       "property_name",

@@ -1,7 +1,3 @@
-validate_col_names <- function(data, cols) {
-  stopifnot(all(cols %in% colnames(data)))
-}
-
 
 #  ------------------------------------------------------------------------
 #
@@ -226,6 +222,68 @@ check_tibble_cols <- function(
   return(invisible(cols))
 }
 
+
+# columns -----------------------------------------------------------------
+
+#' Validate Column Names
+#'
+#' @description
+#' This function validates the column names of a data frame. It is used
+#' throughout the package to ensure that the data frame has the required
+#' columns before attempting to use or process the data.
+#'
+#' @param data The data frame to validate against.
+#' @param req_cols Character vector of required column names.
+#' @param optional_cols Character vector of optional column names.
+#' @inheritParams rlang::args_error_context
+#'
+#' @returns
+#' Returns invisibly if the data frame has the required columns.
+#'
+#' @export
+#'
+#' @importFrom cli cli_abort cli_alert_warning
+#' @importFrom rlang caller_env
+#'
+#' @examples
+#' validate_col_names(mtcars, c("mpg", "cyl"))
+validate_col_names <- function(
+    data,
+    req_cols,
+    optional_cols = NULL,
+    call = rlang::caller_env()
+) {
+
+  stopifnot(is.data.frame(data) || tibble::is_tibble(data))
+
+  if (is.null(optional_cols)) {
+    optional_cols <- c()
+  }
+
+  missing_req_cols <- setdiff(req_cols, colnames(data))
+  if (length(missing_req_cols) > 0) {
+    cli::cli_abort(
+      c(
+        "The following required columns are missing from the provided {.arg data}:\n",
+        "{.field {missing_req_cols}}"
+      ),
+      call = call
+    )
+  }
+
+  missing_opt_cols <- setdiff(optional_cols, colnames(data))
+  if (length(missing_opt_cols) > 0) {
+    cli::cli_alert_warning(
+      c(
+        "The following optional columns are missing from the provided {.arg data}:\n",
+        "{.field {missing_opt_cols}}"
+      ),
+      call = call
+    )
+  }
+
+}
+
 # logic -------------------------------------------------------------------
 
 check_in_set <- function(x, set, arg = rlang::caller_arg(x), call = rlang::caller_env()) {
@@ -307,113 +365,6 @@ check_date <- function(
     )
   }
   return(invisible(date))
-}
-
-# database connection -----------------------------------------------------
-
-#' Check Database Connection
-#'
-#' @description
-#' This function checks if the provided connection is a valid database
-#' connection. The function will throw an error if the connection is not
-#' a valid DBI or pool connection.
-#'
-#' @param conn A database connection object.
-#' @inheritParams rlang::args_error_context
-#'
-#' @returns The provided connection object invisibly if it is valid.
-#'
-#' @export
-#'
-#' @importFrom cli cli_abort
-#' @importFrom DBI dbIsValid
-#' @importFrom pool dbIsValid
-check_db_conn <- function(
-    conn,
-    arg = rlang::caller_arg(conn),
-    call = rlang::caller_env()
-) {
-
-  if (inherits(conn, "PqConnection")) {
-    return(check_db_conn_dbi(conn, arg = arg, call = call))
-  } else if (inherits(conn, "Pool")) {
-    return(check_db_conn_pool(conn, arg = arg, call = call))
-  } else if (inherits(conn, "connConnection")) {
-    return(check_db_conn_rstudio(conn, arg = arg, call = call))
-  } else {
-    cli::cli_abort(
-      c(
-        "Invalid Database Connection Provided: {.arg {arg}}",
-        "The provided connection is not a valid database connection."
-      ),
-      call = call
-    )
-  }
-
-}
-
-check_db_conn_pool <- function(conn, arg = rlang::caller_arg(conn), call = rlang::caller_env()) {
-  if (!inherits(conn, "Pool")) {
-    cli::cli_abort(
-      c(
-        "Invalid Database Connection Pool Provided: {.arg {arg}}",
-        "The provided connection is not a valid database connection pool."
-      ),
-      call = call
-    )
-  }
-
-  if (!pool::dbIsValid(conn)) {
-    cli::cli_abort(
-      c(
-        "Invalid Database Connection Pool Provided: {.arg {arg}}",
-        "The provided connection pool is not valid."
-      ),
-      call = call
-    )
-  }
-
-  return(invisible(conn))
-
-}
-
-check_db_conn_dbi <- function(conn, arg = rlang::caller_arg(conn), call = rlang::caller_env()) {
-  if (!inherits(conn, "PqConnection")) {
-    cli::cli_abort(
-      c(
-        "Invalid Database Connection Provided: {.arg {arg}}",
-        "The provided connection is not a valid DBI connection."
-      ),
-      call = call
-    )
-  }
-
-  if (!DBI::dbIsValid(conn)) {
-    cli::cli_abort(
-      c(
-        "Invalid Database Connection Provided: {.arg {arg}}",
-        "The provided DBI connection is not valid."
-      ),
-      call = call
-    )
-  }
-
-  return(invisible(conn))
-
-}
-
-check_db_conn_rstudio <- function(conn, arg = rlang::caller_arg(conn), call = rlang::caller_env()) {
-  if (!inherits(conn, "connConnection")) {
-    cli::cli_abort(
-      c(
-        "Invalid Database Connection Provided: {.arg {arg}}",
-        "The provided connection is not a valid RStudio connection."
-      ),
-      call = call
-    )
-  }
-
-  return(invisible(conn))
 }
 
 # files and paths --------------------------------------------------------------------
