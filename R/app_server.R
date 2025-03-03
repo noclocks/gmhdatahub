@@ -66,23 +66,23 @@ app_server <- function(input, output, session) {
   guide <- app_guide()
 
   # main modules
-  mod_home_data <- mod_home_server("home", pool = pool, navigate_func = navigate, guide = guide)
-  mod_dashboard_data <- mod_dashboard_server("dashboard", pool = pool)
+  # mod_home_data <- mod_home_server("home", pool = pool, navigate_func = navigate, guide = guide)
+  # mod_dashboard_data <- mod_dashboard_server("dashboard", pool = pool)
 
   # data modules
-  mod_properties_data <- mod_properties_server("properties", pool = pool, global_filters = global_filters)
-  mod_property_units_data <- mod_property_units_server("property_units", pool = pool, global_filters = global_filters)
-  mod_leases_data <- mod_leases_server("leases", pool = pool, global_filters = global_filters)
-  mod_floorplans_data <- mod_floorplans_server("floorplans", pool = pool, global_filters = global_filters)
-  mod_residents_data <- mod_residents_server("residents", pool = pool, global_filters = global_filters)
+  # mod_properties_data <- mod_properties_server("properties", pool = pool, global_filters = global_filters)
+  # mod_property_units_data <- mod_property_units_server("property_units", pool = pool, global_filters = global_filters)
+  # mod_leases_data <- mod_leases_server("leases", pool = pool, global_filters = global_filters)
+  # mod_floorplans_data <- mod_floorplans_server("floorplans", pool = pool, global_filters = global_filters)
+  # mod_residents_data <- mod_residents_server("residents", pool = pool, global_filters = global_filters)
 
   # report modules
   mod_pre_lease_data <- mod_pre_lease_server("pre_lease", pool = pool)
-  mod_box_score_data <- mod_box_score_server("box_score", pool = pool, global_filters = global_filters)
-  mod_performance_data <- mod_performance_server("performance", pool = pool, global_filters = global_filters)
+  # mod_box_score_data <- mod_box_score_server("box_score", pool = pool, global_filters = global_filters)
+  # mod_performance_data <- mod_performance_server("performance", pool = pool, global_filters = global_filters)
 
   # survey modules
-  mod_survey_admin_data <- mod_survey_admin_server("survey_admin", pool = pool, global_filters = global_filters, navigate = navigate)
+  # mod_survey_admin_data <- mod_survey_admin_server("survey_admin", pool = pool, navigate = navigate)
   mod_survey_forms_data <- mod_survey_forms_server("survey_forms", pool = pool)
   mod_survey_insights_data <- mod_survey_insights_server("survey_insights", pool = pool)
 }
