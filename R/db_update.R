@@ -462,6 +462,48 @@ db_update_survey_fees <- function(pool, new_values) {
   )
 }
 
+db_update_survey_fee_structure <- function(
+  pool,
+  fee_structure_data
+) {
+
+  check_db_conn(pool)
+
+  data <- fee_structure_data
+
+  conn <- pool::poolCheckout(pool)
+  on.exit(pool::poolReturn(conn))
+
+  tryCatch(
+    {
+      dbx::dbxUpsert(
+        conn,
+        DBI::SQL("survey.fee_structure"),
+        records = data,
+        where_cols = c("property_name", "leasing_week_id", "fee_name"),
+        skip_existing = FALSE
+      )
+
+      cli::cli_alert_success(
+        "Successfully updated fee structure."
+      )
+
+      shiny::showNotification(
+        "Successfully updated fee structure."
+      )
+    },
+    error = function(e) {
+      cli::cli_alert_danger(
+        "Failed to update fee structure: {.error {e$message}}"
+      )
+      shiny::showNotification(
+        "Failed to update fee structure.",
+        type = "error"
+      )
+    }
+  )
+}
+
 
 
 db_update_survey_hours <- function(pool, new_values) {

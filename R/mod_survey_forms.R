@@ -314,6 +314,7 @@ mod_survey_forms_server <- function(
         leasing_summary = NULL,
         short_term_leases = NULL,
         fees = NULL,
+        fee_structures = NULL,
         property_amenities = NULL,
         unit_amenities = NULL,
         unit_amenities_rates_premiums = NULL,
@@ -381,6 +382,11 @@ mod_survey_forms_server <- function(
               property_id = prop_id,
               competitor_id = comp_id,
               leasing_week_id = week_id
+            )
+            survey_data$fee_structures <- db_read_survey_fee_structures(
+              pool,
+              property_id = prop_id,
+              competitor_id = comp_id
             )
             shiny::incProgress(1 / 13, detail = "Retrieving Property Amenities Data...")
             survey_data$property_amenities <- db_read_survey_property_amenities(
