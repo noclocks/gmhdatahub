@@ -2,7 +2,8 @@
 
 # Variables
 $PROJECT_ID = "gmh-communities"
-$SERVICE = "gmhdatahub"
+$SERVICE = "gmh-leasing-dashboard-dev" # "gmh-leasing-dashboard-prod" "gmhdatahub"
+$REPO = "leasing-dashboard"
 $REGION = "us-east1"
 $TAG = "latest"
 
@@ -15,6 +16,8 @@ gcloud config set project $PROJECT_ID
 
 # Authenticate for docker
 gcloud auth configure-docker "$REGION-docker.pkg.dev"
+
+$DOCKER_TAG = "$REGION-docker.pkg.dev/$PROJECT_ID/$REPO/$SERVICE" + ":${TAG}"
 
 # docker commands
 docker build --build-arg NOCLOCKS_ENCRYPTION_KEY=$ENV:NOCLOCKS_ENCRYPTION_KEY -t gmhdatahub:latest .
