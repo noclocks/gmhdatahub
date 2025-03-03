@@ -1,4 +1,5 @@
 tbl_survey_fees <- function(fees_data) {
+
   req_cols <- c(
     "fee_name",
     "fee_amount",
@@ -58,12 +59,10 @@ tbl_survey_fees <- function(fees_data) {
       format = reactable::colFormat(currency = "USD"),
       align = "center",
       aggregate = "sum",
-      cell = reactablefmtr::data_bars(
+      cell = reactablefmtr::pill_buttons(
         data = fees_data,
-        fill_color = c("#bfe4d3", "#28a745"),
-        background = "#f7f9fc",
-        text_position = "outside-end",
-        number_fmt = function(value) paste0("$", format(round(value), big.mark = ","))
+        number_fmt = scales::dollar,
+        colors = c("darkgreen")
       )
     ),
     # Monthly vs. Annual
