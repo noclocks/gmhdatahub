@@ -8,6 +8,16 @@
 
 ## Bug Fixes
 
+- Fix db_triggers and available_leasing_week_ids ([d3523ed](https://github.com/noclocks/gmhdatahub/commit/d3523ed44ff776452139c569b9176d542297d566))  - (Jimmy Briggs)
+- Fix db survey function for leasing summary ([011755d](https://github.com/noclocks/gmhdatahub/commit/011755d835b5b5924ab059a1ffee45d60b458e8a))  - (Jimmy Briggs)
+- Fixed excel formula for yoy variance % ([1b3145e](https://github.com/noclocks/gmhdatahub/commit/1b3145eb69db413e52ad0feba8170c88d9055d0c))  - (Jimmy Briggs)
+- Fix actions col_groups ([dc49aca](https://github.com/noclocks/gmhdatahub/commit/dc49acad15f4c990a98c737bc7962bc1bf241658))  - (Jimmy Briggs)
+- Fix db_update process for model beds and investment partners ([b572eb4](https://github.com/noclocks/gmhdatahub/commit/b572eb488f89c3cdd09e74d64590996365cb137c))  - (Jimmy Briggs)
+- Fix input validation for issue #22 ([cf4c781](https://github.com/noclocks/gmhdatahub/commit/cf4c781705eda04614b2c4f2da00c08ba129a080))  - (Jimmy Briggs)
+- Ensure config set correctly in prelease app.R ([622e0fa](https://github.com/noclocks/gmhdatahub/commit/622e0fa074761afcca3e9d6ea57ca3a5c93d3eb7))  - (Jimmy Briggs)
+- Fix pat typo ([9f08ced](https://github.com/noclocks/gmhdatahub/commit/9f08ced888aec99bb9b64c5f5d855256ded9582b))  - (Jimmy Briggs)
+- Bugfixes ([93a047f](https://github.com/noclocks/gmhdatahub/commit/93a047f865b49a74b962fb5060b07f6944e7a16d))  - (Jimmy Briggs)
+- Fix pageSize ([de7c5b6](https://github.com/noclocks/gmhdatahub/commit/de7c5b60619f84924614ee5e5bef7a2d949a6e7a))  - (Jimmy Briggs)
 - Incorrect function name ([85c1364](https://github.com/noclocks/gmhdatahub/commit/85c136488c745ce601add739f822e3c26f4512f3))  - (Jimmy Briggs)
 - Fix user() ([94c1830](https://github.com/noclocks/gmhdatahub/commit/94c18306c9c0914ab6f552ae20c3b0785715e4a3))  - (Jimmy Briggs)
 - Remove table titles ([01bea97](https://github.com/noclocks/gmhdatahub/commit/01bea97e8ea659e6c375e83c17811b031ea63779))  - (Jimmy Briggs)
@@ -26,6 +36,8 @@
 
 ## Configuration
 
+- Git ignore Renviron ([7534a56](https://github.com/noclocks/gmhdatahub/commit/7534a56d71a3fdb9a2b4c40127ae9725bee50249))  - (Jimmy Briggs)
+- Gitignore ([1a5d772](https://github.com/noclocks/gmhdatahub/commit/1a5d7720db304f1f186c93129fee2537d62de9d7))  - (Jimmy Briggs)
 - Air ([100567b](https://github.com/noclocks/gmhdatahub/commit/100567bec93aa1ec75e095b0e2dbcc72b3345615))  - (Jimmy Briggs)
 - Updated encrypted config ([c1b75ba](https://github.com/noclocks/gmhdatahub/commit/c1b75ba111e7f5e5e92a7c85d8b86748c867592f))  - (Jimmy Briggs)
 - Ignore changelog ([0687ce0](https://github.com/noclocks/gmhdatahub/commit/0687ce019ddc82f7f6a411ba5f0a404e18834fda))  - (Jimmy Briggs)
@@ -34,12 +46,23 @@
 
 ## Data
 
+- Seed rest of survey competitors data ([78905d8](https://github.com/noclocks/gmhdatahub/commit/78905d885af825cba813eb04d755f81ad7b2a538))  - (Jimmy Briggs)
+- Add gmh pre-lease summary view with all report dates ([8867ff6](https://github.com/noclocks/gmhdatahub/commit/8867ff651eb9c2f0a2f3c183fe56a241f1a595b1))  - (Jimmy Briggs)
+- Add db scripts ([7d6bf23](https://github.com/noclocks/gmhdatahub/commit/7d6bf23f3f7e81d703ffabe63b115f5ae2f09a5e))  - (Jimmy Briggs)
+- Fix gmh.leasing_calendar ([80e96de](https://github.com/noclocks/gmhdatahub/commit/80e96dec26f03d30295740d177ecc61f852c43a2))  - (Jimmy Briggs)
+- Gmh.model_beds table DDL ([bd652df](https://github.com/noclocks/gmhdatahub/commit/bd652df5cfc3565e1b03b29d8ab0ac6aae324f14))  - (Jimmy Briggs)
+- Seed gmh.model_beds ([44a8572](https://github.com/noclocks/gmhdatahub/commit/44a857277ff8863a7436f3f7dc012b6d57f1ebff))  - (Jimmy Briggs)
+- Update investment partners for new GMH property ([adc4d25](https://github.com/noclocks/gmhdatahub/commit/adc4d2585faa5457017e20937e673a5a91063dff))  - (Jimmy Briggs)
 - Data-raw updates ([2be7a4c](https://github.com/noclocks/gmhdatahub/commit/2be7a4c92864961e337a91af804dda817833546b))  - (Jimmy Briggs)
 - Db updates ([932ba41](https://github.com/noclocks/gmhdatahub/commit/932ba412622627797a76ef3523fa20d8b82deb30))  - (Jimmy Briggs)
 - Updated internal package sysdata with amenities information ([719742c](https://github.com/noclocks/gmhdatahub/commit/719742ca2db6191d15a5d73c3a6ca878739c32a7))  - (Jimmy Briggs)
 
 ## Documentation
 
+- Update man pages ([d8b4d96](https://github.com/noclocks/gmhdatahub/commit/d8b4d964d3929ca6a6088f6ecf126af5955d2f29))  - (Jimmy Briggs)
+- Roxygenize ([623bcef](https://github.com/noclocks/gmhdatahub/commit/623bcefaecbbe4d46b7990d47c3ed21a6bbd246d))  - (Jimmy Briggs)
+- Add imports to home module ([e9be77e](https://github.com/noclocks/gmhdatahub/commit/e9be77e0ba9d95523423e692edb418a39f8ec57a))  - (Jimmy Briggs)
+- Adding screenshots used in emails to repo ([6fcee54](https://github.com/noclocks/gmhdatahub/commit/6fcee54ecbdbb67dadf4b8cb94931c39611776e5))  - (Jimmy Briggs)
 - Readme link to live apps ([c48acdd](https://github.com/noclocks/gmhdatahub/commit/c48acdd3e75a39ae3ceeca6d1934af00dd03f1bb))  - (Jimmy Briggs)
 - Pkgdown ([c4d7d24](https://github.com/noclocks/gmhdatahub/commit/c4d7d2419f393d9b9b59c2965a0a994e34c6cedd))  - (Jimmy Briggs)
 - Updated man pages ([602784f](https://github.com/noclocks/gmhdatahub/commit/602784ff9b9a61a0d7c7b083e7df3f10aa5d92d3))  - (Jimmy Briggs)
@@ -56,6 +79,41 @@
 
 ## Features
 
+- Add survey fee structures ([1bee985](https://github.com/noclocks/gmhdatahub/commit/1bee98539c1071391eea61934636c5ae7a3acc40))  - (Jimmy Briggs)
+- Update survey fees module to not use rhandsontable ([38b12c8](https://github.com/noclocks/gmhdatahub/commit/38b12c84494e34bccfb404f26a1e4ef579bb36ad))  - (Jimmy Briggs)
+- Enhance fees reactable function ([09fd288](https://github.com/noclocks/gmhdatahub/commit/09fd288f1d7f38faef3033821a67b31628df4eb4))  - (Jimmy Briggs)
+- Add database survey.fee_structures table and seed SQL ([6842a26](https://github.com/noclocks/gmhdatahub/commit/6842a26f74775dcb8bc056382405f4e759237468))  - (Jimmy Briggs)
+- New entrata data pipeline functions and tweaked existing entrata functions ([980d890](https://github.com/noclocks/gmhdatahub/commit/980d890ebe896fe173fab06969bf41a08242c2c8))  - (Jimmy Briggs)
+- Update various installed package resources (database, scripts, and images) ([1c65a7c](https://github.com/noclocks/gmhdatahub/commit/1c65a7ccf92a49554e3c9972d8142748682d1deb))  - (Jimmy Briggs)
+- Update NAMESPACE ([6ab228c](https://github.com/noclocks/gmhdatahub/commit/6ab228c0c2499f7632017714a39a8f78ce34ba91))  - (Jimmy Briggs)
+- Add shiny envvars for logging ([c064e18](https://github.com/noclocks/gmhdatahub/commit/c064e1805ef0923b3821c1e1d984b109f46c5f5f))  - (Jimmy Briggs)
+- Add server logger intialization ([bda7dd8](https://github.com/noclocks/gmhdatahub/commit/bda7dd83dcdcb27a3f53cf82f9baeb48bd7987ac))  - (Jimmy Briggs)
+- Refactor database functions ([29bedfb](https://github.com/noclocks/gmhdatahub/commit/29bedfb5006b90c61795627a4eb6613b3b7cc5fe))  - (Jimmy Briggs)
+- Enhance / update survey forms module ([8923ea2](https://github.com/noclocks/gmhdatahub/commit/8923ea2857549906740582284897c1ba3c59f03b))  - (Jimmy Briggs)
+- Enhance/update leasing summary survey module ([f15d6dc](https://github.com/noclocks/gmhdatahub/commit/f15d6dce7b6b3eb9046c7b2d207aa2957257ded8))  - (Jimmy Briggs)
+- Enhance / update property summary survey section module ([40d9854](https://github.com/noclocks/gmhdatahub/commit/40d9854076a5655d96ba10e76b583cabb001b80a))  - (Jimmy Briggs)
+- Enhance and tidy utility functions ([6671f76](https://github.com/noclocks/gmhdatahub/commit/6671f766830aae36a1a18bc2abc9517b10800427))  - (Jimmy Briggs)
+- Update db update function for leasing summary ([35f7b5d](https://github.com/noclocks/gmhdatahub/commit/35f7b5db65f288fac9c2d65486bbc8863b4d6040))  - (Jimmy Briggs)
+- Tweak UI theme colors ([d7e4c87](https://github.com/noclocks/gmhdatahub/commit/d7e4c87c96c76259f706cc1296b979d48402267d))  - (Jimmy Briggs)
+- Add new response parsing functions to `entrata_parse.R` ([62f3e4e](https://github.com/noclocks/gmhdatahub/commit/62f3e4eff3ab8af2dc0ed1bd9954b212039c0fc3))  - (Jimmy Briggs)
+- Add additional gmh_colors ([71ccee9](https://github.com/noclocks/gmhdatahub/commit/71ccee9cfbb2289748b16b65a5b1df740ecfc050))  - (Jimmy Briggs)
+- Sandbox admin dashboard for email to drew ([00bd938](https://github.com/noclocks/gmhdatahub/commit/00bd938d2dbd5e3f3127eca2e8ea7ac0e12a1074))  - (Jimmy Briggs)
+- Remove search ([695d343](https://github.com/noclocks/gmhdatahub/commit/695d34394f7a12d636a6f02e10249c07f1878f68))  - (Jimmy Briggs)
+- Enhance xl report name function ([12d8271](https://github.com/noclocks/gmhdatahub/commit/12d8271237021f673918e14d37f62c6fb1462d6f))  - (Jimmy Briggs)
+- Prelease-specific deploy script ([6bc41e8](https://github.com/noclocks/gmhdatahub/commit/6bc41e88491d57bad4cc44dc43085f615eee8ce6))  - (Jimmy Briggs)
+- Enhance excel export custom report for issue #24 ([6200ef8](https://github.com/noclocks/gmhdatahub/commit/6200ef8229c427d7ffa6b13f13f30deff1ecf552))  - (Jimmy Briggs)
+- Revamped details tab and drill-downable data UX ([1def048](https://github.com/noclocks/gmhdatahub/commit/1def048031ce9f439b7587bcedc6e8f3800ebbbc))  - (Jimmy Briggs)
+- Add refresh time warning ([667f228](https://github.com/noclocks/gmhdatahub/commit/667f22895767aa005481edff644a163dea986792))  - (Jimmy Briggs)
+- New prelease Docker ([c1af4dd](https://github.com/noclocks/gmhdatahub/commit/c1af4dd6403c3eb24497220081c29c79bce2458b))  - (Jimmy Briggs)
+- New pre-lease summary reactable function ([feca490](https://github.com/noclocks/gmhdatahub/commit/feca490d94bf7dd3bdf84988c39e35704d6d770a))  - (Jimmy Briggs)
+- Add charts ([5836302](https://github.com/noclocks/gmhdatahub/commit/5836302e91f696b1007dc3d63fca8cbfaac2dd93))  - (Jimmy Briggs)
+- Enhance UI ([9563bd6](https://github.com/noclocks/gmhdatahub/commit/9563bd66627befed50021f5d3ea1d4c889a51cd3))  - (Jimmy Briggs)
+- Processing of entrata pre-lease data ([98e8a87](https://github.com/noclocks/gmhdatahub/commit/98e8a871373d6059bda65368e09ff6b8ab3280d3))  - (Jimmy Briggs)
+- Add excel template and download handler ([2f17ee4](https://github.com/noclocks/gmhdatahub/commit/2f17ee4980d227729398d362d92a5b25d15c312b))  - (Jimmy Briggs)
+- Add rlang imports ([8555635](https://github.com/noclocks/gmhdatahub/commit/8555635c88d55b13795979942eeed4fe1dda9afe))  - (Jimmy Briggs)
+- Entrata ([711a757](https://github.com/noclocks/gmhdatahub/commit/711a757c1629e1102aaf9f635ac62df162643422))  - (Jimmy Briggs)
+- Db funcs ([918508e](https://github.com/noclocks/gmhdatahub/commit/918508e705fc5c1debabdd13c3f6a031c0a4b777))  - (Jimmy Briggs)
+- Add new gmh.pre_lease_global_summary view in database ([061131c](https://github.com/noclocks/gmhdatahub/commit/061131cc541d2275f406951abceb07adde92b4e0))  - (Jimmy Briggs)
 - Enhance survey utilities module ([4e94b36](https://github.com/noclocks/gmhdatahub/commit/4e94b365454e3b5a61c9ed3b41657cc47c165b8b))  - (Jimmy Briggs)
 - Survey mods ([586d79e](https://github.com/noclocks/gmhdatahub/commit/586d79e3f07f2b7d7343081a155d55923ae4ab9c))  - (Jimmy Briggs)
 - Db funcs ([3101589](https://github.com/noclocks/gmhdatahub/commit/3101589e33cf61e976d3f14c682208a35da92719))  - (Jimmy Briggs)
@@ -161,6 +219,11 @@
 
 ## Refactoring
 
+- Comment out unused modules ([fe703dc](https://github.com/noclocks/gmhdatahub/commit/fe703dce1bc6f70fbc89118b5eac159b54be7c34))  - (Jimmy Briggs)
+- Refactor entrata properties functions and update DESCRIPTION ([f44cea5](https://github.com/noclocks/gmhdatahub/commit/f44cea5371c8bbcce3c98aa08430da99aa13fb1f))  - (Jimmy Briggs)
+- Separate shiny utils from general utils and add roxygen prose ([0b819ad](https://github.com/noclocks/gmhdatahub/commit/0b819ad9d1f28db7160f2c8e32e2378478826516))  - (Jimmy Briggs)
+- Bslib::navbar_options() ([72f22aa](https://github.com/noclocks/gmhdatahub/commit/72f22aae64b749a9dde5f2fd098cc00426a832ec))  - (Jimmy Briggs)
+- Cleanup ([a4ca1b7](https://github.com/noclocks/gmhdatahub/commit/a4ca1b761e3d0f5b468227fe1d1b3363008429c8))  - (Jimmy Briggs)
 - Cleanup empty files ([5719272](https://github.com/noclocks/gmhdatahub/commit/571927231be0a869066ea787250bb271a039eae9))  - (Jimmy Briggs)
 - Cleanup ([aa127ad](https://github.com/noclocks/gmhdatahub/commit/aa127ad5b41234646e113298562931398f665969))  - (Jimmy Briggs)
 - Commenting out competitor for now ([307cee5](https://github.com/noclocks/gmhdatahub/commit/307cee5331825460304e33f46fbd6d3dfeedefc9))  - (Jimmy Briggs)
