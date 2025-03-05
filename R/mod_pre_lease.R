@@ -46,6 +46,8 @@ NULL
 #' @importFrom plotly plotlyOutput
 #' @importFrom reactable reactableOutput
 #' @importFrom shiny NS textOutput downloadButton
+#' @importFrom shinyjs useShinyjs hidden
+#' @importFrom shinyscreenshot screenshotButton
 mod_pre_lease_ui <- function(id) {
 
   ns <- shiny::NS(id)
@@ -267,80 +269,92 @@ mod_pre_lease_ui <- function(id) {
           title = "Charts",
           icon = bsicons::bs_icon("bar-chart"),
           value = "charts",
-          bslib::layout_columns(
-            col_widths = c(6, 6),
-            bslib::card(
-              full_screen = TRUE,
-              apexcharter::apexchartOutput(
-                ns("current_vs_prior_chart"),
-                height = "400px"
+          shinyscreenshot::screenshotButton(
+            id = ns("charts-container"),
+            filename = paste0(
+              format(Sys.Date(), "%Y-%m-%d"),
+              "_GMH_Pre_Lease_Charts"
+            ),
+            label = "Download Charts",
+            ns = ns
+          ),
+          htmltools::tags$div(
+            id = ns("charts-container"),
+            bslib::layout_columns(
+              col_widths = c(6, 6),
+              bslib::card(
+                full_screen = TRUE,
+                apexcharter::apexchartOutput(
+                  ns("current_vs_prior_chart"),
+                  height = "400px"
+                )
+              ),
+              bslib::card(
+                full_screen = TRUE,
+                apexcharter::apexchartOutput(
+                  ns("occupancy_chart"),
+                  height = "400px"
+                )
               )
             ),
-            bslib::card(
-              full_screen = TRUE,
-              apexcharter::apexchartOutput(
-                ns("occupancy_chart"),
-                height = "400px"
-              )
-            )
-          ),
-          bslib::layout_columns(
-            col_widths = c(6, 6),
-            bslib::card(
-              full_screen = TRUE,
-              apexcharter::apexchartOutput(
-                ns("velocity_chart"),
-                height = "400px"
-              )
-            ),
-            bslib::card(
-              full_screen = TRUE,
-              apexcharter::apexchartOutput(
-                ns("pre_lease_rates_chart"),
-                height = "400px"
-              )
-            )
-          ),
-          bslib::layout_columns(
-            col_widths = c(6, 6),
-            bslib::card(
-              full_screen = TRUE,
-              apexcharter::apexchartOutput(
-                ns("partner_distribution_chart"),
-                height = "400px"
+            bslib::layout_columns(
+              col_widths = c(6, 6),
+              bslib::card(
+                full_screen = TRUE,
+                apexcharter::apexchartOutput(
+                  ns("velocity_chart"),
+                  height = "400px"
+                )
+              ),
+              bslib::card(
+                full_screen = TRUE,
+                apexcharter::apexchartOutput(
+                  ns("pre_lease_rates_chart"),
+                  height = "400px"
+                )
               )
             ),
-            bslib::card(
-              full_screen = TRUE,
-              apexcharter::apexchartOutput(
-                ns("portfolio_summary_chart"),
-                height = "400px"
-              )
-            )
-          ),
-          bslib::layout_columns(
-            col_widths = c(6, 6),
-            bslib::card(
-              full_screen = TRUE,
-              apexcharter::apexchartOutput(
-                ns("weekly_activity_chart"),
-                height = "400px"
+            bslib::layout_columns(
+              col_widths = c(6, 6),
+              bslib::card(
+                full_screen = TRUE,
+                apexcharter::apexchartOutput(
+                  ns("partner_distribution_chart"),
+                  height = "400px"
+                )
+              ),
+              bslib::card(
+                full_screen = TRUE,
+                apexcharter::apexchartOutput(
+                  ns("portfolio_summary_chart"),
+                  height = "400px"
+                )
               )
             ),
-            bslib::card(
-              full_screen = TRUE,
-              apexcharter::apexchartOutput(
-                ns("weekly_leasing_breakdown_chart"),
-                height = "400px"
+            bslib::layout_columns(
+              col_widths = c(6, 6),
+              bslib::card(
+                full_screen = TRUE,
+                apexcharter::apexchartOutput(
+                  ns("weekly_activity_chart"),
+                  height = "400px"
+                )
+              ),
+              bslib::card(
+                full_screen = TRUE,
+                apexcharter::apexchartOutput(
+                  ns("weekly_leasing_breakdown_chart"),
+                  height = "400px"
+                )
               )
-            )
-          ),
-          bslib::layout_columns(
-            bslib::card(
-              full_screen = TRUE,
-              apexcharter::apexchartOutput(
-                ns("yoy_variance_chart"),
-                height = "400px"
+            ),
+            bslib::layout_columns(
+              bslib::card(
+                full_screen = TRUE,
+                apexcharter::apexchartOutput(
+                  ns("yoy_variance_chart"),
+                  height = "400px"
+                )
               )
             )
           )

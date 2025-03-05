@@ -67,6 +67,7 @@ Imports:
     shinybusy,
     shinycustomloader,
     shinyjs,
+    shinyscreenshot,
     shinyvalidate,
     shinyWidgets,
     snakecase,
