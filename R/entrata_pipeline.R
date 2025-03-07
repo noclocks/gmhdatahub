@@ -27,50 +27,46 @@
 #' @importFrom tidyselect any_of ends_with starts_with
 process_pre_lease_summary_data <- function(summary_data, report_date = Sys.Date()) {
 
-  int_cols <- function() {
-    c(
-      tidyselect::any_of(c("property_id", "units", "variance")),
-      tidyselect::ends_with("_count"),
-      tidyselect::ends_with("_count_prior"),
-      tidyselect::starts_with("number_")
-    )
-  }
+  int_cols <- c(
+    tidyselect::all_of(c("property_id", "units", "variance")),
+    tidyselect::ends_with("_count"),
+    tidyselect::ends_with("_count_prior"),
+    tidyselect::starts_with("number_")
+  )
 
-  num_cols <- function() {
-    c(
-      tidyselect::starts_with("avg_"),
-      tidyselect::ends_with("_percent"),
-      tidyselect::ends_with("_percent_prior"),
-      tidyselect::ends_with("_rent"),
-      tidyselect::ends_with("_rent_total")
-    )
-  }
+  num_cols <- c(
+    tidyselect::starts_with("avg_"),
+    tidyselect::ends_with("_percent"),
+    tidyselect::ends_with("_percent_prior"),
+    tidyselect::ends_with("_total"),
+    tidyselect::ends_with("_rent"),
+    tidyselect::ends_with("_rent_total")
+  )
 
   summary_data |>
     dplyr::mutate(
       report_date = as.Date(.env$report_date),
-      dplyr::across(int_cols(), function(n) dplyr::coalesce(as.integer(n), 0L)),
-      dplyr::across(num_cols(), function(n) dplyr::coalesce(as.numeric(n), 0.00))
+      dplyr::across(int_cols, function(n) dplyr::coalesce(as.integer(n), 0L)),
+      dplyr::across(num_cols, function(n) dplyr::coalesce(as.numeric(n), 0.00))
     ) |>
     dplyr::select(
       "report_date",
       "property_id",
       "property_name",
       tidyselect::any_of(c("unit_type", "floorplan_name", "space_option")),
-      tidyselect::starts_with("number_"),
       "total_unit_count" = "units",
       "excluded_unit_count",
       "rentable_unit_count",
-      "occupied_count",
-      "available_count",
-      "total_scheduled_rent" = "scheduled_rent_total",
+      "occupied_unit_count" = "occupied_count",
+      "available_unit_count" = "available_count",
       tidyselect::starts_with("avg_"),
       tidyselect::starts_with("started_"),
-      tidyselect::starts_with("partially_completed"),
+      tidyselect::starts_with("partially_completed_"),
       tidyselect::starts_with("completed_"),
       tidyselect::starts_with("approved_"),
       tidyselect::starts_with("preleased_"),
-      "yoy_variance" = "variance"
+      "yoy_variance" = "variance",
+      "total_scheduled_rent" = "scheduled_rent_total"
     ) |>
     dplyr::arrange(.data$property_name)
 
@@ -126,7 +122,8 @@ process_pre_lease_details_data <- function(details_data, report_date = Sys.Date(
       tidyselect::starts_with("deposit_"),
       tidyselect::ends_with("_rent"),
       tidyselect::ends_with("_rate"),
-      tidyselect::ends_with("_total")
+      tidyselect::ends_with("_total"),
+      tidyselect::ends_with("_charges")
     )
   }
 
@@ -219,14 +216,10 @@ prepare_pre_lease_summary_data <- function(summary_data) {
       report_date = .data$report_date,
       property_id = .data$property_id,
       property_name = .data$property_name,
-      dplyr::across(
-        tidyselect::any_of(c("unit_type", "floorplan_name")),
-        ~.x,
-        .names = "{.col}"
-      ),
-      total_beds = .data$available_count,
-      current_occupied = .data$occupied_count,
-      current_occupancy = dplyr::coalesce(.data$occupied_count / .data$total_beds, 0),
+      dplyr::across(tidyselect::any_of(c("unit_type", "floorplan_name")), ~.x, .names = "{.col}"),
+      total_beds = .data$available_unit_count,
+      current_occupied = .data$occupied_unit_count,
+      current_occupancy = dplyr::coalesce(.data$occupied_unit_count / .data$total_beds, 0),
       current_total_new = .data$approved_new_count + .data$partially_completed_new_count + .data$completed_new_count,
       current_total_renewals = .data$approved_renewal_count + .data$partially_completed_renewal_count + .data$completed_renewal_count,
       current_total_leases = .data$current_total_new + .data$current_total_renewals,
@@ -419,7 +412,7 @@ get_entrata_pre_lease_report_property_data <- function(
     property_group_ids = c(as.character(unlist(unname(property_ids)))),
     period = period,
     summarize_by = "property",
-    group_by = "do_not_group",
+    group_by = "property", # "do_not_group"
     consider_pre_leased_on = "332",
     charge_code_detail = 1L,
     space_options = "do_not_show",
@@ -509,7 +502,7 @@ get_entrata_pre_lease_report_property_data <- function(
     process_pre_lease_summary_data()
 
   summary_data_working <- summary_data_processed |>
-    prepare_pre_lease_summary_data()
+    transform_pre_lease_summary_data()
 
   details_data_original <- resp_data |>
     purrr::pluck("details") |>
@@ -541,18 +534,17 @@ get_entrata_pre_lease_report_property_data <- function(
   )
 
   params_json <- params_lst |> jsonlite::toJSON(pretty = TRUE, auto_unbox = TRUE)
-
   initial_req_json <- jsonlite::toJSON(req_body, pretty = TRUE, auto_unbox = TRUE)
   initial_resp_json <- jsonlite::toJSON(httr2::resp_body_json(resp), pretty = TRUE, auto_unbox = TRUE)
-
   queue_req_json <- jsonlite::toJSON(queue_req$body$data, pretty = TRUE, auto_unbox = TRUE)
   queue_resp_json <- jsonlite::toJSON(httr2::resp_body_json(queue_resp), pretty = TRUE, auto_unbox = TRUE)
 
   list(
     summary_original = summary_data_original,
+    summary_processed = summary_data_processed,
     summary_working = summary_data_working,
     details_original = details_data_original,
-    details_working = details_data_processed,
+    details_proceessed = details_data_processed,
     parameters = params_lst,
     metadata = list(
       report_params = params_json,
