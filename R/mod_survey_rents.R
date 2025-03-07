@@ -38,14 +38,25 @@ NULL
 
 #' @rdname mod_survey_rents
 #' @export
-#' @importFrom shiny NS
-#' @importFrom htmltools tagList tags
-#' @importFrom bslib card
+#' @importFrom bsicons bs_icon
+#' @importFrom bslib page_fluid card card_header card_body card_footer
+#' @importFrom htmltools tagList tags HTML
+#' @importFrom reactable reactableOutput
+#' @importFrom shiny NS actionButton icon textOutput
 mod_survey_rents_ui <- function(id) {
 
   ns <- shiny::NS(id)
 
   htmltools::tagList(
+    htmltools::tags$head(
+      # add CSS to fix rhandsontable context menu:
+      htmltools::tags$style(htmltools::HTML(".htMenu { z-index: 1051; }")),
+      # JS for re-rendering tables in modals:
+      htmltools::tags$script(
+        src = "www/scripts/survey_rents/mod_survey_rents.js",
+        type = "text/javascript"
+      )
+    ),
     bslib::page_fluid(
       bslib::card(
         class = "mx-auto mb-4",
@@ -105,13 +116,21 @@ mod_survey_rents_ui <- function(id) {
   )
 }
 
-
 # server ------------------------------------------------------------------
 
 #' @rdname mod_survey_rents
 #' @export
-#' @importFrom shiny moduleServer reactive
+#' @importFrom bsicons bs_icon
+#' @importFrom bslib accordion accordion_panel layout_columns card
 #' @importFrom cli cat_rule
+#' @importFrom dplyr select mutate left_join distinct anti_join
+#' @importFrom htmltools tagAppendAttributes tagList
+#' @importFrom reactable renderReactable
+#' @importFrom rhandsontable renderRHandsontable hot_validate_numeric hot_col hot_table rhandsontable
+#' @importFrom rhandsontable rHandsontableOutput hot_to_r
+#' @importFrom shiny moduleServer reactiveVal observe req reactive observeEvent showModal modalDialog
+#' @importFrom shiny actionButton modalButton showNotification removeModal withProgress setProgress
+#' @importFrom shinyvalidate InputValidator
 mod_survey_rents_server <- function(
     id,
     pool = NULL,
@@ -149,6 +168,8 @@ mod_survey_rents_server <- function(
       # rents by floorplan data
       rents_data <- shiny::reactive({
         shiny::req(survey_data$rents)
+
+        db_refresh_trigger()
 
         if (nrow(survey_data$rents) == 0) {
           default_tbl_survey_rents_by_floorplan()
@@ -340,6 +361,14 @@ mod_survey_rents_server <- function(
         iv$initialize()
         iv$enable()
 
+        # create table outputs first (to avoid re-rendering issues)
+        modal_rents_floorplans_hot <- rhandsontable::rHandsontableOutput(ns("modal_rents_floorplans")) |>
+          htmltools::tagAppendAttributes(.cssSelector = "div", style = "width: 100%; height: auto;")
+        modal_rents_hot <- rhandsontable::rHandsontableOutput(ns("modal_rents")) |>
+          htmltools::tagAppendAttributes(.cssSelector = "div", style = "width: 100%; height: auto;")
+        modal_concessions_expenses_hot <- rhandsontable::rHandsontableOutput(ns("modal_concessions_expenses")) |>
+          htmltools::tagAppendAttributes(.cssSelector = "div", style = "width: 100%; height: auto;")
+
         shiny::showModal(
           shiny::modalDialog(
             title = "Edit Rents",
@@ -362,7 +391,7 @@ mod_survey_rents_server <- function(
                   col_widths = c(12),
                   bslib::card(
                     full_screen = TRUE,
-                    rhandsontable::rHandsontableOutput(ns("modal_rents_floorplans"))
+                    modal_rents_floorplans_hot
                   )
                 )
               ),
@@ -373,7 +402,7 @@ mod_survey_rents_server <- function(
                   col_widths = c(12),
                   bslib::card(
                     full_screen = TRUE,
-                    rhandsontable::rHandsontableOutput(ns("modal_rents"))
+                    modal_rents_hot
                   )
                 )
               ),
@@ -384,13 +413,18 @@ mod_survey_rents_server <- function(
                   col_widths = c(12),
                   bslib::card(
                     full_screen = TRUE,
-                    rhandsontable::rHandsontableOutput(ns("modal_concessions_expenses"))
+                    modal_concessions_expenses_hot
                   )
                 )
               )
             )
           )
         )
+      })
+
+      # resize trigger
+      shiny::observeEvent(input$modal_rents_floorplans_shown, {
+        session$sendCustomMessage("resize_handsontable", list(id = "modal_rents_floorplans"))
       })
 
       # save --------------------------------------------------------------------
@@ -546,10 +580,10 @@ mod_survey_rents_server <- function(
 
 #' @rdname mod_survey_rents
 #' @export
-#' @importFrom pkgload load_all
-#' @importFrom bslib page_navbar nav_panel
 #' @importFrom bsicons bs_icon
-#' @importFrom shiny shinyApp
+#' @importFrom bslib page_navbar nav_spacer nav_panel
+#' @importFrom pkgload load_all
+#' @importFrom shiny actionButton icon reactive shinyApp
 mod_survey_rents_demo <- function() {
   pkgload::load_all()
 
@@ -588,5 +622,3 @@ mod_survey_rents_demo <- function() {
 
   shiny::shinyApp(ui, server)
 }
-
-# utilities ---------------------------------------------------------------
