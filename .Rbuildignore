@@ -39,3 +39,5 @@ config.yml
 ~\$.*
 ^_targets\.R$
 ^_targets$
+^repomix\.config\.json$
+^\.repomixignore$
