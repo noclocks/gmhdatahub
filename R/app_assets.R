@@ -50,6 +50,8 @@ add_external_resources <- function() {
     rintrojs::introjsUI(),
     conductor::use_conductor(),
     htmltools::tags$link(href = "www/styles/css/custom-styles.css", rel = "stylesheet"),
+    htmltools::tags$link(href = "www/styles/css/handsontable.css", rel = "stylesheet"),
+    htmltools::tags$link(href = "www/styles/css/reactable.css", rel = "stylesheet"),
     app_favicon()
   )
 }

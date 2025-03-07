@@ -1,0 +1,49 @@
+/* header style - add background */
+.htCore thead th {
+  background-color: #0F2B4C !important;
+  color: #FFFFFF !important;
+}
+
+.handsontable tbody th.ht__active_highlight, .handsontable thead th.ht__active_highlight {
+    background-color: #0F2B4C;
+    color: #FFFFFF;
+}
+
+.handsontable {
+  width: fit-content !important;
+}
+
+/* fix for the context menu */
+.htMenu { z-index: 1051; }
+
+.hot-container {
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+.handsontable {
+  margin: 0 auto;
+  font-family: 'Roboto', sans-serif;
+}
+
+.handsontable th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+.handsontable td {
+  vertical-align: middle !important;
+}
+
+/* Improve readability with alternating row colors */
+.handsontable tr:nth-child(even) td {
+  background-color: #f9f9f9;
+}
+
+/* Highlight on hover */
+.handsontable tr:hover td {
+  background-color: #eef5ff !important;
+}
