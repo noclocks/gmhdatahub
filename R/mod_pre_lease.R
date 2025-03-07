@@ -269,15 +269,6 @@ mod_pre_lease_ui <- function(id) {
           title = "Charts",
           icon = bsicons::bs_icon("bar-chart"),
           value = "charts",
-          shinyscreenshot::screenshotButton(
-            id = ns("charts-container"),
-            filename = paste0(
-              format(Sys.Date(), "%Y-%m-%d"),
-              "_GMH_Pre_Lease_Charts"
-            ),
-            label = "Download Charts",
-            ns = ns
-          ),
           htmltools::tags$div(
             id = ns("charts-container"),
             bslib::layout_columns(
@@ -366,6 +357,18 @@ mod_pre_lease_ui <- function(id) {
             "Export to Excel",
             class = "btn-sm btn-success",
             icon = shiny::icon("file-excel")
+          )
+        ),
+        bslib::nav_item(
+          shinyscreenshot::screenshotButton(
+            id = ns("charts-container"),
+            filename = paste0(
+              format(Sys.Date(), "%Y-%m-%d"),
+              "_GMH_Pre_Lease_Charts"
+            ),
+            ns = ns,
+            label = "Export Charts",
+            class = "btn-sm btn-warning"
           )
         ),
         bslib::nav_item(
