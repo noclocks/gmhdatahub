@@ -35,6 +35,7 @@ Imports:
     fs,
     ggmap,
     glue,
+    googleCloudStorageR,
     googleway,
     htmltools,
     htmlwidgets,
