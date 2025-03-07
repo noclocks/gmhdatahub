@@ -13,3 +13,4 @@ repomix.config.json
 repomix*
 ~$*
 .Renviron
+archive/
