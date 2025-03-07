@@ -1,0 +1,33 @@
+.htMenu { z-index: 1051; }
+
+.hot-container {
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+.handsontable {
+  margin: 0 auto;
+  font-family: 'Roboto', sans-serif;
+}
+
+.handsontable th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+.handsontable td {
+  vertical-align: middle !important;
+}
+
+/* Improve readability with alternating row colors */
+.handsontable tr:nth-child(even) td {
+  background-color: #f9f9f9;
+}
+
+/* Highlight on hover */
+.handsontable tr:hover td {
+  background-color: #eef5ff !important;
+}
