@@ -254,13 +254,13 @@ validate_col_names <- function(
     call = rlang::caller_env()
 ) {
 
-  stopifnot(is.data.frame(data) || tibble::is_tibble(data))
-
-  if (is.null(optional_cols)) {
-    optional_cols <- c()
-  }
+  stopifnot(
+    is.data.frame(data) || tibble::is_tibble(data),
+    is.vector(req_cols)
+  )
 
   missing_req_cols <- setdiff(req_cols, colnames(data))
+
   if (length(missing_req_cols) > 0) {
     cli::cli_abort(
       c(
@@ -271,16 +271,20 @@ validate_col_names <- function(
     )
   }
 
-  missing_opt_cols <- setdiff(optional_cols, colnames(data))
-  if (length(missing_opt_cols) > 0) {
-    cli::cli_alert_warning(
-      c(
-        "The following optional columns are missing from the provided {.arg data}:\n",
-        "{.field {missing_opt_cols}}"
-      ),
-      call = call
-    )
+  if (!is.null(optional_cols) && length(optional_cols) > 0) {
+    stopifnot(is.vector(optional_cols))
+    missing_opt_cols <- setdiff(optional_cols, colnames(data))
+    if (length(missing_opt_cols) > 0) {
+      cli::cli_alert_warning(
+        c(
+          "The following optional columns are missing from the provided {.arg data}:\n",
+          "{.field {missing_opt_cols}}"
+        )
+      )
+    }
   }
+
+  return(invisible(data))
 
 }
 
