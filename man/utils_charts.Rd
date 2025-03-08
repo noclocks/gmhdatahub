@@ -64,8 +64,7 @@ Each \code{prep_} function returns a tibble with the data prepped for the corres
 }
 \description{
 Utility Functions for Charting and Data Visualization.
-}
-\details{
+
 Chart Data Preparation Functions:
 \itemize{
 \item \code{prep_current_vs_prior_chart_data()}: Prepares data for the \code{\link[=chart_current_vs_prior]{chart_current_vs_prior()}} chart.

@@ -17,7 +17,6 @@
 #' @description
 #' Utility Functions for Charting and Data Visualization.
 #'
-#' @details
 #' Chart Data Preparation Functions:
 #'
 #' - `prep_current_vs_prior_chart_data()`: Prepares data for the [chart_current_vs_prior()] chart.
