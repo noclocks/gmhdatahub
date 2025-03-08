@@ -7,223 +7,187 @@
 #
 #  ------------------------------------------------------------------------
 
-# entrata -----------------------------------------------------------------
 
-#' `httr2` Checks
+# topic -----------------------------------------------------------------------------------------------------------
+
+#' Check Utility Functions
 #'
-#' @name httr2_checks
+#' @name utils_checks
 #'
 #' @description
-#' These functions check the validity of HTTP request and response objects as
-#' well as HTTP headers by checking the R object's class against the classes
-#' defined in the `httr2` package.
+#' A collection of functions for checking the validity of various R objects,
+#' primarily used for argument validation in functions.
 #'
-#' @param req The HTTP response object to check.
-#' @param resp The HTTP response object to check.
-#' @param headers The HTTP headers object to check.
-#' @inheritParams rlang::args_error_context
+#' @details
+#' Functions:
 #'
-#' @return
-#' Invisibly returns `NULL` if the request/response/headers is valid, otherwise
-#' will throw an error.
+#' @param obj,chart,tbl,req,resp,val The object to check the class of.
+#' @param class The class to check against.
+#' @param arg,obj_arg,call [rlang::args_error_context] Arguments for error messaging.
 #'
-#' @seealso [httr2::request()], [httr2::response()], [httr2::req_headers()],
-#'   [httr2::resp_headers()]
+#' @importFrom cli cli_abort
+#' @importFrom rlang caller_arg caller_env
 NULL
 
-#' @rdname httr2_checks
+# classes ---------------------------------------------------------------------------------------------------------
+
+#' @rdname utils_checks
 #' @export
-#' @importFrom rlang caller_arg caller_env
-check_request <- function(
-    req,
-    arg = rlang::caller_arg(req),
-    call = rlang::caller_env()
+check_inherits <- function(
+  obj,
+  class,
+  obj_arg = rlang::caller_arg(obj),
+  call = rlang::caller_env()
 ) {
-  if (is_request(req)) { return(invisible(req)) }
-  stop_input_type(
-    req,
-    "an Entrata API HTTP request object",
-    allow_null = FALSE,
-    arg = arg,
-    call = call
-  )
+
+  if (!inherits(obj, class)) {
+    cli::cli_abort(
+      "{.arg {obj_arg}} must inherit from class {.cls {class}}, not {.obj_type_friendly {obj}}.",
+      call = call
+    )
+  }
+
+  invisible(TRUE)
+
 }
 
-check_http_request <- function(
-    req,
-    arg = rlang::caller_arg(req),
-    call = rlang::caller_env()
-) {
-  if (is_http_request(req)) { return(invisible(req)) }
-  stop_input_type(
-    req,
-    "an HTTP request object",
-    allow_null = FALSE,
-    arg = arg,
-    call = call
-  )
-}
-
-check_entrata_request <- function(
-    req,
-    arg = rlang::caller_arg(req),
-    call = rlang::caller_env()
-) {
-  if (is_entrata_request(req)) { return(invisible(req)) }
-  stop_input_type(
-    req,
-    "an Entrata API HTTP request object",
-    allow_null = FALSE,
-    arg = arg,
-    call = call
-  )
-}
-
-#' @rdname httr2_checks
+#' @rdname utils_checks
 #' @export
-#' @importFrom rlang caller_arg caller_env
-check_response <- function(
-    resp,
-    arg = rlang::caller_arg(resp),
-    call = rlang::caller_env()
-) {
-  # if (is_http_response(resp) && !is_entrata_response(resp)) {
-  # resp <- as_entrata_response(resp)
-  # }
-  if (is_http_response(resp)) { return(invisible(resp)) }
-  stop_input_type(
-    resp,
-    "an Entrata API HTTP response object",
-    allow_null = FALSE,
-    arg = arg,
-    call = call
-  )
+check_chart <- function(chart, arg = rlang::caller_arg(chart), call = rlang::caller_env()) {
+  check_inherits(chart, "htmlwidget", obj_arg = arg, call = call)
+  check_inherits(chart, "apex", obj_arg = arg, call = call)
 }
 
-check_response_json <- function(
-    resp,
-    arg = rlang::caller_arg(resp),
+#' @rdname utils_checks
+#' @export
+check_tibble <- function(tbl, arg = rlang::caller_arg(tbl), call = rlang::caller_env()) {
+  check_inherits(tbl, "tbl_df", obj_arg = arg, call = call)
+}
+
+#' @rdname utils_checks
+#' @export
+check_request <- function(req, arg = rlang::caller_arg(req), call = rlang::caller_env()) {
+  check_inherits(req, "httr2_request", obj_arg = arg, call = call)
+}
+
+#' @rdname utils_checks
+#' @export
+check_response <- function(resp, arg = rlang::caller_arg(resp), call = rlang::caller_env()) {
+  check_inherits(resp, "httr2_response", obj_arg = arg, call = call)
+}
+
+#' @rdname utils_checks
+#' @export
+check_reactable <- function(tbl, arg = rlang::caller_arg(obj), call = rlang::caller_env()) {
+  check_inherits(chart, "htmlwidget", obj_arg = arg, call = call)
+  check_inherits(chart, "reactable", obj_arg = arg, call = call)
+}
+
+#' @rdname utils_checks
+#' @export
+check_tag <- function(obj, arg = rlang::caller_arg(obj), call = rlang::caller_env()) {
+  check_inherits(obj, "shiny.tag", obj_arg = arg, call = call)
+}
+
+#' @rdname utils_checks
+#' @export
+check_taglist <- function(obj, arg = rlang::caller_arg(obj), call = rlang::caller_env()) {
+  check_inherits(obj, "shiny.tag.list", obj_arg = arg, call = call)
+}
+
+#' @rdname utils_checks
+#' @export
+check_bslib_page <- function(obj, arg = rlang::caller_arg(obj), call = rlang::caller_env()) {
+  check_taglist(obj, arg = arg, call = call)
+  check_inherits(obj, "bslib_page", obj_arg = arg, call = call)
+}
+
+#' @rdname utils_checks
+#' @export
+check_percent <- function(val, arg = rlang::caller_arg(val), call = rlang::caller_env()) {
+  if (!is.numeric(val)) cli::cli_abort("{.arg {arg}} must be numeric.", call = call)
+  if (val < 0 | val > 1) cli::cli_abort("{.arg {arg}} must be between 0 and 1.", call = call)
+  return(invisible(val))
+}
+
+
+# dates -----------------------------------------------------------------------------------------------------------
+
+#' @rdname utils_checks
+#' @export
+check_date <- function(
+    date,
+    arg = rlang::caller_arg(date),
     call = rlang::caller_env()
 ) {
-  if (httr2::resp_content_type(resp) != "application/json") {
+  if (!lubridate::is.Date(date) && !lubridate::is.POSIXt(date)) {
     cli::cli_abort(
       c(
-        "Provided API response {.arg {arg}} is not JSON.",
-        " Detected content type of: {.field {httr2::resp_content_type(resp)}}"
+        "Invalid Date Provided: {.arg {arg}}",
+        "The provided date is not a valid date object."
       ),
       call = call
     )
   }
+  return(invisible(date))
 }
 
-check_http_response <- function(
-    resp,
-    arg = rlang::caller_arg(resp),
-    call = rlang::caller_env()
-) {
-  if (is_http_response(resp)) { return(invisible(resp)) }
-  stop_input_type(
-    resp,
-    "an HTTP response object",
-    allow_null = FALSE,
-    arg = arg,
-    call = call
-  )
-}
-
-check_entrata_response <- function(
-    resp,
-    arg = rlang::caller_arg(resp),
-    call = rlang::caller_env()
-) {
-  if (is_entrata_response(resp)) { return(invisible(resp)) }
-  stop_input_type(
-    resp,
-    "an Entrata API HTTP response object",
-    allow_null = FALSE,
-    arg = arg,
-    call = call
-  )
-}
-
-#' @keywords internal
-#' @noRd
-is_request <- function(req) {
-  # is_entrata_request(req) && is_http_request(req)
-  is_http_request(req)
-}
-
-#' @keywords internal
-#' @noRd
-is_response <- function(resp) {
-  is_http_response(resp)
-}
-
-#' @keywords internal
-#' @noRd
-is_entrata_request <- function(req) {
-  inherits(req, "entrata_request")
-}
-
-#' @keywords internal
-#' @noRd
-is_entrata_response <- function(resp) {
-  inherits(resp, "entrata_response")
-}
-
-# httr2 -------------------------------------------------------------------
-
-#' @keywords internal
-#' @noRd
-is_http_request <- function(req) {
-  inherits(req, "httr2_request")
-}
-
-#' @keywords internal
-#' @noRd
-is_http_response <- function(resp) {
-  inherits(resp, "httr2_response")
-}
-
-#' @keywords internal
-#' @noRd
-is_http_headers <- function(headers) {
-  inherits(headers, "httr2_headers")
-}
-
-
-# tibbles -----------------------------------------------------------------
-
-check_tibble <- function(
-    tbl,
-    arg = rlang::caller_arg(tbl),
-    call = rlang::caller_env()
-) {
-  if (!tibble::is_tibble(tbl)) {
+#' @rdname utils_checks
+#' @export
+check_entrata_date <- function(date, arg = rlang::caller_arg(date), call = rlang::caller_env()) {
+  if (!grepl("^\\d{2}/\\d{2}/\\d{4}$", date)) {
     cli::cli_abort(
       c(
-        "Invalid {.arg {arg}}",
-        "The provided object is not a tibble."
+        "Invalid Date Format Provided: {.arg {arg}}",
+        "The provided date is not in the format 'MM/DD/YYYY'."
       ),
       call = call
     )
   }
-  return(invisible(tbl))
+  return(TRUE)
 }
 
-check_tibble_cols <- function(
-    tbl,
-    cols,
-    arg = rlang::caller_arg(tbl),
-    call = rlang::caller_env()
-) {
-  check_tibble(tbl, arg = arg, call = call)
-  cols <- rlang::arg_match(cols, colnames(tbl))
-  return(invisible(cols))
+#' @rdname utils_checks
+#' @export
+check_entrata_daterange <- function(daterange, arg = rlang::caller_arg(daterange), call = rlang::caller_env()) {
+  if (!is.list(daterange) || !all(c("daterange-start", "daterange-end") %in% names(daterange))) {
+    cli::cli_abort(
+      c(
+        "Invalid Date Range Provided: {.arg {arg}}",
+        "The provided date range must be a list with 'daterange-start' and 'daterange-end' keys."
+      ),
+      call = call
+    )
+  }
+  check_entrata_date(daterange[[1]], call = call)
+  check_entrata_date(daterange[[2]], call = call)
+  if (as.Date(daterange[[1]]) > as.Date(daterange[[2]])) {
+    cli::cli_abort(
+      c(
+        "Invalid Date Range Provided: {.arg {arg}}",
+        "The start date must be before the end date."
+      ),
+      call = call
+    )
+  }
+  return(TRUE)
+}
+
+# packages --------------------------------------------------------------------------------------------------------
+
+#' @rdname utils_checks
+#' @export
+#' @importFrom cli cli_abort
+#' @importFrom rlang is_installed caller_arg caller_env
+check_installed <- function(pkg, arg = rlang::caller_arg(pkg), call = rlang::caller_env()) {
+  if (!rlang::is_installed(pkg)) {
+    cli::cli_abort("Package {.pkg {arg}} is not installed.", call = call)
+  }
+  invisible(NULL)
 }
 
 
-# columns -----------------------------------------------------------------
+# validation ------------------------------------------------------------------------------------------------------
 
 #' Validate Column Names
 #'
@@ -288,104 +252,274 @@ validate_col_names <- function(
 
 }
 
-# logic -------------------------------------------------------------------
+#' # entrata -----------------------------------------------------------------
+#'
+#' #' `httr2` Checks
+#' #'
+#' #' @name httr2_checks
+#' #'
+#' #' @description
+#' #' These functions check the validity of HTTP request and response objects as
+#' #' well as HTTP headers by checking the R object's class against the classes
+#' #' defined in the `httr2` package.
+#' #'
+#' #' @param req The HTTP response object to check.
+#' #' @param resp The HTTP response object to check.
+#' #' @param headers The HTTP headers object to check.
+#' #' @inheritParams rlang::args_error_context
+#' #'
+#' #' @return
+#' #' Invisibly returns `NULL` if the request/response/headers is valid, otherwise
+#' #' will throw an error.
+#' #'
+#' #' @seealso [httr2::request()], [httr2::response()], [httr2::req_headers()],
+#' #'   [httr2::resp_headers()]
+#' NULL
+#'
+#' #' @rdname httr2_checks
+#' #' @export
+#' #' @importFrom rlang caller_arg caller_env
+#' check_request <- function(
+#'     req,
+#'     arg = rlang::caller_arg(req),
+#'     call = rlang::caller_env()
+#' ) {
+#'   if (is_request(req)) { return(invisible(req)) }
+#'   stop_input_type(
+#'     req,
+#'     "an Entrata API HTTP request object",
+#'     allow_null = FALSE,
+#'     arg = arg,
+#'     call = call
+#'   )
+#' }
+#'
+#' check_http_request <- function(
+#'     req,
+#'     arg = rlang::caller_arg(req),
+#'     call = rlang::caller_env()
+#' ) {
+#'   if (is_http_request(req)) { return(invisible(req)) }
+#'   stop_input_type(
+#'     req,
+#'     "an HTTP request object",
+#'     allow_null = FALSE,
+#'     arg = arg,
+#'     call = call
+#'   )
+#' }
+#'
+#' check_entrata_request <- function(
+#'     req,
+#'     arg = rlang::caller_arg(req),
+#'     call = rlang::caller_env()
+#' ) {
+#'   if (is_entrata_request(req)) { return(invisible(req)) }
+#'   stop_input_type(
+#'     req,
+#'     "an Entrata API HTTP request object",
+#'     allow_null = FALSE,
+#'     arg = arg,
+#'     call = call
+#'   )
+#' }
+#'
+#' #' @rdname httr2_checks
+#' #' @export
+#' #' @importFrom rlang caller_arg caller_env
+#' check_response <- function(
+#'     resp,
+#'     arg = rlang::caller_arg(resp),
+#'     call = rlang::caller_env()
+#' ) {
+#'   # if (is_http_response(resp) && !is_entrata_response(resp)) {
+#'   # resp <- as_entrata_response(resp)
+#'   # }
+#'   if (is_http_response(resp)) { return(invisible(resp)) }
+#'   stop_input_type(
+#'     resp,
+#'     "an Entrata API HTTP response object",
+#'     allow_null = FALSE,
+#'     arg = arg,
+#'     call = call
+#'   )
+#' }
+#'
+#' check_response_json <- function(
+#'     resp,
+#'     arg = rlang::caller_arg(resp),
+#'     call = rlang::caller_env()
+#' ) {
+#'   if (httr2::resp_content_type(resp) != "application/json") {
+#'     cli::cli_abort(
+#'       c(
+#'         "Provided API response {.arg {arg}} is not JSON.",
+#'         " Detected content type of: {.field {httr2::resp_content_type(resp)}}"
+#'       ),
+#'       call = call
+#'     )
+#'   }
+#' }
+#'
+#' check_http_response <- function(
+#'     resp,
+#'     arg = rlang::caller_arg(resp),
+#'     call = rlang::caller_env()
+#' ) {
+#'   if (is_http_response(resp)) { return(invisible(resp)) }
+#'   stop_input_type(
+#'     resp,
+#'     "an HTTP response object",
+#'     allow_null = FALSE,
+#'     arg = arg,
+#'     call = call
+#'   )
+#' }
+#'
+#' check_entrata_response <- function(
+#'     resp,
+#'     arg = rlang::caller_arg(resp),
+#'     call = rlang::caller_env()
+#' ) {
+#'   if (is_entrata_response(resp)) { return(invisible(resp)) }
+#'   stop_input_type(
+#'     resp,
+#'     "an Entrata API HTTP response object",
+#'     allow_null = FALSE,
+#'     arg = arg,
+#'     call = call
+#'   )
+#' }
+#'
+#' #' @keywords internal
+#' #' @noRd
+#' is_request <- function(req) {
+#'   # is_entrata_request(req) && is_http_request(req)
+#'   is_http_request(req)
+#' }
+#'
+#' #' @keywords internal
+#' #' @noRd
+#' is_response <- function(resp) {
+#'   is_http_response(resp)
+#' }
+#'
+#' #' @keywords internal
+#' #' @noRd
+#' is_entrata_request <- function(req) {
+#'   inherits(req, "entrata_request")
+#' }
+#'
+#' #' @keywords internal
+#' #' @noRd
+#' is_entrata_response <- function(resp) {
+#'   inherits(resp, "entrata_response")
+#' }
+#'
+#' # httr2 -------------------------------------------------------------------
+#'
+#' #' @keywords internal
+#' #' @noRd
+#' is_http_request <- function(req) {
+#'   inherits(req, "httr2_request")
+#' }
+#'
+#' #' @keywords internal
+#' #' @noRd
+#' is_http_response <- function(resp) {
+#'   inherits(resp, "httr2_response")
+#' }
+#'
+#' #' @keywords internal
+#' #' @noRd
+#' is_http_headers <- function(headers) {
+#'   inherits(headers, "httr2_headers")
+#' }
+#'
+#'
+#' # tibbles -----------------------------------------------------------------
+#'
+#' check_tibble <- function(
+#'     tbl,
+#'     arg = rlang::caller_arg(tbl),
+#'     call = rlang::caller_env()
+#' ) {
+#'   if (!tibble::is_tibble(tbl)) {
+#'     cli::cli_abort(
+#'       c(
+#'         "Invalid {.arg {arg}}",
+#'         "The provided object is not a tibble."
+#'       ),
+#'       call = call
+#'     )
+#'   }
+#'   return(invisible(tbl))
+#' }
+#'
+#' check_tibble_cols <- function(
+#'     tbl,
+#'     cols,
+#'     arg = rlang::caller_arg(tbl),
+#'     call = rlang::caller_env()
+#' ) {
+#'   check_tibble(tbl, arg = arg, call = call)
+#'   cols <- rlang::arg_match(cols, colnames(tbl))
+#'   return(invisible(cols))
+#' }
+#'
+#'
+#' # columns -----------------------------------------------------------------
+#'
 
-check_in_set <- function(x, set, arg = rlang::caller_arg(x), call = rlang::caller_env()) {
-  if (!all(x %in% set)) {
-    cli::cli_abort(
-      "Invalid value(s) provided for {.arg {arg}}. Must be one of: {.field {set}}",
-      call = call
-    )
-  }
-  return(TRUE)
-}
-
-check_entrata_date <- function(date, arg = rlang::caller_arg(date), call = rlang::caller_env()) {
-  if (!grepl("^\\d{2}/\\d{2}/\\d{4}$", date)) {
-    cli::cli_abort(
-      c(
-        "Invalid Date Format Provided: {.arg {arg}}",
-        "The provided date is not in the format 'MM/DD/YYYY'."
-      ),
-      call = call
-    )
-  }
-  return(TRUE)
-}
-
-check_entrata_daterange <- function(daterange, arg = rlang::caller_arg(daterange), call = rlang::caller_env()) {
-  if (!is.list(daterange) || !all(c("daterange-start", "daterange-end") %in% names(daterange))) {
-    cli::cli_abort(
-      c(
-        "Invalid Date Range Provided: {.arg {arg}}",
-        "The provided date range must be a list with 'daterange-start' and 'daterange-end' keys."
-      ),
-      call = call
-    )
-  }
-  check_entrata_date(daterange[[1]], call = call)
-  check_entrata_date(daterange[[2]], call = call)
-  if (as.Date(daterange[[1]]) > as.Date(daterange[[2]])) {
-    cli::cli_abort(
-      c(
-        "Invalid Date Range Provided: {.arg {arg}}",
-        "The start date must be before the end date."
-      ),
-      call = call
-    )
-  }
-  return(TRUE)
-}
-
+#'
+#' # charts ----------------------------------------------------------------------------------------------------------
+#'
+#' check_chart <- function(chart, arg = rlang::caller_arg(chart), call = rlang::caller_env()) {
+#'   if (!inherits(chart, "gg")) {
+#'     cli::cli_abort(
+#'       c(
+#'         "Invalid Chart Provided: {.arg {arg}}",
+#'         "The provided chart is not a ggplot object."
+#'       ),
+#'       call = call
+#'     )
+#'   }
+#'   return(invisible(chart))
+#' }
+#'
+#'
+#' # logic -------------------------------------------------------------------
+#'
+#' check_in_set <- function(x, set, arg = rlang::caller_arg(x), call = rlang::caller_env()) {
+#'   if (!all(x %in% set)) {
+#'     cli::cli_abort(
+#'       "Invalid value(s) provided for {.arg {arg}}. Must be one of: {.field {set}}",
+#'       call = call
+#'     )
+#'   }
+#'   return(TRUE)
+#' }
+#'
 
 # dates --------------------------------------------------------------------
 
-#' Check Date
-#'
-#' @description
-#' This function checks if the provided date is a valid date object.
-#'
-#' @param date A date object.
-#' @inheritParams rlang::args_error_context
-#'
-#' @returns The provided date object invisibly if it is valid.
-#'
-#' @export
-#'
-#' @importFrom cli cli_abort
-#' @importFrom lubridate is.Date is.POSIXt
-check_date <- function(
-    date,
-    arg = rlang::caller_arg(date),
-    call = rlang::caller_env()
-) {
-  if (!lubridate::is.Date(date) && !lubridate::is.POSIXt(date)) {
-    cli::cli_abort(
-      c(
-        "Invalid Date Provided: {.arg {arg}}",
-        "The provided date is not a valid date object."
-      ),
-      call = call
-    )
-  }
-  return(invisible(date))
-}
+
 
 # files and paths --------------------------------------------------------------------
 
-check_path <- function(
-    path,
-    arg = rlang::caller_arg(path),
-    call = rlang::caller_env()
-) {
-  if (!fs::dir_exists(path) && !fs::file_exists(path)) {
-    cli::cli_abort(
-      c(
-        "Invalid Path Provided: {.arg {arg}}",
-        "The provided path does not exist."
-      ),
-      call = call
-    )
-  }
-  return(invisible(path))
-}
+# check_path <- function(
+#     path,
+#     arg = rlang::caller_arg(path),
+#     call = rlang::caller_env()
+# ) {
+#   if (!fs::dir_exists(path) && !fs::file_exists(path)) {
+#     cli::cli_abort(
+#       c(
+#         "Invalid Path Provided: {.arg {arg}}",
+#         "The provided path does not exist."
+#       ),
+#       call = call
+#     )
+#   }
+#   return(invisible(path))
+# }

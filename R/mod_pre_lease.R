@@ -1550,7 +1550,7 @@ mod_pre_lease_server <- function(
       # current vs prior
       output$current_vs_prior_chart <- apexcharter::renderApexchart({
         shiny::req(pre_lease_summary_data())
-        chart_current_vs_prior(data = pre_lease_summary_data(), metric = input$metric)
+        chart_current_vs_prior(data = pre_lease_summary_data())
       })
 
       # occupancy
@@ -1566,7 +1566,7 @@ mod_pre_lease_server <- function(
       # velocity
       output$velocity_chart <- apexcharter::renderApexchart({
         shiny::req(pre_lease_summary_data())
-        chart_velocity_comparison(data = pre_lease_summary_data())
+        chart_velocity(data = pre_lease_summary_data())
       })
 
       # pre-lease rates
@@ -1596,7 +1596,7 @@ mod_pre_lease_server <- function(
       # weekly leasing breakdown
       output$weekly_leasing_breakdown_chart <- apexcharter::renderApexchart({
         shiny::req(pre_lease_summary_data())
-        chart_weekly_leasing_breakdown(data = pre_lease_summary_data())
+        chart_weekly_breakdown(data = pre_lease_summary_data())
       })
 
       # yoy variance

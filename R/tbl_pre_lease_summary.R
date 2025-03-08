@@ -1,3 +1,11 @@
+
+#' @importFrom dplyr mutate across coalesce select
+#' @importFrom htmltools tags
+#' @importFrom reactable colDef colFormat JS colGroup reactable
+#' @importFrom reactablefmtr pill_buttons icon_trend_indicator
+#' @importFrom scales comma label_percent
+#' @importFrom shiny actionButton icon
+#' @importFrom tidyselect where everything
 tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
 
   validate_col_names(
@@ -113,15 +121,15 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
     property_name = reactable::colDef(
       name = "Property Name",
       width = 250,
-      footer = "Total/Average",
-      cell = function(value, index) {
-        property_id <- summary_data$property_id[index]
-        property_id <- if (!is.na(property_id)) property_id else "Unknown"
-        htmltools::tags$div(
-          htmltools::tags$div(style = "font-weight: 600;", value),
-          htmltools::tags$div(style = "font-size: 0.75rem; color: #666;", property_id)
-        )
-      }
+      footer = "Total/Average"#,
+      # cell = function(value, index) {
+      #   property_id <- summary_data$property_id[index]
+      #   property_id <- if (!is.na(property_id)) property_id else "Unknown"
+      #   htmltools::tags$div(
+      #     htmltools::tags$div(style = "font-weight: 600;", value),
+      #     htmltools::tags$div(style = "font-size: 0.75rem; color: #666;", property_id)
+      #   )
+      # }
     ),
     investment_partner = reactable::colDef(
       name = "Investment Partner",
@@ -351,6 +359,10 @@ tbl_pre_lease_summary <- function(summary_data, ns = base::identity) {
   )
 }
 
+#' @importFrom dplyr ungroup summarise group_by across select mutate
+#' @importFrom htmltools tags
+#' @importFrom reactable colDef colFormat reactable
+#' @importFrom tidyselect all_of
 tbl_entrata_pre_lease <- function(details_by_property_data, details_data) {
 
   sum_cols <- c(
@@ -671,6 +683,7 @@ tbl_entrata_pre_lease <- function(details_by_property_data, details_data) {
   )
 }
 
+#' @importFrom reactable reactableTheme
 pre_lease_reactable_theme <- function() {
 
   header_style <- list(
@@ -701,6 +714,9 @@ pre_lease_reactable_theme <- function() {
   )
 }
 
+#' @importFrom dplyr mutate summarise across all_of
+#' @importFrom scales percent
+#' @importFrom tidyselect starts_with
 calculate_pre_lease_summary_totals <- function(summary_data) {
   sum_cols <- c(
     "total_beds",
@@ -744,6 +760,7 @@ calculate_pre_lease_summary_totals <- function(summary_data) {
     )
 }
 
+#' @importFrom tibble tibble
 empty_pre_lease_summary_data <- function() {
   tibble::tibble(
     report_date = as.Date(logical(0)),
@@ -775,6 +792,7 @@ empty_pre_lease_summary_data <- function() {
   )
 }
 
+#' @importFrom dplyr transmute
 prep_pre_lease_summary_data <- function(entrata_pre_lease_summary, model_beds, investment_partners) {
 
   entrata_pre_lease_summary |>
@@ -801,33 +819,3 @@ prep_pre_lease_summary_data <- function(entrata_pre_lease_summary, model_beds, i
       vel_100 = .data$beds_left * 1 / .env$weeks_left_to_lease
     )
 }
-
-# prep_pre_lease_details_data <- function(details_data, summary_data) {
-#
-#   hold <- details_data |>
-#     dplyr::group_by(
-#       .data$property_name,
-#       .data$bldg_unit,
-#       .data$unit_type
-#     ) |>
-#     dplyr::summarise(
-#       excluded_units = sum(.data$excluded_units, na.rm = TRUE),
-#       sqft = mean(.data$sqft, na.rm = TRUE),
-#       lease_status = first(.data$lease_status),
-#       lease_start = first(.data$lease_start),
-#       lease_end = first(.data$lease_end)
-#     ) |>
-#
-#     dplyr::transmute(
-#       report_date = .data$report_date,
-#       property_id = .data$property_id,
-#       property_name = .data$property_name,
-#       bldg_unit = .data$bldg_unit,
-#       unit_type = .data$unit_type,
-#       excluded_units
-#       sqft = .data$sqft,
-#       lease_status = .data$lease_status,
-#       lease_start = .data$lease_start,
-#       lease_end = .data$lease_end
-#     )
-# }
