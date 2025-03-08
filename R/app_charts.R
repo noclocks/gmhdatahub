@@ -17,7 +17,6 @@
 #'
 #' These charts are used primarily for the Pre-Lease Module: [mod_pre_lease].
 #'
-#' @details
 #' The following functions are available:
 #'
 #' - `chart_current_vs_prior()`: Create a chart comparing current vs prior metrics.

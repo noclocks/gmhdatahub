@@ -64,8 +64,7 @@ Each chart function returns an \code{\link[apexcharter:apex]{apexcharter::apex()
 Chart functions for the GMH DataHub Shiny App.
 
 These charts are used primarily for the Pre-Lease Module: \link{mod_pre_lease}.
-}
-\details{
+
 The following functions are available:
 \itemize{
 \item \code{chart_current_vs_prior()}: Create a chart comparing current vs prior metrics.
