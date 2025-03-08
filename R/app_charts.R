@@ -15,7 +15,7 @@
 #' @description
 #' Chart functions for the GMH DataHub Shiny App.
 #'
-#' These charts are used throughout the application to visualize data.
+#' These charts are used primarily for the Pre-Lease Module: [mod_pre_lease].
 #'
 #' @details
 #' The following functions are available:
@@ -23,6 +23,12 @@
 #' - `chart_current_vs_prior()`: Create a chart comparing current vs prior metrics.
 #' - `chart_occupancy()`: Create a chart comparing occupancy rates.
 #' - `chart_velocity()`: Create a chart comparing pre-lease velocity rates.
+#' - `chart_pre_lease_rates()`: Create a chart comparing pre-lease rates.
+#' - `chart_partner_distribution()`: Create a chart comparing partner distribution.
+#' - `chart_portfolio_summary()`: Create a chart summarizing portfolio performance metrics.
+#' - `chart_weekly_activity()`: Create a chart comparing weekly leasing activity.
+#' - `chart_weekly_breakdown()`: Create a chart comparing weekly leasing breakdown.
+#' - `chart_yoy_variance()`: Create a chart comparing year-over-year variance.
 #'
 #' @param chart An [apexcharter::apex()] chart object.
 #' @param data A data frame containing the data to plot.

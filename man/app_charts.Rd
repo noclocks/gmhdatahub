@@ -63,7 +63,7 @@ Each chart function returns an \code{\link[apexcharter:apex]{apexcharter::apex()
 \description{
 Chart functions for the GMH DataHub Shiny App.
 
-These charts are used throughout the application to visualize data.
+These charts are used primarily for the Pre-Lease Module: \link{mod_pre_lease}.
 }
 \details{
 The following functions are available:
@@ -71,6 +71,12 @@ The following functions are available:
 \item \code{chart_current_vs_prior()}: Create a chart comparing current vs prior metrics.
 \item \code{chart_occupancy()}: Create a chart comparing occupancy rates.
 \item \code{chart_velocity()}: Create a chart comparing pre-lease velocity rates.
+\item \code{chart_pre_lease_rates()}: Create a chart comparing pre-lease rates.
+\item \code{chart_partner_distribution()}: Create a chart comparing partner distribution.
+\item \code{chart_portfolio_summary()}: Create a chart summarizing portfolio performance metrics.
+\item \code{chart_weekly_activity()}: Create a chart comparing weekly leasing activity.
+\item \code{chart_weekly_breakdown()}: Create a chart comparing weekly leasing breakdown.
+\item \code{chart_yoy_variance()}: Create a chart comparing year-over-year variance.
 }
 }
 \seealso{
