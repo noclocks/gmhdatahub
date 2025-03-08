@@ -1,15 +1,17 @@
-prep_velocity_chart_data <- function(data, metrics) {
-  if (length(metrics) == 0) {
-    return(NULL)
-  }
+prep_velocity_chart_data <- function(data, metrics = NULL) {
+
+  if (!is.null(metrics)) metrics <- rlang::arg_match(metrics, .pre_lease_metrics, multiple = TRUE)
+  else metrics <- .pre_lease_metrics
+
+  validate_col_names(data, c("property_name", metrics))
 
   data |>
     dplyr::select(
-      property_name,
+      "property_name",
       tidyselect::all_of(metrics)
     ) |>
     tidyr::pivot_longer(
-      cols = -property_name,
+      cols = -"property_name",
       names_to = "metric",
       values_to = "value"
     ) |>
