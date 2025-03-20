@@ -41,3 +41,10 @@ config.yml
 ^_targets$
 ^repomix\.config\.json$
 ^\.repomixignore$
+^\*.code-workspace$
+^\.Rhistory$
+^\.Rproj\.user$
+^\.Rproj$
+^.vscode$
+^.github$
+^vignettes/articles$
