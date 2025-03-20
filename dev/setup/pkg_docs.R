@@ -13,6 +13,10 @@
 usethis::use_vignette("dates", "dates")
 
 
+# articles --------------------------------------------------------------------------------------------------------
+
+usethis::use_article("excel", "Excel Data Preparation")
+
 # internal docs -----------------------------------------------------------
 
 require(papillon)
