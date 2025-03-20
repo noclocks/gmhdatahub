@@ -29,6 +29,47 @@
 #' @importFrom rlang caller_arg caller_env
 NULL
 
+
+# gmh specific ----------------------------------------------------------------------------------------------------
+
+#' @rdname utils_checks
+#' @export
+check_property_id <- function(id, arg = rlang::caller_arg(id), call = rlang::caller_env()) {
+  id_val <- tryCatch(as.integer(id), warning = function(w) NA)
+  if (is.na(id_val)) {
+    cli::cli_abort(
+      "Invalid {.arg id} provided: Property IDs must be a valid integer.",
+      call = call
+    )
+  }
+  valid_ids <- entrata_properties_tbl$id |> as.integer()
+  if (!id_val %in% valid_ids) {
+    closest_match <- get_closest_match(id_val, valid_ids)
+    closest_matching_name <- entrata_properties_tbl$name[entrata_properties_tbl$id == closest_match]
+    cli::cli_abort(
+      "Invalid {.arg id} provided: Did you mean {.field {closest_match}} ({.field {closest_matching_name}})?",
+      call = call
+    )
+  }
+  invisible(id_val)
+}
+
+#' @rdname utils_checks
+#' @export
+check_property_name <- function(name, arg = rlang::caller_arg(name), call = rlang::caller_env()) {
+  name_val <- as.character(name)
+  valid_names <- entrata_properties_tbl$name |> as.character()
+  if (!name_val %in% valid_names) {
+    closest_match <- get_closest_match(name_val, valid_names)
+    closest_matching_id <- entrata_properties_tbl$id[entrata_properties_tbl$name == closest_match]
+    cli::cli_abort(
+      "Invalid {.arg name} provided: Did you mean {.field {closest_match}} ({.field {closest_matching_id}})?",
+      call = call
+    )
+  }
+  invisible(name_val)
+}
+
 # classes ---------------------------------------------------------------------------------------------------------
 
 #' @rdname utils_checks
