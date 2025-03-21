@@ -62,6 +62,145 @@ db_read_entrata_pre_lease_details_tbl <- function(pool) {
 
 }
 
+db_upsert_entrata_pre_lease_report_by_property <- function(pool, data_lst = NULL) {
+
+  check_db_conn(pool)
+
+  summary_tbl <- purrr::pluck(data_lst, "summary")
+  details_tbl <- purrr::pluck(data_lst, "details")
+  execution_details_tbl <- purrr::pluck(data_lst, "execution_details")
+
+  db_upsert_entrata_pre_lease_summary_by_property(pool, summary_tbl)
+  db_upsert_entrata_pre_lease_details_by_property(pool, details_tbl)
+  db_upsert_entrata_report_execution(pool, execution_details_tbl)
+
+}
+
+db_upsert_entrata_report_execution <- function(pool, execution_details) {
+
+  check_db_conn(pool)
+  validate_col_names(
+    execution_details,
+    req_cols = c(
+      "request_id",
+      "report_name",
+      "report_date",
+      "report_version",
+      "queue_id",
+      "queue_start_time",
+      "queue_end_time",
+      "queue_duration",
+      "report_filter_params"
+    )
+  )
+
+  tryCatch({
+
+    pool::poolWithTransaction(
+      pool,
+      function(conn) {
+
+        execution_id <- uuid::UUIDgenerate()
+
+        execution_details <- execution_details |>
+          dplyr::mutate(
+            execution_id = execution_id,
+            queue_start_time = lubridate::ymd_hms(.data$queue_start_time),
+            queue_end_time = lubridate::ymd_hms(.data$queue_end_time),
+            queue_duration = as.integer(.data$queue_duration)
+          ) |>
+          dplyr::select(
+            "execution_id",
+            tidyselect::everything()
+          )
+
+        dbx::dbxUpsert(
+          conn,
+          DBI::SQL("entrata.report_executions"),
+          records = execution_details,
+          where_cols = c("execution_id"),
+          skip_existing = FALSE
+        )
+
+        cli::cli_alert_success(
+          c(
+            "Successfully upserted the report execution details.\n",
+            "Execution ID: {.field {execution_id}}."
+          )
+        )
+      }
+    )
+
+  }, error = function(e) {
+
+    cli::cli_alert_danger(
+      c(
+        "Failed to upsert the report execution details.\n",
+        "Error: {.error {e$message}}."
+      )
+    )
+
+    return(invisible(execution_id))
+
+  })
+
+}
+
+db_upsert_entrata_lease_execution_report <- function(pool, report_data) {
+
+  check_db_conn(pool)
+  check_tibble(report_data)
+
+  validate_col_names(
+    report_data,
+    req_cols = c(
+      "report_date",
+      "property_id",
+      "weekly_new",
+      "weekly_renewal"
+    )
+  )
+
+  tryCatch({
+
+    pool::poolWithTransaction(
+      pool,
+      function(conn) {
+
+        dbx::dbxUpsert(
+          conn,
+          DBI::SQL("entrata.report_lease_execution_applicant"),
+          records = report_data,
+          where_cols = c("report_date", "property_id"),
+          skip_existing = FALSE
+        )
+
+        n_records <- nrow(report_data)
+
+        cli::cli_alert_success(
+          c(
+            "Successfully upserted {.field {n_records}} from {.field report_data} into {.field entrata.report_lease_execution_applicant}."
+          )
+        )
+
+      }
+    )
+
+  }, error = function(e) {
+
+    cli::cli_alert_danger(
+      c(
+        "Failed to upsert records from {.field report_data} into {.field entrata.report_lease_execution_applicant}.\n",
+        "Error: {.error {e$message}}."
+      )
+    )
+
+    return(NULL)
+
+  })
+
+}
+
 db_upsert_entrata_pre_lease_summary_by_property <- function(pool, summary_data) {
 
   check_db_conn(pool)
@@ -76,7 +215,11 @@ db_upsert_entrata_pre_lease_summary_by_property <- function(pool, summary_data) 
       "excluded_unit_count",
       "rentable_unit_count",
       "occupied_unit_count",
-      "available_unit_count"
+      "available_unit_count",
+      "total_scheduled_rent",
+      "avg_sqft",
+      "avg_scheduled_rent",
+      "preleased_percent"
     )
   )
 
@@ -98,7 +241,7 @@ db_upsert_entrata_pre_lease_summary_by_property <- function(pool, summary_data) 
 
         cli::cli_alert_success(
           c(
-            "Successfully upserted {.field {n_records}} from {.field summary_data} into {.field entrata.report_pre_lease_summary_by_property}."
+            "Successfully upserted {.field {n_records}} from {.field summary_data} into {.code entrata.report_pre_lease_summary_by_property}."
           )
         )
 
@@ -109,7 +252,7 @@ db_upsert_entrata_pre_lease_summary_by_property <- function(pool, summary_data) 
 
     cli::cli_alert_danger(
       c(
-        "Failed to upsert records from {.field summary_data} into {.field entrata.report_pre_lease_summary_by_property}.\n",
+        "Failed to upsert records from {.field summary_data} into {.code entrata.report_pre_lease_summary_by_property}.\n",
         "Error: {.error {e$message}}."
       )
     )
@@ -155,7 +298,7 @@ db_upsert_entrata_pre_lease_details_by_property <- function(pool, details_data) 
           conn,
           DBI::SQL("entrata.report_pre_lease_details_by_property"),
           records = details_data,
-          where_cols = c("report_date", "property_id", "bldg_unit", "unit_type", "lease_id", "charge_code"),
+          where_cols = c("report_date", "property_id", "bldg_unit", "unit_type", "charge_code", "lease_id"),
           skip_existing = FALSE
         )
 
@@ -163,7 +306,7 @@ db_upsert_entrata_pre_lease_details_by_property <- function(pool, details_data) 
 
         cli::cli_alert_success(
           c(
-            "Successfully upserted {.field {n_records}} from {.field details_data} into {.field entrata.report_pre_lease_details_by_property}."
+            "Successfully upserted {.field {n_records}} from {.field details_data} into {.code entrata.report_pre_lease_details_by_property}."
           )
         )
 
@@ -175,7 +318,7 @@ db_upsert_entrata_pre_lease_details_by_property <- function(pool, details_data) 
 
     cli::cli_alert_danger(
       c(
-        "Failed to upsert records from {.field details_data} into {.field entrata.report_pre_lease_details_by_property}.\n",
+        "Failed to upsert records from {.field details_data} into {.code entrata.report_pre_lease_details_by_property}.\n",
         "Error: {.error {e$message}}."
       )
     )
