@@ -9,9 +9,6 @@ entrata_resp_body(resp)
 \arguments{
 \item{resp}{\code{httr2::response} object.}
 }
-\value{
-\code{list} with the response body.
-}
 \description{
 Extract the response body from the Entrata API response.
 }

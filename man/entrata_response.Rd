@@ -6,6 +6,11 @@
 \arguments{
 \item{resp}{An \code{\link[httr2:response]{httr2::response()}} object.}
 }
+\value{
+\itemize{
+\item \code{entrata_resp_body()} Returns a parsed list representing the API response's JSON.
+}
+}
 \description{
 Functions for working with API responses from the Entrata API.
 }
