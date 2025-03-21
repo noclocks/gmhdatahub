@@ -1,4 +1,47 @@
 
+validate_config <- function(cfg = NULL) {
+
+  if (is.character(cfg)) {
+    cfg <- config::get(file = cfg)
+  }
+  if (is.null(cfg)) {
+    cfg <- config::get()
+  }
+  if (!is.list(cfg)) {
+    cli::cli_abort("Invalid configuration: Must be a list.")
+  }
+  required_keys <- c("auth", "db", "entrata")
+  missing_keys <- required_keys[!required_keys %in% names(cfg)]
+  if (length(missing_keys) > 0) {
+    cli::cli_abort(
+      "Missing required configuration keys: {.field {missing_keys}}."
+    )
+  }
+  return(invisible(NULL))
+}
+
+.onload_cfg <- function() {
+  # check if an existing environment variable defined config file exists
+  if (Sys.getenv("R_CONFIG_FILE") != "") {
+    cli::cli_alert_warning("No configuration file setup. Using environment variable: {.envvar R_CONFIG_FILE}.")
+    # check if a config file exists in local working directory and if so, set as envvar, else
+    # decrypt package config file to working directory and set as envvar
+    working_cfg <- fs::path(getwd(), "config.yml")
+    if (file.exists(working_cfg)) {
+      cli::cli_alert_info("Found configuration file in working directory: {.file {working_cfg}}.")
+      Sys.setenv("R_CONFIG_FILE" = working_cfg)
+      cli::cli_alert_success("Configuration environment variable {.envvar R_CONFIG_FILE} set to: {.file {working_cfg}}.")
+    }
+    # since no config file exists, decrypt package config file to working directory
+    decrypt_config_file(set_env = TRUE)
+  }
+  # validate config
+  validate_config()
+}
+
+rlang::on_load({ .onload_cfg() })
+
+
 #' Encrypt Configuration File
 #'
 #' @description
@@ -84,10 +127,6 @@ decrypt_cfg_file <- function(
       )
     )
   }
-
-  # cfg_file_encrypted <- fs::path_ext_remove(cfg_file) |>
-  #   paste0(".encrypted.yml") |>
-  #   fs::path()
 
   cfg_file_encrypted <- system.file(
     "config/config.encrypted.yml",

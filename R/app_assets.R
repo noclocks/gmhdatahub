@@ -8,6 +8,12 @@
 
 # add external resources --------------------------------------------------
 
+.add_resource_path <- function() {
+  shiny::addResourcePath("www", pkg_sys("www"))
+}
+
+rlang::on_load({ .add_resource_path() })
+
 #' Add External Resources
 #'
 #' @description

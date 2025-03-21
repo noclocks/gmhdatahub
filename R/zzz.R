@@ -8,32 +8,9 @@
 
 # onLoad ------------------------------------------------------------------
 
-.onLoad <- function(libname, pkgname) { # nocov start
-
-  # Sys.setenv("R_CONFIG_FILE" = pkg_sys("config/config.yml"))
-  # decrypt_cfg_file()
-
-  shiny::addResourcePath("www", pkg_sys("www"))
-
-  logger::log_threshold(logger::INFO, namespace = "gmhcommunities")
-
-  logger::log_layout(
-    logger::layout_glue_generator(
-      "{level} [{format(time, \"%Y-%m-%d %H:%M:%S\")}] {msg}"
-    ),
-    namespace = "gmhcommunities"
-  )
-
-  logger::log_formatter(
-    logger::formatter_glue,
-    namespace = "gmhcommunities"
-  )
-
-  logger::log_appender(
-    appender = logger::appender_stdout,
-    namespace = "gmhcommunities"
-  )
-} # nocov end
+.onLoad <- function(libname, pkgname) {
+  rlang::run_on_load()
+}
 
 .onAttach <- function(libname, pkgname) {
   msg <- "gmhcommunities R package developed by No Clocks, LLC (https://github.com/noclocks/gmhcommunities/)"
