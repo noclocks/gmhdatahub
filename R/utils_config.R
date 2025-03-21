@@ -33,7 +33,7 @@ validate_config <- function(cfg = NULL) {
       cli::cli_alert_success("Configuration environment variable {.envvar R_CONFIG_FILE} set to: {.file {working_cfg}}.")
     }
     # since no config file exists, decrypt package config file to working directory
-    decrypt_config_file(set_env = TRUE)
+    decrypt_cfg_file(set_env = TRUE)
   }
   # validate config
   validate_config()
