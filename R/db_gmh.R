@@ -7,11 +7,6 @@
 #
 #  ------------------------------------------------------------------------
 
-#' GMH Database Functions
-#'
-#' @description
-#'
-
 db_read_gmh_properties <- function(
     pool,
     property_ids = NULL,
