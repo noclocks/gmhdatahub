@@ -55,7 +55,7 @@ entrata_lease_execution_report <- function(
   if (is.null(report_date)) { report_date <- Sys.Date() }
   if (is.null(request_id)) { request_id <- as.integer(Sys.time()) }
   if (is.null(report_version)) { report_version <- get_default_entrata_report_version("lease_execution_(applicant)") }
-  if (is.null(property_ids)) { property_ids <- get_entrata_property_ids() }
+  if (is.null(property_ids)) { property_ids <- entrata_properties_tbl$id }
 
   # derive daterange period
   weekly_period <- get_weekly_period() |> format_date_for_entrata()
@@ -146,48 +146,7 @@ entrata_lease_execution_report <- function(
   entrata_resp_check_status(queue_resp)
 
   # parse response to get report data
-  report_data <- httr2::resp_body_json(queue_resp) |>
-    pluck("response", "result", "reportData")
-
-  # ensure all properties
-  props <- memoise::memoise(get_entrata_property_ids)() |>
-    tibble::enframe(name = "property_name", value = "property_id") |>
-    dplyr::mutate(property_id = as.integer(.data$property_id),
-                  report_date = .env$report_date)
-
-  out <- report_data |>
-    jsonlite::toJSON(auto_unbox = TRUE, pretty = TRUE) |>
-    jsonlite::fromJSON(flatten = TRUE) |>
-    tibble::as_tibble() |>
-    dplyr::select("property_name", "lease_type", "signed") |>
-    tidyr::pivot_wider(names_from = lease_type, values_from = signed) |>
-    dplyr::mutate(dplyr::across(dplyr::everything(), ~ tidyr::replace_na(., 0))) |>
-    dplyr::rename(weekly_new = `New Lease`, weekly_renewal = Renewal) |>
-    dplyr::mutate(
-      # get property id from named vector (names = property names)
-      property_id = purrr::map_chr(property_name, ~ purrr::pluck(property_ids, .x)),
-      property_id = as.integer(property_id),
-      report_date = report_date,
-      weekly_total = weekly_new + weekly_renewal
-    ) |>
-    dplyr::select(
-      report_date,
-      property_id,
-      property_name,
-      weekly_new,
-      weekly_renewal,
-      weekly_total
-    ) |>
-    dplyr::right_join(
-      props,
-      by = c("property_id", "property_name", "report_date")
-    ) |>
-    dplyr::mutate(
-      dplyr::across(
-        tidyselect::where(is.numeric),
-        ~dplyr::coalesce(.x, 0)
-      )
-    )
+  resp_data_lst <- entrata_resp_parse_lease_execution(queue_resp, report_date = report_date)
 
   params_tbl <- tibble::tibble(
     request_id = request_id,
@@ -213,7 +172,8 @@ entrata_lease_execution_report <- function(
   queue_resp_json <- jsonlite::toJSON(httr2::resp_body_json(queue_resp), auto_unbox = TRUE, pretty = TRUE)
 
   list(
-    report_data = out,
+    response_data = resp_data_lst$original_resp_data,
+    report_data = resp_data_lst$transformed_resp_data,
     parameters = params_tbl,
     metadata = list(
       report_request = initial_req_json,
