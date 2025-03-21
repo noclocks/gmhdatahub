@@ -385,16 +385,6 @@ summarize_pre_lease_details_data_by_unit <- function(details_data, summary_data)
 
 }
 
-# summarize unit types by property
-# unit_types_by_property <- h |>
-#   dplyr::group_by(
-#     .data$property_name
-#   ) |>
-#   dplyr::summarize(
-#     unit_types = stringr::str_c(.data$unit_type, collapse = ", "),
-#     .groups = "drop"
-#   )
-
 get_entrata_pre_lease_report_property_data <- function(
   request_id = NULL,
   ...
