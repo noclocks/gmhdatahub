@@ -22,6 +22,7 @@ Imports:
     apexcharter,
     bsicons,
     bslib (>= 0.9),
+    cellranger,
     cli,
     conductor,
     config,
@@ -54,9 +55,11 @@ Imports:
     plotly,
     pool,
     purrr,
+    qs2,
     reactable,
     reactablefmtr,
     readr,
+    readxl,
     rhandsontable,
     rintrojs,
     rlang (>= 1.1.0),
@@ -72,18 +75,24 @@ Imports:
     shinyvalidate,
     shinyWidgets,
     snakecase,
+    stats,
+    stringdist,
     stringr,
     tibble,
     tibblify,
     tidyr,
     tidyselect,
+    tidyxl,
     tools,
     utils,
+    uuid,
     waiter,
     withr,
     yaml
 Suggests:
+    here,
     httptest2,
+    kableExtra,
     knitr,
     rmarkdown,
     shinybg,
@@ -103,6 +112,7 @@ Config/database/needs: config, DBI, pool, dbx, dplyr, dbplyr, RPostgres
 Config/excel/needs: openxlsx2, readxl, writexl, cellranger
 Config/gcp/needs: gargle, googleCloudRunner, googleCloudStorageR,
     googleCloudAuthR
+Config/Needs/website: rmarkdown
 Config/tests/needs: testthat (>= 3.0.0), spelling, shinytest2, httptest2,
     httr2, shinyloadtest, shinybg
 Config/testthat/edition: 3
@@ -112,4 +122,3 @@ Language: en-US
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-Config/Needs/website: rmarkdown
