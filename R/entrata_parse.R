@@ -13,7 +13,7 @@
 
 # pre-lease -------------------------------------------------------------------------------------------------------
 
-entrata_resp_parse_pre_lease_by_property <- function(resp, report_date = NULL) {
+entrata_resp_parse_pre_lease <- function(resp, report_date = NULL) {
 
   check_response(resp)
 
@@ -371,6 +371,74 @@ process_pre_lease_details_data <- function(details_data, report_date = Sys.Date(
 
 
 # lease execution -------------------------------------------------------------------------------------------------
+
+entrata_resp_parse_lease_execution <- function(resp, report_date = NULL) {
+
+  check_response(resp)
+
+  # parse out original request
+  req <- purrr::pluck(resp, "request")
+  check_request(req)
+
+  # set report date
+  if (is.null(report_date)) {
+    report_date <- lubridate::today()
+  }
+
+  # parse response
+  resp_data <- parse_lease_execution_response(resp)
+
+  # get full properties
+  props <- entrata_properties_tbl |>
+    dplyr::rename("property_id" = "id", "property_name" = "name")
+
+  # transform
+  out <- resp_data |>
+    dplyr::select("property_name", "lease_type", "signed") |>
+    tidyr::pivot_wider(names_from = lease_type, values_from = signed) |>
+    janitor::clean_names() |>
+    dplyr::rename("weekly_new" = "new_lease", "weekly_renewal" = "renewal") |>
+    # join with properties to ensure full table
+    dplyr::right_join(props, by = "property_name") |>
+    dplyr::transmute(
+      report_date = .env$report_date,
+      property_id = as.integer(.data$property_id),
+      property_name = .data$property_name,
+      weekly_new = dplyr::coalesce(.data$weekly_new, 0L),
+      weekly_renewal = dplyr::coalesce(.data$weekly_renewal, 0L)
+    ) |>
+    dplyr::select(-c("property_name"))
+
+  list(
+    original_resp_data = resp_data,
+    transformed_resp_data = out
+  )
+}
+
+parse_lease_execution_response <- function(resp) {
+
+  check_response(resp)
+
+  # parse response JSON
+  resp_json <- resp |> httr2::resp_body_json()
+
+  # parse response data
+  resp_json |>
+    purrr::pluck("response", "result", "reportData") |>
+    jsonlite::toJSON(auto_unbox = TRUE, pretty = TRUE) |>
+    jsonlite::fromJSON(flatten = TRUE) |>
+    tibble::as_tibble() |>
+    dplyr::select(
+      "property_name",
+      "lease_type",
+      "application_approved",
+      "generated",
+      "signed",
+      "approved",
+      "move_in"
+    )
+
+}
 
 
 
