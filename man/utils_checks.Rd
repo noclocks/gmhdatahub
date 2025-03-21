@@ -2,6 +2,8 @@
 % Please edit documentation in R/utils_checks.R
 \name{utils_checks}
 \alias{utils_checks}
+\alias{check_property_id}
+\alias{check_property_name}
 \alias{check_inherits}
 \alias{check_chart}
 \alias{check_tibble}
@@ -18,6 +20,14 @@
 \alias{check_installed}
 \title{Check Utility Functions}
 \usage{
+check_property_id(id, arg = rlang::caller_arg(id), call = rlang::caller_env())
+
+check_property_name(
+  name,
+  arg = rlang::caller_arg(name),
+  call = rlang::caller_env()
+)
+
 check_inherits(
   obj,
   class,
@@ -60,11 +70,11 @@ check_entrata_daterange(
 check_installed(pkg, arg = rlang::caller_arg(pkg), call = rlang::caller_env())
 }
 \arguments{
+\item{arg, obj_arg, call}{\link[rlang:args_error_context]{rlang::args_error_context} Arguments for error messaging.}
+
 \item{obj, chart, tbl, req, resp, val}{The object to check the class of.}
 
 \item{class}{The class to check against.}
-
-\item{arg, obj_arg, call}{\link[rlang:args_error_context]{rlang::args_error_context} Arguments for error messaging.}
 }
 \description{
 A collection of functions for checking the validity of various R objects,
