@@ -103,9 +103,9 @@ try {
     ####################################
     Write-Host "`n========== DEPLOYING TO CLOUD RUN ==========`n" -ForegroundColor Cyan
 
-    # Construct the secret reference string
-    # Create a string with escaped quotes to avoid PowerShell string interpretation issues
-    $secretRef = "/secrets/config.yml=projects/$PROJECT_ID/secrets/$SECRET_NAME" + ":latest"
+    # Construct the secret reference for Cloud Run
+    # Format: mount-path=secret-name:secret-version
+    $secretRef = "/secrets/config.yml=$SECRET_NAME:latest"
 
     Write-Host "Secret reference: $secretRef" -ForegroundColor Yellow
     Write-Host "Deploying to Cloud Run..." -ForegroundColor Yellow
