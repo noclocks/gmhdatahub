@@ -105,7 +105,7 @@ try {
 
     # Construct the secret reference for Cloud Run
     # Format: mount-path=secret-name:secret-version
-    $secretRef = "/secrets/config.yml=$SECRET_NAME:latest"
+    $secretRef = "/secrets/config.yml=${SECRET_NAME}:latest"
 
     Write-Host "Secret reference: $secretRef" -ForegroundColor Yellow
     Write-Host "Deploying to Cloud Run..." -ForegroundColor Yellow
