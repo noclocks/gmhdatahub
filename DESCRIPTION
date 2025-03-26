@@ -66,6 +66,7 @@ Imports:
     scales,
     sever,
     shiny (>= 1.10),
+    shiny.emptystate,
     shinybrowser,
     shinybusy,
     shinycustomloader,

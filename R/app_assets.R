@@ -51,6 +51,7 @@ add_external_resources <- function() {
       color = "#FFF",
       background = gmh_colors("primary")
     ),
+    shiny.emptystate::use_empty_state(),
     shinybrowser::detect(),
     fontawesome::fa_html_dependency(),
     rintrojs::introjsUI(),
