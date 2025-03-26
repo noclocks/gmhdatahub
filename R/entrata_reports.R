@@ -278,7 +278,7 @@ entrata_reports_info <- function(
     entrata_req_endpoint("reports") |>
     entrata_req_body(
       method_name = "getReportInfo",
-      method_version = get_default_method_version("reports", "getReportInfo"),
+      method_version = get_default_entrata_method_version("reports", "getReportInfo"),
       method_params = list(
         report = report_name,
         version = report_version
