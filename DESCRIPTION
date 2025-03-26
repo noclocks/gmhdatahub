@@ -49,7 +49,6 @@ Imports:
     memoise,
     mime,
     noClocksAuthR,
-    openxlsx,
     openxlsx2,
     pkgload,
     plotly,
