@@ -6,7 +6,7 @@
 \usage{
 process_market_surveys(
   root_xl_path,
-  output_dir = "data/processed",
+  output_dir = "data-raw/data/working",
   valid_prop_names = NULL,
   use_cache = TRUE
 )
