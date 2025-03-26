@@ -74,6 +74,13 @@ mod_survey_forms_ui <- function(id) {
             value = current_week_start,
             weekstart = 1,
             daysofweekdisabled = c(0, 2:6)
+          ),
+          shiny::actionButton(
+            ns("reset"),
+            label = "Reset Filters",
+            icon = shiny::icon("undo"),
+            class = "btn-primary",
+            style = "margin-top: 10px; align-self: center;"
           )
         ),
         bslib::nav_panel(
@@ -166,7 +173,8 @@ mod_survey_forms_ui <- function(id) {
 #' @importFrom shiny bindEvent withProgress incProgress setProgress showNotification
 mod_survey_forms_server <- function(
     id,
-    pool = NULL) {
+    pool = NULL
+) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
@@ -592,6 +600,44 @@ mod_survey_forms_server <- function(
           rents = mod_rents_data()
         )
       })
+
+      # reset -----------------------------------------------------------------------
+      shiny::observeEvent(input$reset, {
+
+        current_week_start <- get_leasing_week_start_date()
+
+        shiny::updateSelectizeInput(
+          session,
+          "property",
+          selected = get_default_app_choices("properties")[["1047 Commonwealth Avenue"]]
+        )
+        shiny::updateSelectizeInput(
+          session,
+          "competitor",
+          choices = character(0),
+          selected = character(0),
+          options = list(placeholder = "Select a Competitor")
+        )
+        shiny::updateDateInput(
+          session,
+          "leasing_week",
+          value = current_week_start
+        )
+        # selected_filters$property_id <- NULL
+        # selected_filters$property_name <- NULL
+        # selected_filters$competitor_id <- NULL
+        # selected_filters$competitor_name <- NULL
+        # selected_filters$leasing_week_id <- NULL
+        # selected_filters$leasing_week_date <- NULL
+        # selected_filters$survey_id <- NULL
+        # selected_filters$user_id <- NULL
+        # selected_filters$user_email <- NULL
+        # session$userData$selected_survey_property(NULL)
+        # session$userData$db_refresh_trigger(0)
+        cli::cli_alert_info("Filters Reset")
+      })
+
+
 
       # return ------------------------------------------------------------------
       return(
