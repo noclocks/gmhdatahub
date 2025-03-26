@@ -7,6 +7,441 @@
 #
 #  ------------------------------------------------------------------------
 
+
+# reports ---------------------------------------------------------------------------------------------------------
+
+
+# pre-lease -------------------------------------------------------------------------------------------------------
+
+entrata_resp_parse_pre_lease <- function(resp, report_date = NULL) {
+
+  check_response(resp)
+
+  # parse out original request
+  req <- purrr::pluck(resp, "request")
+  check_request(req)
+
+  # set report date
+  if (is.null(report_date)) {
+    report_date <- lubridate::today()
+  }
+
+  # parse out request metadata
+  req_meta <- parse_pre_lease_request(req)
+
+  # parse response
+  resp_lst <- parse_pre_lease_response(resp)
+
+  # parse response data
+  resp_data <- purrr::pluck(resp_lst, "data", "response", "result", "reportData")
+
+  # summary
+  summary_data <- resp_data |>
+    purrr::pluck("summary") |>
+    dplyr::bind_rows() |>
+    tibble::as_tibble() |>
+    process_pre_lease_summary_data()
+
+  # details
+  details_data <- resp_data |>
+    purrr::pluck("details") |>
+    dplyr::bind_rows() |>
+    tibble::as_tibble() |>
+    process_pre_lease_details_data()
+
+  # create metadata list
+  metadata <- list(
+    report_date = report_date,
+    request = req_meta,
+    response = resp_lst
+  )
+
+  return(
+    list(
+      summary_data = summary_data,
+      details_data = details_data,
+      metadata = metadata
+    )
+  )
+}
+
+parse_pre_lease_request <- function(req) {
+
+  check_request(req)
+
+  req_url <- req |> purrr::pluck("url")
+  req_endpoint <- basename(req_url)
+  req_headers <- req |> purrr::pluck("headers") |> httr2:::headers_redact()
+  req_policies <- req |> purrr::pluck("policies")
+  req_options <- req |> purrr::pluck("options")
+  req_body <- req |> purrr::pluck("body")
+  req_content_type <- req_body |> purrr::pluck("content_type")
+  req_data <- req_body |> purrr::pluck("data")
+  req_id <- req_data |> purrr::pluck("request_id")
+  req_method_name <- req_data |> purrr::pluck("method", "name")
+  req_method_version <- req_data |> purrr::pluck("method", "version")
+  req_method_params <- req_data |> purrr::pluck("method", "params")
+  req_queue_id <- req_method_params |> purrr::pluck("queueId")
+  req_service_name <- req_method_params |> purrr::pluck("serviceName")
+
+  req_json <- req_body |> jsonlite::toJSON(auto_unbox = TRUE, pretty = TRUE)
+
+  list(
+    request_id = req_id,
+    url = req_url,
+    endpoint = req_endpoint,
+    method_name = req_method_name,
+    method_version = req_method_version,
+    method_params = req_method_params,
+    content_type = req_content_type,
+    headers = req_headers,
+    policies = req_policies,
+    options = req_options,
+    service_name = req_service_name,
+    queue_id = req_queue_id,
+    json = req_json
+  )
+
+}
+
+parse_pre_lease_response <- function(resp) {
+
+  check_response(resp)
+
+  # parse response
+  resp_status_code <- resp |> purrr::pluck("status_code")
+  resp_method <- resp |> purrr::pluck("method")
+  resp_url <- resp |> purrr::pluck("url")
+  resp_headers <- resp |> purrr::pluck("headers") |> httr2:::headers_redact()
+
+  # parse respone data / JSON
+  resp_data <- resp |> httr2::resp_body_json()
+  resp_json <- resp_data |> jsonlite::toJSON(auto_unbox = TRUE, pretty = TRUE)
+
+  # parse out status code & queue metadata
+  status_code <- resp_data |> purrr::pluck("response", "code")
+  queue_start <- resp_data |> purrr::pluck("response", "result", "queueStartedOn") |> lubridate::mdy_hms()
+  queue_end <- resp_data |> purrr::pluck("response", "result", "queueCompletedOn") |> lubridate::mdy_hms()
+  queue_duration <- as.integer(difftime(queue_end, queue_start, units = "secs"))
+
+  list(
+    status_code = status_code,
+    method = resp_method,
+    url = resp_url,
+    headers = resp_headers,
+    json = resp_json,
+    queue_start = queue_start,
+    queue_end = queue_end,
+    queue_duration = queue_duration,
+    data = resp_data,
+    json = resp_json
+  )
+
+}
+
+process_pre_lease_summary_data <- function(summary_data, report_date = Sys.Date()) {
+
+  int_cols <- function() {
+    c(
+      tidyselect::all_of(c("property_id", "units", "variance")),
+      tidyselect::ends_with("_count"),
+      tidyselect::ends_with("_count_prior"),
+      tidyselect::starts_with("number_")
+    )
+  }
+
+  num_cols <- function() {
+    c(
+      tidyselect::starts_with("avg_"),
+      tidyselect::ends_with("_percent"),
+      tidyselect::ends_with("_percent_prior"),
+      tidyselect::ends_with("_total"),
+      tidyselect::ends_with("_rent"),
+      tidyselect::ends_with("_rent_total")
+    )
+  }
+
+  summary_data |>
+    dplyr::mutate(
+      report_date = as.Date(.env$report_date),
+      dplyr::across(int_cols(), function(n) dplyr::coalesce(as.integer(n), 0L)),
+      dplyr::across(num_cols(), function(n) dplyr::coalesce(as.numeric(n), 0.00))
+    ) |>
+    dplyr::select(
+      "report_date",
+      "property_id",
+      "property_name",
+      tidyselect::any_of(c("unit_type", "floorplan_name", "space_option")),
+      "total_unit_count" = "units",
+      "excluded_unit_count",
+      "rentable_unit_count",
+      "occupied_unit_count" = "occupied_count",
+      "available_unit_count" = "available_count",
+      "total_scheduled_rent" = "scheduled_rent_total",
+      tidyselect::starts_with("avg_"),
+      tidyselect::starts_with("started_"),
+      tidyselect::starts_with("partially_completed_"),
+      tidyselect::starts_with("completed_"),
+      tidyselect::starts_with("approved_"),
+      tidyselect::starts_with("preleased_"),
+      "yoy_variance" = "variance"
+    ) |>
+    dplyr::distinct(
+      .data$report_date,
+      .data$property_id,
+      .data$property_name,
+      .keep_all = TRUE
+    ) |>
+    dplyr::arrange(.data$property_name)
+
+}
+
+transform_pre_lease_summary_data <- function(summary_data_processed) {
+
+  validate_col_names(
+    summary_data_processed,
+    req_cols = c(
+      "report_date",
+      "property_id",
+      "property_name",
+      "excluded_unit_count",
+      "rentable_unit_count",
+      "occupied_unit_count",
+      "available_unit_count",
+      "approved_new_count",
+      "partially_completed_new_count",
+      "completed_new_count",
+      "approved_renewal_count",
+      "partially_completed_renewal_count",
+      "completed_renewal_count",
+      "approved_new_count_prior",
+      "partially_completed_new_count_prior",
+      "completed_new_count_prior",
+      "approved_renewal_count_prior",
+      "partially_completed_renewal_count_prior",
+      "completed_renewal_count_prior"
+    ),
+    optional_cols = c(
+      "unit_type"
+    )
+  )
+
+  rept_date <- summary_data_processed |> dplyr::pull(report_date) |> unique()
+  weeks_left_to_lease <- get_weeks_left_to_lease(rept_date)
+
+  summary_data_processed |>
+    dplyr::transmute(
+      report_date = .data$report_date,
+      property_id = .data$property_id,
+      property_name = .data$property_name,
+      dplyr::across(tidyselect::any_of(c("unit_type", "floorplan_name")), ~.x, .names = "{.col}"),
+      excluded_units = .data$excluded_unit_count,
+      rentable_units = .data$rentable_unit_count,
+      occupied_units = .data$occupied_unit_count,
+      available_units = .data$available_unit_count,
+      total_beds = .data$available_unit_count,
+      current_occupied = .data$occupied_unit_count,
+      current_occupancy = dplyr::coalesce(.data$occupied_unit_count / .data$total_beds, 0),
+      current_total_new = .data$approved_new_count + .data$partially_completed_new_count + .data$completed_new_count,
+      current_total_renewals = .data$approved_renewal_count + .data$partially_completed_renewal_count + .data$completed_renewal_count,
+      current_total_leases = .data$current_total_new + .data$current_total_renewals,
+      current_preleased_percent = .data$current_total_leases / .data$total_beds,
+      prior_total_new = .data$approved_new_count_prior + .data$partially_completed_new_count_prior + .data$completed_new_count_prior,
+      prior_total_renewals = .data$approved_renewal_count_prior + .data$partially_completed_renewal_count_prior + .data$completed_renewal_count_prior,
+      prior_total_leases = .data$approved_count_prior + .data$partially_completed_count_prior + .data$completed_count_prior,
+      prior_preleased_percent = .data$prior_total_leases / .data$total_beds,
+      yoy_variance_count = .data$current_total_leases - .data$prior_total_leases,
+      yoy_variance_percent = .data$current_preleased_percent - .data$prior_preleased_percent,
+      beds_left = .data$total_beds - .data$current_total_leases,
+      vel_90 = .data$beds_left * .90 / .env$weeks_left_to_lease,
+      vel_95 = .data$beds_left * .95 / .env$weeks_left_to_lease,
+      vel_100 = .data$beds_left * 1 / .env$weeks_left_to_lease
+    ) |>
+    dplyr::mutate(
+      dplyr::across(
+        tidyselect::where(is.numeric),
+        function(x) dplyr::if_else(is.na(x), as(x, class(x)), x)
+      )
+    )
+
+}
+
+
+process_pre_lease_details_data <- function(details_data, report_date = Sys.Date()) {
+
+  date_cols <- function() {
+    tidyselect::all_of(
+      c(
+        "lease_start",
+        "lease_end",
+        "lease_started_on",
+        "lease_partially_completed_on",
+        "lease_completed_on",
+        "lease_approved_on",
+        "move_in_date"
+      )
+    )
+  }
+
+  int_cols <- function() {
+    c(
+      tidyselect::any_of(c("property_id", "sqft", "resident_id", "lease_term")),
+      tidyselect::starts_with("number_"),
+      tidyselect::ends_with("_count"),
+      tidyselect::ends_with("_count_prior"),
+      tidyselect::ends_with("_variance")
+    )
+  }
+
+  num_cols <- function() {
+    c(
+      tidyselect::starts_with("deposit_"),
+      tidyselect::ends_with("_rent"),
+      tidyselect::ends_with("_rate"),
+      tidyselect::ends_with("_total"),
+      tidyselect::ends_with("_charges")
+    )
+  }
+
+  coalesce_cols <- function() {
+    c(
+      tidyselect::any_of(c("bldg_unit", "unit", "unit_type", "floorplan_name", "bldg", "charge_code"))
+    )
+  }
+
+  details_data |>
+    dplyr::mutate(
+      report_date = as.Date(.env$report_date),
+      dplyr::across(coalesce_cols(), function(x) dplyr::coalesce(x, "Missing")),
+      dplyr::across(date_cols(), lubridate::mdy),
+      dplyr::across(int_cols(), function(n) dplyr::coalesce(as.integer(n), 0L)),
+      dplyr::across(num_cols(), function(n) dplyr::coalesce(as.numeric(n), 0.00))
+    ) |>
+    dplyr::select(
+      "report_date",
+      "property_id",
+      "property_name",
+      tidyselect::any_of(c("bldg_unit", "unit_type", "charge_code")),
+      tidyselect::any_of(c("bldg", "unit", "unit_status", "floorplan_name")),
+      "resident_id",
+      "resident_name" = "resident",
+      "resident_email" = "email",
+      "resident_phone" = "phone_number",
+      "resident_gender" = "gender",
+      tidyselect::any_of(c("student_id_number")),
+      "lease_id" = "lease_id_display",
+      "lease_status",
+      "lease_sub_status",
+      "lease_occupancy_type",
+      "lease_term_name",
+      "lease_term_month" = "lease_term",
+      tidyselect::any_of(c("space_option", "leasing_agent", "ledger_name")),
+      "lease_start_date" = "lease_start",
+      "lease_end_date" = "lease_end",
+      "lease_started_on_date" = "lease_started_on",
+      "lease_partially_completed_on_date" = "lease_partially_completed_on",
+      "lease_completed_on_date" = "lease_completed_on",
+      "lease_approved_on_date" = "lease_approved_on",
+      "move_in_date",
+      tidyselect::starts_with("deposit_"),
+      tidyselect::ends_with("_rent"),
+      tidyselect::ends_with("_rate"),
+      tidyselect::ends_with("_charges"),
+      tidyselect::ends_with("_total")
+    ) |>
+    dplyr::distinct(
+      .data$report_date,
+      .data$property_id,
+      .data$property_name,
+      .data$unit_type,
+      .data$bldg_unit,
+      .data$charge_code,
+      .data$resident_id,
+      .data$lease_id,
+      .keep_all = TRUE
+    ) |>
+    dplyr::arrange(
+      .data$property_name,
+      .data$unit_type,
+      .data$bldg_unit,
+      .data$charge_code
+    )
+
+}
+
+
+# lease execution -------------------------------------------------------------------------------------------------
+
+entrata_resp_parse_lease_execution <- function(resp, report_date = NULL) {
+
+  check_response(resp)
+
+  # parse out original request
+  req <- purrr::pluck(resp, "request")
+  check_request(req)
+
+  # set report date
+  if (is.null(report_date)) {
+    report_date <- lubridate::today()
+  }
+
+  # parse response
+  resp_data <- parse_lease_execution_response(resp)
+
+  # get full properties
+  props <- entrata_properties_tbl |>
+    dplyr::rename("property_id" = "id", "property_name" = "name")
+
+  # transform
+  out <- resp_data |>
+    dplyr::select("property_name", "lease_type", "signed") |>
+    tidyr::pivot_wider(names_from = lease_type, values_from = signed) |>
+    janitor::clean_names() |>
+    dplyr::rename("weekly_new" = "new_lease", "weekly_renewal" = "renewal") |>
+    # join with properties to ensure full table
+    dplyr::right_join(props, by = "property_name") |>
+    dplyr::transmute(
+      report_date = .env$report_date,
+      property_id = as.integer(.data$property_id),
+      property_name = .data$property_name,
+      weekly_new = dplyr::coalesce(.data$weekly_new, 0L),
+      weekly_renewal = dplyr::coalesce(.data$weekly_renewal, 0L)
+    ) |>
+    dplyr::select(-c("property_name"))
+
+  list(
+    original_resp_data = resp_data,
+    transformed_resp_data = out
+  )
+}
+
+parse_lease_execution_response <- function(resp) {
+
+  check_response(resp)
+
+  # parse response JSON
+  resp_json <- resp |> httr2::resp_body_json()
+
+  # parse response data
+  resp_json |>
+    purrr::pluck("response", "result", "reportData") |>
+    jsonlite::toJSON(auto_unbox = TRUE, pretty = TRUE) |>
+    jsonlite::fromJSON(flatten = TRUE) |>
+    tibble::as_tibble() |>
+    dplyr::select(
+      "property_name",
+      "lease_type",
+      "application_approved",
+      "generated",
+      "signed",
+      "approved",
+      "move_in"
+    )
+
+}
+
+
+
 # properties ------------------------------------------------------------------------------------------------------
 
 #' Parse Entrata Properties Response
@@ -120,25 +555,25 @@ entrata_resp_parse_properties <- function(resp) {
     janitor::clean_names()
 
   resp_properties_tbl <- resp_data |>
-    entrata_parse_properties_response_properties_tbl()
+    entrata_resp_parse_properties_tbl()
 
   resp_addresses_tbl <- resp_data |>
-    entrata_parse_properties_response_addresses_tbl()
+    entrata_resp_parse_properties_addresses_tbl()
 
   resp_post_months_tbl <- resp_data |>
-    entrata_parse_properties_response_post_months_tbl()
+    entrata_resp_parse_properties_post_months_tbl()
 
   resp_hours_tbl <- resp_data |>
-    entrata_parse_properties_response_hours_tbl()
+    entrata_resp_parse_properties_hours_tbl()
 
   resp_space_options_tbl <- resp_data |>
-    entrata_parse_properties_response_space_options_tbl()
+    entrata_resp_parse_properties_space_options_tbl()
 
   resp_lease_terms_tbl <- resp_data |>
-    entrata_parse_properties_response_lease_terms_tbl()
+    entrata_resp_parse_properties_lease_terms_tbl()
 
   resp_lease_term_windows_tbl <- resp_data |>
-    entrata_parse_properties_response_lease_term_windows_tbl()
+    entrata_resp_parse_properties_lease_term_windows_tbl()
 
   list(
     properties = resp_properties_tbl,

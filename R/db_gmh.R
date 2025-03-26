@@ -1,3 +1,139 @@
+
+#  ------------------------------------------------------------------------
+#
+# Title : Database Functions for the GMH Schema
+#    By : Jimmy Briggs
+#  Date : 2025-03-21
+#
+#  ------------------------------------------------------------------------
+
+db_read_gmh_properties <- function(
+    pool,
+    property_ids = NULL,
+    partner_ids = NULL,
+    portfolio_ids = NULL,
+    collect = TRUE
+) {
+
+  check_db_pool(pool)
+
+  hold <- db_read_tbl(pool, "gmh.properties", collect = FALSE)
+
+  filts <- list(
+    property_id = property_ids,
+    partner_id = partner_ids,
+    portfolio_id = portfolio_ids
+  ) |>
+    purrr::compact()
+
+  if (length(filts) == 0) {
+    if (collect) {
+      return(dplyr::collect(hold))
+    } else {
+      return(hold)
+    }
+  }
+
+  hold_filtered <- purrr::reduce(
+    names(filts),
+    function(acc, col) {
+      dplyr::filter(acc, !!rlang::sym(col) %in% !!filts[[col]])
+    },
+    .init = hold
+  )
+
+  if (collect) {
+    return(dplyr::collect(hold_filtered))
+  } else {
+    return(hold_filtered)
+  }
+
+}
+
+db_read_gmh_competitors <- function(
+    pool,
+    competitor_id = NULL,
+    property_id = NULL,
+    collect = TRUE
+) {
+
+  check_db_pool(pool)
+
+  hold <- db_read_tbl(pool, "gmh.competitors", collect = FALSE)
+
+  filters <- list(
+    competitor_id = competitor_id,
+    property_id = property_id
+  ) |>
+    purrr::compact()
+
+  if (length(filters) == 0) {
+    if (collect) {
+      return(dplyr::collect(hold))
+    } else {
+      return(hold)
+    }
+  }
+
+  hold_filtered <- purrr::reduce(
+    names(filters),
+    function(acc, col) {
+      dplyr::filter(acc, !!rlang::sym(col) == !!filters[[col]])
+    },
+    .init = hold
+  )
+
+  if (collect) {
+    return(dplyr::collect(hold_filtered))
+  } else {
+    return(hold_filtered)
+  }
+}
+
+db_read_gmh_map_data <- function(
+    pool,
+    property_id = NULL,
+    collect = TRUE) {
+  check_db_pool(pool)
+
+  hold <- db_read_tbl(pool, "gmh.locations", collect = FALSE)
+
+  prop_names <- db_read_gmh_properties(pool, property_id = property_id, collect = FALSE) |>
+    dplyr::select("property_id", "property_name") |>
+    dplyr::distinct()
+  uni_names <- db_read_gmh_universities(pool, property_id = property_id, collect = FALSE) |>
+    dplyr::select("university_id", "university_name", "property_id") |>
+    dplyr::distinct()
+  comp_names <- db_read_gmh_competitors(pool, property_id = property_id, collect = FALSE) |>
+    dplyr::select("competitor_id", "competitor_name", "property_id") |>
+    dplyr::distinct()
+
+  out <- hold |>
+    dplyr::left_join(prop_names, by = c("location_name" = "property_name")) |>
+    dplyr::left_join(uni_names, by = c("location_name" = "university_name")) |>
+    dplyr::left_join(comp_names, by = c("location_name" = "competitor_name")) |>
+    dplyr::mutate(
+      property_id = dplyr::coalesce(property_id.x, property_id.y, property_id)
+    ) |>
+    dplyr::filter(!is.na(property_id)) |>
+    dplyr::select(-c("property_id.x", "property_id.y"))
+
+  if (collect) {
+    return(dplyr::collect(out))
+  } else {
+    return(out)
+  }
+}
+
+db_read_gmh_leasing_calendar <- function(pool, date_key = Sys.Date()) {
+  check_db_pool(pool)
+  date_key <- format(date_key, "%Y-%m-%d")
+  db_read_tbl(pool, "gmh.leasing_calendar", collect = FALSE) |>
+    dplyr::filter(.data$date_key == .env$date_key) |>
+    dplyr::collect()
+}
+
+
 db_read_gmh_properties_partners <- function(
   pool,
   property_ids = NULL,
@@ -254,128 +390,4 @@ db_read_university_locations <- function(pool, collect = TRUE) {
   return(hold)
 }
 
-db_read_gmh_properties <- function(
-    pool,
-    property_ids = NULL,
-    partner_ids = NULL,
-    portfolio_ids = NULL,
-    collect = TRUE
-) {
 
-  check_db_pool(pool)
-
-  hold <- db_read_tbl(pool, "gmh.properties", collect = FALSE)
-
-  filts <- list(
-    property_id = property_ids,
-    partner_id = partner_ids,
-    portfolio_id = portfolio_ids
-  ) |>
-    purrr::compact()
-
-  if (length(filts) == 0) {
-    if (collect) {
-      return(dplyr::collect(hold))
-    } else {
-      return(hold)
-    }
-  }
-
-  hold_filtered <- purrr::reduce(
-    names(filts),
-    function(acc, col) {
-      dplyr::filter(acc, !!rlang::sym(col) %in% !!filts[[col]])
-    },
-    .init = hold
-  )
-
-  if (collect) {
-    return(dplyr::collect(hold_filtered))
-  } else {
-    return(hold_filtered)
-  }
-
-}
-
-db_read_gmh_competitors <- function(
-    pool,
-    competitor_id = NULL,
-    property_id = NULL,
-    collect = TRUE
-) {
-
-  check_db_pool(pool)
-
-  hold <- db_read_tbl(pool, "gmh.competitors", collect = FALSE)
-
-  filters <- list(
-    competitor_id = competitor_id,
-    property_id = property_id
-  ) |>
-    purrr::compact()
-
-  if (length(filters) == 0) {
-    if (collect) {
-      return(dplyr::collect(hold))
-    } else {
-      return(hold)
-    }
-  }
-
-  hold_filtered <- purrr::reduce(
-    names(filters),
-    function(acc, col) {
-      dplyr::filter(acc, !!rlang::sym(col) == !!filters[[col]])
-    },
-    .init = hold
-  )
-
-  if (collect) {
-    return(dplyr::collect(hold_filtered))
-  } else {
-    return(hold_filtered)
-  }
-}
-
-db_read_gmh_map_data <- function(
-    pool,
-    property_id = NULL,
-    collect = TRUE) {
-  check_db_pool(pool)
-
-  hold <- db_read_tbl(pool, "gmh.locations", collect = FALSE)
-
-  prop_names <- db_read_gmh_properties(pool, property_id = property_id, collect = FALSE) |>
-    dplyr::select("property_id", "property_name") |>
-    dplyr::distinct()
-  uni_names <- db_read_gmh_universities(pool, property_id = property_id, collect = FALSE) |>
-    dplyr::select("university_id", "university_name", "property_id") |>
-    dplyr::distinct()
-  comp_names <- db_read_gmh_competitors(pool, property_id = property_id, collect = FALSE) |>
-    dplyr::select("competitor_id", "competitor_name", "property_id") |>
-    dplyr::distinct()
-
-  out <- hold |>
-    dplyr::left_join(prop_names, by = c("location_name" = "property_name")) |>
-    dplyr::left_join(uni_names, by = c("location_name" = "university_name")) |>
-    dplyr::left_join(comp_names, by = c("location_name" = "competitor_name")) |>
-    dplyr::mutate(
-      property_id = dplyr::coalesce(property_id.x, property_id.y, property_id)
-    ) |>
-    dplyr::filter(!is.na(property_id)) |>
-    dplyr::select(-c("property_id.x", "property_id.y"))
-
-  if (collect) {
-    return(dplyr::collect(out))
-  } else {
-    return(out)
-  }
-}
-
-db_read_gmh_leasing_calendar <- function(pool, date_key = Sys.Date()) {
-  check_db_pool(pool)
-  date_key <- format(date_key, "%Y-%m-%d")
-  db_read_tbl(pool, "gmh.leasing_calendar", collect = FALSE) |>
-    dplyr::filter(.data$date_key == .env$date_key) |>
-    dplyr::collect()
-}

@@ -194,12 +194,55 @@ entrata_properties_getFloorPlans <- function(
         usePropertyPreferences = as.integer(use_property_preferences),
         includeDisabledFloorplans = as.integer(include_disabled_floorplans)
       ),
-      request_id = req_id
+      request_id = request_id
     )
 
   resp <- httr2::req_perform(req)
 
-  parse_floorplans_response(resp)
+  entrata_resp_parse_floorplans(resp)
+
+}
+
+entrata_req_floorplans <- function(property_id, request_id = NULL, entrata_config = get_entrata_config()) {
+
+  validate_entrata_config(entrata_config)
+
+  request_id <- request_id %||% as.integer(Sys.time())
+
+  entrata_request(entrata_config) |>
+    entrata_req_endpoint("properties") |>
+    entrata_req_body(
+      method_name = "getFloorPlans",
+      method_version = get_default_entrata_method_version("properties", "getFloorPlans"),
+      method_params = list(propertyId = property_id),
+      request_id = request_id
+    )
+
+}
+
+entrata_floorplans <- function(
+  property_ids = NULL,
+  entrata_config = get_entrata_config()
+) {
+
+  if (is.null(property_ids)) {
+    property_ids <- get_entrata_property_ids(entrata_config)
+  }
+
+  reqs <- purrr::map(
+    property_ids,
+    entrata_req_floorplans,
+    request_id = as.integer(Sys.time()),
+    entrata_config = entrata_config
+  )
+
+  resps <- httr2::req_perform_parallel(reqs, on_error = "continue", progress = TRUE)
+  # resp_successes <- resps |> httr2::resps_successes()
+  # resp_failures <- resps |> httr2::resps_failures()
+  # req_failures <- resp_failures |> httr2::resps_requests()
+
+  resps |>
+    purrr::map_dfr(entrata_resp_parse_floorplans)
 
 }
 

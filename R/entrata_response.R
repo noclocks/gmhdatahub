@@ -16,6 +16,11 @@
 #'
 #' @param resp An [httr2::response()] object.
 #'
+#'
+#' @returns
+#' - `entrata_resp_body()` Returns a parsed list representing the API response's JSON.
+#'
+#'
 #' @seealso [entrata_request()]
 NULL
 
@@ -26,15 +31,13 @@ NULL
 #'
 #' @param resp `httr2::response` object.
 #'
-#' @returns `list` with the response body.
+
 #'
 #' @export
-#'
 #' @importFrom httr2 resp_body_json
 #' @importFrom purrr pluck
 entrata_resp_body <- function(resp) {
   check_response(resp)
-  check_response_json(resp)
   httr2::resp_body_json(resp)
 }
 

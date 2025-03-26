@@ -90,6 +90,18 @@ pre_lease_queue_req_by_property <- httr2::request(entrata_config$base_url) |>
 
 pre_lease_queue_resp_by_property <- httr2::req_perform(pre_lease_queue_req_by_property)
 
+pre_lease_queue_resp_by_property |>
+  httr2::resp_body_json() |>
+  jsonlite::toJSON(auto_unbox = TRUE, pretty = TRUE) |>
+  cat(file = "pre_lease_queue_resp_by_property.json")
+
+pre_lease_req_by_property |>
+  purrr::pluck("body", "data") |>
+  jsonlite::toJSON(auto_unbox = TRUE, pretty = TRUE) |>
+  cat(file = "pre_lease_req_by_property.json")
+
+##############
+
 pre_lease_report_data_by_property <- pre_lease_queue_resp_by_property |>
   httr2::resp_body_json() |>
   purrr::pluck("response", "result", "reportData")
@@ -163,6 +175,7 @@ pre_lease_report_summary_data_by_property_working <- pre_lease_report_summary_da
     vel_100 = .data$beds_left * 1 / .env$weeks_left_to_lease
   )
 
+pre_lease_global_summary_tbl <- pre_lease_report_summary_data_by_property_working
 
 # by unit -----------------------------------------------------------------
 
@@ -243,6 +256,18 @@ pre_lease_queue_req_by_unit <- httr2::request(entrata_config$base_url) |>
 
 pre_lease_queue_resp_by_unit <- httr2::req_perform(pre_lease_queue_req_by_unit)
 
+pre_lease_queue_resp_by_unit |>
+  httr2::resp_body_json() |>
+  jsonlite::toJSON(auto_unbox = TRUE, pretty = TRUE) |>
+  cat(file = "pre_lease_queue_resp_by_unit.json")
+
+pre_lease_req_by_unit |>
+  purrr::pluck("body", "data") |>
+  jsonlite::toJSON(auto_unbox = TRUE, pretty = TRUE) |>
+  cat(file = "pre_lease_req_by_unit.json")
+
+#####################
+
 pre_lease_report_data_by_unit <- pre_lease_queue_resp_by_unit |>
   httr2::resp_body_json() |>
   purrr::pluck("response", "result", "reportData")
@@ -314,6 +339,200 @@ pre_lease_report_summary_data_by_unit_working <- pre_lease_report_summary_data_b
     yoy_variance_percent = .data$current_preleased_percent - .data$prior_preleased_percent
   )
 
+###########
+
+pre_lease_per_property_unit_summary_tbl <- pre_lease_report_data_by_unit |>
+  purrr::pluck("summary") |>
+  dplyr::bind_rows() |>
+  tibble::as_tibble() |>
+  dplyr::filter(.data$unit_type != "Not Selected") |>
+  dplyr::select(
+    "property_id",
+    "property_name",
+    "unit_type",
+    "units",
+    "excluded_unit_count",
+    "rentable_unit_count",
+    "avg_sqft",
+    "occupied_count",
+    "available_count",
+    dplyr::starts_with("approved_"),
+    dplyr::starts_with("partially_completed"),
+    dplyr::starts_with("completed_"),
+    dplyr::starts_with("preleased_"),
+    dplyr::starts_with("started_"),
+    dplyr::starts_with("avg_"),
+    "variance",
+    "scheduled_rent_total"
+  ) |>
+  dplyr::transmute(
+    report_date = .env$report_date,
+    property_id = as.integer(.data$property_id),
+    property_name = .data$property_name,
+    unit_type = .data$unit_type,
+    excluded_units = .data$excluded_unit_count,
+    rentable_units = .data$rentable_unit_count,
+    avg_scheduled_charges = .data$scheduled_rent_total,
+    total_beds = .data$available_count,
+    current_occupied = .data$occupied_count,
+    current_occupancy = .data$occupied_count / .data$total_beds,
+    current_total_new = .data$approved_new_count + .data$partially_completed_new_count + .data$completed_new_count,
+    current_total_renewals = .data$approved_renewal_count + .data$partially_completed_renewal_count + .data$completed_renewal_count,
+    current_total_leases = .data$current_total_new + .data$current_total_renewals,
+    current_preleased_percent = .data$current_total_leases / .data$total_beds,
+    prior_total_new = .data$approved_new_count_prior + .data$partially_completed_new_count_prior + .data$completed_new_count_prior,
+    prior_total_renewals = .data$approved_renewal_count_prior + .data$partially_completed_renewal_count_prior + .data$completed_renewal_count_prior,
+    prior_total_leases = .data$approved_count_prior + .data$partially_completed_count_prior + .data$completed_count_prior,
+    prior_preleased_percent = .data$prior_total_leases / .data$total_beds,
+    yoy_variance_count = .data$current_total_leases - .data$prior_total_leases,
+    yoy_variance_percent = .data$current_preleased_percent - .data$prior_preleased_percent,
+    beds_left = .data$total_beds - .data$current_total_leases
+  )
+
+pre_lease_per_property_lease_details_tbl <- pre_lease_report_data_by_unit |>
+  purrr::pluck("details") |>
+  dplyr::bind_rows() |>
+  tibble::as_tibble() |>
+  dplyr::select(
+    "property_id",
+    "property_name",
+    "bldg_unit",
+    "unit_type",
+    "unit_status",
+    "resident_id",
+    "charge_code",
+    "resident_name" = "resident",
+    "lease_id" = "lease_id_display",
+    "lease_status",
+    "lease_sub_status",
+    "lease_term_name",
+    "lease_term",
+    "lease_start_date" = "lease_start",
+    "lease_end_date" = "lease_end",
+    "lease_started_on_date" = "lease_started_on",
+    "lease_partially_completed_on_date" = "lease_partially_completed_on",
+    "lease_completed_on_date" = "lease_completed_on",
+    "lease_approved_on_date" = "lease_approved_on",
+    "move_in_date",
+    "leasing_agent",
+    "deposit_charged",
+    "deposit_held",
+    "market_rent",
+    "budgeted_rent",
+    "advertised_rate",
+    "scheduled_rent",
+    "actual_charges",
+    "scheduled_rent_total"
+  ) |>
+  dplyr::mutate(
+    report_date = as.Date(.env$report_date),
+    property_id = as.integer(.data$property_id),
+    resident_id = as.integer(resident_id),
+    dplyr::across(
+      tidyselect::all_of(
+        c(
+          "lease_start_date",
+          "lease_end_date",
+          "lease_started_on_date",
+          "lease_partially_completed_on_date",
+          "lease_completed_on_date",
+          "lease_approved_on_date",
+          "move_in_date"
+        )
+      ),
+      lubridate::mdy
+    )
+  ) |>
+  dplyr::distinct(
+    .data$report_date,
+    .data$property_id,
+    .data$property_name,
+    .data$bldg_unit,
+    .data$unit_type,
+    .data$lease_id,
+    .data$charge_code,
+    .keep_all = TRUE
+  ) |>
+  dplyr::select(
+    "report_date",
+    "property_id",
+    "property_name",
+    "bldg_unit",
+    "unit_type",
+    "unit_status",
+    "charge_code",
+    "resident_id",
+    "resident_name",
+    "lease_id",
+    "lease_status",
+    "lease_sub_status",
+    "lease_term_name",
+    "lease_term",
+    "lease_start_date",
+    "lease_end_date",
+    "lease_started_on_date",
+    "lease_partially_completed_on_date",
+    "lease_completed_on_date",
+    "lease_approved_on_date",
+    "move_in_date",
+    "leasing_agent",
+    "deposit_charged",
+    "deposit_held",
+    "market_rent",
+    "budgeted_rent",
+    "advertised_rate",
+    "scheduled_rent",
+    "actual_charges",
+    "scheduled_rent_total"
+  )
+
+pre_lease_per_property_unit_summary_tbl_avg_charges <- pre_lease_per_property_lease_details_tbl |>
+  dplyr::filter(.data$charge_code == "Base Rent") |>
+  dplyr::group_by(
+    report_date,
+    property_id,
+    unit_type
+  ) |>
+  dplyr::summarize(
+    avg_scheduled_charges = mean(.data$scheduled_rent, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  dplyr::ungroup()
+
+pre_lease_per_property_unit_summary_tbl <- pre_lease_per_property_unit_summary_tbl |>
+  dplyr::select(-avg_scheduled_charges) |>
+  dplyr::left_join(
+    pre_lease_per_property_unit_summary_tbl_avg_charges,
+    by = c("report_date", "property_id", "unit_type")
+  ) |>
+  dplyr::mutate(
+    avg_scheduled_charges = dplyr::coalesce(avg_scheduled_charges, 0)
+  ) |>
+  dplyr::select(
+    "report_date",
+    "property_id",
+    "property_name",
+    "unit_type",
+    "excluded_units",
+    "rentable_units",
+    "avg_scheduled_charges",
+    "total_beds",
+    "current_occupied",
+    "current_occupancy",
+    "current_total_new",
+    "current_total_renewals",
+    "current_total_leases",
+    "current_preleased_percent",
+    "prior_total_new",
+    "prior_total_renewals",
+    "prior_total_leases",
+    "prior_preleased_percent",
+    "yoy_variance_count",
+    "yoy_variance_percent",
+    "beds_left"
+  )
+
+
 pre_lease_report_details_data <- pre_lease_report_data_by_unit |>
   purrr::pluck("details") |>
   dplyr::bind_rows() |>
@@ -377,6 +596,7 @@ pre_lease_report_details_data <- pre_lease_report_data_by_unit |>
     "budgeted_rent",
     "advertised_rate",
     "scheduled_rent",
+    "charge_code",
     "actual_charges",
     "scheduled_rent_total"
   ) |>
@@ -400,7 +620,9 @@ pre_lease_report_details_data_summarized <- pre_lease_report_details_data |>
     avg_advertised_rate = mean(.data$advertised_rate, na.rm = TRUE),
     avg_scheduled_rent = mean(.data$scheduled_rent, na.rm = TRUE),
     avg_actual_charges = mean(.data$actual_charges, na.rm = TRUE),
-    avg_scheduled_charges = mean(.data$scheduled_rent_total, na.rm = TRUE)
+    # for avg_scheduled_charges, only include rows where charge_code == "Base Rent"
+    avg_scheduled_charges = mean(.data$scheduled_rent_total[.data$charge_code == "Base Rent"], na.rm = TRUE),
+    .groups = "drop"
   ) |>
   dplyr::ungroup()
 
@@ -462,10 +684,41 @@ pre_lease_report_property_summary_tables_by_unit <- pre_lease_report_summary_dat
     .data$unit_type
   )
 
-# weekly
+pre_lease_details_data <- pre_lease_report_details_data |>
+  dplyr::distinct(
+    .data$report_date,
+    .data$property_id,
+    .data$bldg_unit,
+    .data$lease_id,
+    .data$charge_code,
+    .keep_all = TRUE
+  )
+
+pre_lease_details_data_summarized <- pre_lease_details_data |>
+  dplyr::group_by(
+    report_date,
+    property_id,
+    bldg_unit,
+    lease_id,
+    charge_code
+  ) |>
+  dplyr::summarize(
+    avg_market_rent = mean(.data$market_rent, na.rm = TRUE),
+    avg_budgeted_rent = mean(.data$budgeted_rent, na.rm = TRUE),
+    avg_advertised_rate = mean(.data$advertised_rate, na.rm = TRUE),
+    avg_scheduled_rent = mean(.data$scheduled_rent, na.rm = TRUE),
+    avg_actual_charges = mean(.data$actual_charges, na.rm = TRUE),
+    # for avg_scheduled_charges, only include rows where charge_code == "Base Rent"
+    avg_scheduled_charges = mean(.data$scheduled_rent_total[.data$charge_code == "Base Rent"], na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  dplyr::ungroup()
+
+# weekly# weekly# weekly
 weekly_leasing_data <- entrata_lease_execution_report()
 
 # database
+pool <- db_connect()
 db_entrata_pre_lease_summary_by_property <- db_read_tbl(pool, "entrata.pre_lease_summary_by_property") |>
   dplyr::select(-created_at, -updated_at)
 db_entrata_pre_lease_summary_by_unit <- db_read_tbl(pool, "entrata.pre_lease_summary_by_unit")
@@ -482,7 +735,7 @@ db_entrata_pre_lease_summary_by_unit_current <- db_entrata_pre_lease_summary_by_
 db_entrata_pre_lease_details_current <- db_entrata_pre_lease_details |>
   dplyr::filter(report_date == max(report_date))
 
-pre_lease_report_summary_data_by_property <- pre_lease_report_summary_data_by_property |>
+pre_lease_report_summary_data_by_property_2 <- pre_lease_report_summary_data_by_property |>
   dplyr::mutate(
     dplyr::across(
       c(
@@ -505,7 +758,7 @@ pre_lease_report_summary_data_by_property <- pre_lease_report_summary_data_by_pr
   )
 
 waldo::compare(
-  pre_lease_report_summary_data_by_property,
+  pre_lease_report_summary_data_by_property_2,
   db_entrata_pre_lease_summary_by_property_current,
   x_arg = "pre_lease_report_summary_data_by_property",
   y_arg = "db_entrata_pre_lease_summary_by_property_current"

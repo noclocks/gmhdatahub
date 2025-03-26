@@ -38,14 +38,25 @@ NULL
 
 #' @rdname mod_survey_rents
 #' @export
-#' @importFrom shiny NS
-#' @importFrom htmltools tagList tags
-#' @importFrom bslib card
+#' @importFrom bsicons bs_icon
+#' @importFrom bslib page_fluid card card_header card_body card_footer
+#' @importFrom htmltools tagList tags HTML
+#' @importFrom reactable reactableOutput
+#' @importFrom shiny NS actionButton icon textOutput
 mod_survey_rents_ui <- function(id) {
 
   ns <- shiny::NS(id)
 
   htmltools::tagList(
+    htmltools::tags$head(
+      # add CSS to fix rhandsontable context menu:
+      htmltools::tags$style(htmltools::HTML(".htMenu { z-index: 1051; }")),
+      # JS for re-rendering tables in modals:
+      htmltools::tags$script(
+        src = "www/scripts/survey_rents/mod_survey_rents.js",
+        type = "text/javascript"
+      )
+    ),
     bslib::page_fluid(
       bslib::card(
         class = "mx-auto mb-4",
@@ -105,13 +116,21 @@ mod_survey_rents_ui <- function(id) {
   )
 }
 
-
 # server ------------------------------------------------------------------
 
 #' @rdname mod_survey_rents
 #' @export
-#' @importFrom shiny moduleServer reactive
+#' @importFrom bsicons bs_icon
+#' @importFrom bslib accordion accordion_panel layout_columns card
 #' @importFrom cli cat_rule
+#' @importFrom dplyr select mutate left_join distinct anti_join
+#' @importFrom htmltools tagAppendAttributes tagList
+#' @importFrom reactable renderReactable
+#' @importFrom rhandsontable renderRHandsontable hot_validate_numeric hot_col hot_table rhandsontable
+#' @importFrom rhandsontable rHandsontableOutput hot_to_r
+#' @importFrom shiny moduleServer reactiveVal observe req reactive observeEvent showModal modalDialog
+#' @importFrom shiny actionButton modalButton showNotification removeModal withProgress setProgress
+#' @importFrom shinyvalidate InputValidator
 mod_survey_rents_server <- function(
     id,
     pool = NULL,
@@ -136,6 +155,28 @@ mod_survey_rents_server <- function(
       db_refresh_trigger <- shiny::reactiveVal(0)
       iv <- shinyvalidate::InputValidator$new()
 
+      # reset flag for table data
+      need_reset <- shiny::reactiveVal(FALSE)
+
+      # helper function for property info
+      get_property_info <- function() {
+
+        if (!is.na(selected_filters$competitor_id) && !is.null(selected_filters$competitor_id)) {
+          list(
+            prop_id = NA_integer_,
+            comp_id = selected_filters$competitor_id,
+            prop_name = selected_filters$competitor_name
+          )
+        } else {
+          list(
+            prop_id = selected_filters$property_id,
+            comp_id = NA_integer_,
+            prop_name = selected_filters$property_name
+          )
+        }
+
+      }
+
       # filters -----------------------------------------------------------------
       shiny::observe({
         shiny::req(selected_filters)
@@ -149,6 +190,8 @@ mod_survey_rents_server <- function(
       # rents by floorplan data
       rents_data <- shiny::reactive({
         shiny::req(survey_data$rents)
+
+        db_refresh_trigger()
 
         if (nrow(survey_data$rents) == 0) {
           default_tbl_survey_rents_by_floorplan()
@@ -184,6 +227,8 @@ mod_survey_rents_server <- function(
         }
       })
 
+      # outputs --------------------------
+
       # output - rents by floorplan
       output$rents_by_floorplan <- reactable::renderReactable({
         shiny::req(rents_data())
@@ -198,6 +243,8 @@ mod_survey_rents_server <- function(
 
       output$modal_rents_floorplans <- rhandsontable::renderRHandsontable({
         shiny::req(rents_data())
+
+        if (need_reset()) { need_reset(FALSE) }
 
         tbl_data <- rents_data() |>
           dplyr::select(
@@ -340,58 +387,297 @@ mod_survey_rents_server <- function(
         iv$initialize()
         iv$enable()
 
+        # create table outputs first (to avoid re-rendering issues)
+        modal_rents_floorplans_hot <- rhandsontable::rHandsontableOutput(ns("modal_rents_floorplans")) |>
+          htmltools::tagAppendAttributes(.cssSelector = "div", style = "width: 100%; height: auto;")
+        modal_rents_hot <- rhandsontable::rHandsontableOutput(ns("modal_rents")) |>
+          htmltools::tagAppendAttributes(.cssSelector = "div", style = "width: 100%; height: auto;")
+        modal_concessions_expenses_hot <- rhandsontable::rHandsontableOutput(ns("modal_concessions_expenses")) |>
+          htmltools::tagAppendAttributes(.cssSelector = "div", style = "width: 100%; height: auto;")
+
         shiny::showModal(
           shiny::modalDialog(
-            title = "Edit Rents",
-            size = "xl",
-            easyClose = TRUE,
+            title = htmltools::tags$span(
+              style = "font-size: 1.5rem; font-weight: bold;",
+              "Edit Rents"
+            ),
+            size = "l",
+            easyClose = FALSE,
             footer = htmltools::tagList(
               shiny::actionButton(
                 ns("save"),
                 "Save",
                 class = "btn-primary"
               ),
-              shiny::modalButton("Cancel")
+              shiny::actionButton(
+                ns("cancel_button"),
+                "Cancel",
+                class = "btn-danger"
+              )
             ),
-            bslib::accordion(
-              open = TRUE,
-              bslib::accordion_panel(
-                title = "Edit Floorplans",
+            bslib::navset_card_tab(
+              id = ns("rents_modal_tabs"),
+              bslib::nav_panel(
+                title = "Floorplans",
                 icon = bsicons::bs_icon("house"),
+                value = ns("floorplans"),
                 bslib::layout_columns(
                   col_widths = c(12),
-                  bslib::card(
-                    full_screen = TRUE,
-                    rhandsontable::rHandsontableOutput(ns("modal_rents_floorplans"))
+                  htmltools::tags$div(
+                    class = "hot-container",
+                    style = "width: 100%; padding: 10px;",
+                    modal_rents_floorplans_hot
                   )
                 )
               ),
-              bslib::accordion_panel(
-                "Edit Market Rents",
+              bslib::nav_panel(
+                title = "Market Rents",
                 icon = bsicons::bs_icon("bar-chart-line"),
+                value = ns("market_rents"),
                 bslib::layout_columns(
                   col_widths = c(12),
-                  bslib::card(
-                    full_screen = TRUE,
-                    rhandsontable::rHandsontableOutput(ns("modal_rents"))
+                  htmltools::tags$div(
+                    class = "hot-container",
+                    style = "width: 100%; padding: 10px;",
+                    modal_rents_hot
                   )
                 )
               ),
-              bslib::accordion_panel(
-                "Edit Concessions & Expenses",
+              bslib::nav_panel(
+                title = "Concessions & Expenses",
                 icon = bsicons::bs_icon("currency-dollar"),
+                value = ns("concessions_expenses"),
                 bslib::layout_columns(
                   col_widths = c(12),
-                  bslib::card(
-                    full_screen = TRUE,
-                    rhandsontable::rHandsontableOutput(ns("modal_concessions_expenses"))
+                  htmltools::tags$div(
+                    class = "hot-container",
+                    style = "width: 100%; padding: 10px;",
+                    modal_concessions_expenses_hot
                   )
+                )
+              )
+            ),
+            # changes preview
+            bslib::layout_columns(
+              col_widths = c(12),
+              bslib::card(
+                bslib::card_header("Review Changes"),
+                bslib::card_body(
+                  shiny::uiOutput(session$ns("changes_preview"))
                 )
               )
             )
           )
         )
       })
+
+      # resize triggers
+      shiny::observeEvent(input$modal_rents_floorplans_shown, {
+        session$sendCustomMessage("resize_handsontable", list(id = "modal_rents_floorplans"))
+      })
+
+      shiny::observeEvent(input$modal_rents_shown, {
+        session$sendCustomMessage("resize_handsontable", list(id = "modal_rents"))
+      })
+
+      shiny::observeEvent(input$modal_concessions_expenses_shown, {
+        session$sendCustomMessage("resize_handsontable", list(id = "modal_concessions_expenses"))
+      })
+
+      # changes ----------------------------------------------------------------
+      changes <- shiny::reactive(
+        {
+          shiny::req(
+            rents_data(),
+            input$modal_rents_floorplans,
+            input$modal_rents,
+            input$modal_concessions_expenses
+          )
+
+          prop_info <- get_property_info()
+
+          original_data <- rents_data()
+
+          new_floorplans <- rhandsontable::hot_to_r(input$modal_rents_floorplans)
+          new_rents <- rhandsontable::hot_to_r(input$modal_rents)
+          new_concessions <- rhandsontable::hot_to_r(input$modal_concessions_expenses)
+
+          # merge
+          new_data <- original_data |>
+            dplyr::select("floorplan_type", "floorplan_id") |>
+            dplyr::distinct() |>
+            dplyr::left_join(new_floorplans, by = c("floorplan_type", "floorplan_id")) |>
+            dplyr::left_join(new_rents, by = c("floorplan_type", "floorplan_id")) |>
+            dplyr::left_join(new_concessions, by = c("floorplan_type", "floorplan_id"))
+
+          # compare columns that can be edited
+          compare_cols <- c(
+            "square_feet",
+            "number_of_beds",
+            "number_of_baths",
+            "total_units_count",
+            "available",
+            "market_rent_per_bed",
+            "market_rent_per_square_foot",
+            "concessions_gift_card",
+            "concessions_one_time_rent",
+            "concessions_monthly_rent",
+            "expenses_furniture",
+            "expenses_tv",
+            "expenses_electricity_gas",
+            "expenses_water",
+            "expenses_cable_internet",
+            "expenses_trash_valet",
+            "expenses_parking"
+          )
+
+          changes_list <- list()
+
+          # Compare each row
+          for (i in 1:nrow(original_data)) {
+            floorplan_type <- original_data$floorplan_type[i]
+            floorplan_id <- original_data$floorplan_id[i]
+
+            # Find matching row in new data
+            new_row_idx <- which(new_data$floorplan_type == floorplan_type &
+                                   new_data$floorplan_id == floorplan_id)
+
+            if (length(new_row_idx) == 1) {
+              for (col in compare_cols) {
+                if (col %in% names(original_data) && col %in% names(new_data)) {
+                  old_val <- original_data[[col]][i]
+                  new_val <- new_data[[col]][new_row_idx]
+
+                  # Handle numeric values properly
+                  if (is.numeric(old_val)) {
+                    old_val <- round(old_val, 2)
+                    new_val <- round(new_val, 2)
+                  }
+
+                  # If values are different, add to changes list
+                  if (!isTRUE(all.equal(old_val, new_val))) {
+                    field_name <- paste(floorplan_type, floorplan_id, col, sep = "_")
+
+                    changes_list[[field_name]] <- list(
+                      floorplan_type = floorplan_type,
+                      floorplan_id = floorplan_id,
+                      field = col,
+                      old = old_val,
+                      new = new_val
+                    )
+                  }
+                }
+              }
+            }
+          }
+
+          changes_list
+        }
+      )
+
+      output$changes_preview <- shiny::renderUI({
+        shiny::req(changes())
+
+        changes_data <- changes()
+
+        if (length(changes_data) == 0) {
+          return(htmltools::tags$p("No changes detected. Edit the tables to see changes here.",
+                                   class = "text-muted"))
+        }
+
+        # Create UI elements for each change
+        changes_ui <- lapply(names(changes_data), function(change_id) {
+          change <- changes_data[[change_id]]
+
+          # Format display values based on field type
+          format_value <- function(val, field) {
+            if (is.logical(val)) {
+              return(ifelse(val, "Yes", "No"))
+            } else if (is.numeric(val)) {
+              if (grepl("rent|amount|expenses|concessions", field)) {
+                return(paste0("$", format(val, nsmall = 2)))
+              } else {
+                return(format(val, big.mark = ","))
+              }
+            } else {
+              return(as.character(val))
+            }
+          }
+
+          old_display <- format_value(change$old, change$field)
+          new_display <- format_value(change$new, change$field)
+
+          # Create the change display element
+          htmltools::tags$div(
+            class = "change-item mb-2 p-2 border rounded",
+            htmltools::tags$p(
+              class = "mb-1",
+              htmltools::tags$strong(
+                paste0(change$floorplan_type, " (ID: ", change$floorplan_id, "): ",
+                       tools::toTitleCase(gsub("_", " ", change$field)))
+              )
+            ),
+            htmltools::tags$div(
+              class = "d-flex justify-content-between",
+              htmltools::tags$span(
+                class = "old-value",
+                paste("Current:", old_display),
+                style = "color: #666;"
+              ),
+              htmltools::tags$span(
+                "→",
+                style = "margin: 0 10px;"
+              ),
+              htmltools::tags$span(
+                class = "new-value",
+                paste("New:", new_display),
+                style = "color: #007bff; font-weight: bold;"
+              )
+            )
+          )
+        })
+
+        # Add a changes summary at the top
+        changes_summary <- htmltools::tags$div(
+          class = "alert alert-info",
+          htmltools::tags$strong(paste(length(changes_data), "changes detected"))
+        )
+
+        # Combine summary with changes list
+        htmltools::tagList(
+          changes_summary,
+          do.call(htmltools::tagList, changes_ui)
+        )
+
+      })
+
+      shiny::observeEvent(input$cancel_button, {
+        if (length(changes()) > 0) {
+          shiny::showModal(
+            shiny::modalDialog(
+              title = "Unsaved Changes",
+              "You have unsaved changes. Are you sure you want to cancel?",
+              footer = htmltools::tagList(
+                shiny::actionButton(ns("confirm_cancel"), "Yes, Cancel"),
+                shiny::modalButton("No, Continue Editing")
+              ),
+              size = "s"
+            )
+          )
+        } else {
+          # No changes, just close the modal
+          shiny::removeModal()
+        }
+      })
+
+      # Add confirm cancel handler
+      shiny::observeEvent(input$confirm_cancel, {
+        need_reset(TRUE)
+        shiny::removeModal()
+      })
+
+
+
 
       # save --------------------------------------------------------------------
       shiny::observeEvent(input$save, {
@@ -546,10 +832,10 @@ mod_survey_rents_server <- function(
 
 #' @rdname mod_survey_rents
 #' @export
-#' @importFrom pkgload load_all
-#' @importFrom bslib page_navbar nav_panel
 #' @importFrom bsicons bs_icon
-#' @importFrom shiny shinyApp
+#' @importFrom bslib page_navbar nav_spacer nav_panel
+#' @importFrom pkgload load_all
+#' @importFrom shiny actionButton icon reactive shinyApp
 mod_survey_rents_demo <- function() {
   pkgload::load_all()
 
@@ -588,5 +874,3 @@ mod_survey_rents_demo <- function() {
 
   shiny::shinyApp(ui, server)
 }
-
-# utilities ---------------------------------------------------------------

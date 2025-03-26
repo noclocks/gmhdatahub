@@ -8,6 +8,12 @@
 
 # add external resources --------------------------------------------------
 
+.add_resource_path <- function() {
+  shiny::addResourcePath("www", pkg_sys("www"))
+}
+
+rlang::on_load({ .add_resource_path() })
+
 #' Add External Resources
 #'
 #' @description
@@ -45,11 +51,14 @@ add_external_resources <- function() {
       color = "#FFF",
       background = gmh_colors("primary")
     ),
+    shiny.emptystate::use_empty_state(),
     shinybrowser::detect(),
     fontawesome::fa_html_dependency(),
     rintrojs::introjsUI(),
     conductor::use_conductor(),
     htmltools::tags$link(href = "www/styles/css/custom-styles.css", rel = "stylesheet"),
+    htmltools::tags$link(href = "www/styles/css/handsontable.css", rel = "stylesheet"),
+    htmltools::tags$link(href = "www/styles/css/reactable.css", rel = "stylesheet"),
     app_favicon()
   )
 }

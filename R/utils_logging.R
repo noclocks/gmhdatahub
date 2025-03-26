@@ -7,6 +7,15 @@
 #
 #  ------------------------------------------------------------------------
 
+.logger_init <- function() {
+  logger::log_threshold(logger::INFO, namespace = "gmhdatahub")
+  logger::log_layout(logger::layout_glue_generator("{level} [{format(time, \"%Y-%m-%d %H:%M:%S\")}] {msg}"),
+                     namespace = "gmhdatahub")
+  logger::log_formatter(logger::formatter_glue, namespace = "gmhdatahub")
+  logger::log_appender(appender = logger::appender_stdout, namespace = "gmhdatahub")
+}
+
+rlang::on_load({ .logger_init() })
 
 # logger ------------------------------------------------------------------
 

@@ -51,7 +51,7 @@ entrata_pre_lease_report <- function(
     summarize_by = c("unit_type", "property", "floorplan_name", "do_not_summarize"),
     group_by = c("unit_type", "floorplan_name", "lease_term", "do_not_group"),
     consider_pre_leased_on = "332",
-    charge_code_detail = 0,
+    charge_code_detail = 1L,
     space_options = "do_not_show",
     additional_units_shown = "available",
     combine_unit_spaces_with_same_lease = 0,
@@ -142,12 +142,7 @@ entrata_pre_lease_report <- function(
   queue_id <- httr2::resp_body_json(resp) |>
     pluck("response", "result", "queueId", 1)
 
-  cli::cli_alert_success(
-    c(
-      "Pre-Lease Report Request Submitted\n",
-      "Queue ID: {.field {queue_id}}"
-    )
-  )
+  cli::cli_alert_info("Queue ID: {.field {stringr::str_trunc(queue_id, 15)}}")
 
   # call queue endpoint with queue id
   queue_req <- httr2::request(entrata_config$base_url) |>
@@ -184,197 +179,26 @@ entrata_pre_lease_report <- function(
   # check response
   entrata_resp_check_status(queue_resp)
 
-  # parse response to get report data
-  report_data <- httr2::resp_body_json(queue_resp) |>
-    pluck("response", "result", "reportData")
+  # parse
+  resp_parsed <- entrata_resp_parse_pre_lease(queue_resp, report_date = report_date)
 
-  # summary & details
-  summary_data <- report_data |>
-    pluck("summary") |>
-    dplyr::bind_rows() |>
-    tibble::as_tibble() |>
-    dplyr::mutate(
-      report_date = as.Date(.env$report_date),
-      property_id = as.integer(.data$property_id),
-      avg_sqft = as.numeric(.data$avg_sqft),
-      avg_advertised_rate = as.numeric(.data$avg_advertised_rate),
-      units = as.integer(.data$units),
-      excluded_unit_count = as.integer(.data$excluded_unit_count),
-      rentable_unit_count = as.integer(.data$rentable_unit_count),
-      avg_scheduled_rent = as.numeric(.data$avg_scheduled_rent),
-      occupied_count = as.integer(.data$occupied_count),
-      variance = as.numeric(.data$variance),
-      available_count = as.integer(available_count),
-      scheduled_rent_total = as.numeric(scheduled_rent_total),
-      dplyr::across(tidyselect::where(is.numeric), ~dplyr::coalesce(.x, 0))
-    )
+  execution_details <- tibble::tibble(
+    request_id = as.character(request_id),
+    report_name = "pre_lease",
+    report_date = report_date,
+    report_version = report_version,
+    queue_id = queue_id,
+    queue_start_time = resp_parsed$metadata$response$queue_start,
+    queue_end_time = resp_parsed$metadata$response$queue_end,
+    queue_duration = resp_parsed$metadata$response$queue_duration,
+    report_filter_params = jsonlite::toJSON(report_filter_params, auto_unbox = TRUE)
+  )
 
-  if (summarize_by == "property") {
-    summary_data <- summary_data |>
-      dplyr::select(
-        "report_date",
-        "property_id",
-        "property_name",
-        "avg_sqft",
-        "avg_advertised_rate",
-        "total_unit_count" = "units",
-        "excluded_unit_count",
-        "rentable_unit_count",
-        "occupied_count",
-        "available_count",
-        "total_scheduled_rent" = "scheduled_rent_total",
-        "yoy_variance" = "variance",
-        tidyselect::starts_with("avg_"),
-        tidyselect::starts_with("started_"),
-        tidyselect::starts_with("partially_completed"),
-        tidyselect::starts_with("completed_"),
-        tidyselect::starts_with("approved_"),
-        tidyselect::starts_with("preleased_")
-      ) |>
-      dplyr::arrange(
-        .data$property_name
-      )
-  } else if (summarize_by == "unit_type") {
-    summary_data <- summary_data |>
-      dplyr::select(
-        "report_date",
-        "property_id",
-        "property_name",
-        "unit_type",
-        "avg_sqft",
-        "avg_advertised_rate",
-        "total_unit_count" = "units",
-        "excluded_unit_count",
-        "rentable_unit_count",
-        "occupied_count",
-        "available_count",
-        "total_scheduled_rent" = "scheduled_rent_total",
-        "yoy_variance" = "variance",
-        tidyselect::starts_with("avg_"),
-        tidyselect::starts_with("started_"),
-        tidyselect::starts_with("partially_completed"),
-        tidyselect::starts_with("completed_"),
-        tidyselect::starts_with("approved_"),
-        tidyselect::starts_with("preleased_")
-      ) |>
-      dplyr::arrange(
-        .data$property_name,
-        dplyr::desc(.data$unit_type %in% c("Not Selected", "Studio")),
-        .data$unit_type
-      )
-  } else {
-    summary_data <- summary_data |>
-      dplyr::select(
-        "report_date",
-        "property_id",
-        "property_name",
-        tidyselect::any_of(c("unit_type", "floorplan_name")),
-        "avg_sqft",
-        "avg_advertised_rate",
-        "total_unit_count" = "units",
-        "excluded_unit_count",
-        "rentable_unit_count",
-        "occupied_count",
-        "available_count",
-        "total_scheduled_rent" = "scheduled_rent_total",
-        "yoy_variance" = "variance",
-        tidyselect::starts_with("avg_"),
-        tidyselect::starts_with("started_"),
-        tidyselect::starts_with("partially_completed"),
-        tidyselect::starts_with("completed_"),
-        tidyselect::starts_with("approved_"),
-        tidyselect::starts_with("preleased_")
-      ) |>
-      dplyr::arrange(
-        .data$property_name
-      )
-  }
-
-  details_data <- report_data |>
-    pluck("details") |>
-    dplyr::bind_rows() |>
-    tibble::as_tibble() |>
-    dplyr::mutate(
-      report_date = as.Date(.env$report_date),
-      property_id = as.integer(.data$property_id),
-      sqft = as.numeric(sqft),
-      resident_id = as.integer(resident_id),
-      dplyr::across(
-        tidyselect::all_of(
-          c(
-            "lease_start",
-            "lease_end",
-            "lease_started_on",
-            "lease_partially_completed_on",
-            "lease_completed_on",
-            "lease_approved_on",
-            "move_in_date"
-          )
-        ),
-        lubridate::mdy
-      )
-    ) |>
-    dplyr::mutate(
-      dplyr::across(tidyselect::where(is.numeric), ~dplyr::coalesce(.x, 0))
-    ) |>
-    dplyr::select(
-      "report_date",
-      "property_id",
-      "property_name",
-      "bldg_unit",
-      "unit_type",
-      "unit_status",
-      "floorplan_name",
-      "sqft",
-      "resident_name" = "resident",
-      "resident_id",
-      "resident_email" = "email",
-      "resident_phone" = "phone_number",
-      "resident_gender" = "gender",
-      "lease_id" = "lease_id_display",
-      "lease_status",
-      "lease_sub_status",
-      "lease_occupancy_type",
-      "lease_term_name",
-      "lease_term_month" = "lease_term",
-      "space_option_preferred",
-      "space_option",
-      "lease_start_date" = "lease_start",
-      "lease_end_date" = "lease_end",
-      "lease_started_on_date" = "lease_started_on",
-      "lease_partially_completed_on_date" = "lease_partially_completed_on",
-      "lease_completed_on_date" = "lease_completed_on",
-      "lease_approved_on_date" = "lease_approved_on",
-      "move_in_date",
-      "leasing_agent",
-      "deposit_charged",
-      "deposit_held",
-      "market_rent",
-      "budgeted_rent",
-      "advertised_rate",
-      "scheduled_rent",
-      "actual_charges",
-      "scheduled_rent_total"
-    ) |>
-    dplyr::arrange(
-      .data$property_name,
-      dplyr::desc(.data$unit_type %in% c("Not Selected", "Studio")),
-      .data$unit_type
-    )
-
-  # return
-  list(
-    summary = summary_data,
-    details = details_data,
-    parameters = list(
-      report_filter_params = report_filter_params,
-      request_id = request_id,
-      queue_id = queue_id,
-      report_date = report_date,
-      reports_req = req,
-      reports_resp = resp,
-      queue_req = queue_req,
-      queue_resp = queue_resp
+  return(
+    list(
+      summary = resp_parsed$summary,
+      details = resp_parsed$details,
+      execution_details = execution_details
     )
   )
 

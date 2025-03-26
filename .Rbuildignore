@@ -37,3 +37,14 @@ config.yml
 ^Dockerfile$
 ^.dockerignore$
 ~\$.*
+^_targets\.R$
+^_targets$
+^repomix\.config\.json$
+^\.repomixignore$
+^\*.code-workspace$
+^\.Rhistory$
+^\.Rproj\.user$
+^\.Rproj$
+^.vscode$
+^.github$
+^vignettes/articles$

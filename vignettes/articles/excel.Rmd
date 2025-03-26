@@ -1,0 +1,638 @@
+---
+title: "Excel Data Preparation"
+author: "Jimmy Briggs <jimmy.briggs@noclocks.dev>"
+output:
+  html_document:
+    theme: cosmo
+    highlight: tango
+    code_folding: hide
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+## Introduction
+
+This document provides a step-by-step guide to preparing Excel data for analysis in R.
+
+We will use the `tidyxl`, `readxl`, `dplyr`, and `tidyr` packages to load, clean, and transform the data.
+
+The process will involve the following steps:
+
+1. Load the Excel files
+2. Define the sheet names
+3. Define the column specifications
+4. Ingest the Excel cells
+5. Define the ranges
+6. Read the Excel ranges
+7. Save the data
+
+## Library Required Packages
+
+The following packages are required for this process:
+
+- `tidyxl`: Read Untidy Excel Files
+- `readxl`: Read Excel Files
+- `dplyr`: Data Manipulation
+- `tidyr`: Data Reshaping
+- `stringr`: String Manipulation
+- `lubridate`: Date Manipulation
+- `kableExtra`: Table Formatting
+
+```{r libs, include=FALSE, eval=TRUE}
+library(tidyxl)
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(lubridate)
+library(knitr)
+library(kableExtra)
+```
+
+## Define File Paths {.tabset}
+
+The following files are used in this process:
+
+- Prior Data: [`AGC Leasing Summary Report-Draft 2024-04-30.xlsx`](https://github.com/noclocks/gmhr/blob/main/data-raw/original/AGC%20Leasing%20Summary%20Report-Draft%202024-04-30.xlsx)
+- Current Data: [`Pre-Lease - 2024-06-05T144159.276.xlsx`](https://github.com/noclocks/gmhr/blob/main/data-raw/original/Pre-Lease%20-%202024-06-05T144159.276.xlsx)
+
+### Current
+
+```{r xl_files_current}
+current_xl_data_file <- here::here(
+  "data-raw/original/Pre-Lease - 2024-06-05T144159.276.xlsx"
+)
+```
+
+### Prior
+
+```{r xl_files_prior}
+prior_xl_data_file <- here::here(
+  "data-raw/original/AGC Leasing Summary Report-Draft 2024-04-30.xlsx"
+)
+```
+
+## Sheet Names Specification {.tabset}
+
+The following sheet names are used in this process:
+
+Both the current and prior data files contain worksheets for the same
+property units. Outside of those sheets, the prior data file contains
+a `Summary` sheet and a `Report Parameters` sheet. The current data file
+contains a `Report Parameters` sheet, but no `Summary` sheet.
+
+Another notable difference in the sheet names is that the current excel file
+uses a slightly different naming convention for the property units in that it
+uses a capitalized `T` in the property unit name's `Nth` text.
+
+For example, the property unit `1008 S. 4th` has the following sheet names:
+
+- Current: `1008 S. 4Th`
+- Prior: `1008 S. 4th`
+
+Below I will define the sheet names for the current and prior data files:
+
+### Current
+
+```{r xl_sheet_names_current}
+# Current Sheets -----------------------------------------------------------
+current_xl_sheet_names <- readxl::excel_sheets(current_xl_data_file)
+current_xl_params_sheet_name <- "Report Parameters"
+current_xl_property_unit_names <- setdiff(
+  current_xl_sheet_names, 
+  c(current_xl_params_sheet_name)
+)
+```
+
+### Prior
+
+```{r xl_sheet_names_prior}
+# Prior Sheets -------------------------------------------------------------
+prior_xl_sheet_names <- readxl::excel_sheets(prior_xl_data_file)
+prior_xl_summary_sheet_name <- "Summary"
+prior_xl_params_sheet_name <- "Report Parameters"
+prior_xl_property_unit_names <- setdiff(
+  prior_xl_sheet_names,
+  c(prior_xl_summary_sheet_name, prior_xl_params_sheet_name)
+)
+```
+
+## Worksheets Overview
+
+See below for an overview of the worksheet names in the prior and current data files:
+
+```{r xl_sheets_table_preview, include=FALSE, eval=TRUE, echo=FALSE}
+sheets <- c(
+  tolower(trimws(prior_xl_sheet_names)),
+  tolower(trimws(current_xl_sheet_names))
+) %>%
+  stringr::str_to_title() %>%
+  unique()
+
+tibble::tibble(
+  Sheet = sheets,
+  Current = tolower(sheets) %in% tolower(current_xl_sheet_names),
+  Prior = tolower(sheets) %in% tolower(prior_xl_sheet_names)
+) %>%
+  kableExtra::kbl(
+    caption = "Excel Worksheets in Current and Prior",
+    booktabs = TRUE
+  ) %>%
+  kableExtra::kable_styling("striped", full_width = F)
+```
+
+## Table Types Overview
+
+There are a total of four "types of tables" that we will be working with:
+
+1. **Summary Tables**: Summary table for each individual property unit. This table is
+   consistent between the current and prior data files.
+
+2. **Details Tables**: Detailed table for each individual property unit. This table is
+   not consistent between the current and prior data files. The current data file
+   contains two additional columns: `ledger` and `charge_code`.
+
+3. **Global Summary Table (Prior Only)**: Summary table for all property units. 
+   This table is only present in the prior data file.
+   
+4. **Report Parameters Table**: Table containing report parameters. This table is
+   consistent between the current and prior data files.
+
+Additionally, we will derive a reference table for the individual unit types
+by property unit by looping through each property unit's summary table and 
+extracting the unit types.
+
+## Column Specifications {.tabset}
+
+Next, we will specify the columns to be used in the data preparation process.
+
+Specifically, we will derive column "specifications" which encompass the column
+names and their corresponding data types for each table type mentioned above.
+
+These specifications will be used to read in the data from the Excel files correctly.
+
+### Summary Tables
+
+```{r xl_col_specs_summary_tbls}
+# Summary Table Column Specifications --------------------------------------
+summary_tbl_col_specs <- list(
+  "unit_type" = "text",
+  "excluded_units" = "numeric",
+  "rentable_units" = "numeric",
+  "avg_scheduled_charges" = "numeric",
+  "occupied_current" = "numeric",
+  "new_lease_2023" = "numeric",
+  "new_lease_2024" = "numeric",
+  "renewal_2023" = "numeric",
+  "renewal_2024" = "numeric",
+  "total_2023" = "numeric",
+  "total_2024" = "numeric",
+  "pct_2023" = "numeric",
+  "pct_2024" = "numeric",
+  "variance" = "numeric",
+  "projected_availability" = "numeric"
+)
+```
+
+### Details Tables
+
+```{r xl_col_specs_details_tbls}
+prior_details_tbl_col_specs <- list(
+  "building_unit" = "text",
+  "unit_type" = "text",
+  "unit_status" = "text",
+  "resident" = "text",
+  "lease_status" = "text",
+  "lease_term_name" = "text",
+  "lease_term_duration" = "numeric",
+  "lease_term_start_date" = "date",
+  "lease_term_end_date" = "date",
+  "completed_date" = "date",
+  "approved_date" = "date",
+  "deposit_charged" = "numeric",
+  "budgeted_rent" = "numeric",
+  "scheduled_charges" = "numeric",
+  "posted_charges" = "numeric"
+)
+
+current_details_tbl_col_specs <- list(
+  "building_unit" = "text",
+  "unit_type" = "text",
+  "unit_status" = "text",
+  "resident" = "text",
+  "lease_status" = "text",
+  "lease_term_name" = "text",
+  "lease_term_duration" = "numeric",
+  "lease_term_start_date" = "date",
+  "lease_term_end_date" = "date",
+  "completed_date" = "date",
+  "approved_date" = "date",
+  "deposit_charged" = "numeric",
+  "budgeted_rent" = "numeric",
+  "ledger" = "text",
+  "charge_code" = "text",
+  "scheduled_charges" = "numeric",
+  "posted_charges" = "numeric"
+)
+```
+
+### Global Summary Table (Prior Only)
+
+```{r xl_col_specs_global_summary_tbl}
+# Global Summary Table Column Specifications --------------------------------
+prior_global_summary_tbl_col_specs <- list(
+  "property_unit_name" = "text",
+  "total_beds" = "numeric",
+  "model_beds" = "numeric",
+  "current_occupancy" = "numeric"
+)
+```
+
+### Report Parameters Table
+
+```{r xl_col_specs_report_params}
+# Report Parameters Column Specifications -----------------------------------
+
+# TODO: Define column specifications for the report parameters table
+```
+
+## Ingest Excel Cells {.tabset}
+
+Next, we will ingest the Excel cells for the specified worksheets for both
+the current and prior data files.
+
+### Current
+
+```{r xl_ingest_cells}
+# Current Excel Cells ------------------------------------------------------
+current_xl_cells <- tidyxl::xlsx_cells(
+  current_xl_data_file,
+  sheets = current_xl_property_unit_names,
+  include_blank_cells = FALSE
+) |>
+  dplyr::select(
+    sheet,
+    address,
+    row,
+    col,
+    data_type,
+    character
+  )
+
+# write_cache(current_xl_cells)
+```
+
+### Prior
+
+```{r xl_ingest_cells_prior}
+# Prior Excel Cells --------------------------------------------------------
+prior_xl_cells <- tidyxl::xlsx_cells(
+  prior_xl_data_file,
+  sheets = prior_xl_property_unit_names,
+  include_blank_cells = FALSE
+) |>
+  dplyr::select(
+    sheet,
+    address,
+    row,
+    col,
+    data_type,
+    character
+  )
+
+# write_cache(prior_xl_cells)
+```
+
+## Define Ranges
+
+Next, we will define the ranges needed to properly read in the data across both
+files and all possible worksheets/tables.
+
+### Summary Table Ranges {.tabset}
+
+In order to properly detect the excel range needed for each individual summary table,
+we will perform the following steps:
+
+1. Filter the cells to only include those that contain the text "Total/Average:"
+2. Group by the sheet
+3. Slice grouped data to only include the first detected "Total/Average:" cell
+   in order to ensure we are getting the summary table range for each property unit
+4. Define the start and stop cell for each summary table range
+
+#### Summary Table Ranges Function
+
+To aid with this workflow, a custom function `get_xl_summary_tbl_ranges` is defined below:
+
+```{r xl_define_ranges_summary_tbls}
+get_xl_summary_tbl_ranges <- function(
+    xl_cells,
+    start_cell = "A9",
+    stop_cell_col = "O",
+    stop_cell_row_offset = -1
+) {
+  
+  xl_cells |>
+    dplyr::select(sheet, address, row, col, character) |>
+    dplyr::filter(
+      stringr::str_detect(character, "Total/Average:")
+    ) |>
+    dplyr::group_by(sheet) |>
+    dplyr::slice(1) |>
+    dplyr::mutate(
+      start_cell = start_cell,
+      stop_cell = paste0(stop_cell_col, row + stop_cell_row_offset)
+    ) |>
+    dplyr::ungroup() |>
+    dplyr::select(
+      sheet,
+      start_cell,
+      stop_cell
+    ) |>
+    dplyr::mutate(
+      range = paste0(start_cell, ":", stop_cell)
+    )
+}
+```
+
+This function will be used to define the summary table ranges for both the 
+current and prior data files.
+
+#### Current
+
+```{r derive_ranges_summary_tbls_current}
+current_summary_tbl_ranges <- get_xl_summary_tbl_ranges(current_xl_cells)
+```
+
+#### Prior
+
+```{r derive_ranges_summary_tbls_prior}
+prior_summary_tbl_ranges <- get_xl_summary_tbl_ranges(prior_xl_cells)
+```
+
+### Summary Table Ranges Preview
+
+```{r xl_summary_tbl_ranges_table_preview, include=FALSE, eval=TRUE, echo=FALSE}
+summary_tbl_sheets <- c(
+  tolower(trimws(prior_xl_property_unit_names)),
+  tolower(trimws(current_xl_property_unit_names))
+) |> stringr::str_to_title() |> unique()
+
+current_summary_tbl_ranges_adj <- current_summary_tbl_ranges |> 
+  dplyr::transmute(
+    sheet = tolower(trimws(sheet)),
+    `Range: Current` = range
+  )
+
+prior_summary_tbl_ranges_adj <- prior_summary_tbl_ranges |>
+  dplyr::transmute(
+    sheet = tolower(trimws(sheet)),
+    `Range: Prior` = range
+  )
+
+current_summary_tbl_ranges_adj |>
+  dplyr::full_join(
+    prior_summary_tbl_ranges_adj,
+    by = "sheet"
+  ) |>
+  dplyr::mutate(
+    sheet = stringr::str_to_title(sheet)
+  ) |> dplyr::select(
+    Sheet = sheet,
+    `Range: Prior`,
+    `Range: Current`
+  ) |>
+  kableExtra::kbl(
+    caption = "Summary Table Ranges",
+    booktabs = TRUE
+  ) |>
+  kableExtra::kable_styling("striped", full_width = F)
+```
+
+### Details Table Ranges {.tabset}
+
+In order to properly detect the excel range needed for each individual details table,
+we will perform the following steps:
+
+1. Filter the cells to only include those that contain the text "Details"
+2. Filter the cells to only include those in column 1
+3. Group by the sheet
+4. Slice grouped data to only include the first detected "Details" cell
+   in order to ensure we are getting the details table range for each property unit
+   
+#### Details Table Ranges Function
+
+To aid with this workflow, a custom function `get_xl_details_tbl_ranges` is defined below:
+
+```{r xl_define_ranges_details_tbls}
+get_xl_details_tbl_ranges <- function(
+    xl_cells,
+    start_cell_offset = 4,
+    stop_cell_col = "O",
+    stop_cell_row_offset = -1
+) {
+  
+  xl_cells |>
+    dplyr::select(sheet, address, row, col, character) |>
+    dplyr::filter(
+      col == 1
+    ) |>
+    dplyr::filter(
+      stringr::str_detect(character, "Details")
+    ) |>
+    dplyr::mutate(
+      start_cell = paste0("A", row + start_cell_offset)
+    ) |>
+    dplyr::select(sheet, start_cell) |>
+    dplyr::inner_join(
+      xl_cells |>
+        dplyr::filter(
+          stringr::str_detect(character, "Total/Average:")
+        ) |>
+        dplyr::group_by(sheet) |>
+        dplyr::slice(2) |>
+        dplyr::mutate(
+          stop_cell = paste0(stop_cell_col, row + stop_cell_row_offset)
+        ) |>
+        dplyr::ungroup() |>
+        dplyr::select(sheet, stop_cell),
+      by = "sheet"
+    ) |>
+    dplyr::mutate(
+      range = paste0(start_cell, ":", stop_cell)
+    )
+}
+```
+
+This function will be used to define the details table ranges for both the
+current and prior data files.
+
+#### Current
+
+```{r derive_ranges_details_tbls_current}
+current_details_tbl_ranges <- get_xl_details_tbl_ranges(
+  current_xl_cells,
+  stop_cell_col = "Q",
+  stop_cell_row_offset = -1
+)
+```
+
+#### Prior
+
+```{r derive_ranges_details_tbls_prior}
+prior_details_tbl_ranges <- get_xl_details_tbl_ranges(prior_xl_cells)
+```
+
+### Unit Types Ranges {.tabset}
+
+```{r xl_define_ranges}
+# unit_type ranges  -------------------------------------------------------
+
+unit_type_ranges <- current_xl_cells |>
+  dplyr::select(sheet, address, row, col, character) |>
+  dplyr::filter(
+    stringr::str_detect(character, "Total/Average:")
+  ) |>
+  dplyr::group_by(sheet) |>
+  dplyr::slice(1) |>
+  dplyr::mutate(
+    start_cell = "A9",
+    stop_cell = paste0("A", row - 1)
+  ) |>
+  dplyr::ungroup() |>
+  dplyr::select(
+    sheet,
+    start_cell,
+    stop_cell
+  ) |>
+  dplyr::mutate(
+    range = paste0(start_cell, ":", stop_cell)
+  )
+```
+
+## Read Excel Ranges {.tabset}
+
+Next, we will read in the Excel data for the specified ranges for both the current
+and prior data files.
+
+### Read Ranges Function
+
+To aid with this workflow, a custom function `read_excel_ranges` is defined below:
+
+```{r xl_read_ranges}
+read_excel_ranges <- function(file, sheets, ranges, col_specs) {
+  
+  col_names <- names(col_specs)
+  col_types <- purrr::map_chr(col_specs, ~ .x)
+  
+  purrr::map_dfr(
+    sheets,
+    ~ readxl::read_excel(
+      file,
+      sheet = .x,
+      range = ranges[ranges$sheet == .x, "range"][[1]],
+      col_types = col_types,
+      col_names = col_names
+    ) |>
+      dplyr::mutate(unit_name = .x) |>
+      dplyr::select(unit_name, tidyselect::everything())
+  )
+}
+```
+
+This function will be used to read in the data for the summary tables and details tables
+for both the current and prior data files.
+
+### Read Summary Tables
+
+Below I will read in the summary tables for both the current and prior data files
+and finally merge the data into a single data frame.
+
+```{r xl_read_summary_tables}
+# read summary tables -----------------------------------------------------
+prior_xl_summary_tbls <- read_excel_ranges(
+  prior_xl_data_file,
+  prior_xl_property_unit_names,
+  prior_summary_tbl_ranges,
+  summary_tbl_col_specs
+)
+
+current_xl_summary_tbls <- read_excel_ranges(
+  current_xl_data_file,
+  current_xl_property_unit_names,
+  current_summary_tbl_ranges,
+  summary_tbl_col_specs
+)
+
+merged_summary_tbls <- dplyr::bind_rows(
+  prior_xl_summary_tbls |>
+    dplyr::mutate(data_source = "prior"),
+  current_xl_summary_tbls |>
+    dplyr::mutate(data_source = "current")
+)
+```
+
+### Read Details Tables
+
+Below I will read in the details tables for both the current and prior data files
+and finally merge the data into a single data frame.
+
+```{r xl_read_details_tables}
+# details tables ----------------------------------------------------------
+
+prior_xl_details_tbls <- read_excel_ranges(
+  prior_xl_data_file,
+  prior_xl_property_unit_names,
+  prior_details_tbl_ranges,
+  prior_details_tbl_col_specs
+)
+
+current_xl_details_tbls <- read_excel_ranges(
+  current_xl_data_file,
+  current_xl_property_unit_names,
+  current_details_tbl_ranges,
+  current_details_tbl_col_specs
+) |>
+  dplyr::filter(
+    !is.na(resident),
+    !stringr::str_detect(building_unit, "Unit Type:"),
+    !stringr::str_detect(charge_code, "Charge Total:")
+  )
+
+merged_details_tbls <- dplyr::bind_rows(
+  prior_xl_details_tbls |>
+    dplyr::mutate(data_source = "prior"),
+  current_xl_details_tbls |>
+    dplyr::mutate(data_source = "current")
+)
+```
+
+## Save Data
+
+The last step in this process is to save the data:
+
+```{r xl_save_data, eval=FALSE}
+# Save data --------------------------------------------------------------
+
+readr::write_csv(merged_summary_tbls, "data-raw/working/merged_summary_tbls.csv")
+readr::write_csv(merged_details_tbls, "data-raw/working/merged_details_tbls.csv")
+
+usethis::use_data(
+  merged_summary_tbls,
+  merged_details_tbls
+)
+```
+
+## Conclusion
+
+This document provided an in-depth overview of the process of preparing data from Excel.
+

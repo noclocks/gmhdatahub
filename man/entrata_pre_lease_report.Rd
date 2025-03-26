@@ -10,7 +10,7 @@ entrata_pre_lease_report(
   summarize_by = c("unit_type", "property", "floorplan_name", "do_not_summarize"),
   group_by = c("unit_type", "floorplan_name", "lease_term", "do_not_group"),
   consider_pre_leased_on = "332",
-  charge_code_detail = 0,
+  charge_code_detail = 1L,
   space_options = "do_not_show",
   additional_units_shown = "available",
   combine_unit_spaces_with_same_lease = 0,

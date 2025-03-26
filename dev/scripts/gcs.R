@@ -4,14 +4,28 @@ pkgload::load_all()
 
 Sys.setenv("GAR_CLIENT_JSON" = pkg_sys("config/credentials/gmh-communities-oauth-client-secret.json"))
 Sys.setenv("GCS_AUTH_FILE" = pkg_sys("config/credentials/gmh-communities-compute-engine-default-service-account-key.json"))
-Sys.setenv("GCS_DEFAULT_BUCKET" = "gmh-images")
+Sys.setenv("GCS_DEFAULT_BUCKET" = "entrata")
+
+gcs_project <- "gmh-communities"
 
 googleCloudStorageR::gcs_setup()
 
-googleCloudStorageR::gcs_global_bucket("gmh-images")
+buckets <- c("images", "entrata", "pipeline", "maps")
+existing_buckets <- googleCloudStorageR::gcs_list_buckets(projectId = gcs_project)
 
-gcs_project <- "gmh-communities"
-(buckets <- googleCloudStorageR::gcs_list_buckets(projectId = gcs_project))
+for (bucket in buckets) {
+  if (!(bucket %in% existing_buckets$name)) {
+    googleCloudStorageR::gcs_create_bucket(bucket, projectId = gcs_project)
+  }
+}
+
+googleCloudStorageR::gcs_create_bucket(
+  "entrata"
+)
+
+googleCloudStorageR::gcs_global_bucket("entrata")
+
+
 (image_bucket <- buckets$name[buckets$name == "gmh-images"])
 (bucket_info <- googleCloudStorageR::gcs_get_bucket(image_bucket))
 (objects <- googleCloudStorageR::gcs_list_objects(bucket = image_bucket))
@@ -120,6 +134,8 @@ upload_property_image <- function(
   )
 
 }
+
+
 
 get_gcs_file_url <- function(file, bucket = "gmh-images") {
   glue::glue("https://storage.googleapis.com/{bucket}/{file}")

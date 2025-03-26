@@ -6,3 +6,11 @@
   width: 100% !important;
   overflow-x: auto;
 }
+
+.change-item {
+  transition: background-color 0.3s;
+}
+
+.change-item:hover {
+  background-color: #f8f9fa;
+}

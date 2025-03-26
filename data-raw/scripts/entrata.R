@@ -19,6 +19,7 @@ source("data-raw/scripts/entrata/reports.R")
 source("data-raw/scripts/entrata/properties.R")
 source("data-raw/scripts/entrata/picklists.R")
 source("data-raw/scripts/entrata/charge_codes.R")
+source("data-raw/scripts/entrata/properties.R")
 
 # cleanup -----------------------------------------------------------------
 

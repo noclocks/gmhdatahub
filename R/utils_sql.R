@@ -6,6 +6,21 @@
 #
 #  ------------------------------------------------------------------------
 
+#' Generate SQL Table DDL
+#'
+#' @description
+#' This function generates a SQL table DDL statement based on the input data frame.
+#'
+#' @param df The data frame to generate the DDL for.
+#' @param table_name The name of the table.
+#' @param schema The schema to create the table in.
+#'
+#' @returns
+#' A SQL DDL statement.
+#'
+#' @export
+#'
+#' @importFrom purrr map_chr map_lgl
 generate_sql_tbl_ddl <- function(df, table_name, schema = "public") {
 
   # Map R types to PostgreSQL types
@@ -48,9 +63,9 @@ generate_sql_tbl_ddl <- function(df, table_name, schema = "public") {
   )
 
   # Add helpful indices
-  date_cols <- names(df)[map_lgl(df, ~ inherits(., c("Date", "POSIXct")))]
+  date_cols <- names(df)[purrr::map_lgl(df, ~ inherits(., c("Date", "POSIXct")))]
   if (length(date_cols) > 0) {
-    index_statements <- map_chr(date_cols, function(col) {
+    index_statements <- purrr::map_chr(date_cols, function(col) {
       sprintf(
         "CREATE INDEX idx_%s_%s ON %s.%s(%s);",
         table_name,

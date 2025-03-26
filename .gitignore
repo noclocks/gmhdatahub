@@ -13,3 +13,7 @@ repomix.config.json
 repomix*
 ~$*
 .Renviron
+archive/
+temp/
+
+dbml-error.log

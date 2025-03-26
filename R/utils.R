@@ -7,6 +7,33 @@
 #
 #  ------------------------------------------------------------------------
 
+#' Get Closest Match
+#'
+#' @description
+#' Get the closest match to a name from a list of valid names.
+#'
+#' @param name The name to match.
+#' @param valid_names A vector of valid names.
+#'
+#' @returns
+#' The closest match to the name from the list of valid names.
+#'
+#' @export
+#'
+#' @importFrom stringdist stringdist
+get_closest_match <- function(name, valid_names) {
+
+  if (!is.character(name)) name <- as.character(name)
+  if (!is.character(valid_names)) valid_names <- as.character(valid_names)
+
+  dists <- stringdist::stringdist(name, valid_names, method = "jw")
+  min_indices <- which(dists == min(dists))
+  closest_match <- valid_names[min_indices[which.min(nchar(valid_names[min_indices]))]]
+
+  return(closest_match)
+
+}
+
 #' NULL Coalescing Operator
 #'
 #' @description

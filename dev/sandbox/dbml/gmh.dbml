@@ -1,0 +1,3051 @@
+Enum "entrata"."address_type" {
+  "Primary"
+  "Mailing"
+  "Other"
+}
+
+Table "entrata"."property_ids" {
+  "entrata_property_id" text [pk, not null]
+  "entrata_property_name" text [not null]
+}
+
+Table "entrata"."property_phones" {
+  "property_id" int4
+  "phone_number" text
+  "phone_number_type" text
+  "phone_number_intl" text
+  "phone_number_link" text
+  "phone_number_link_html" text
+}
+
+Table "entrata"."properties" {
+  "property_id" int8 [pk, not null]
+  "marketing_name" text [not null]
+  "property_type" text [not null]
+  "website" text
+  "address" text
+  "email" text
+  "is_disabled" bool [default: false]
+  "is_featured_property" bool [default: false]
+  "parent_property_id" int8
+  "year_built" int4
+  "short_description" text
+  "long_description" text
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "entrata"."property_addresses" {
+  "property_id" int8 [not null]
+  "address_type" text [not null]
+  "street" text [not null]
+  "city" text [not null]
+  "state" text [not null]
+  "postal_code" text [not null]
+  "country" text [not null, default: 'US']
+
+  Indexes {
+    (property_id, address_type) [type: btree, name: "property_addresses_pkey"]
+  }
+}
+
+Table "entrata"."property_hours" {
+  "property_id" int8 [not null]
+  "day_of_week" text [not null]
+  "availability_type" text [not null]
+  "open_time" time
+  "close_time" time
+
+  Indexes {
+    (property_id, day_of_week) [type: btree, name: "property_hours_pkey"]
+  }
+}
+
+Table "entrata"."property_lease_terms" {
+  "property_id" int8 [not null]
+  "term_id" int8 [not null]
+  "term_name" text
+  "term_months" int4
+  "is_prospect" bool
+  "is_renewal" bool
+
+  Indexes {
+    (property_id, term_id) [type: btree, name: "property_lease_terms_pkey"]
+  }
+}
+
+Table "entrata"."property_lease_term_windows" {
+  "property_id" int8 [not null]
+  "lease_term_id" int8 [not null]
+  "window_id" int8 [not null]
+  "window_start_date" date [not null]
+  "window_end_date" date [not null]
+
+  Indexes {
+    (property_id, lease_term_id, window_id) [type: btree, name: "property_lease_term_windows_pkey"]
+  }
+}
+
+Table "entrata"."space_options" {
+  "space_option_id" int4 [pk, not null]
+  "space_option_name" text [not null]
+}
+
+Table "entrata"."property_space_options" {
+  "property_id" int8 [not null]
+  "space_option_id" int4 [not null]
+  "space_option_name" text [not null]
+
+  Indexes {
+    (property_id, space_option_id) [type: btree, name: "property_space_options_pkey"]
+  }
+}
+
+Table "entrata"."property_phone_numbers" {
+  "property_id" int8 [not null]
+  "phone_number" text [not null]
+  "phone_number_type" text [not null]
+
+  Indexes {
+    (property_id, phone_number_type) [type: btree, name: "property_phone_numbers_pkey"]
+  }
+}
+
+Table "entrata"."property_post_months" {
+  "property_id" int8 [pk, not null]
+  "ar_post_month" varchar(10) [not null]
+  "ap_post_month" varchar(10) [not null]
+  "gl_post_month" varchar(10) [not null]
+}
+
+Table "entrata"."pre_lease_summary" {
+  "report_date" date [not null, default: `CURRENT_DATE`]
+  "property_id" int4 [not null]
+  "property_name" varchar(255) [not null]
+  "avg_sqft" numeric(10,2)
+  "avg_advertised_rate" numeric(10,2)
+  "units" int4
+  "excluded_unit_count" int4
+  "rentable_unit_count" int4
+  "avg_scheduled_rent" numeric(10,2)
+  "occupied_count" int4
+  "started_new_count_prior" int4
+  "started_new_count" int4
+  "started_renewal_count_prior" int4
+  "started_renewal_count" int4
+  "started_count_prior" int4
+  "started_count" int4
+  "started_percent" numeric(5,2)
+  "partially_completed_new_count_prior" int4
+  "partially_completed_new_count" int4
+  "partially_completed_renewal_count_prior" int4
+  "partially_completed_renewal_count" int4
+  "partially_completed_count_prior" int4
+  "partially_completed_count" int4
+  "partially_completed_percent" numeric(5,2)
+  "completed_new_count_prior" int4
+  "completed_new_count" int4
+  "completed_renewal_count_prior" int4
+  "completed_renewal_count" int4
+  "completed_count_prior" int4
+  "completed_count" int4
+  "completed_percent" numeric(5,2)
+  "approved_new_count_prior" int4
+  "approved_new_count" int4
+  "approved_renewal_count_prior" int4
+  "approved_renewal_count" int4
+  "approved_count_prior" int4
+  "approved_count" int4
+  "approved_percent" numeric(5,2)
+  "preleased_new_count_prior" int4
+  "preleased_new_count" int4
+  "preleased_renewal_count_prior" int4
+  "preleased_renewal_count" int4
+  "preleased_count_prior" int4
+  "preleased_count" int4
+  "preleased_percent_prior" numeric(5,2)
+  "preleased_percent" numeric(5,2)
+  "variance" numeric(10,2)
+  "available_count" int4
+  "scheduled_rent_total" numeric(12,2)
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (report_date, property_id) [type: btree, name: "pre_lease_summary_pkey"]
+  }
+}
+
+Table "entrata"."pre_lease_weekly" {
+  "report_date" date [not null, default: `CURRENT_DATE`]
+  "property_id" int4 [not null]
+  "weekly_new" int4
+  "weekly_renewal" int4
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (report_date, property_id) [type: btree, name: "pre_lease_weekly_pkey"]
+  }
+}
+
+Table "entrata"."pre_lease_details" {
+  "report_date" date
+  "property_id" int4
+  "property_name" text
+  "bldg_unit" text
+  "unit_type" text
+  "sqft" int4
+  "resident_name" text
+  "resident_id" text
+  "lease_id" text
+  "resident_email" text
+  "resident_phone_number" text
+  "resident_gender" text
+  "lease_status" text
+  "lease_sub_status" text
+  "lease_occupancy_type" text
+  "lease_term_name" text
+  "lease_term" int4
+  "space_option_preferred" text
+  "space_option" text
+  "lease_start" date
+  "lease_end" date
+  "lease_started_on" date
+  "lease_partially_completed_on" date
+  "lease_completed_on" date
+  "lease_approved_on" date
+  "move_in_date" date
+  "deposit_charged" float8
+  "deposit_held" float8
+  "market_rent" float8
+  "budgeted_rent" float8
+  "advertised_rate" float8
+  "ledger_name" text
+  "charge_code" text
+  "scheduled_rent" float8
+  "actual_charges" float8
+  "scheduled_rent_total" float8
+  "leasing_agent" text
+}
+
+Table "entrata"."property_floorplans" {
+  "property_id" int4 [not null]
+  "floorplan_id" int4 [not null]
+  "floorplan_name" text [not null]
+  "created_at" timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (property_id, floorplan_id) [type: btree, name: "property_floorplans_pkey"]
+  }
+}
+
+Table "entrata"."unit_types" {
+  "property_id" int4 [not null]
+  "unit_type_id" int4 [not null]
+  "unit_type_name" text [not null]
+  "created_at" timestamptz [not null, default: `now()`]
+}
+
+Table "entrata"."event_types" {
+  "event_type_id" int4 [pk, not null]
+  "event_type_name" text [unique, not null]
+  "created_at" timestamptz [not null, default: `now()`]
+}
+
+Table "entrata"."box_score_availability" {
+  "report_date" date
+  "property_id" int8
+  "property_name" text
+  "unit_type" text
+  "unit_type_lookup_code" text
+  "number_of_bedrooms" int4
+  "number_of_bathrooms" float8
+  "avg_square_feet" float8
+  "avg_market_rent" float8
+  "scheduled_rent" float8
+  "avg_budgeted_rent" float8
+  "scheduled_charges" float8
+  "scheduled_other" float8
+  "effective_rent" float8
+  "actual_rent" float8
+  "total_units" int4
+  "excluded_units" int4
+  "total_rentable_units" int4
+  "occupied_units" int4
+  "vacant_units" int4
+  "available_units" int4
+  "occupied_no_notice_units" int4
+  "notice_rented_units" int4
+  "notice_unrented_units" int4
+  "vacant_rented_units" int4
+  "vacant_unrented_units" int4
+  "percent_occupied" float8
+  "percent_leased" float8
+  "avg_not_exposed_leased_units" float8
+  "avg_exposure" float8
+}
+
+Table "entrata"."box_score_property_pulse" {
+  "report_date" date
+  "property_id" int8
+  "property_name" text
+  "unit_type" text
+  "unit_type_lookup_code" text
+  "total_rentable_units" int4
+  "move_ins" int4
+  "mtm_started" int4
+  "mtm_converted" int4
+  "renewal_application_completions" int4
+  "renewal_lease_approvals" int4
+  "renewal_lease_creations" int4
+  "transfers_completed" int4
+  "notices" int4
+  "move_outs" int4
+  "renewals" int4
+  "renewal_transfers" int4
+  "skips" int4
+  "leases_expiring" int4
+  "evictions_completed" int4
+  "leases_approved" int4
+}
+
+Table "entrata"."box_score_lead_activity" {
+  "report_date" date
+  "property_id" int8
+  "property_name" text
+  "unit_type" text
+  "unit_type_lookup_code" text
+  "clo_leads" int4
+  "new_leads" int4
+  "email" int4
+  "call" int4
+  "online" int4
+  "referred_contact" int4
+  "visit_tour" int4
+  "offsite" int4
+  "chat" int4
+  "text" int4
+  "other" int4
+  "lead_email" int4
+  "lead_call" int4
+  "lead_chat" int4
+  "lead_text" int4
+  "unique_visits_tours" int4
+  "onsite_visit" int4
+  "unit_tour" int4
+  "property_tour" int4
+  "self_guided_tour" int4
+  "virtual_tour" int4
+}
+
+Table "entrata"."box_score_lead_conversion" {
+  "report_date" date
+  "property_id" int8
+  "property_name" text
+  "unit_type" text
+  "unit_type_lookup_code" text
+  "clo_leads" int4
+  "new_leads" int4
+  "prospects_cancelled" int4
+  "started" int4
+  "applications_partially_completed" int4
+  "completed" int4
+  "completed_cancelled" int4
+  "denied" int4
+  "approved" int4
+  "approved_cancelled" int4
+  "lease_completed" int4
+  "lease_completed_cancelled" int4
+  "abandoned" int4
+  "lease_approved" int4
+}
+
+Table "entrata"."box_score_make_ready" {
+  "report_date" date
+  "property_id" int8
+  "property_name" text
+  "status" text
+  "vacant_rented" int4
+  "vacant_unrented" int4
+  "total" int4
+  "summary_total" int4
+  "percent" float8
+}
+
+Table "entrata"."arcodes" {
+  "code_id" int4
+  "ar_code" int4
+  "code_name" text
+  "code_type" text
+  "charge_usage" text
+  "associated_ledger" text
+  "debit_gl_account_id" int4
+  "credit_gl_account_id" int4
+  "display_as" text
+  "is_disabled" bool
+  "is_entrata_disabled" bool
+  "is_taxable" bool
+}
+
+Table "entrata"."pre_lease_report_summary" {
+  "report_date" date
+  "property_id" int4
+  "property_name" text
+  "unit_type" text
+  "avg_sqft" float8
+  "avg_advertised_rate" int4
+  "total_units" int4
+  "available_count" int4
+  "occupied_count" int4
+  "excluded_unit_count" int4
+  "rentable_unit_count" int4
+  "avg_scheduled_rent" int4
+  "started_new_count_prior" int4
+  "started_new_count" int4
+  "started_renewal_count_prior" int4
+  "started_renewal_count" int4
+  "started_count_prior" int4
+  "started_count" int4
+  "started_percent" float8
+  "partially_completed_new_count_prior" int4
+  "partially_completed_new_count" int4
+  "partially_completed_renewal_count_prior" int4
+  "partially_completed_renewal_count" int4
+  "partially_completed_count_prior" int4
+  "partially_completed_count" int4
+  "partially_completed_percent" float8
+  "completed_new_count_prior" int4
+  "completed_new_count" int4
+  "completed_renewal_count_prior" int4
+  "completed_renewal_count" int4
+  "completed_count_prior" int4
+  "completed_count" int4
+  "completed_percent" float8
+  "approved_new_count_prior" int4
+  "approved_new_count" int4
+  "approved_renewal_count_prior" int4
+  "approved_renewal_count" int4
+  "approved_count_prior" int4
+  "approved_count" int4
+  "approved_percent" float8
+  "preleased_new_count_prior" int4
+  "preleased_new_count" int4
+  "preleased_renewal_count_prior" int4
+  "preleased_renewal_count" int4
+  "preleased_count_prior" int4
+  "preleased_count" int4
+  "preleased_percent_prior" int4
+  "preleased_percent" int4
+  "variance" int4
+}
+
+Table "entrata"."pre_lease_report_details_by_property" {
+  "report_date" date
+  "property_id" float8
+  "property_name" text
+  "unit_type" text
+  "excluded_units" float8
+  "rentable_units" float8
+  "occupied_units" float8
+  "available_units" float8
+  "avg_market_rent" float8
+  "avg_budgeted_rent" float8
+  "avg_advertised_rate" float8
+  "avg_scheduled_rent" float8
+  "avg_actual_charges" float8
+  "avg_scheduled_charges" float8
+  "current_preleased_new_count" float8
+  "prior_preleased_new_count" float8
+  "current_preleased_renewal_count" float8
+  "prior_preleased_renewal_count" float8
+  "current_preleased_total_count" float8
+  "prior_preleased_total_count" float8
+  "current_preleased_percent" float8
+  "prior_preleased_percent" float8
+  "variance" float8
+}
+
+Table "entrata"."pre_lease_summary_by_unit" {
+  "report_date" date [not null]
+  "property_id" int4 [not null]
+  "property_name" text [not null]
+  "unit_type" text [not null]
+  "avg_sqft" numeric [default: 0]
+  "avg_advertised_rate" numeric
+  "total_unit_count" int4
+  "excluded_unit_count" int4
+  "rentable_unit_count" float8
+  "occupied_count" float8
+  "available_count" float8
+  "total_scheduled_rent" float8
+  "yoy_variance" float8
+  "avg_scheduled_rent" float8
+  "started_new_count_prior" float8
+  "started_new_count" float8
+  "started_renewal_count_prior" float8
+  "started_renewal_count" float8
+  "started_count_prior" float8
+  "started_count" float8
+  "started_percent" float8
+  "partially_completed_new_count_prior" float8
+  "partially_completed_new_count" float8
+  "partially_completed_renewal_count_prior" float8
+  "partially_completed_renewal_count" float8
+  "partially_completed_count_prior" float8
+  "partially_completed_count" float8
+  "partially_completed_percent" float8
+  "completed_new_count_prior" float8
+  "completed_new_count" float8
+  "completed_renewal_count_prior" float8
+  "completed_renewal_count" float8
+  "completed_count_prior" float8
+  "completed_count" float8
+  "completed_percent" float8
+  "approved_new_count_prior" float8
+  "approved_new_count" float8
+  "approved_renewal_count_prior" float8
+  "approved_renewal_count" float8
+  "approved_count_prior" float8
+  "approved_count" float8
+  "approved_percent" float8
+  "preleased_new_count_prior" float8
+  "preleased_new_count" float8
+  "preleased_renewal_count_prior" float8
+  "preleased_renewal_count" float8
+  "preleased_count_prior" float8
+  "preleased_count" float8
+  "preleased_percent_prior" float8
+  "preleased_percent" float8
+
+  Indexes {
+    (report_date, property_id, unit_type) [type: btree, name: "pre_lease_summary_by_unit_pkey"]
+  }
+}
+
+Table "entrata"."pre_lease_summary_by_property" {
+  "report_date" date [not null]
+  "property_id" int4 [not null]
+  "property_name" text [not null]
+  "avg_sqft" numeric [default: 0.00]
+  "avg_advertised_rate" numeric [default: 0.00]
+  "total_unit_count" int4 [default: 0]
+  "excluded_unit_count" int4 [default: 0]
+  "rentable_unit_count" int4 [default: 0]
+  "occupied_count" int4 [default: 0]
+  "available_count" int4 [default: 0]
+  "total_scheduled_rent" numeric(15,2) [default: 0.00]
+  "yoy_variance" int4 [default: 0]
+  "avg_scheduled_rent" numeric(15,2) [default: 0.00]
+  "started_new_count_prior" int4 [default: 0]
+  "started_new_count" int4 [default: 0]
+  "started_renewal_count_prior" int4 [default: 0]
+  "started_renewal_count" int4 [default: 0]
+  "started_count_prior" int4 [default: 0]
+  "started_count" int4 [default: 0]
+  "started_percent" numeric [default: 0.00]
+  "partially_completed_new_count_prior" int4 [default: 0]
+  "partially_completed_new_count" int4 [default: 0]
+  "partially_completed_renewal_count_prior" int4 [default: 0]
+  "partially_completed_renewal_count" int4 [default: 0]
+  "partially_completed_count_prior" int4 [default: 0]
+  "partially_completed_count" int4 [default: 0]
+  "partially_completed_percent" numeric [default: 0.00]
+  "completed_new_count_prior" int4 [default: 0]
+  "completed_new_count" int4 [default: 0]
+  "completed_renewal_count_prior" int4 [default: 0]
+  "completed_renewal_count" int4 [default: 0]
+  "completed_count_prior" int4 [default: 0]
+  "completed_count" int4 [default: 0]
+  "completed_percent" numeric [default: 0.00]
+  "approved_new_count_prior" int4 [default: 0]
+  "approved_new_count" int4 [default: 0]
+  "approved_renewal_count_prior" int4 [default: 0]
+  "approved_renewal_count" int4 [default: 0]
+  "approved_count_prior" int4 [default: 0]
+  "approved_count" int4 [default: 0]
+  "approved_percent" numeric [default: 0.00]
+  "preleased_new_count_prior" int4 [default: 0]
+  "preleased_new_count" int4 [default: 0]
+  "preleased_renewal_count_prior" int4 [default: 0]
+  "preleased_renewal_count" int4 [default: 0]
+  "preleased_count_prior" int4 [default: 0]
+  "preleased_count" int4 [default: 0]
+  "preleased_percent_prior" numeric [default: 0.00]
+  "preleased_percent" numeric [default: 0.00]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (report_date, property_id) [type: btree, name: "pre_lease_summary_by_property_pkey"]
+  }
+}
+
+Table "entrata"."pre_lease_report_details_w_charge_codes" {
+  "report_date" text
+  "property_id" int4
+  "property_name" text
+  "bldg_unit" text
+  "unit_type" text
+  "unit_status" text
+  "floorplan_name" text
+  "sqft" int4
+  "resident_id" int4
+  "resident_name" text
+  "resident_email" text
+  "resident_phone" text
+  "resident_gender" text
+  "leasing_agent" text
+  "lease_id" text
+  "lease_status" text
+  "lease_sub_status" text
+  "lease_occupancy_type" text
+  "lease_term_name" text
+  "lease_term_month" int4
+  "space_option_preferred" text
+  "space_option" text
+  "move_in_date" text
+  "lease_start_date" text
+  "lease_end_date" text
+  "lease_started_on_date" text
+  "lease_partially_completed_on_date" text
+  "lease_completed_on_date" text
+  "lease_approved_on_date" text
+  "charge_code" text
+  "ledger_name" text
+  "deposit_charged" float8
+  "deposit_held" float8
+  "market_rent" float8
+  "budgeted_rent" float8
+  "advertised_rate" float8
+  "scheduled_rent" float8
+  "actual_charges" float8
+  "scheduled_rent_total" float8
+}
+
+Table "entrata"."pre_lease_report_parameters" {
+  "request_id" text [not null]
+  "report_date" date [not null, default: `CURRENT_DATE`]
+  "report_name" text [not null, default: 'pre_lease']
+  "report_version" text [not null, default: '3.2']
+  "report_queue_id" text [not null]
+  "property_ids" text [not null, default: 'ALL']
+  "period_date" text
+  "summarize_by" text [not null, default: 'Property']
+  "group_by" text [not null, default: 'None']
+  "consider_pre_leased_on" text [not null, default: 'Lease Partially Completed (332)']
+  "charge_code_detail" text [not null, default: 'TRUE']
+  "space_options" text [not null, default: 'Do Not Show']
+  "additional_units_shown" text [not null, default: 'Available']
+  "combine_unit_spaces_with_same_lease" text [not null, default: 'FALSE']
+  "consolidate_by" text [not null, default: 'None']
+  "arrange_by_property" text [not null, default: 'FALSE']
+  "subtotals" text [not null, default: 'Summary and Details']
+  "yoy" text [not null, default: 'TRUE']
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (request_id, report_date, report_queue_id) [type: btree, name: "pre_lease_report_parameters_pkey"]
+  }
+}
+
+Table "entrata"."pre_lease_property_details_by_unit" {
+  "report_date" date [not null, default: `CURRENT_DATE`]
+  "property_id" int4 [not null]
+  "property_name" text [not null]
+  "unit_type" text [not null]
+  "excluded_units" int4 [default: 0]
+  "rentable_units" int4
+  "occupied_units" int4
+  "available_units" int4
+  "avg_market_rent" numeric
+  "avg_budgeted_rent" numeric
+  "avg_advertised_rate" numeric
+  "avg_scheduled_charges" numeric
+  "avg_actual_charges" numeric
+  "current_preleased_new_count" int4
+  "prior_preleased_new_count" int4
+  "current_preleased_renewal_count" int4
+  "prior_preleased_renewal_count" int4
+  "current_preleased_total_count" int4
+  "prior_preleased_total_count" int4
+  "current_preleased_percent" numeric
+  "prior_preleased_percent" numeric
+  "yoy_variance" int4
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (report_date, property_id, unit_type) [type: btree, name: "pre_lease_property_details_by_unit_pkey"]
+  }
+}
+
+Table "entrata"."pre_lease_details_by_property_unit" {
+  "report_date" date [not null]
+  "property_id" int4 [not null]
+  "property_name" text [not null]
+  "bldg_unit" text [not null]
+  "unit_type" text [not null]
+  "unit_status" text
+  "charge_code" text [not null]
+  "resident_id" int4
+  "resident_name" text
+  "resident_email" text
+  "resident_phone" text
+  "resident_gender" text
+  "lease_id" text [not null]
+  "lease_status" text
+  "lease_sub_status" text
+  "lease_term_name" text
+  "lease_term" int4
+  "lease_start_date" date
+  "lease_end_date" date
+  "lease_started_on_date" date
+  "lease_partially_completed_on_date" date
+  "lease_completed_on_date" date
+  "lease_approved_on_date" date
+  "move_in_date" date
+  "leasing_agent" text
+  "deposit_charged" numeric(10,2)
+  "deposit_held" numeric(10,2)
+  "market_rent" numeric(10,2)
+  "budgeted_rent" numeric(10,2)
+  "advertised_rate" numeric(10,2)
+  "actual_charges" numeric(10,2)
+  "scheduled_rent_total" numeric(10,2)
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (report_date, property_id, unit_type, bldg_unit, lease_id, charge_code) [type: btree, name: "pre_lease_details_by_property_unit_pkey"]
+  }
+}
+
+Table "entrata"."pre_lease_summary_by_property_unit" {
+  "report_date" date [not null]
+  "property_id" int4 [not null]
+  "property_name" text [not null]
+  "unit_type" text [not null]
+  "avg_sqft" numeric [default: 0.00]
+  "avg_advertised_rate" numeric [default: 0.00]
+  "avg_scheduled_rent" numeric(15,2) [default: 0.00]
+  "total_unit_count" int4 [default: 0]
+  "excluded_unit_count" int4 [default: 0]
+  "rentable_unit_count" int4 [default: 0]
+  "occupied_count" int4 [default: 0]
+  "available_count" int4 [default: 0]
+  "total_scheduled_rent" numeric(15,2) [default: 0.00]
+  "yoy_variance" int4 [default: 0]
+  "started_new_count" int4 [default: 0]
+  "started_renewal_count" int4 [default: 0]
+  "started_count" int4 [default: 0]
+  "started_percent" numeric [default: 0.00]
+  "started_new_count_prior" int4 [default: 0]
+  "started_renewal_count_prior" int4 [default: 0]
+  "started_count_prior" int4 [default: 0]
+  "partially_completed_new_count" int4 [default: 0]
+  "partially_completed_renewal_count" int4 [default: 0]
+  "partially_completed_count" int4 [default: 0]
+  "partially_completed_percent" numeric [default: 0.00]
+  "partially_completed_new_count_prior" int4 [default: 0]
+  "partially_completed_renewal_count_prior" int4 [default: 0]
+  "partially_completed_count_prior" int4 [default: 0]
+  "completed_new_count" int4 [default: 0]
+  "completed_renewal_count" int4 [default: 0]
+  "completed_count" int4 [default: 0]
+  "completed_percent" numeric [default: 0.00]
+  "completed_new_count_prior" int4 [default: 0]
+  "completed_renewal_count_prior" int4 [default: 0]
+  "completed_count_prior" int4 [default: 0]
+  "approved_new_count" int4 [default: 0]
+  "approved_renewal_count" int4 [default: 0]
+  "approved_count" int4 [default: 0]
+  "approved_percent" numeric [default: 0.00]
+  "approved_new_count_prior" int4 [default: 0]
+  "approved_renewal_count_prior" int4 [default: 0]
+  "approved_count_prior" int4 [default: 0]
+  "preleased_new_count" int4 [default: 0]
+  "preleased_renewal_count" int4 [default: 0]
+  "preleased_count" int4 [default: 0]
+  "preleased_percent" numeric [default: 0.00]
+  "preleased_new_count_prior" int4 [default: 0]
+  "preleased_renewal_count_prior" int4 [default: 0]
+  "preleased_count_prior" int4 [default: 0]
+  "preleased_percent_prior" numeric [default: 0.00]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (report_date, property_id, unit_type) [type: btree, name: "pre_lease_summary_by_property_unit_pkey"]
+  }
+}
+
+Table "entrata"."pre_lease_details_by_property" {
+  "report_date" date [not null]
+  "property_id" int4 [not null]
+  "property_name" text [not null]
+  "bldg_unit" text
+  "unit_type" text [not null]
+  "unit_status" text
+  "charge_code" text [not null]
+  "sqft" int4
+  "resident_id" int4
+  "resident_name" text
+  "resident_email" text
+  "resident_phone" text
+  "resident_gender" text
+  "lease_id" text [not null]
+  "lease_status" text
+  "lease_sub_status" text
+  "lease_occupancy_type" text
+  "lease_term_name" text
+  "lease_term_month" int4
+  "space_option_preferred" text
+  "space_option" text
+  "lease_start_date" date
+  "lease_end_date" date
+  "lease_started_on_date" date
+  "lease_partially_completed_on_date" date
+  "lease_completed_on_date" date
+  "lease_approved_on_date" date
+  "move_in_date" date
+  "leasing_agent" text
+  "deposit_charged" numeric(10,2)
+  "deposit_held" numeric(10,2)
+  "market_rent" numeric(10,2)
+  "budgeted_rent" numeric(10,2)
+  "advertised_rate" numeric(10,2)
+  "scheduled_rent" numeric(10,2)
+  "actual_charges" numeric(10,2)
+  "scheduled_rent_total" numeric(10,2)
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (report_date, property_id, unit_type, lease_id, charge_code) [type: btree, name: "pre_lease_details_by_property_pkey"]
+  }
+}
+
+Table "entrata"."api_logs" {
+  "log_id" int8 [pk, not null, increment]
+  "log_date" date [not null, default: `CURRENT_DATE`]
+  "entrata_endpoint" text [not null]
+  "entrata_operation" text [not null]
+  "entrata_request_id" int4
+  "entrata_request_start" timestamp
+  "entrata_request_end" timestamp
+  "entrata_request_duration" int4
+  "entrata_request_json" jsonb
+  "entrata_response_json" jsonb
+  "entrata_report_params_json" jsonb
+  "entrata_report_name" text
+  "entrata_report_queue_id" text
+  "log_comments" text
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    entrata_report_params_json [type: gin, name: "idx_entrata_api_logs_entrata_report_params_json"]
+    entrata_request_json [type: gin, name: "idx_entrata_api_logs_entrata_request_json"]
+    entrata_response_json [type: gin, name: "idx_entrata_api_logs_entrata_response_json"]
+    log_date [type: btree, name: "idx_entrata_api_logs_log_date"]
+  }
+}
+
+Table "entrata"."report_pre_lease_details_by_property" {
+  "report_date" date [not null, default: `CURRENT_DATE`]
+  "property_id" int4 [not null]
+  "property_name" text [not null]
+  "bldg_unit" text [not null]
+  "unit_type" text [not null]
+  "charge_code" text [not null]
+  "bldg" text
+  "unit" text
+  "unit_status" text
+  "floorplan_name" text
+  "resident_id" int4
+  "resident_name" text
+  "resident_email" text
+  "resident_phone" text
+  "resident_gender" text
+  "student_id_number" text
+  "lease_id" text [not null]
+  "lease_status" text
+  "lease_sub_status" text
+  "lease_occupancy_type" text
+  "lease_term_name" text
+  "lease_term_month" int4
+  "space_option" text
+  "leasing_agent" text
+  "ledger_name" text
+  "lease_start_date" date
+  "lease_end_date" date
+  "lease_started_on_date" date
+  "lease_partially_completed_on_date" date
+  "lease_completed_on_date" date
+  "lease_approved_on_date" date
+  "move_in_date" date
+  "deposit_charged" numeric [not null]
+  "deposit_held" numeric [not null]
+  "market_rent" numeric [not null]
+  "budgeted_rent" numeric [not null]
+  "scheduled_rent" numeric [not null]
+  "advertised_rate" numeric [not null]
+  "actual_charges" numeric [not null]
+  "scheduled_rent_total" numeric [not null]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (report_date, property_id, bldg_unit, unit_type, lease_id, charge_code) [type: btree, name: "report_pre_lease_details_by_property_pkey"]
+  }
+}
+
+Table "entrata"."report_pre_lease_summary_by_property" {
+  "report_date" date [not null]
+  "property_id" int4 [not null]
+  "property_name" text [not null]
+  "total_unit_count" int4 [not null]
+  "excluded_unit_count" int4 [not null]
+  "rentable_unit_count" int4 [not null]
+  "occupied_unit_count" int4 [not null]
+  "available_unit_count" int4 [not null]
+  "total_scheduled_rent" numeric [not null]
+  "avg_sqft" numeric [not null]
+  "avg_advertised_rate" numeric [not null]
+  "avg_scheduled_rent" numeric [not null]
+  "started_new_count_prior" int4 [not null]
+  "started_new_count" int4 [not null]
+  "started_renewal_count_prior" int4 [not null]
+  "started_renewal_count" int4 [not null]
+  "started_count_prior" int4 [not null]
+  "started_count" int4 [not null]
+  "started_percent" numeric [not null]
+  "partially_completed_new_count_prior" int4 [not null]
+  "partially_completed_new_count" int4 [not null]
+  "partially_completed_renewal_count_prior" int4 [not null]
+  "partially_completed_renewal_count" int4 [not null]
+  "partially_completed_count_prior" int4 [not null]
+  "partially_completed_count" int4 [not null]
+  "partially_completed_percent" numeric [not null]
+  "completed_new_count_prior" int4 [not null]
+  "completed_new_count" int4 [not null]
+  "completed_renewal_count_prior" int4 [not null]
+  "completed_renewal_count" int4 [not null]
+  "completed_count_prior" int4 [not null]
+  "completed_count" int4 [not null]
+  "completed_percent" numeric [not null]
+  "approved_new_count_prior" int4 [not null]
+  "approved_new_count" int4 [not null]
+  "approved_renewal_count_prior" int4 [not null]
+  "approved_renewal_count" int4 [not null]
+  "approved_count_prior" int4 [not null]
+  "approved_count" int4 [not null]
+  "approved_percent" numeric [not null]
+  "preleased_new_count_prior" int4 [not null]
+  "preleased_new_count" int4 [not null]
+  "preleased_renewal_count_prior" int4 [not null]
+  "preleased_renewal_count" int4 [not null]
+  "preleased_count_prior" int4 [not null]
+  "preleased_count" int4 [not null]
+  "preleased_percent_prior" numeric [not null]
+  "preleased_percent" numeric [not null]
+  "yoy_variance" int4 [not null]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (report_date, property_id) [type: btree, name: "report_pre_lease_summary_by_property_pkey"]
+    report_date [type: btree, name: "idx_report_pre_lease_summary_by_property_report_date"]
+  }
+}
+
+Table "entrata"."pre_lease_report_details" {
+  "report_date" date
+  "property_id" float8
+  "property_name" text
+  "bldg_unit" text
+  "unit_type" text
+  "unit_status" text
+  "floorplan_name" text
+  "sqft" float8
+  "resident_name" text
+  "resident_id" float8
+  "resident_email" text
+  "resident_phone" text
+  "resident_gender" text
+  "lease_id" text
+  "lease_status" text
+  "lease_sub_status" text
+  "lease_occupancy_type" text
+  "lease_term_name" text
+  "lease_term_month" float8
+  "space_option_preferred" text
+  "space_option" text
+  "lease_start_date" date
+  "lease_end_date" date
+  "lease_started_on_date" date
+  "lease_partially_completed_on_date" date
+  "lease_completed_on_date" date
+  "lease_approved_on_date" date
+  "move_in_date" date
+  "leasing_agent" text
+  "deposit_charged" float8
+  "deposit_held" float8
+  "market_rent" float8
+  "budgeted_rent" float8
+  "advertised_rate" float8
+  "scheduled_rent" float8
+  "actual_charges" float8
+  "scheduled_rent_total" float8
+}
+
+Table "entrata"."report_lease_execution_applicant" {
+  "report_date" date [not null, default: `CURRENT_DATE`]
+  "property_id" int4 [not null]
+  "weekly_new" int4
+  "weekly_renewal" int4
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (report_date, property_id) [type: btree, name: "report_lease_execution_applicant_pkey"]
+  }
+}
+
+Table "entrata"."report_executions" {
+  "execution_id" uuid [pk, not null, default: `gen_random_uuid()`]
+  "request_id" text [not null]
+  "report_name" text [not null]
+  "report_date" date [not null, default: `CURRENT_DATE`]
+  "report_version" text [not null]
+  "queue_id" text [not null]
+  "queue_start_time" timestamptz
+  "queue_end_time" timestamptz
+  "queue_duration" int4
+  "report_filter_params" jsonb
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "created_by" uuid
+}
+
+Enum "mkt_old"."comp_status_enum" {
+  "Subject Property"
+  "Tier 1"
+  "Tier 2"
+}
+
+Enum "mkt_old"."product_type_enum" {
+  "High-Rise"
+  "Mid-Rise"
+  "Wrap"
+  "Garden"
+  "Cottage"
+  "SFR"
+}
+
+Enum "mkt_old"."property_rating_enum" {
+  "1"
+  "2"
+  "3"
+  "4"
+  "5"
+}
+
+Enum "mkt_old"."property_status_enum" {
+  "New Construction"
+  "Operational"
+  "Undergoing Renovation"
+}
+
+Enum "mkt_old"."property_type_enum" {
+  "Student"
+  "Conventional"
+  "Affordable"
+  "Innovative"
+}
+
+Table "mkt_old"."properties" {
+  "property_id" int4 [pk, not null, increment]
+  "property_name" varchar(255) [not null]
+  "website" varchar(255)
+  "address" varchar(255)
+  "city" varchar(100)
+  "state" varchar(50)
+  "zip_code" varchar(20)
+  "phone_number" varchar(20)
+  "developer" varchar(255)
+  "manager" varchar(255)
+  "owner" varchar(255)
+  "property_type" mkt_old.property_type_enum [not null]
+  "property_status" mkt_old.property_status_enum [not null]
+  "product_type" mkt_old.product_type_enum [not null]
+  "property_rating" mkt_old.property_rating_enum [not null]
+  "comp_status" mkt_old.comp_status_enum [not null]
+  "year_built" int4
+  "year_renovated" int4
+  "most_recent_sale" date
+  "distance_from_campus" numeric(10,2)
+  "created_at" timestamp [default: `now()`]
+  "updated_at" timestamp [default: `now()`]
+  Note: 'args: g1 - Returns the SQL-MM type of a geometry as text.'
+}
+
+Table "mkt_old"."amenities" {
+  "amenity_id" int4 [pk, not null, increment]
+  "property_id" int4
+  "amenity_name" varchar(255)
+  "is_included" bool [default: false]
+  "rentable_rate" numeric(10,2)
+  "created_at" timestamp [default: `now()`]
+}
+
+Table "mkt_old"."utilities" {
+  "utility_id" int4 [pk, not null, increment]
+  "property_id" int4
+  "utility_name" varchar(255)
+  "is_included" bool [default: false]
+  "cost" numeric(10,2)
+  "cost_frequency" varchar(50)
+  "created_at" timestamp [default: `now()`]
+}
+
+Table "mkt_old"."floorplans" {
+  "floorplan_id" int4 [pk, not null, increment]
+  "property_id" int4
+  "floorplan_type" varchar(50)
+  "description" varchar(255)
+  "bed_count" int4
+  "bath_count" numeric(3,1)
+  "square_footage" int4
+  "market_rent" numeric(10,2)
+  "effective_rent" numeric(10,2)
+  "bundled_rent" numeric(10,2)
+  "concessions" text
+  "availability" bool [default: true]
+  "created_at" timestamp [default: `now()`]
+  "updated_at" timestamp [default: `now()`]
+  Note: 'args: g - Tests if a geometry is well-formed in 2D.'
+}
+
+Table "mkt_old"."leasing_summary" {
+  "summary_id" int4 [pk, not null, increment]
+  "property_id" int4
+  "reporting_cycle" varchar(50)
+  "lease_launch_date" date
+  "renewal_launch_date" date
+  "current_occupancy" numeric(5,2)
+  "last_year_occupancy" numeric(5,2)
+  "current_pre_lease" numeric(5,2)
+  "last_year_pre_lease" numeric(5,2)
+  "total_renewals" int4
+  "total_new_leases" int4
+  "total_weekly_leases" int4
+  "weekly_traffic" int4
+  "current_incentive" varchar(255)
+  "incentive_amount" numeric(10,2)
+  "data_last_updated" date
+  "created_at" timestamp [default: `now()`]
+  "updated_at" timestamp [default: `now()`]
+  Note: 'args: line, distance_forward, distance_backward=0.0 - Returns a line with the last and first segments extended the specified distance(s).'
+}
+
+Table "mkt_old"."short_term_leases" {
+  "lease_id" int4 [pk, not null, increment]
+  "property_id" int4
+  "term_length" int4
+  "available" bool [default: false]
+  "premium" numeric(10,2)
+  "quantity" int4
+  "created_at" timestamp [default: `now()`]
+  "updated_at" timestamp [default: `now()`]
+  Note: 'args: a_linestring, a_point - Returns the fractional location of the closest point on a line to a point.'
+}
+
+Table "mkt_old"."notes" {
+  "note_id" int4 [pk, not null, increment]
+  "property_id" int4
+  "note_type" varchar(50)
+  "note_text" text
+  "created_at" timestamp [default: `now()`]
+  "updated_at" timestamp [default: `now()`]
+  Note: 'args: pointLowLeft, pointUpRight - Creates a BOX2D defined by two 2D point geometries.'
+}
+
+Table "mkt_old"."rent_summaries" {
+  "summary_id" int4 [pk, not null, increment]
+  "property_id" int4
+  "unit_type" varchar(50)
+  "unit_count" int4
+  "average_market_rent" numeric(10,2)
+  "average_effective_rent" numeric(10,2)
+  "average_bundled_rent" numeric(10,2)
+  "created_at" timestamp [default: `now()`]
+  "updated_at" timestamp [default: `now()`]
+  Note: 'args: geom - Returns the center point and radius of the smallest circle that contains a geometry.'
+}
+
+Table "mkt_old"."property_images" {
+  "image_id" int4 [pk, not null, increment]
+  "property_id" int4
+  "image_url" varchar(255)
+  "created_at" timestamp [default: `now()`]
+}
+
+Table "auth"."accounts" {
+  "account_id" uuid [pk, not null, default: `gen_random_uuid()`]
+  "tenant_id" uuid
+  "email" text [unique, not null]
+  "auth_key" text
+  "hashed_auth_key" text
+  "created_at" timestamptz [not null, default: `now()`]
+  "modified_at" timestamptz [not null, default: `now()`]
+  Note: 'args: g - Returns a text summary of the contents of a geometry.'
+}
+
+Table "auth"."roles" {
+  "role_id" uuid [pk, not null, default: `gen_random_uuid()`]
+  "tenant_id" uuid
+  "role_name" text [not null]
+  "description" text
+  "created_at" timestamptz [not null, default: `now()`]
+  "modified_at" timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (tenant_id, role_name) [type: btree, name: "roles_tenant_id_role_name_key"]
+  }
+}
+
+Table "auth"."user_roles" {
+  "user_role_id" uuid [pk, not null, default: `gen_random_uuid()`]
+  "tenant_id" uuid
+  "user_id" uuid
+  "role_id" uuid
+  "created_at" timestamptz [not null, default: `now()`]
+  Note: 'args: geomfield - Aggregate function which unions geometries in a memory-efficent but slower way'
+}
+
+Table "auth"."sessions" {
+  "session_id" uuid [pk, not null, default: `gen_random_uuid()`]
+  "tenant_id" uuid
+  "user_id" uuid
+  "hashed_cookie" text
+  "is_active" bool [not null, default: true]
+  "created_at" timestamptz [not null, default: `now()`]
+  "modified_at" timestamptz [not null, default: `now()`]
+}
+
+Table "auth"."apps" {
+  "app_id" uuid [pk, not null, default: `gen_random_uuid()`]
+  "account_id" uuid
+  "app_name" text [not null]
+  "app_url" text
+  "created_at" timestamptz [not null, default: `now()`]
+  "modified_at" timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (account_id, app_name) [type: btree, name: "apps_account_id_app_name_key"]
+  }
+}
+
+Table "auth"."app_users" {
+  "app_user_id" uuid [pk, not null, default: `gen_random_uuid()`]
+  "account_id" uuid
+  "app_id" uuid
+  "user_id" uuid
+  "is_admin" bool [not null, default: false]
+  "is_invite_accepted" bool [not null, default: false]
+  "created_at" timestamptz [not null, default: `now()`]
+  "modified_at" timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (account_id, app_id, user_id) [type: btree, name: "app_users_account_id_app_id_user_id_key"]
+  }
+}
+
+Table "auth"."subscriptions" {
+  "subscription_id" uuid [pk, not null, default: `gen_random_uuid()`]
+  "account_id" uuid
+  "app_id" uuid
+  "user_id" uuid
+  "stripe_customer_id" text
+  "stripe_subscription_id" text
+  "free_trial_days_remaining_at_cancel" float4
+  "stripe_is_live" bool
+  "created_at" timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (account_id, app_id, stripe_is_live) [type: btree, name: "subscriptions_account_id_app_id_stripe_is_live_key"]
+  }
+}
+
+Table "auth"."logs" {
+  "log_id" uuid [pk, not null, default: `gen_random_uuid()`]
+  "tenant_id" uuid
+  "user_id" uuid
+  "session_id" uuid
+  "action" text [not null]
+  "details" jsonb
+  "created_at" timestamptz [not null, default: `now()`]
+}
+
+Table "auth"."users" {
+  "user_id" int4 [pk, not null, increment]
+  "email" text [unique, not null]
+  "hashed_password" text [unique, not null]
+  "created_at" timestamp [not null, default: `now()`]
+}
+
+Table "auth"."tenants" {
+  "tenant_id" int4 [pk, not null, increment]
+  "tenant_name" text [not null]
+  "tenant_domain" text [not null]
+  "created_by" int4 [not null]
+  "created_at" timestamp [not null, default: `now()`]
+}
+
+Table "auth"."tenant_domains" {
+  "domain_id" int4 [pk, not null, increment]
+  "tenant_id" int4
+  "tenant_domain" text [not null]
+  "created_by" int4
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "gmh"."portfolio_types" {
+  "portfolio_type_id" int4 [pk, not null, increment, note: 'Unique Identifier for the portfolio type.']
+  "portfolio_type" varchar(255) [not null, note: 'Name of the portfolio type.']
+  "created_at" timestamp [default: `now()`, note: 'Timestamp this record was created.']
+  "updated_at" timestamp [default: `now()`, note: 'Timestamp this record was last updated.']
+  Note: 'args: geomA - Returns the 2D perimeter of a polygonal geometry. Alias for ST_Perimeter.'
+}
+
+Table "gmh"."excel_reports" {
+  "report_id" int4 [pk, not null, increment]
+  "report_name" text [not null]
+  "report_file_name" text [not null]
+  "report_data" bytea [not null]
+  "report_version" int4 [default: 1]
+  "created_at" timestamp [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "gmh"."investment_partners" {
+  "partner_id" int4 [pk, not null, increment]
+  "partner_name" text [not null]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "gmh"."investment_partner_assignments" {
+  "gmh_property_id" int4 [not null]
+  "entrata_property_id" int4
+  "partner_id" int4 [not null]
+  "partner_name" text
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (gmh_property_id, partner_id) [type: btree, name: "investment_partner_assignments_pkey"]
+  }
+}
+
+Table "gmh"."pre_lease_summary" {
+  "report_date" date
+  "property_id" int4
+  "property_name" text
+  "investment_partner" text
+  "total_beds" int4
+  "model_beds" int4
+  "current_occupied" int4
+  "current_occupancy" float8
+  "current_total_new" int4
+  "current_total_renewals" int4
+  "current_total_leases" int4
+  "current_preleased_percent" float8
+  "prior_total_new" int4
+  "prior_total_renewals" int4
+  "prior_total_leases" int4
+  "prior_preleased_percent" float8
+  "yoy_variance_count" int4
+  "yoy_variance_percent" float8
+  "weekly_new" int4
+  "weekly_renewal" int4
+  "weekly_total" int4
+  "weekly_percent_gained" float8
+  "beds_left" int4
+  "vel_90" float8
+  "vel_95" float8
+  "vel_100" float8
+}
+
+Table "gmh"."locations" {
+  "location_id" int4 [pk, not null, increment, note: 'Unique identifier for the location.']
+  "location_name" text [not null, note: 'Name of the location.']
+  "address" text [not null, note: 'Street address of the location.']
+  "city" text [not null, note: 'City of the location.']
+  "state" text [not null, note: 'State of the location.']
+  "postal_code" text [not null, note: 'Postal code of the location.']
+  "country" text [not null, default: 'USA', note: 'Country of the location.']
+  "latitude" numeric(9,6) [note: 'Latitude of the location.']
+  "longitude" numeric(9,6) [note: 'Longitude of the location.']
+  "geom" public.geometry [note: 'PostGIS geometry point for the location.']
+  "phone_number" text [note: 'Phone number of the location.']
+  "email" text [note: 'Email address of the location.']
+  "website" text [note: 'Website URL of the location.']
+  "image_url" text [note: 'Image URL of the location.']
+  "rating" numeric(2,1) [note: 'Rating of the location.']
+  "gmaps_url" text [note: 'Google Maps URL of the location.']
+  "gmaps_place_id" text [note: 'Google Maps Place ID of the location.']
+  "gmaps_rating" numeric(2,1) [note: 'Google Maps rating of the location.']
+  "gmaps_reviews_count" int4 [note: 'Google Maps reviews count of the location.']
+  "map_layer" text [note: 'Map layer of the location.']
+  "map_marker_icon" text [note: 'Map marker icon of the location.']
+  "map_marker_color" text [note: 'Map marker color of the location.']
+  "map_popup_html" text [note: 'Map popup HTML of the location.']
+  "is_active" bool [not null, default: true, note: 'Is the location active?']
+  "created_at" timestamptz [not null, default: `now()`, note: 'Timestamp when the location was created.']
+  "updated_at" timestamptz [not null, default: `now()`, note: 'Timestamp when the location was last updated.']
+  Note: 'Locations consolidated into a central table for all address/coordinate data.'
+}
+
+Table "gmh"."universities" {
+  "university_id" int4 [pk, not null, increment, note: 'Unique identifier for the university.']
+  "university_name" text [not null, note: 'Name of the university.']
+  "university_address" text [not null, note: 'Address of the university.']
+  "university_url" text [note: 'URL for the university.']
+  "property_id" int4 [not null, note: 'Property ID for the university.']
+  "location_id" int4 [note: 'Location ID for the university.']
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the university was created.']
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the university was last updated.']
+  Note: 'Universities represent local colleges or universities.'
+}
+
+Table "gmh"."segments" {
+  "segment_id" int4 [pk, not null, increment, note: 'Unique identifier for the segment.']
+  "segment_name" text [unique, not null, note: 'Name of the segment.']
+  "segment_description" text [note: 'Description of the segment.']
+  "segment_url" text [note: 'URL for the segment.']
+  "segment_logo_url" text [note: 'Logo URL for the segment.']
+  "segment_banner_url" text [note: 'Banner URL for the segment.']
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the segment was created.']
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the segment was last updated.']
+  Note: 'Segments represent high-level GMH business units or divisions.'
+}
+
+Table "gmh"."partners" {
+  "partner_id" int4 [pk, not null, increment, note: 'Unique identifier for the partner.']
+  "partner_name" text [not null, note: 'Name of the partner.']
+  "partner_type" text [not null, default: 'Equity Partner', note: 'Type of partner (Equity Partner or Owner).']
+  "partner_description" text [default: 'No Description', note: 'Description of the partner.']
+  "partner_website" text [note: 'URL for the partner.']
+  "tenant_id" uuid [note: 'Tenant ID for the partner.']
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the partner was created.']
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the partner was last updated.']
+  Note: 'Partners represent external (or internal) investment or ownership entities.'
+}
+
+Table "gmh"."portfolios" {
+  "portfolio_id" int4 [pk, not null, increment, note: 'Unique identifier for the portfolio.']
+  "portfolio_name" text [unique, not null, note: 'Name of the portfolio.']
+  "portfolio_full_name" text
+  "portfolio_type" text [not null, default: 'Equity Partner', note: 'Type of portfolio (Equity Partner or Owner).']
+  "portfolio_description" text [default: 'No Description', note: 'Description of the portfolio.']
+  "portfolio_status" text [default: 'Active', note: 'Status of the portfolio.']
+  "portfolio_website" text [note: 'URL for the portfolio.']
+  "portfolio_logo_url" text [note: 'Logo URL for the portfolio.']
+  "portfolio_icon_url" text [note: 'Icon URL for the portfolio.']
+  "partner_id" int4 [not null, note: 'Partner ID for the portfolio.']
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the portfolio was created.']
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the portfolio was last updated.']
+  Note: 'Portfolios represent a collection of properties owned or managed by a partner.'
+}
+
+Table "gmh"."properties" {
+  "property_id" int4 [pk, not null, note: 'Unique identifier for the property.']
+  "property_name" text [not null, note: 'Name of the property.']
+  "parent_property_id" int4 [note: 'Reference to the parent property, if applicable.']
+  "property_type" text [not null, default: 'Apartment', note: 'Type of property (e.g. Apartment, Condo, etc.).']
+  "property_status" text [not null, default: 'Active', note: 'Status of the property (e.g. Active, Inactive, etc.).']
+  "property_website" text [note: 'Website for the property.']
+  "property_email" text [note: 'Email address for the property.']
+  "property_phone_number" text [note: 'Phone number for the property.']
+  "property_address" text [note: 'Address for the property.']
+  "property_description" text [note: 'Description of the property.']
+  "portfolio_id" int4 [not null, note: 'Reference to the portfolio that the property belongs to.']
+  "partner_id" int4 [not null, note: 'Reference to the partner that the property belongs to.']
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the property was created.']
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the property was last updated.']
+  Note: 'Properties represent individual apartment communities.'
+}
+
+Table "gmh"."competitors" {
+  "competitor_id" int4 [pk, not null, increment, note: 'Unique identifier for the competitor.']
+  "competitor_name" text [not null, note: 'Name of the competitor.']
+  "competitor_website" text [note: 'Website for the competitor.']
+  "competitor_address" text [note: 'Address for the competitor.']
+  "competitor_image_url" text [note: 'URL for an image of the competitor.']
+  "property_id" int4 [not null, note: 'The property that the competitor is associated with.']
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the competitor was created.']
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the competitor was last updated.']
+  Note: 'Competitors represent other apartment communities in the area.'
+}
+
+Table "gmh"."model_beds" {
+  "property_id" int4 [pk, not null, note: 'Property ID for the model beds.']
+  "model_bed_count" int4 [default: 0, note: 'Number of model beds for the property.']
+  "notes" text [default: '', note: 'Notes for the model beds.']
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the model beds were last updated.']
+  Note: 'Model beds represent the number of beds representing models for each property.'
+}
+
+Table "gmh"."leasing_calendar" {
+  "date_key" date [pk, not null, note: 'Date Key']
+  "calendar_year" int4 [not null, note: 'Calendar Year']
+  "leasing_year" int4 [not null, note: 'Leasing Year']
+  "pre_lease_year" int4 [not null, note: 'Pre-Lease Year']
+  "fiscal_year" int4 [not null, note: 'Fiscal Year']
+  "academic_year" text [not null, note: 'Academic Year']
+  "calendar_week_number" int4 [not null, note: 'Calendar Week Number']
+  "leasing_season_start_date" date [not null, note: 'Leasing Season Start Date']
+  "leasing_season_end_date" date [not null, note: 'Leasing Season End Date']
+  "pre_lease_season_start_date" date [not null, note: 'Pre-Lease Season Start Date']
+  "leasing_week_start_date" date [not null, note: 'Leasing Week Start Date']
+  "leasing_week_end_date" date [not null, note: 'Leasing Week End Date']
+  "weekly_period_start_date" date [not null, note: 'Weekly Period Start Date']
+  "weekly_period_end_date" date [not null, note: 'Weekly Period End Date']
+  "leasing_week_number" int4 [not null, note: 'Leasing Week Number']
+  "leasing_weeks_left_to_lease" int4 [not null, note: 'Leasing Weeks Left to Lease']
+  "entrata_formatted_date" text [not null, note: 'Entrata Formatted Date']
+  "http_date" text [not null, note: 'HTTP Date']
+  "utc_date" text [not null, note: 'UTC Date']
+  "is_current_leasing_season" bool [not null, note: 'Is Current Leasing Season']
+  "is_weekend" bool [not null, note: 'Is Weekend']
+  "is_holiday" bool [not null, note: 'Is Holiday']
+  "day_of_week" text [not null, note: 'Day of Week']
+  "day_of_month" int4 [not null, note: 'Day of Month']
+  "day_of_year" numeric [not null, note: 'Day of Year']
+  "month_of_year" text [not null, note: 'Month of Year']
+  "quarter_of_year" int4 [not null, note: 'Quarter of Year']
+
+  Indexes {
+    date_key [type: btree, name: "idx_leasing_calendar_date_key"]
+    leasing_season_end_date [type: btree, name: "idx_leasing_calendar_leasing_season_end_date"]
+    leasing_season_start_date [type: btree, name: "idx_leasing_calendar_leasing_season_start_date"]
+    leasing_week_end_date [type: btree, name: "idx_leasing_calendar_leasing_week_end_date"]
+    leasing_week_start_date [type: btree, name: "idx_leasing_calendar_leasing_week_start_date"]
+    pre_lease_season_start_date [type: btree, name: "idx_leasing_calendar_pre_lease_season_start_date"]
+    weekly_period_end_date [type: btree, name: "idx_leasing_calendar_weekly_period_end_date"]
+    weekly_period_start_date [type: btree, name: "idx_leasing_calendar_weekly_period_start_date"]
+  }
+  Note: 'Leasing Calendar'
+}
+
+Table "gmh"."images" {
+  "image_id" int4 [pk, not null, increment, note: 'Unique identifier for the image']
+  "entity_type" text [not null, note: 'Type of entity the image is associated with']
+  "entity_id" int4 [not null, note: 'Identifier for the entity the image is associated with']
+  "image_type" text [not null, note: 'Type of image (e.g., logo, banner)']
+  "image_url" text [not null, note: 'URL of the image']
+  "image_description" text [note: 'Description of the image']
+  "image_content_type" text [note: 'Content type of the image']
+  "image_color" text [note: 'Color of the image']
+  "image_size" text [note: 'Size of the image']
+  "gcs_bucket" text [note: 'Google Cloud Storage bucket name']
+  "gcs_path" text [note: 'Google Cloud Storage path']
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the image was created']
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`, note: 'Timestamp when the image was last updated']
+
+  Indexes {
+    (entity_type, entity_id, image_type, image_content_type, image_color) [type: btree, name: "images_entity_type_entity_id_image_type_image_content_type__key"]
+  }
+  Note: 'Images: Stores images for various entities'
+}
+
+Table "logs"."audit_logs" {
+  "audit_log_id" int4 [pk, not null, increment]
+  "schema_name" text [not null]
+  "table_name" text [not null]
+  "operation" text [not null]
+  "old_data" jsonb
+  "new_data" jsonb
+  "user_id" int4
+  "created_at" timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "logs"."entrata_logs" {
+  "entrata_log_id" int4 [pk, not null, increment]
+  "request_id" text
+  "endpoint" text
+  "operation" text
+  "status_code" int4 [default: 200]
+  "request_body" jsonb
+  "response_body" jsonb
+  "user_id" int4
+  "created_at" timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "mkt"."survey_sections" {
+  "section_id" uuid [pk, not null, default: `gen_random_uuid()`]
+  "survey_id" uuid
+  "name" text [not null]
+  "is_required" bool [not null, default: true]
+  "status" text [not null]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "mkt"."survey_responses" {
+  "response_id" uuid [pk, not null, default: `gen_random_uuid()`]
+  "section_id" uuid
+  "field_name" text [not null]
+  "field_value" text
+  "previous_value" text
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "mkt"."properties" {
+  "property_id" text [pk, not null]
+  "entrata_property_id" text
+  "property_name" text [unique, not null]
+  "is_competitor" bool [not null]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "mkt"."competitors" {
+  "competitor_id" text [pk, not null]
+  "associated_property_id" text [not null]
+}
+
+Table "mkt"."property_summary" {
+  "property_id" text [pk, not null]
+  "property_name" text
+  "website" text
+  "address" text
+  "phone_number" text
+  "property_image" text
+  "developer" text
+  "manager" text
+  "owner" text
+  "property_type" text
+  "property_status" text
+  "product_type" text
+  "property_rating" numeric
+  "comp_status" text
+  "year_built" int4
+  "most_recent_sale" date
+  "distance_from_campus" numeric
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "mkt"."leasing_weeks" {
+  "leasing_week_id" int4 [pk, not null, increment]
+  "start_date" date [not null]
+  "end_date" date
+  "week_number" int4
+  "year" int4
+  "quarter" int4
+  "fiscal_week" int4
+  "is_current" bool [default: false]
+}
+
+Table "mkt"."property_competitors" {
+  "property_id" text [not null]
+  "competitor_id" text [not null]
+
+  Indexes {
+    (property_id, competitor_id) [type: btree, name: "property_competitors_pkey"]
+  }
+}
+
+Table "mkt"."survey_submissions" {
+  "submission_id" int4 [pk, not null, increment]
+  "property_id" text
+  "submitted_by" int4
+  "submission_date" date
+  "leasing_week_id" int4
+}
+
+Table "mkt"."property_unit_amenities" {
+  "amenity_id" int4 [pk, not null, increment]
+  "property_id" text
+  "unit_levels" int4 [default: 1]
+  "tv_renatable_rate" numeric(10,2)
+  "floor_premium" numeric(10,2)
+  "poolside_premium" numeric(10,2)
+  "top_floor_premium" numeric(10,2)
+  "view_premium" numeric(10,2)
+  "furniture_rentable_rate" numeric(10,2)
+  "other_premiums" numeric(10,2)
+  "created_at" timestamp [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "mkt"."property_amenity_availability" {
+  "amenity_id" int4 [pk, not null, increment]
+  "property_id" text
+  "amenity" text
+  "availabile" bool [default: true]
+  "created_at" timestamp [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "mkt"."property_unit_amenity_availability" {
+  "amenity_id" int4 [pk, not null, increment]
+  "property_id" text
+  "amenity" text
+  "availabile" bool [default: true]
+  "created_at" timestamp [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "mkt"."short_term_leases" {
+  "property_id" text
+  "lease_term_months" int4
+  "is_available" bool [default: false]
+  "premium" numeric(10,2) [default: 0.00]
+  "quantity" int4 [default: 0]
+  "created_at" timestamp [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [default: `CURRENT_TIMESTAMP`]
+  "leasing_week" date [pk, not null]
+  "five_month_available" bool [not null, default: false]
+  "five_month_premium" numeric
+  "five_month_quantity" int4
+  "ten_month_available" bool [not null, default: false]
+  "ten_month_premium" numeric
+  "ten_month_quantity" int4
+}
+
+Table "mkt"."utilities" {
+  "utility_id" int4 [pk, not null, increment]
+  "property_id" text [not null]
+  "utility_name" text [not null]
+  "utility_amount" numeric(10,2) [not null, default: 0.00]
+  "utility_category" text [not null]
+  "per" text [default: 'Per Unit']
+  "included" bool [default: false]
+  "capped" bool [default: false]
+  "allowance" bool [default: false]
+  "created_at" timestamp [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "mkt"."property_floorplans" {
+  "floor_plan_id" int4 [pk, not null, increment]
+  "property_id" text [not null]
+  "floorplan_unit_type" text [not null]
+  "floorplan_code" text [not null]
+  "floorplan_description" text
+  "square_footage" int4
+  "bedrooms" int4
+  "bathrooms" int4
+  "created_at" timestamp [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "mkt"."fee_structures" {
+  "fee_structure_id" int4 [pk, not null, increment]
+  "property_id" text [not null]
+  "fee_structure" text [not null, default: 'Both Fees Waived']
+  "created_at" timestamp [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "mkt"."notes" {
+  "note_id" int4 [pk, not null, increment]
+  "property_id" text [not null]
+  "leasing_special_notes" text [not null]
+  "property_operations_notes" text [not null]
+  "other_notes" text [not null]
+  "created_at" timestamp [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "mkt"."property_office_hours" {
+  "office_hours_id" int4 [pk, not null, increment]
+  "property_id" text [not null]
+  "day_of_week" text [not null]
+  "open_time" time [not null]
+  "close_time" time [not null]
+  "created_at" timestamp [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "mkt"."property_floorplan_availability" {
+  "availability_id" int4 [pk, not null, increment]
+  "floor_plan_id" int4 [not null]
+  "property_id" text [not null]
+  "available" bool [not null, default: true]
+  "created_at" timestamp [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "mkt"."market_rent_by_floorplan" {
+  "property_id" text [not null]
+  "floor_plan_id" int4 [not null]
+  "leasing_week_id" int4 [not null]
+  "market_rent_per_bed" numeric(10,2) [not null]
+  "created_at" timestamp [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "mkt"."property_parking" {
+  "parking_id" int4 [pk, not null, increment]
+  "property_id" text [not null]
+  "parking_type" text [not null]
+  "is_required" bool [default: false]
+  "is_included" bool [default: false]
+  "amount" numeric(10,2) [not null]
+  "created_at" timestamp [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "mkt"."property_locations" {
+  "location_id" int4 [pk, not null, increment]
+  "property_id" text
+  "address" text [not null]
+  "lat" float8 [not null]
+  "lon" float8 [not null]
+  "coordinates" public.geography [not null]
+  "gmaps_url" text
+  "gmaps_place_id" text
+  "property_image" text
+  "popup" text
+  "map_marker_icon" text [not null]
+  "map_marker_color" text [not null]
+}
+
+Table "mkt"."responses" {
+  "response_id" int4 [pk, not null, increment]
+  "section_id" int4
+  "user_id" int4
+  "field_name" text [not null]
+  "field_value" text
+  "prior_value" text
+  "hint_value" text
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "mkt"."history" {
+  "history_id" int4 [pk, not null, increment]
+  "response_id" int4
+  "field_name" text [not null]
+  "prior_value" text
+  "new_value" text
+  "changed_by" int4
+  "changed_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "mkt"."sections" {
+  "section_id" int4 [pk, not null, increment]
+  "section_name" text [not null]
+  "section_description" text
+}
+
+Table "mkt"."locations" {
+  "location_id" int4 [pk, not null, increment]
+  "property_id" text
+  "property_name" text [not null]
+  "is_competitor" bool [not null]
+  "address" text [not null]
+  "city" text
+  "state" text
+  "postal_code" text
+  "country" text [not null, default: 'USA']
+  "region" text
+  "phone_number" text
+  "email" text
+  "property_image" text
+  "latitude" numeric(9,6) [not null]
+  "longitude" numeric(9,6) [not null]
+  "location_geometry" public.geography
+  "gmaps_address" text
+  "gmaps_name" text
+  "gmaps_place_id" text
+  "gmaps_rating" numeric(2,1)
+  "gmaps_num_of_reviews" int4
+  "gmaps_place_types" text
+  "gmaps_icon" text
+  "gmaps_website" text
+  "gmaps_url" text
+  "map_layer" text
+  "map_marker_icon" text
+  "map_marker_icon_color" text [default: 'white']
+  "map_marker_color" text
+  "map_popup_html" text
+  "created_at" timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    location_geometry [type: gist, name: "idx_locations_geog"]
+    property_id [type: btree, name: "idx_locations_property_id"]
+  }
+}
+
+Table "mkt"."rents_by_floorplan" {
+  "property_id" text
+  "leasing_week_id" float8
+  "property_name" text
+  "leasing_week_start" date
+  "floorplan_type" text
+  "floorplan_description" text
+  "total_beds" float8
+  "sf_per_bed" float8
+  "number_of_beds" float8
+  "number_of_baths" float8
+  "available" bool
+  "market_rent_per_bed" float8
+  "market_rent_per_sf" float8
+  "concessions_gift_card" float8
+  "concessions_one_time_rent" float8
+  "concessions_monthly_rent" float8
+  "effective_rent_per_bed" float8
+  "effective_rent_per_sf" float8
+  "additional_monthly_expenses_furniture" float8
+  "additional_monthly_expenses_tv" float8
+  "additional_monthly_expenses_electricity_gas" float8
+  "additional_monthly_expenses_water" float8
+  "additional_monthly_expenses_cable_internet" float8
+  "additional_monthly_expenses_trash" float8
+  "additional_monthly_expenses_parking" float8
+  "additional_monthly_expenses_total" float8
+  "bundled_rent_per_bed" float8
+  "bundled_rent_per_sf" float8
+}
+
+Table "mkt"."avg_rents_by_unit_type" {
+  "property_id" text
+  "leasing_week_id" float8
+  "property_name" text
+  "leasing_week_start" date
+  "floorplan_type" text
+  "property_floorplan_total_beds" float8
+  "property_floorplan_sf_per_bed" float8
+  "available" bool
+  "property_floorplan_market_rent_per_bed" float8
+  "property_floorplan_market_rent_per_sf" float8
+  "concessions_gift_card" float8
+  "concessions_one_time_rent" float8
+  "concessions_monthly_rent" float8
+  "property_floorplan_effective_rent_per_bed" float8
+  "property_floorplan_effective_rent_per_sf" float8
+  "additional_monthly_expenses_furniture" float8
+  "additional_monthly_expenses_tv" float8
+  "additional_monthly_expenses_electricity_gas" float8
+  "additional_monthly_expenses_water" float8
+  "additional_monthly_expenses_cable_internet" float8
+  "additional_monthly_expenses_trash" float8
+  "additional_monthly_expenses_parking" float8
+  "additional_monthly_expenses_total" float8
+  "property_floorplan_bundled_rent_per_bed" float8
+  "property_floorplan_bundled_rent_per_sf" float8
+}
+
+Table "mkt"."office_hours" {
+  "property_id" text
+  "property_name" text
+  "day_of_week" text
+  "hours" text
+}
+
+Table "mkt"."universities" {
+  "university_id" int4 [pk, not null, increment]
+  "associated_property_id" text
+  "university_name" text [not null]
+  "university_address" text [not null]
+  "university_website" text
+  "university_logo" text
+  "university_distance_to_property" int4
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "mkt"."university_locations" {
+  "location_id" int4 [pk, not null, increment]
+  "university_id" int4
+  "address" text [not null]
+  "latitude" numeric(9,6) [not null]
+  "longitude" numeric(9,6) [not null]
+  "coordinates" public.geography [not null]
+  "gmaps_url" text
+  "gmaps_place_id" text
+  "image" text
+  "popup" text
+}
+
+Table "mkt"."leasing_summary" {
+  "property_id" text [not null]
+  "property_name" text [not null]
+  "leasing_week" date [not null]
+  "reporting_cycle" text [default: 'Monday-Sunday']
+  "lease_launch_date" date
+  "renewal_launch_date" date
+  "current_occupancy" numeric(5,2)
+  "last_year_occupancy" numeric(5,2)
+  "current_pre_lease" numeric(5,2)
+  "last_year_pre_lease" numeric(5,2)
+  "total_renewals" int4
+  "total_new_leases" int4
+  "total_leases_weekly" int4
+  "traffic_weekly" int4
+  "current_incentive" text [default: 'None']
+  "incentive_amount" numeric(5,2)
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (property_id, leasing_week) [type: btree, name: "leasing_summary_pkey"]
+  }
+}
+
+Table "mkt"."property_amenities" {
+  "property_id" text [not null]
+  "leasing_week" date [not null]
+  "common_area_rating" int4
+  "university_shuttle" bool
+  "private_shuttle" bool
+  "limited_access_gates" bool
+  "fitness_center" bool
+  "computer_lounge" bool
+  "game_room" bool
+  "spray_tanning" bool
+  "uv_tanning" bool
+  "pool" bool
+  "hot_tub" bool
+  "24hr_package_system" bool
+  "ev_charging_stations" bool
+  "car_sharing_services" bool
+  "smart_vending" bool
+  "mini_market" bool
+  "movie_theatre" bool
+  "co-working_slash_study_spaces" bool
+  "free_printing" bool
+  "coffee_bar" bool
+  "retail" bool
+  "sauna_slash_spa" bool
+  "cycling_slash_yoga_studio" bool
+  "rentable_guest_suite" bool
+  "wellness_classes" bool
+  "24hr_concierge" bool
+  "outdoor_grill_area" bool
+  "sand_volleyball_court" bool
+  "basketball_court" bool
+  "pets_allowed" bool
+  "dog_wash" bool
+  "dog_park" bool
+
+  Indexes {
+    (property_id, leasing_week) [type: btree, name: "property_amentities_pkey"]
+  }
+}
+
+Table "mkt"."fees" {
+  "property_id" text [not null]
+  "leasing_week" date [not null]
+  "Fees" text
+  "Amount" text
+  "Frequency" text
+}
+
+Table "mkt"."unit_amenities" {
+  "property_id" text [not null]
+  "leasing_week" date [not null]
+  "unit_rating" text [default: 'N/A']
+  "unit_levels" int4
+  "private_bathrooms" bool [default: false]
+  "walk_in_closets" bool [default: false]
+  "washer_slash_dryer_in_unit" bool [default: false]
+  "smart_home_technology" bool [default: false]
+  "smart_bedroom_locks" bool [default: false]
+  "smart_unit_locks" bool [default: false]
+  "energy_efficient_appliances" bool [default: false]
+  "stainless_steel_appliances" bool [default: false]
+  "balconies" bool [default: false]
+  "patios" bool [default: false]
+  "backyards" bool [default: false]
+  "tv_included_in_rent" bool [default: false]
+  "tv_rentable_rate_paran_if_not_included_paran" numeric
+  "tv_bedroom" numeric
+  "tv_common_area" numeric
+  "furniture_included_in_rent" bool [default: false]
+  "furniture_rentable_rate_paran_if_not_included_paran" numeric
+  "other_premiums_floor_premiums" numeric
+  "other_premiums_poolside" numeric
+  "other_premiums_top_floor" numeric
+  "other_premiums_view_premiums" numeric
+  "other_premiums_other" numeric
+
+  Indexes {
+    (property_id, leasing_week) [type: btree, name: "unit_amenities_pkey"]
+  }
+}
+
+Table "mkt_dump"."surveys" {
+  "uid" text
+  "survey_uid" text
+  "user_uid" text
+  "user_email" text
+  "property_id" text
+  "property_name" text
+  "survey_week" date
+  "created_at" timestamptz
+}
+
+Table "mkt_dump"."property_summary" {
+  "survey_uid" text
+  "Property Summary" text
+  "values" text
+}
+
+Table "mkt_dump"."leasing_summary" {
+  "survey_uid" text
+  "Leasing Summary" text
+  "values" text
+}
+
+Table "mkt_dump"."short_term_leases" {
+  "survey_uid" text
+  "Short Term Leases" text
+  "values" text
+}
+
+Table "mkt_dump"."fees" {
+  "survey_uid" text
+  "Fees" text
+  "Amount" text
+  "Frequency" text
+}
+
+Table "mkt_dump"."property_amenities" {
+  "survey_uid" text
+  "Property Amenities" text
+  "values" text
+}
+
+Table "mkt_dump"."parking" {
+  "survey_uid" text
+  "Parking" text
+  "Required" text
+  "Included" text
+  "Amount" text
+}
+
+Table "mkt_dump"."unit_amenities" {
+  "survey_uid" text
+  "Unit Amenities" text
+  "values" text
+}
+
+Table "mkt_dump"."utilities_summary" {
+  "survey_uid" text
+  "Utilities Summary" text
+  "All Inclusive" text
+  "Cap" text
+  "Allowance" text
+  "Amount" text
+  "Per Unit/Bed" text
+}
+
+Table "mkt_dump"."other_utilities" {
+  "survey_uid" text
+  "Other Utilities" text
+  "Included" text
+  "Amount" text
+  "Per Unit/Bed" text
+}
+
+Table "mkt_dump"."leasing_notes" {
+  "survey_uid" text
+  "values" text
+}
+
+Table "mkt_dump"."property_notes" {
+  "survey_uid" text
+  "values" text
+}
+
+Table "mkt_dump"."office_hours" {
+  "survey_uid" text
+  "Office Hours" text
+  "values" text
+}
+
+Table "investment_partners" {
+  "property_name" text
+  "investment_partner" text
+}
+
+Table "spatial_ref_sys" {
+  "srid" int4 [pk, not null]
+  "auth_name" varchar(256)
+  "auth_srid" int4
+  "srtext" varchar(2048)
+  "proj4text" varchar(2048)
+}
+
+Table "surveydown" {
+  "session_id" text [pk, not null]
+  "time_start" text
+  "time_end" text
+  "property_name" text
+  "property_website" text
+  "property_address" text
+  "property_phone_number" text
+  "property_developer" text
+  "property_manager" text
+  "property_owner" text
+  "property_type" text
+  "property_status" text
+  "product_type" text
+  "property_rating" text
+  "comp_status" text
+  "year_built" text
+  "year_last_renovated" text
+  "most_recent_sale_date" text
+  "distance_to_campus" text
+  "reporting_cycle" text
+  "time_q_property_name" text
+  "time_q_property_website" text
+  "time_q_property_address" text
+  "time_q_property_phone_number" text
+  "time_q_property_developer" text
+  "time_q_property_manager" text
+  "time_q_property_owner" text
+  "time_q_property_type" text
+  "time_q_property_status" text
+  "time_q_product_type" text
+  "time_q_property_rating" text
+  "time_q_comp_status" text
+  "time_q_year_built" text
+  "time_q_year_last_renovated" text
+  "time_q_most_recent_sale_date" text
+  "time_q_distance_to_campus" text
+  "time_q_reporting_cycle" text
+  "time_p_welcome" text
+  "time_p_property_summary" text
+  "time_p_leasing_summary" text
+  "time_p_end" text
+  "current_page" text
+  "lease_launch_date" text
+  "renewal_launch_date" text
+  "current_occupancy" text
+  "prior_year_occupancy" text
+  "current_pre_lease" text
+  "prior_year_pre_lease" text
+  "total_renewals" text
+  "total_new_leases" text
+  "total_weekly_leases" text
+  "total_weekly_traffic" text
+  "current_incentive" text
+  "incentive_amount" text
+  "data_last_updated" text
+  "time_q_lease_launch_date" text
+  "time_q_renewal_launch_date" text
+  "time_q_current_occupancy" text
+  "time_q_prior_year_occupancy" text
+  "time_q_current_pre_lease" text
+  "time_q_prior_year_pre_lease" text
+  "time_q_total_renewals" text
+  "time_q_total_new_leases" text
+  "time_q_total_weekly_leases" text
+  "time_q_total_weekly_traffic" text
+  "time_q_current_incentive" text
+  "time_q_incentive_amount" text
+  "time_q_data_last_updated" text
+  "exit_survey_rating" text
+}
+
+Table "summary_report" {
+  "X1" text
+  "X2" int4
+  "X3" float8
+  "X4" float8
+  "X5" int4
+  "X6" int4
+  "X7" int4
+  "X8" float8
+  "X9" int4
+  "X10" int4
+  "X11" int4
+  "X12" float8
+  "X13" int4
+  "X14" float8
+  "X15" int4
+  "X16" int4
+  "X17" int4
+  "X18" float8
+  "X19" int4
+  "X21" float8
+  "X22" float8
+  "X23" float8
+}
+
+Table "modified_timestamp" {
+  "modified_timestamp" timestamptz
+}
+
+Table "entrata.pre_lease_report_summary" {
+  "property_id" text
+  "property_name" text
+  "property" text
+  "unit_type" text
+  "unit_type_subtotal" text
+  "avg_sqft" float8
+  "avg_advertised_rate" int4
+  "units" int4
+  "excluded_unit_count" int4
+  "rentable_unit_count" int4
+  "avg_scheduled_rent" int4
+  "occupied_count" int4
+  "started_new_count_prior" int4
+  "started_new_count" int4
+  "started_renewal_count_prior" int4
+  "started_renewal_count" int4
+  "started_count_prior" int4
+  "started_count" int4
+  "started_percent" float8
+  "partially_completed_new_count_prior" int4
+  "partially_completed_new_count" int4
+  "partially_completed_renewal_count_prior" int4
+  "partially_completed_renewal_count" int4
+  "partially_completed_count_prior" int4
+  "partially_completed_count" int4
+  "partially_completed_percent" float8
+  "completed_new_count_prior" int4
+  "completed_new_count" int4
+  "completed_renewal_count_prior" int4
+  "completed_renewal_count" int4
+  "completed_count_prior" int4
+  "completed_count" int4
+  "completed_percent" float8
+  "approved_new_count_prior" int4
+  "approved_new_count" int4
+  "approved_renewal_count_prior" int4
+  "approved_renewal_count" int4
+  "approved_count_prior" int4
+  "approved_count" int4
+  "approved_percent" float8
+  "preleased_new_count_prior" int4
+  "preleased_new_count" int4
+  "preleased_renewal_count_prior" int4
+  "preleased_renewal_count" int4
+  "preleased_count_prior" int4
+  "preleased_count" int4
+  "preleased_percent_prior" int4
+  "preleased_percent" int4
+  "variance" int4
+  "available_count" int4
+  "scheduled_rent_total" int4
+  "number_of_bedrooms" text
+  "number_of_bathrooms" text
+}
+
+Ref "app_users_account_id_fkey":"auth"."accounts"."account_id" < "auth"."app_users"."account_id" [delete: cascade]
+
+Ref "app_users_app_id_fkey":"auth"."apps"."app_id" < "auth"."app_users"."app_id" [delete: cascade]
+
+Ref "apps_account_id_fkey":"auth"."accounts"."account_id" < "auth"."apps"."account_id" [delete: cascade]
+
+Ref "logs_session_id_fkey":"auth"."sessions"."session_id" < "auth"."logs"."session_id" [delete: cascade]
+
+Ref "subscriptions_account_id_fkey":"auth"."accounts"."account_id" < "auth"."subscriptions"."account_id" [delete: cascade]
+
+Ref "subscriptions_app_id_fkey":"auth"."apps"."app_id" < "auth"."subscriptions"."app_id" [delete: cascade]
+
+Ref "tenant_domains_tenant_id_fkey":"auth"."tenants"."tenant_id" < "auth"."tenant_domains"."tenant_id"
+
+Ref "tenants_created_by_fkey":"auth"."users"."user_id" < "auth"."tenants"."created_by"
+
+Ref "user_roles_role_id_fkey":"auth"."roles"."role_id" < "auth"."user_roles"."role_id" [delete: cascade]
+
+Ref "pre_lease_property_details_by_unit_property_id_fkey":"entrata"."properties"."property_id" < "entrata"."pre_lease_property_details_by_unit"."property_id"
+
+Ref "pre_lease_summary_property_id_fkey":"entrata"."properties"."property_id" < "entrata"."pre_lease_summary"."property_id"
+
+Ref "pre_lease_summary_by_property_property_id_fkey":"entrata"."properties"."property_id" < "entrata"."pre_lease_summary_by_property"."property_id"
+
+Ref "pre_lease_weekly_property_id_fkey":"entrata"."properties"."property_id" < "entrata"."pre_lease_weekly"."property_id"
+
+Ref "properties_parent_property_id_fkey":"entrata"."properties"."property_id" < "entrata"."properties"."parent_property_id"
+
+Ref "property_addresses_property_id_fkey":"entrata"."properties"."property_id" < "entrata"."property_addresses"."property_id"
+
+Ref "property_floorplans_property_id_fkey":"entrata"."properties"."property_id" < "entrata"."property_floorplans"."property_id"
+
+Ref "property_floorplans_property_id_fkey":"mkt"."properties"."property_id" < "entrata"."property_floorplans"."property_id"
+
+Ref "property_hours_property_id_fkey":"entrata"."properties"."property_id" < "entrata"."property_hours"."property_id"
+
+Ref "property_lease_term_windows_property_id_fkey":"entrata"."properties"."property_id" < "entrata"."property_lease_term_windows"."property_id"
+
+Ref "property_lease_terms_property_id_fkey":"entrata"."properties"."property_id" < "entrata"."property_lease_terms"."property_id"
+
+Ref "property_phone_numbers_property_id_fkey":"entrata"."properties"."property_id" < "entrata"."property_phone_numbers"."property_id"
+
+Ref "property_post_months_property_id_fkey":"entrata"."properties"."property_id" < "entrata"."property_post_months"."property_id"
+
+Ref "property_space_options_property_id_fkey":"entrata"."properties"."property_id" < "entrata"."property_space_options"."property_id"
+
+Ref "property_space_options_space_option_id_fkey":"entrata"."space_options"."space_option_id" < "entrata"."property_space_options"."space_option_id"
+
+Ref "report_lease_execution_applicant_property_id_fkey":"entrata"."properties"."property_id" < "entrata"."report_lease_execution_applicant"."property_id"
+
+Ref "unit_types_property_id_fkey":"entrata"."properties"."property_id" < "entrata"."unit_types"."property_id"
+
+Ref "competitors_property_id_fkey":"gmh"."properties"."property_id" < "gmh"."competitors"."property_id"
+
+Ref "competitors_property_id_fkey":"survey"."properties"."property_id" < "gmh"."competitors"."property_id"
+
+Ref "investment_partner_assignments_entrata_property_id_fkey":"entrata"."properties"."property_id" < "gmh"."investment_partner_assignments"."entrata_property_id"
+
+Ref "investment_partner_assignments_partner_id_fkey":"gmh"."investment_partners"."partner_id" < "gmh"."investment_partner_assignments"."partner_id"
+
+Ref "model_beds_property_id_fkey":"gmh"."properties"."property_id" < "gmh"."model_beds"."property_id" [delete: cascade]
+
+Ref "portfolios_partner_id_fkey":"gmh"."partners"."partner_id" < "gmh"."portfolios"."partner_id"
+
+Ref "properties_partner_id_fkey":"gmh"."partners"."partner_id" < "gmh"."properties"."partner_id"
+
+Ref "properties_portfolio_id_fkey":"gmh"."portfolios"."portfolio_id" < "gmh"."properties"."portfolio_id"
+
+Ref "universities_location_id_fkey":"gmh"."locations"."location_id" < "gmh"."universities"."location_id"
+
+Ref "audit_logs_user_id_fkey":"auth"."users"."user_id" < "logs"."audit_logs"."user_id"
+
+Ref "entrata_logs_user_id_fkey":"auth"."users"."user_id" < "logs"."entrata_logs"."user_id"
+
+Ref "competitors_associated_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."competitors"."associated_property_id"
+
+Ref "fee_structures_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."fee_structures"."property_id"
+
+Ref "fee_structures_property_id_fkey":"survey"."properties"."property_id" < "mkt"."fee_structures"."property_id"
+
+Ref "history_changed_by_fkey":"auth"."users"."user_id" < "mkt"."history"."changed_by" [delete: set null]
+
+Ref "history_response_id_fkey":"mkt"."responses"."response_id" < "mkt"."history"."response_id" [delete: cascade]
+
+Ref "leasing_summary_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."leasing_summary"."property_id"
+
+Ref "leasing_summary_property_id_fkey":"mkt_old"."properties"."property_id" < "mkt"."leasing_summary"."property_id"
+
+Ref "leasing_summary_property_id_fkey":"survey"."properties"."property_id" < "mkt"."leasing_summary"."property_id"
+
+Ref "locations_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."locations"."property_id" [update: cascade, delete: set null]
+
+Ref "market_rent_by_floorplan_floor_plan_id_fkey":"mkt"."property_floorplans"."floor_plan_id" < "mkt"."market_rent_by_floorplan"."floor_plan_id"
+
+Ref "market_rent_by_floorplan_leasing_week_id_fkey":"mkt"."leasing_weeks"."leasing_week_id" < "mkt"."market_rent_by_floorplan"."leasing_week_id"
+
+Ref "market_rent_by_floorplan_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."market_rent_by_floorplan"."property_id"
+
+Ref "notes_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."notes"."property_id"
+
+Ref "notes_property_id_fkey":"mkt_old"."properties"."property_id" < "mkt"."notes"."property_id"
+
+Ref "notes_property_id_fkey":"survey"."properties"."property_id" < "mkt"."notes"."property_id"
+
+Ref "property_amenity_availability_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."property_amenity_availability"."property_id"
+
+Ref "property_competitors_competitor_id_fkey":"mkt"."properties"."property_id" < "mkt"."property_competitors"."competitor_id"
+
+Ref "property_competitors_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."property_competitors"."property_id"
+
+Ref "property_floorplan_availability_floor_plan_id_fkey":"mkt"."property_floorplans"."floor_plan_id" < "mkt"."property_floorplan_availability"."floor_plan_id"
+
+Ref "property_floorplan_availability_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."property_floorplan_availability"."property_id"
+
+Ref "property_floorplans_property_id_fkey":"entrata"."properties"."property_id" < "mkt"."property_floorplans"."property_id"
+
+Ref "property_floorplans_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."property_floorplans"."property_id"
+
+Ref "property_locations_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."property_locations"."property_id"
+
+Ref "property_office_hours_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."property_office_hours"."property_id"
+
+Ref "property_parking_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."property_parking"."property_id"
+
+Ref "property_summary_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."property_summary"."property_id"
+
+Ref "property_summary_property_id_fkey":"survey"."properties"."property_id" < "mkt"."property_summary"."property_id"
+
+Ref "property_unit_amenities_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."property_unit_amenities"."property_id"
+
+Ref "property_unit_amenity_availability_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."property_unit_amenity_availability"."property_id"
+
+Ref "responses_user_id_fkey":"auth"."users"."user_id" < "mkt"."responses"."user_id" [delete: set null]
+
+Ref "short_term_leases_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."short_term_leases"."property_id"
+
+Ref "short_term_leases_property_id_fkey":"mkt_old"."properties"."property_id" < "mkt"."short_term_leases"."property_id"
+
+Ref "short_term_leases_property_id_fkey":"survey"."properties"."property_id" < "mkt"."short_term_leases"."property_id"
+
+Ref "survey_responses_section_id_fkey":"mkt"."survey_sections"."section_id" < "mkt"."survey_responses"."section_id" [delete: cascade]
+
+Ref "survey_submissions_leasing_week_id_fkey":"mkt"."leasing_weeks"."leasing_week_id" < "mkt"."survey_submissions"."leasing_week_id"
+
+Ref "survey_submissions_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."survey_submissions"."property_id"
+
+Ref "survey_submissions_submitted_by_fkey":"auth"."users"."user_id" < "mkt"."survey_submissions"."submitted_by"
+
+Ref "unit_amenities_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."unit_amenities"."property_id"
+
+Ref "unit_amenities_property_id_fkey":"survey"."properties"."property_id" < "mkt"."unit_amenities"."property_id"
+
+Ref "universities_associated_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."universities"."associated_property_id"
+
+Ref "university_locations_university_id_fkey":"mkt"."universities"."university_id" < "mkt"."university_locations"."university_id"
+
+Ref "utilities_property_id_fkey":"mkt"."properties"."property_id" < "mkt"."utilities"."property_id"
+
+Ref "utilities_property_id_fkey":"mkt_old"."properties"."property_id" < "mkt"."utilities"."property_id"
+
+Ref "utilities_property_id_fkey":"survey"."properties"."property_id" < "mkt"."utilities"."property_id"
+
+Ref "amenities_property_id_fkey":"mkt_old"."properties"."property_id" < "mkt_old"."amenities"."property_id" [delete: cascade]
+
+Ref "floorplans_property_id_fkey":"mkt_old"."properties"."property_id" < "mkt_old"."floorplans"."property_id" [delete: cascade]
+
+Ref "leasing_summary_property_id_fkey":"mkt"."properties"."property_id" < "mkt_old"."leasing_summary"."property_id" [delete: cascade]
+
+Ref "leasing_summary_property_id_fkey":"mkt_old"."properties"."property_id" < "mkt_old"."leasing_summary"."property_id" [delete: cascade]
+
+Ref "leasing_summary_property_id_fkey":"survey"."properties"."property_id" < "mkt_old"."leasing_summary"."property_id" [delete: cascade]
+
+Ref "notes_property_id_fkey":"mkt"."properties"."property_id" < "mkt_old"."notes"."property_id" [delete: cascade]
+
+Ref "notes_property_id_fkey":"mkt_old"."properties"."property_id" < "mkt_old"."notes"."property_id" [delete: cascade]
+
+Ref "notes_property_id_fkey":"survey"."properties"."property_id" < "mkt_old"."notes"."property_id" [delete: cascade]
+
+Ref "property_images_property_id_fkey":"mkt_old"."properties"."property_id" < "mkt_old"."property_images"."property_id" [delete: cascade]
+
+Ref "rent_summaries_property_id_fkey":"mkt_old"."properties"."property_id" < "mkt_old"."rent_summaries"."property_id" [delete: cascade]
+
+Ref "short_term_leases_property_id_fkey":"mkt"."properties"."property_id" < "mkt_old"."short_term_leases"."property_id" [delete: cascade]
+
+Ref "short_term_leases_property_id_fkey":"mkt_old"."properties"."property_id" < "mkt_old"."short_term_leases"."property_id" [delete: cascade]
+
+Ref "short_term_leases_property_id_fkey":"survey"."properties"."property_id" < "mkt_old"."short_term_leases"."property_id" [delete: cascade]
+
+Ref "utilities_property_id_fkey":"mkt"."properties"."property_id" < "mkt_old"."utilities"."property_id" [delete: cascade]
+
+Ref "utilities_property_id_fkey":"mkt_old"."properties"."property_id" < "mkt_old"."utilities"."property_id" [delete: cascade]
+
+Ref "utilities_property_id_fkey":"survey"."properties"."property_id" < "mkt_old"."utilities"."property_id" [delete: cascade]
+
+Ref "amenities_created_by_fkey":"survey"."users"."user_id" < "survey"."amenities"."created_by"
+
+Ref "amenities_updated_by_fkey":"survey"."users"."user_id" < "survey"."amenities"."updated_by"
+
+Ref "competitors_property_id_fkey":"gmh"."properties"."property_id" < "survey"."competitors"."property_id"
+
+Ref "competitors_property_id_fkey":"survey"."properties"."property_id" < "survey"."competitors"."property_id"
+
+Ref "fee_structures_competitor_id_fkey":"survey"."competitors"."competitor_id" < "survey"."fee_structures"."competitor_id"
+
+Ref "fee_structures_created_by_fkey":"survey"."users"."user_id" < "survey"."fee_structures"."created_by"
+
+Ref "fee_structures_property_id_fkey":"mkt"."properties"."property_id" < "survey"."fee_structures"."property_id"
+
+Ref "fee_structures_property_id_fkey":"survey"."properties"."property_id" < "survey"."fee_structures"."property_id"
+
+Ref "fee_structures_updated_by_fkey":"survey"."users"."user_id" < "survey"."fee_structures"."updated_by"
+
+Ref "fees_competitor_id_fkey":"survey"."competitors"."competitor_id" < "survey"."fees"."competitor_id"
+
+Ref "fees_created_by_fkey":"survey"."users"."user_id" < "survey"."fees"."created_by"
+
+Ref "fees_leasing_week_id_fkey":"survey"."leasing_weeks"."leasing_week_id" < "survey"."fees"."leasing_week_id"
+
+Ref "fees_property_id_fkey":"survey"."properties"."property_id" < "survey"."fees"."property_id"
+
+Ref "fees_updated_by_fkey":"survey"."users"."user_id" < "survey"."fees"."updated_by"
+
+Ref "hours_competitor_id_fkey":"survey"."competitors"."competitor_id" < "survey"."hours"."competitor_id"
+
+Ref "hours_created_by_fkey":"survey"."users"."user_id" < "survey"."hours"."created_by"
+
+Ref "hours_property_id_fkey":"survey"."properties"."property_id" < "survey"."hours"."property_id"
+
+Ref "hours_updated_by_fkey":"survey"."users"."user_id" < "survey"."hours"."updated_by"
+
+Ref "leasing_summary_competitor_id_fkey":"survey"."competitors"."competitor_id" < "survey"."leasing_summary"."competitor_id"
+
+Ref "leasing_summary_created_by_fkey":"survey"."users"."user_id" < "survey"."leasing_summary"."created_by"
+
+Ref "leasing_summary_leasing_week_id_fkey":"survey"."leasing_weeks"."leasing_week_id" < "survey"."leasing_summary"."leasing_week_id"
+
+Ref "leasing_summary_property_id_fkey":"mkt"."properties"."property_id" < "survey"."leasing_summary"."property_id"
+
+Ref "leasing_summary_property_id_fkey":"mkt_old"."properties"."property_id" < "survey"."leasing_summary"."property_id"
+
+Ref "leasing_summary_property_id_fkey":"survey"."properties"."property_id" < "survey"."leasing_summary"."property_id"
+
+Ref "leasing_summary_survey_id_fkey":"survey"."surveys"."survey_id" < "survey"."leasing_summary"."survey_id"
+
+Ref "leasing_summary_updated_by_fkey":"survey"."users"."user_id" < "survey"."leasing_summary"."updated_by"
+
+Ref "notes_competitor_id_fkey":"survey"."competitors"."competitor_id" < "survey"."notes"."competitor_id"
+
+Ref "notes_created_by_fkey":"survey"."users"."user_id" < "survey"."notes"."created_by"
+
+Ref "notes_leasing_week_id_fkey":"survey"."leasing_weeks"."leasing_week_id" < "survey"."notes"."leasing_week_id"
+
+Ref "notes_property_id_fkey":"mkt"."properties"."property_id" < "survey"."notes"."property_id"
+
+Ref "notes_property_id_fkey":"mkt_old"."properties"."property_id" < "survey"."notes"."property_id"
+
+Ref "notes_property_id_fkey":"survey"."properties"."property_id" < "survey"."notes"."property_id"
+
+Ref "notes_updated_by_fkey":"survey"."users"."user_id" < "survey"."notes"."updated_by"
+
+Ref "parking_competitor_id_fkey":"survey"."competitors"."competitor_id" < "survey"."parking"."competitor_id"
+
+Ref "parking_created_by_fkey":"survey"."users"."user_id" < "survey"."parking"."created_by"
+
+Ref "parking_property_id_fkey":"survey"."properties"."property_id" < "survey"."parking"."property_id"
+
+Ref "parking_updated_by_fkey":"survey"."users"."user_id" < "survey"."parking"."updated_by"
+
+Ref "property_amenities_amenity_id_fkey":"survey"."amenities"."amenity_id" < "survey"."property_amenities"."amenity_id"
+
+Ref "property_amenities_competitor_id_fkey":"survey"."competitors"."competitor_id" < "survey"."property_amenities"."competitor_id"
+
+Ref "property_amenities_created_by_fkey":"survey"."users"."user_id" < "survey"."property_amenities"."created_by"
+
+Ref "property_amenities_property_id_fkey":"survey"."properties"."property_id" < "survey"."property_amenities"."property_id"
+
+Ref "property_amenities_updated_by_fkey":"survey"."users"."user_id" < "survey"."property_amenities"."updated_by"
+
+Ref "property_summary_competitor_id_fkey":"survey"."competitors"."competitor_id" < "survey"."property_summary"."competitor_id"
+
+Ref "property_summary_created_by_fkey":"survey"."users"."user_id" < "survey"."property_summary"."created_by" [update: cascade]
+
+Ref "property_summary_property_id_fkey":"mkt"."properties"."property_id" < "survey"."property_summary"."property_id"
+
+Ref "property_summary_property_id_fkey":"survey"."properties"."property_id" < "survey"."property_summary"."property_id"
+
+Ref "property_summary_updated_by_fkey":"survey"."users"."user_id" < "survey"."property_summary"."updated_by" [update: cascade]
+
+Ref "rents_by_floorplan_competitor_id_fkey":"survey"."competitors"."competitor_id" < "survey"."rents_by_floorplan"."competitor_id"
+
+Ref "rents_by_floorplan_created_by_fkey":"survey"."users"."user_id" < "survey"."rents_by_floorplan"."created_by"
+
+Ref "rents_by_floorplan_leasing_week_id_fkey":"survey"."leasing_weeks"."leasing_week_id" < "survey"."rents_by_floorplan"."leasing_week_id"
+
+Ref "rents_by_floorplan_property_id_fkey":"survey"."properties"."property_id" < "survey"."rents_by_floorplan"."property_id"
+
+Ref "rents_by_floorplan_updated_by_fkey":"survey"."users"."user_id" < "survey"."rents_by_floorplan"."updated_by"
+
+Ref "short_term_leases_competitor_id_fkey":"survey"."competitors"."competitor_id" < "survey"."short_term_leases"."competitor_id"
+
+Ref "short_term_leases_created_by_fkey":"survey"."users"."user_id" < "survey"."short_term_leases"."created_by"
+
+Ref "short_term_leases_leasing_week_id_fkey":"survey"."leasing_weeks"."leasing_week_id" < "survey"."short_term_leases"."leasing_week_id"
+
+Ref "short_term_leases_property_id_fkey":"mkt"."properties"."property_id" < "survey"."short_term_leases"."property_id"
+
+Ref "short_term_leases_property_id_fkey":"mkt_old"."properties"."property_id" < "survey"."short_term_leases"."property_id"
+
+Ref "short_term_leases_property_id_fkey":"survey"."properties"."property_id" < "survey"."short_term_leases"."property_id"
+
+Ref "short_term_leases_updated_by_fkey":"survey"."users"."user_id" < "survey"."short_term_leases"."updated_by"
+
+Ref "survey_sections_section_id_fkey":"survey"."sections"."section_id" < "survey"."survey_sections"."section_id"
+
+Ref "survey_sections_survey_id_fkey":"survey"."surveys"."survey_id" < "survey"."survey_sections"."survey_id"
+
+Ref "surveys_competitor_id_fkey":"survey"."competitors"."competitor_id" < "survey"."surveys"."competitor_id"
+
+Ref "surveys_leasing_week_id_fkey":"survey"."leasing_weeks"."leasing_week_id" < "survey"."surveys"."leasing_week_id"
+
+Ref "surveys_property_id_fkey":"survey"."properties"."property_id" < "survey"."surveys"."property_id" [delete: cascade]
+
+Ref "unit_amenities_amenity_id_fkey":"survey"."amenities"."amenity_id" < "survey"."unit_amenities"."amenity_id"
+
+Ref "unit_amenities_competitor_id_fkey":"survey"."competitors"."competitor_id" < "survey"."unit_amenities"."competitor_id"
+
+Ref "unit_amenities_created_by_fkey":"survey"."users"."user_id" < "survey"."unit_amenities"."created_by"
+
+Ref "unit_amenities_property_id_fkey":"mkt"."properties"."property_id" < "survey"."unit_amenities"."property_id"
+
+Ref "unit_amenities_property_id_fkey":"survey"."properties"."property_id" < "survey"."unit_amenities"."property_id"
+
+Ref "unit_amenities_updated_by_fkey":"survey"."users"."user_id" < "survey"."unit_amenities"."updated_by"
+
+Ref "unit_amenities_rates_premiums_amenity_id_fkey":"survey"."amenities"."amenity_id" < "survey"."unit_amenities_rates_premiums"."amenity_id"
+
+Ref "unit_amenities_rates_premiums_competitor_id_fkey":"survey"."competitors"."competitor_id" < "survey"."unit_amenities_rates_premiums"."competitor_id"
+
+Ref "unit_amenities_rates_premiums_created_by_fkey":"survey"."users"."user_id" < "survey"."unit_amenities_rates_premiums"."created_by"
+
+Ref "unit_amenities_rates_premiums_property_id_fkey":"survey"."properties"."property_id" < "survey"."unit_amenities_rates_premiums"."property_id"
+
+Ref "unit_amenities_rates_premiums_updated_by_fkey":"survey"."users"."user_id" < "survey"."unit_amenities_rates_premiums"."updated_by"
+
+Ref "utilities_competitor_id_fkey":"survey"."competitors"."competitor_id" < "survey"."utilities"."competitor_id"
+
+Ref "utilities_created_by_fkey":"survey"."users"."user_id" < "survey"."utilities"."created_by"
+
+Ref "utilities_property_id_fkey":"mkt"."properties"."property_id" < "survey"."utilities"."property_id"
+
+Ref "utilities_property_id_fkey":"mkt_old"."properties"."property_id" < "survey"."utilities"."property_id"
+
+Ref "utilities_property_id_fkey":"survey"."properties"."property_id" < "survey"."utilities"."property_id"
+
+Ref "utilities_updated_by_fkey":"survey"."users"."user_id" < "survey"."utilities"."updated_by"
+
+Table "survey"."users" {
+  "user_id" uuid [pk, not null, default: `gen_random_uuid()`]
+  "user_email" text [unique, not null]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "survey"."properties" {
+  "property_id" int4 [pk, not null]
+  "property_name" text [unique, not null]
+  "property_type" text
+  "property_website" text
+  "property_address" text
+  "property_phone" text
+  "property_email" text
+  "property_image_url" text
+  "property_description" text
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "survey"."competitors" {
+  "competitor_id" int4 [pk, not null, increment]
+  "property_id" int4 [not null]
+  "competitor_name" text [not null]
+  "competitor_website" text
+  "competitor_address" text
+  "competitor_image_url" text
+  "competitor_description" text
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "survey"."leasing_weeks" {
+  "leasing_week_id" int4 [pk, not null, increment]
+  "leasing_week_start_date" date [not null]
+  "leasing_week_end_date" date [not null]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "survey"."surveys" {
+  "survey_id" int4 [pk, not null, increment]
+  "property_id" int4
+  "competitor_id" int4
+  "leasing_week_id" int4 [not null]
+  "user_id" uuid [not null]
+  "survey_date" date [not null, default: `CURRENT_DATE`]
+  "survey_status" text [not null, default: 'Initialized']
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "survey"."sections" {
+  "section_id" int4 [pk, not null, increment]
+  "section_name" text [not null]
+  "section_description" text
+  "updated_weekly" bool [not null]
+  "is_required" bool [not null, default: true]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "survey"."survey_sections" {
+  "survey_id" int4 [not null]
+  "section_id" int4 [not null]
+  "survey_section_status" text [not null]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (survey_id, section_id) [type: btree, name: "survey_sections_pkey"]
+  }
+}
+
+Table "survey"."leasing_summary" {
+  "survey_id" int4 [not null]
+  "property_id" int4
+  "competitor_id" int4
+  "leasing_week_id" int4 [not null]
+  "property_name" text [not null]
+  "reporting_cycle" text [default: 'Monday-Sunday']
+  "lease_launch_date" date
+  "renewal_launch_date" date
+  "current_occupancy" numeric(6,3)
+  "prior_year_occupancy" numeric(6,3)
+  "current_pre_lease" numeric(6,3)
+  "prior_year_pre_lease" numeric(6,3)
+  "total_renewals" int4
+  "total_new_leases" int4
+  "weekly_leases" int4
+  "weekly_traffic" int4
+  "current_incentive" text [default: 'None']
+  "incentive_amount" numeric(10,2)
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "created_by" uuid
+  "updated_by" uuid
+
+  Indexes {
+    (survey_id, leasing_week_id, property_name) [type: btree, name: "leasing_summary_pkey"]
+  }
+}
+
+Table "survey"."amenities" {
+  "amenity_id" int4 [pk, not null, increment]
+  "amenity_type" text [not null]
+  "amenity_category" text
+  "amenity_name" text [not null]
+  "amenity_icon" text
+  "amenity_description" text
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "created_by" uuid
+  "updated_by" uuid
+}
+
+Table "survey"."property_amenities" {
+  "property_id" int4
+  "competitor_id" int4
+  "property_name" text [not null]
+  "amenity_id" int4 [not null]
+  "amenity_name" text [not null]
+  "amenity_value" bool [default: false]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "created_by" uuid
+  "updated_by" uuid
+
+  Indexes {
+    (property_name, amenity_id) [type: btree, name: "property_amenities_pkey"]
+  }
+}
+
+Table "survey"."parking" {
+  "property_id" int4
+  "competitor_id" int4
+  "property_name" text [not null]
+  "parking_type" text [not null]
+  "is_required" bool [not null, default: false]
+  "is_included" bool [not null, default: false]
+  "amount" numeric(10,2) [not null, default: 0.00]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "created_by" uuid
+  "updated_by" uuid
+
+  Indexes {
+    (property_name, parking_type) [type: btree, name: "parking_pkey"]
+  }
+}
+
+Table "survey"."unit_amenities" {
+  "property_id" int4
+  "competitor_id" int4
+  "property_name" text [not null]
+  "amenity_id" int4 [not null]
+  "amenity_name" text [not null]
+  "amenity_value" bool [not null]
+  "amenity_varies" bool [not null, default: false]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "created_by" uuid
+  "updated_by" uuid
+
+  Indexes {
+    (property_name, amenity_id) [type: btree, name: "unit_amenities_pkey"]
+  }
+}
+
+Table "survey"."unit_amenities_rates_premiums" {
+  "property_id" int4
+  "competitor_id" int4
+  "property_name" text [not null]
+  "amenity_id" int4 [not null]
+  "amenity_name" text [not null]
+  "amenity_value" numeric(10,2) [not null, default: 0.00]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "created_by" uuid
+  "updated_by" uuid
+
+  Indexes {
+    (property_name, amenity_id) [type: btree, name: "unit_amenities_rates_premiums_pkey"]
+  }
+}
+
+Table "survey"."hours" {
+  "property_id" int4
+  "competitor_id" int4
+  "property_name" text [not null]
+  "day_of_week" text [not null]
+  "open_time" time [not null]
+  "close_time" time [not null]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "created_by" uuid
+  "updated_by" uuid
+
+  Indexes {
+    (property_name, day_of_week) [type: btree, name: "hours_pkey"]
+  }
+}
+
+Table "survey"."rents_by_floorplan" {
+  "property_id" int4
+  "competitor_id" int4
+  "leasing_week_id" int4 [not null]
+  "property_name" text [not null]
+  "floorplan_type" text [not null]
+  "floorplan_id" text [not null]
+  "square_feet" numeric(10,2) [not null, default: 0.00]
+  "number_of_beds" int4 [not null]
+  "number_of_baths" int4 [not null]
+  "total_units_count" int4 [not null, default: 0]
+  "square_feet_per_bed" int4
+  "available" bool [not null, default: true]
+  "market_rent_per_bed" numeric(10,2) [not null, default: 0.00]
+  "market_rent_per_square_foot" numeric(10,2)
+  "concessions_gift_card" numeric(10,2) [not null, default: 0.00]
+  "concessions_one_time_rent" numeric(10,2) [not null, default: 0.00]
+  "concessions_monthly_rent" numeric(10,2) [not null, default: 0.00]
+  "effective_rent_per_bed" numeric(10,2)
+  "effective_rent_per_square_foot" numeric(10,2)
+  "expenses_furniture" numeric(10,2) [not null, default: 0.00]
+  "expenses_tv" numeric(10,2) [not null, default: 0.00]
+  "expenses_electricity_gas" numeric(10,2) [not null, default: 0.00]
+  "expenses_water" numeric(10,2) [not null, default: 0.00]
+  "expenses_cable_internet" numeric(10,2) [not null, default: 0.00]
+  "expenses_trash_valet" numeric(10,2) [not null, default: 0.00]
+  "expenses_parking" numeric(10,2) [not null, default: 0.00]
+  "expenses_total" numeric(10,2)
+  "bundled_rent_per_bed" numeric(10,2)
+  "bundled_rent_per_square_foot" numeric(10,2)
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "created_by" uuid
+  "updated_by" uuid
+
+  Indexes {
+    (property_name, leasing_week_id, floorplan_type, floorplan_id) [type: btree, name: "rents_by_floorplan_pkey"]
+  }
+}
+
+Table "survey"."utilities" {
+  "property_id" int4
+  "competitor_id" int4
+  "property_name" text [not null]
+  "utility_name" text [not null]
+  "utility_category" text [not null]
+  "utility_per" text
+  "utility_available" bool [not null]
+  "utility_included" bool [not null]
+  "utility_capped" bool [not null]
+  "utility_allowance" numeric(10,2) [not null]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "created_by" uuid
+  "updated_by" uuid
+
+  Indexes {
+    (property_name, utility_name) [type: btree, name: "utilities_pkey"]
+  }
+}
+
+Table "survey"."short_term_leases" {
+  "property_id" int4
+  "competitor_id" int4
+  "leasing_week_id" int4 [not null]
+  "property_name" text [not null]
+  "term_months" int4 [not null]
+  "is_available" bool [not null, default: false]
+  "premium" numeric(10,2) [not null, default: 0.00]
+  "quantity" int4 [not null, default: 0]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "created_by" uuid
+  "updated_by" uuid
+
+  Indexes {
+    (leasing_week_id, property_name, term_months) [type: btree, name: "short_term_leases_pkey"]
+  }
+}
+
+Table "survey"."fees" {
+  "property_id" int4
+  "competitor_id" int4
+  "property_name" text [not null]
+  "leasing_week_id" int4 [not null]
+  "fee_name" text [not null]
+  "fee_amount" numeric [not null]
+  "fee_frequency" text [not null]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "created_by" uuid
+  "updated_by" uuid
+
+  Indexes {
+    (leasing_week_id, property_name, fee_name) [type: btree, name: "fees_pkey"]
+  }
+}
+
+Table "survey"."notes" {
+  "note_id" int4 [pk, not null, increment]
+  "property_id" int4
+  "competitor_id" int4
+  "property_name" text
+  "leasing_week_id" int4
+  "note_type" text [default: 'General']
+  "note_actionable" bool [default: false]
+  "note_status" text [default: 'Pending']
+  "note_tags" "text[]" [default: 'ARRAY[text[]']
+  "note_content" text [not null]
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "created_by" uuid
+  "updated_by" uuid
+}
+
+Table "survey"."property_summary" {
+  "property_id" int4
+  "competitor_id" int4
+  "property_name" text [pk, not null]
+  "property_website" text
+  "property_address" text
+  "property_email" text
+  "property_phone" text
+  "property_developer" text
+  "property_manager" text
+  "property_owner" text
+  "property_type" text
+  "property_rating" numeric(2,1)
+  "property_status" text
+  "comp_status" text
+  "year_built" int4
+  "most_recent_sale" date
+  "distance_from_campus" numeric(3,1)
+  "property_image_url" text
+  "property_description" text
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "created_by" uuid
+  "updated_by" uuid
+}
+
+Table "survey"."fee_structures" {
+  "property_id" int4
+  "competitor_id" int4
+  "property_name" text [not null]
+  "fee_structure" text [not null, default: 'Both Fees Waived']
+  "created_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "updated_at" timestamptz [default: `CURRENT_TIMESTAMP`]
+  "created_by" uuid
+  "updated_by" uuid
+
+  Indexes {
+    (property_name, fee_structure) [type: btree, name: "fee_structures_pkey"]
+  }
+}

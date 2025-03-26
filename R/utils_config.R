@@ -1,4 +1,71 @@
 
+validate_config <- function(cfg = NULL) {
+
+  if (is.character(cfg)) {
+    cfg <- config::get(file = cfg)
+  }
+  if (is.null(cfg)) {
+    cfg <- config::get()
+  }
+  if (!is.list(cfg)) {
+    cli::cli_abort("Invalid configuration: Must be a list.")
+  }
+  required_keys <- c("auth", "db", "entrata")
+  missing_keys <- required_keys[!required_keys %in% names(cfg)]
+  if (length(missing_keys) > 0) {
+    cli::cli_abort(
+      "Missing required configuration keys: {.field {missing_keys}}."
+    )
+  }
+  return(invisible(NULL))
+}
+
+.onload_cfg <- function() {
+  # Check for mounted GCP Secret at standard path
+  gcp_secret_path <- "/secrets/config.yml"
+
+  # Check for config in the /etc/gmhdatahub directory
+  etc_config_path <- "/etc/gmhdatahub/config.yml"
+
+  # Check for config in package directory
+  pkg_config_path <- system.file("config/config.yml", package = "gmhdatahub")
+
+  # Check for working directory config
+  working_config_path <- fs::path(getwd(), "config.yml")
+
+  # Priority order for config files
+  if (file.exists(gcp_secret_path)) {
+    # 1. GCP Secret mounted volume (production)
+    cli::cli_alert_success("Using config.yml from GCP Secret mounted volume.")
+    Sys.setenv("R_CONFIG_FILE" = gcp_secret_path)
+  } else if (file.exists(etc_config_path)) {
+    # 2. Config in /etc/gmhdatahub (Docker container)
+    cli::cli_alert_success("Using config.yml from /etc/gmhdatahub.")
+    Sys.setenv("R_CONFIG_FILE" = etc_config_path)
+  } else if (file.exists(working_config_path)) {
+    # 3. Config in working directory (local development)
+    cli::cli_alert_success("Using config.yml from working directory.")
+    Sys.setenv("R_CONFIG_FILE" = working_config_path)
+  } else if (file.exists(pkg_config_path)) {
+    # 4. Config in package directory (fallback)
+    cli::cli_alert_success("Using config.yml from package directory.")
+    Sys.setenv("R_CONFIG_FILE" = pkg_config_path)
+  } else {
+    # No config found
+    cli::cli_alert_warning("No config.yml found. Please create one.")
+  }
+
+  # Validate the configuration
+  tryCatch({
+    validate_config()
+  }, error = function(e) {
+    warning("Configuration validation failed: ", e$message)
+  })
+}
+
+rlang::on_load({ .onload_cfg() })
+
+
 #' Encrypt Configuration File
 #'
 #' @description
@@ -85,10 +152,6 @@ decrypt_cfg_file <- function(
     )
   }
 
-  # cfg_file_encrypted <- fs::path_ext_remove(cfg_file) |>
-  #   paste0(".encrypted.yml") |>
-  #   fs::path()
-
   cfg_file_encrypted <- system.file(
     "config/config.encrypted.yml",
     package = "gmhdatahub"
@@ -128,4 +191,32 @@ decrypt_cfg_file <- function(
   cli::cli_alert_info("Set `R_CONFIG_FILE` to: {.file {cfg_out}}")
 
   return(invisible(config::get()))
+}
+
+#' Copy Configuration from Secret Volume
+#'
+#' @description
+#' Copies configuration from a mounted secret volume to a specified path.
+#' This function is primarily for manual use as the .onLoad function
+#' automatically handles finding and using the mounted secret.
+#'
+#' @param path The directory path to copy the configuration file to.
+#'
+#' @returns
+#' Invisible NULL.
+#'
+#' @export
+#'
+#' @importFrom cli cli_alert_success cli_alert_warning
+copy_config <- function(path = "/etc/gmhdatahub") {
+  secret_path <- "/secrets/config.yml"
+  if (file.exists(secret_path)) {
+    fs::dir_create(path, recurse = TRUE)
+    fs::file_copy(secret_path, fs::path(path, "config.yml"), overwrite = TRUE)
+    cli::cli_alert_success("Copied config.yml from mounted secret volume to {.path {path}}.")
+    return(invisible(NULL))
+  } else {
+    cli::cli_alert_warning("config.yml not found in mounted secret volume at {.path {secret_path}}.")
+    stop("Configuration file not found. Use GCP Secret Manager to create the secret.")
+  }
 }

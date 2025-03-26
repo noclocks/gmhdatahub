@@ -57,6 +57,7 @@ mod_survey_property_summary_ui <- function(id) {
     bslib::page_fluid(
       # card --------------------------------------------------------------------
       bslib::card(
+        id = ns("property_summary_card"),
         full_screen = TRUE,
         class = "mx-auto",
         bslib::card_header(
@@ -64,6 +65,7 @@ mod_survey_property_summary_ui <- function(id) {
           htmltools::tags$h4(
             bsicons::bs_icon("building"),
             htmltools::tags$span(
+              id = ns("property_name_title_div"),
               "Property Summary - ",
               shiny::textOutput(ns("property_name_title"), inline = TRUE)
             ),
@@ -82,6 +84,7 @@ mod_survey_property_summary_ui <- function(id) {
             gap = "1rem",
             # property information ----------------------------------------------------
             bslib::card(
+              id = ns("property_information_card"),
               bslib::card_header(
                 class = "bg-primary text-white",
                 htmltools::tags$h5(bsicons::bs_icon("info-circle"), " Property Information")
@@ -173,6 +176,7 @@ mod_survey_property_summary_ui <- function(id) {
               col_widths = c(12),
               # property image ----------------------------------------------------------
               bslib::card(
+                id = ns("property_image_card"),
                 bslib::card_header(
                   class = "bg-primary text-white",
                   htmltools::tags$h5(bsicons::bs_icon("image"), " Property Image")
@@ -192,6 +196,7 @@ mod_survey_property_summary_ui <- function(id) {
               ),
               # property description ----------------------------------------------------
               bslib::card(
+                id = ns("property_description_card"),
                 bslib::card_header(
                   class = "bg-primary text-white",
                   htmltools::tags$p(bsicons::bs_icon("info-circle"), " Property Description")
@@ -206,6 +211,7 @@ mod_survey_property_summary_ui <- function(id) {
             ),
             # property map  -----------------------------------------------------------
             bslib::card(
+              id = ns("property_map_container"),
               full_screen = TRUE,
               min_height = "300px",
               bslib::card_header(
@@ -302,6 +308,91 @@ mod_survey_property_summary_server <- function(
         shiny::req(selected_filters)
         if (is.null(selected_filters$competitor_id) && is.null(selected_filters$property_id)) {
           selected_filters$property_id <- 739085
+        }
+      })
+
+      # empty states -----------------------------------------------------
+      property_name_title_empty_state <- shiny.emptystate::empty_state_component(
+        content = bsicons::bs_icon("building", size = "5rem", fill = "#3838fa"),
+        title = "N/A"
+      )
+
+      property_info_empty_state <- shiny.emptystate::empty_state_component(
+        content = bsicons::bs_icon("building", size = "5rem", fill = "#3838fa"),
+        title = "No Property Information Available",
+        subtitle = "Please select a property or use the Edit button to add information."
+      )
+
+      property_image_empty_state <- shiny.emptystate::empty_state_component(
+        content = bsicons::bs_icon("image", size = "5rem", fill = "#3838fa"),
+        title = "No Property Image Available",
+        subtitle = "Add an image using the Edit button."
+      )
+
+      property_description_empty_state <- shiny.emptystate::empty_state_component(
+        content = bsicons::bs_icon("info-circle", size = "5rem", fill = "#3838fa"),
+        title = "No Property Description Available",
+        subtitle = "Add a description using the Edit button."
+      )
+
+      map_empty_state <- shiny.emptystate::empty_state_component(
+        content = bsicons::bs_icon("map", size = "5rem", fill = "#3838fa"),
+        title = "No Map Data Available",
+        subtitle = "Select a property with location information to view the map."
+      )
+
+      # empty state managers
+      property_name_title_manager <- shiny.emptystate::EmptyStateManager$new(
+        id = "property_name_title_div",
+        html_content = property_name_title_empty_state
+      )
+
+      property_info_manager <- shiny.emptystate::EmptyStateManager$new(
+        id = "property_information_card",
+        html_content = property_info_empty_state
+      )
+
+      property_image_manager <- shiny.emptystate::EmptyStateManager$new(
+        id = "property_image_card",
+        html_content = property_image_empty_state
+      )
+
+      property_description_manager <- shiny.emptystate::EmptyStateManager$new(
+        id = "property_description_card",
+        html_content = property_description_empty_state
+      )
+
+      map_manager <- shiny.emptystate::EmptyStateManager$new(
+        id = "property_map_container",
+        html_content = map_empty_state
+      )
+
+      # Control empty states based on data availability
+      observe({
+        data <- property_data()
+
+        # Check if property information is available
+        if (is.null(data) || nrow(data) == 0 ||
+            (is.na(data$property_name) && is.na(data$property_developer))) {
+          property_info_manager$show()
+        } else {
+          property_info_manager$hide()
+        }
+
+        # Check if property image is available
+        if (is.null(data) || nrow(data) == 0 ||
+            is.na(data$property_image_url) || data$property_image_url == "") {
+          property_image_manager$show()
+        } else {
+          property_image_manager$hide()
+        }
+
+        # Check if property description is available
+        if (is.null(data) || nrow(data) == 0 ||
+            is.na(data$property_description) || data$property_description == "") {
+          property_description_manager$show()
+        } else {
+          property_description_manager$hide()
         }
       })
 
@@ -402,7 +493,13 @@ mod_survey_property_summary_server <- function(
       # phone
       output$phone <- shiny::renderText({
         shiny::req(property_data())
-        property_data()$property_phone |> format_phone_number()
+        phone_number <- property_data()$property_phone
+
+        if (is.null(phone_number) || is.na(phone_number) || length(phone_number) == 0) {
+          return("Not available")
+        } else {
+          format_phone_number(phone_number)
+        }
       })
 
       # developer
@@ -440,8 +537,8 @@ mod_survey_property_summary_server <- function(
       output$last_sale <- shiny::renderText({
         shiny::req(property_data())
         sale_date <- property_data()$most_recent_sale
-        if (is.na(sale_date)) {
-          return("N/A")
+        if (is.null(sale_date) || is.na(sale_date) || length(sale_date) == 0) {
+          return("Not available")
         } else {
           format(sale_date, "%B %Y")
         }
@@ -531,6 +628,12 @@ mod_survey_property_summary_server <- function(
           selected_filters$competitor_id
         ),
         {
+          if (is.null(map_data()) || nrow(map_data()) == 0) {
+            map_manager$show()
+          } else {
+            map_manager$hide()
+          }
+
           shiny::req(map_data())
 
           if (is.null(selected_filters$competitor_id)) {
