@@ -7,6 +7,50 @@
 #
 #  ------------------------------------------------------------------------
 
+
+# report name -----------------------------------------------------------------------------------------------------
+
+#' Get Excel Report File Name
+#'
+#' @description
+#' This function generates a file name for an Excel report based on the report name and date.
+#'
+#' For example, if the report name is **"GMH Report"** and the date is **"2025-01-01"**,
+#' the function will return **"2025-01-01-GMH_Report.xlsx"**.
+#'
+#' @param report_name The name of the report.
+#' @param report_date The date of the report. Defaults to the current date.
+#'
+#' @returns
+#' A string containing the file name for the Excel report.
+#'
+#' @export
+#'
+#' @importFrom snakecase to_title_case
+#' @importFrom stringr str_replace_all
+get_xl_report_file_name <- function(
+    report_name,
+    report_date = Sys.Date()
+) {
+
+  report_date_str <- format(as.Date(report_date), "%Y-%m-%d")
+  report_file_ext <- ".xlsx"
+  abbrs <- c("GMH", "AGC", "CBRE", "JHU", "AEW", "CRG")
+  replace <- c("Gmh" = "GMH", "Agc" = "AGC", "Cbre" = "CBRE", "Jhu" = "JHU", "Aew" = "AEW", "Crg" = "CRG")
+
+  report_name <- snakecase::to_title_case(report_name) |>
+    stringr::str_replace_all(" ", "_") |>
+    stringr::str_replace_all(replace)
+
+  paste0(
+    report_date_str,
+    "-",
+    report_name,
+    report_file_ext
+  )
+
+}
+
 # cells -----------------------------------------------------------------------------------------------------------
 
 #' Get Cells
@@ -393,50 +437,34 @@ xl_get_pre_lease_unit_type_ranges <- function(
 
 }
 
-# file names ------------------------------------------------------------------------------------------------------
+# survey excel data -----------------------------------------------------------------------------------------------
 
-#' Get Excel Report File Name
-#'
-#' @description
-#' This function generates a file name for an Excel report based on the report name and date.
-#'
-#' For example, if the report name is **"GMH Report"** and the date is **"2025-01-01"**,
-#' the function will return **"2025-01-01-GMH_Report.xlsx"**.
-#'
-#' @param report_name The name of the report.
-#' @param report_date The date of the report. Defaults to the current date.
-#'
-#' @returns
-#' A string containing the file name for the Excel report.
-#'
-#' @export
-#'
-#' @importFrom snakecase to_title_case
-#' @importFrom stringr str_replace_all
-get_xl_report_file_name <- function(
-    report_name,
-    report_date = Sys.Date()
-) {
+xl_get_market_survey_sheets <- function(xl_file) {
 
-  report_date_str <- format(as.Date(report_date), "%Y-%m-%d")
-  report_file_ext <- ".xlsx"
-  abbrs <- c("GMH", "AGC", "CBRE", "JHU", "AEW", "CRG")
-  replace <- c("Gmh" = "GMH", "Agc" = "AGC", "Cbre" = "CBRE", "Jhu" = "JHU", "Aew" = "AEW", "Crg" = "CRG")
+  ignore_sheets <- c(
+    "Dashboard",
+    "Data",
+    "Log Sheet",
+    "Historical Market Data",
+    "PropertyTemplate",
+    "Comparison",
+    "Proposed Rate Comparison",
+    "SWOT Analysis",
+    "Test"
+  )
 
-  report_name <- snakecase::to_title_case(report_name) |>
-    stringr::str_replace_all(" ", "_") |>
-    stringr::str_replace_all(replace)
+  sheets <- readxl::excel_sheets(xl_file) |>
+    setdiff(ignore_sheets)
 
-  paste0(
-    report_date_str,
-    "-",
-    report_name,
-    report_file_ext
+  property_sheet <- sheets[1]
+  competitor_sheets <- sheets[-1]
+
+  list(
+    property = property_sheet,
+    competitors = competitor_sheets
   )
 
 }
-
-# survey excel data -----------------------------------------------------------------------------------------------
 
 #' Load Market Survey Data from the Excel Workbook Template
 #'
@@ -458,10 +486,10 @@ get_xl_report_file_name <- function(
 #' @importFrom qs2 qs_read qs_save
 #' @importFrom readxl excel_sheets
 #' @importFrom stats setNames
-load_market_survey_data <- function(
-    root_xl_path,
-    ignore_sheets = NULL,
-    output_cache = NULL
+xl_read_market_survey_data <- function(
+  root_xl_path,
+  ignore_sheets = NULL,
+  output_cache = NULL
 ) {
 
   cli::cli_h1("Loading Market Survey Data")
@@ -488,32 +516,8 @@ load_market_survey_data <- function(
   }
 
   # .xlsm or .xlsx + .zip & ignoring and files with ~$
-  all_files <- fs::dir_ls(root_xl_path, type = "file", regexp = "\\.xlsm$|\\.xlsx$|.zip$", recurse = TRUE) |>
+  xl_files <- fs::dir_ls(root_xl_path, type = "file", regexp = "\\.xlsm$|\\.xlsx$|.zip$", recurse = TRUE) |>
     purrr::discard(~ stringr::str_detect(.x, "~\\$"))
-
-  # Extract zip file if needed
-  extracted_dir <- fs::path(root_xl_path, "gmh_market_survey_data_extracted")
-
-  if (!fs::dir_exists(extracted_dir)) {
-    zip_file <- all_files |>
-      purrr::keep(~ stringr::str_detect(.x, "\\.zip$")) |>
-      purrr::pluck(1L)
-    if (!fs::file_exists(zip_file)) {
-      cli::cli_abort("Zip file not found at: {zip_file}")
-    }
-    cli::cli_alert_info("Extracting zip file to: {.path {extracted_dir}}")
-    unzip(zip_file, exdir = extracted_dir)
-  }
-
-  # Find commonwealth file
-  commonwealth_xl_file <- all_files |>
-    purrr::keep(~ stringr::str_detect(.x, "Commonwealth")) |>
-    purrr::pluck(1L)
-
-  # Collect excel files
-  xl_files <- c(commonwealth_xl_file, fs::dir_ls(extracted_dir, type = "file", regexp = "~\\$", invert = TRUE))
-
-  cli::cli_alert_info("Found {.field {length(xl_files)}} Excel Files to process")
 
   # Get sheets for each file
   xl_file_sheets <- purrr::map(xl_files, readxl::excel_sheets) |>
@@ -534,8 +538,7 @@ load_market_survey_data <- function(
   if (!is.null(output_cache)) {
     # Ensure directory exists
     fs::dir_create(fs::path_dir(output_cache), recurse = TRUE)
-
-    qs2::qsave(all_survey_data, file = output_cache)
+    qs2::qs_save(all_survey_data, file = output_cache)
     cli::cli_alert_success("Cached survey data to: {output_cache}")
   }
 
@@ -953,7 +956,7 @@ process_rents_data <- function(all_survey_data, output_path = NULL) {
 #' @export
 process_market_surveys <- function(
     root_xl_path,
-    output_dir = "data/processed",
+    output_dir = "data-raw/data/working",
     valid_prop_names = NULL,
     use_cache = TRUE
 ) {
