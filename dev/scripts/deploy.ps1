@@ -27,6 +27,13 @@ docker push $DOCKER_TAG
 
 # deploy
 gcloud run deploy $SERVICE `
-  --image=$DOCKER_TAG `
-  --region=$REGION `
-  --allow-unauthenticated
+      --image=$DOCKER_TAG `
+      --region=$REGION `
+      --allow-unauthenticated `
+      --set-env-vars=R_CONFIG_ACTIVE=default `
+      --set-env-vars='R_CONFIG_FILE=/secrets/config.yml' `
+      --set-cloudsql-instances=gmh-communities:us-east1:gmh-cloudsql-dev `
+      --update-secrets="$secretRef" `
+      --project=$PROJECT_ID
+
+gcloud run services update-traffic $SERVICE --to-latest --region=$REGION --project=$PROJECT_ID

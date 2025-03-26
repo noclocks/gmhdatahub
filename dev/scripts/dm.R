@@ -216,3 +216,73 @@ db_dm_gmh <- dm::dm(
 db_dm_gmh |> dm::dm_draw(view_type = "all", graph_name = "GMH Data Model")
 
 db_dm_gmh |> dm::dm_enum_pk_candidates(table = "segments")
+
+
+survey_db_dm <- dm::dm_from_con(con = gmh_conn, schema = "survey")
+survey_db_dm
+
+survey_db_dm |> dm::dm_get_all_pks()
+survey_db_dm |> dm::dm_get_all_fks()
+
+survey_db_dm |> dm::dm_draw(view_type = "all", graph_name = "Survey Data Model")
+
+dm::dm_gui(dm = survey_db_dm)
+
+tables <- c(
+  "amenities.sql",
+  "competitors.sql",
+  "fees.sql",
+  "fee_structures.sql",
+  "floorplans.sql",
+  "hours.sql",
+  "leasing_summary.sql",
+  "leasing_weeks.sql",
+  "notes.sql",
+  "parking.sql",
+  "properties.sql",
+  "property_amenities.sql",
+  "property_summary.sql",
+  "property_units.sql",
+  "rents_by_floorplan.sql",
+  "sections.sql",
+  "short_term_leases.sql",
+  "surveys.sql",
+  "survey_sections.sql",
+  "triggers.sql",
+  "unit_amenities.sql",
+  "unit_amenities_rates_premiums.sql",
+  "users.sql",
+  "utilities.sql"
+) |>
+  fs::path_ext_remove()
+
+tables <- c(DBI::Id("amenities"),
+            DBI::Id("competitors"),
+            # DBI::Id("fee_structures"),
+            DBI::Id("fees"),
+            DBI::Id("hours"),
+            DBI::Id("leasing_summary"),
+            # DBI::Id("leasing_weeks"),
+            DBI::Id("notes"),
+            DBI::Id("parking"),
+            DBI::Id("properties"),
+            DBI::Id("property_amenities"),
+            DBI::Id("property_summary"),
+            DBI::Id("rents_by_floorplan"),
+            # DBI::Id("sections"),
+            DBI::Id("short_term_leases"),
+            # DBI::Id("survey_sections"),
+            # DBI::Id("surveys"),
+            DBI::Id("unit_amenities"),
+            # DBI::Id("unit_amenities_rates_premiums"),
+            # DBI::Id("users"),
+            DBI::Id("utilities"))
+
+# get SQL DDL
+
+sql_lines <- capture.output(
+  dm::dm_ddl_pre(survey_db_dm, gmh_conn, temporary = FALSE)
+)
+
+sql <- paste(sql_lines, collapse = "\n")
+cat(sql)
