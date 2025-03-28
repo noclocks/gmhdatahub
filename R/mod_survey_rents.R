@@ -82,7 +82,7 @@ mod_survey_rents_ui <- function(id) {
         bslib::card_body(
           reactable::reactableOutput(
             ns("rents_by_floorplan")
-          )
+          ) |> with_loader()
         ),
         bslib::card_footer(
           shiny::textOutput(ns("rents_by_floorplan_last_updated"))
@@ -106,7 +106,7 @@ mod_survey_rents_ui <- function(id) {
         bslib::card_body(
           reactable::reactableOutput(
             ns("avg_rents_by_unit_type")
-          )
+          ) |> with_loader()
         ),
         bslib::card_footer(
           shiny::textOutput(ns("avg_rents_last_updated"))
