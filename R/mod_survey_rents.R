@@ -289,6 +289,8 @@ mod_survey_rents_server <- function(
       output$modal_rents <- rhandsontable::renderRHandsontable({
         shiny::req(rents_data())
 
+        modal_tab_reset()
+
         tbl_data <- rents_data() |>
           dplyr::select(
             "floorplan_type",
@@ -319,6 +321,8 @@ mod_survey_rents_server <- function(
 
       output$modal_concessions_expenses <- rhandsontable::renderRHandsontable({
         shiny::req(rents_data())
+
+        modal_tab_reset()
 
         tbl_data <- rents_data() |>
           dplyr::select(
@@ -374,12 +378,16 @@ mod_survey_rents_server <- function(
 
       # edit --------------------------------------------------------------------
 
+      modal_tab_reset <- shiny::reactiveVal(0)
+
       shiny::observeEvent(edit_survey_section(), {
         shiny::req(session$userData$selected_survey_tab())
 
         if (session$userData$selected_survey_tab() != "nav_rents") {
           return()
         }
+
+        modal_tab_reset(modal_tab_reset() + 1)
 
         iv$initialize()
         iv$enable()
@@ -390,7 +398,7 @@ mod_survey_rents_server <- function(
         modal_rents_hot <- rhandsontable::rHandsontableOutput(ns("modal_rents")) |>
           htmltools::tagAppendAttributes(.cssSelector = "div", style = "width: 100%; height: auto;")
         modal_concessions_expenses_hot <- rhandsontable::rHandsontableOutput(ns("modal_concessions_expenses")) |>
-          htmltools::tagAppendAttributes(.cssSelector = "div", style = "width: 100%; height: auto;")
+          htmltools::tagAppendAttributes(.cssSelector = ".rhandsontable", style = "width: 100% !IMPORTANT; height: auto !IMPORTANT;")
 
         shiny::showModal(
           shiny::modalDialog(
@@ -398,7 +406,7 @@ mod_survey_rents_server <- function(
               style = "font-size: 1.5rem; font-weight: bold;",
               "Edit Rents"
             ),
-            size = "l",
+            size = "xl",
             easyClose = FALSE,
             footer = htmltools::tagList(
               shiny::actionButton(
@@ -443,15 +451,8 @@ mod_survey_rents_server <- function(
               bslib::nav_panel(
                 title = "Concessions & Expenses",
                 icon = bsicons::bs_icon("currency-dollar"),
-                value = ns("concessions_expenses"),
-                bslib::layout_columns(
-                  col_widths = c(12),
-                  htmltools::tags$div(
-                    class = "hot-container",
-                    style = "width: 100%; padding: 10px;",
-                    modal_concessions_expenses_hot
-                  )
-                )
+                value = "concessions_expenses",
+                modal_concessions_expenses_hot
               )
             ),
             # changes preview
@@ -595,8 +596,7 @@ mod_survey_rents_server <- function(
           }
 
           changes_list
-        }
-      )
+        })
 
       output$changes_preview <- shiny::renderUI({
         shiny::req(changes())
