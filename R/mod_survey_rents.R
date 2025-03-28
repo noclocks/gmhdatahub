@@ -482,22 +482,48 @@ mod_survey_rents_server <- function(
       })
 
       # changes ----------------------------------------------------------------
-      changes <- shiny::reactive(
-        {
-          shiny::req(
-            rents_data(),
-            input$modal_rents_floorplans,
-            input$modal_rents,
-            input$modal_concessions_expenses
-          )
+      changes <- shiny::reactive({
+          shiny::req(rents_data(), input$modal_rents_floorplans)
 
           prop_info <- get_property_info()
 
           original_data <- rents_data()
 
           new_floorplans <- rhandsontable::hot_to_r(input$modal_rents_floorplans)
+
           new_rents <- rhandsontable::hot_to_r(input$modal_rents)
+
+          # `new_rents` is NULL if the Tab with this `rhandsontable` hasn't rendered yet
+          if (is.null(new_rents)) {
+            new_rents <- rents_data() |>
+              dplyr::select(
+                "floorplan_type",
+                "floorplan_id",
+                "market_rent_per_bed",
+                "market_rent_per_square_foot"
+              )
+          }
+
           new_concessions <- rhandsontable::hot_to_r(input$modal_concessions_expenses)
+
+          # `new_concessions` is NULL if the Tab with this `rhandsontable` hasn't rendered yet
+          if (is.null(new_concessions)) {
+            new_concessions <- rents_data() |>
+              dplyr::select(
+                "floorplan_type",
+                "floorplan_id",
+                "concessions_gift_card",
+                "concessions_one_time_rent",
+                "concessions_monthly_rent",
+                "expenses_furniture",
+                "expenses_tv",
+                "expenses_electricity_gas",
+                "expenses_water",
+                "expenses_cable_internet",
+                "expenses_trash_valet",
+                "expenses_parking",
+              )
+          }
 
           # merge
           new_data <- original_data |>
@@ -648,27 +674,33 @@ mod_survey_rents_server <- function(
 
       })
 
-      shiny::observeEvent(input$cancel_button, {
-        if (length(changes()) > 0) {
-          shiny::showModal(
-            shiny::modalDialog(
-              title = "Unsaved Changes",
-              "You have unsaved changes. Are you sure you want to cancel?",
-              footer = htmltools::tagList(
-                shiny::actionButton(ns("confirm_cancel"), "Yes, Cancel"),
-                shiny::modalButton("No, Continue Editing")
-              ),
-              size = "s"
-            )
-          )
-        } else {
-          # No changes, just close the modal
-          shiny::removeModal()
-        }
-      })
+      # shiny::observeEvent(input$cancel_button, {
+      #   if (length(changes()) > 0) {
+      #     shiny::showModal(
+      #       shiny::modalDialog(
+      #         title = "Unsaved Changes",
+      #         "You have unsaved changes. Are you sure you want to cancel?",
+      #         footer = htmltools::tagList(
+      #           shiny::actionButton(ns("confirm_cancel"), "Yes, Cancel"),
+      #           shiny::modalButton("No, Continue Editing")
+      #         ),
+      #         size = "s"
+      #       )
+      #     )
+      #   } else {
+      #     # No changes, just close the modal
+      #     shiny::removeModal()
+      #   }
+      # })
+      #
+      # # Add confirm cancel handler
+      # shiny::observeEvent(input$confirm_cancel, {
+      #   need_reset(TRUE)
+      #   shiny::removeModal()
+      # })
 
-      # Add confirm cancel handler
-      shiny::observeEvent(input$confirm_cancel, {
+
+      shiny::observeEvent(input$cancel_button, {
         need_reset(TRUE)
         shiny::removeModal()
       })
