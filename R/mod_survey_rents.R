@@ -82,7 +82,7 @@ mod_survey_rents_ui <- function(id) {
         bslib::card_body(
           reactable::reactableOutput(
             ns("rents_by_floorplan")
-          )
+          ) |> with_loader()
         ),
         bslib::card_footer(
           shiny::textOutput(ns("rents_by_floorplan_last_updated"))
@@ -106,7 +106,7 @@ mod_survey_rents_ui <- function(id) {
         bslib::card_body(
           reactable::reactableOutput(
             ns("avg_rents_by_unit_type")
-          )
+          ) |> with_loader()
         ),
         bslib::card_footer(
           shiny::textOutput(ns("avg_rents_last_updated"))
@@ -271,11 +271,10 @@ mod_survey_rents_server <- function(
             "Square Feet per Bed",
             "Available"
           ),
-          contextMenu = TRUE,
           stretchH = "all",
           width = "100%"
         ) |>
-          rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE) |>
+          rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE, contextMenu = FALSE) |>
           rhandsontable::hot_col(1, type = "dropdown", source = get_survey_choices("floorplans", "floorplan_type"), halign = "htCenter") |>
           rhandsontable::hot_col(2, halign = "htCenter") |>
           rhandsontable::hot_col(3, type = "numeric", halign = "htCenter") |>
@@ -289,6 +288,8 @@ mod_survey_rents_server <- function(
 
       output$modal_rents <- rhandsontable::renderRHandsontable({
         shiny::req(rents_data())
+
+        modal_tab_reset()
 
         tbl_data <- rents_data() |>
           dplyr::select(
@@ -307,11 +308,10 @@ mod_survey_rents_server <- function(
             "Market Rent per Bed",
             "Market Rent per Square Foot"
           ),
-          contextMenu = TRUE,
           stretchH = "all",
           width = "100%"
         ) |>
-          rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE) |>
+          rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE, contextMenu = FALSE) |>
           rhandsontable::hot_col(1, type = "dropdown", source = get_survey_choices("floorplans", "floorplan_type"), halign = "htCenter") |>
           rhandsontable::hot_col(2, halign = "htCenter") |>
           rhandsontable::hot_col(3, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
@@ -321,6 +321,8 @@ mod_survey_rents_server <- function(
 
       output$modal_concessions_expenses <- rhandsontable::renderRHandsontable({
         shiny::req(rents_data())
+
+        modal_tab_reset()
 
         tbl_data <- rents_data() |>
           dplyr::select(
@@ -355,11 +357,10 @@ mod_survey_rents_server <- function(
             "Expenses Trash Valet",
             "Expenses Parking"
           ),
-          contextMenu = TRUE,
           stretchH = "all",
           width = "100%"
         ) |>
-          rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE) |>
+          rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE, contextMenu = FALSE) |>
           rhandsontable::hot_col(1, type = "dropdown", source = get_survey_choices("floorplans", "floorplan_type"), halign = "htCenter") |>
           rhandsontable::hot_col(2, halign = "htCenter") |>
           rhandsontable::hot_col(3, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
@@ -377,12 +378,16 @@ mod_survey_rents_server <- function(
 
       # edit --------------------------------------------------------------------
 
+      modal_tab_reset <- shiny::reactiveVal(0)
+
       shiny::observeEvent(edit_survey_section(), {
         shiny::req(session$userData$selected_survey_tab())
 
         if (session$userData$selected_survey_tab() != "nav_rents") {
           return()
         }
+
+        modal_tab_reset(modal_tab_reset() + 1)
 
         iv$initialize()
         iv$enable()
@@ -393,7 +398,7 @@ mod_survey_rents_server <- function(
         modal_rents_hot <- rhandsontable::rHandsontableOutput(ns("modal_rents")) |>
           htmltools::tagAppendAttributes(.cssSelector = "div", style = "width: 100%; height: auto;")
         modal_concessions_expenses_hot <- rhandsontable::rHandsontableOutput(ns("modal_concessions_expenses")) |>
-          htmltools::tagAppendAttributes(.cssSelector = "div", style = "width: 100%; height: auto;")
+          htmltools::tagAppendAttributes(.cssSelector = ".rhandsontable", style = "width: 100% !IMPORTANT; height: auto !IMPORTANT;")
 
         shiny::showModal(
           shiny::modalDialog(
@@ -401,7 +406,7 @@ mod_survey_rents_server <- function(
               style = "font-size: 1.5rem; font-weight: bold;",
               "Edit Rents"
             ),
-            size = "l",
+            size = "xl",
             easyClose = FALSE,
             footer = htmltools::tagList(
               shiny::actionButton(
@@ -446,15 +451,8 @@ mod_survey_rents_server <- function(
               bslib::nav_panel(
                 title = "Concessions & Expenses",
                 icon = bsicons::bs_icon("currency-dollar"),
-                value = ns("concessions_expenses"),
-                bslib::layout_columns(
-                  col_widths = c(12),
-                  htmltools::tags$div(
-                    class = "hot-container",
-                    style = "width: 100%; padding: 10px;",
-                    modal_concessions_expenses_hot
-                  )
-                )
+                value = "concessions_expenses",
+                modal_concessions_expenses_hot
               )
             ),
             # changes preview
@@ -485,22 +483,48 @@ mod_survey_rents_server <- function(
       })
 
       # changes ----------------------------------------------------------------
-      changes <- shiny::reactive(
-        {
-          shiny::req(
-            rents_data(),
-            input$modal_rents_floorplans,
-            input$modal_rents,
-            input$modal_concessions_expenses
-          )
+      changes <- shiny::reactive({
+          shiny::req(rents_data(), input$modal_rents_floorplans)
 
           prop_info <- get_property_info()
 
           original_data <- rents_data()
 
           new_floorplans <- rhandsontable::hot_to_r(input$modal_rents_floorplans)
+
           new_rents <- rhandsontable::hot_to_r(input$modal_rents)
+
+          # `new_rents` is NULL if the Tab with this `rhandsontable` hasn't rendered yet
+          if (is.null(new_rents)) {
+            new_rents <- rents_data() |>
+              dplyr::select(
+                "floorplan_type",
+                "floorplan_id",
+                "market_rent_per_bed",
+                "market_rent_per_square_foot"
+              )
+          }
+
           new_concessions <- rhandsontable::hot_to_r(input$modal_concessions_expenses)
+
+          # `new_concessions` is NULL if the Tab with this `rhandsontable` hasn't rendered yet
+          if (is.null(new_concessions)) {
+            new_concessions <- rents_data() |>
+              dplyr::select(
+                "floorplan_type",
+                "floorplan_id",
+                "concessions_gift_card",
+                "concessions_one_time_rent",
+                "concessions_monthly_rent",
+                "expenses_furniture",
+                "expenses_tv",
+                "expenses_electricity_gas",
+                "expenses_water",
+                "expenses_cable_internet",
+                "expenses_trash_valet",
+                "expenses_parking",
+              )
+          }
 
           # merge
           new_data <- original_data |>
@@ -572,8 +596,7 @@ mod_survey_rents_server <- function(
           }
 
           changes_list
-        }
-      )
+        })
 
       output$changes_preview <- shiny::renderUI({
         shiny::req(changes())
@@ -651,27 +674,33 @@ mod_survey_rents_server <- function(
 
       })
 
-      shiny::observeEvent(input$cancel_button, {
-        if (length(changes()) > 0) {
-          shiny::showModal(
-            shiny::modalDialog(
-              title = "Unsaved Changes",
-              "You have unsaved changes. Are you sure you want to cancel?",
-              footer = htmltools::tagList(
-                shiny::actionButton(ns("confirm_cancel"), "Yes, Cancel"),
-                shiny::modalButton("No, Continue Editing")
-              ),
-              size = "s"
-            )
-          )
-        } else {
-          # No changes, just close the modal
-          shiny::removeModal()
-        }
-      })
+      # shiny::observeEvent(input$cancel_button, {
+      #   if (length(changes()) > 0) {
+      #     shiny::showModal(
+      #       shiny::modalDialog(
+      #         title = "Unsaved Changes",
+      #         "You have unsaved changes. Are you sure you want to cancel?",
+      #         footer = htmltools::tagList(
+      #           shiny::actionButton(ns("confirm_cancel"), "Yes, Cancel"),
+      #           shiny::modalButton("No, Continue Editing")
+      #         ),
+      #         size = "s"
+      #       )
+      #     )
+      #   } else {
+      #     # No changes, just close the modal
+      #     shiny::removeModal()
+      #   }
+      # })
+      #
+      # # Add confirm cancel handler
+      # shiny::observeEvent(input$confirm_cancel, {
+      #   need_reset(TRUE)
+      #   shiny::removeModal()
+      # })
 
-      # Add confirm cancel handler
-      shiny::observeEvent(input$confirm_cancel, {
+
+      shiny::observeEvent(input$cancel_button, {
         need_reset(TRUE)
         shiny::removeModal()
       })
