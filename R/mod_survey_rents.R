@@ -271,11 +271,10 @@ mod_survey_rents_server <- function(
             "Square Feet per Bed",
             "Available"
           ),
-          contextMenu = TRUE,
           stretchH = "all",
           width = "100%"
         ) |>
-          rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE) |>
+          rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE, contextMenu = FALSE) |>
           rhandsontable::hot_col(1, type = "dropdown", source = get_survey_choices("floorplans", "floorplan_type"), halign = "htCenter") |>
           rhandsontable::hot_col(2, halign = "htCenter") |>
           rhandsontable::hot_col(3, type = "numeric", halign = "htCenter") |>
@@ -307,11 +306,10 @@ mod_survey_rents_server <- function(
             "Market Rent per Bed",
             "Market Rent per Square Foot"
           ),
-          contextMenu = TRUE,
           stretchH = "all",
           width = "100%"
         ) |>
-          rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE) |>
+          rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE, contextMenu = FALSE) |>
           rhandsontable::hot_col(1, type = "dropdown", source = get_survey_choices("floorplans", "floorplan_type"), halign = "htCenter") |>
           rhandsontable::hot_col(2, halign = "htCenter") |>
           rhandsontable::hot_col(3, type = "numeric", halign = "htCenter", format = "$0,0.00") |>
@@ -355,11 +353,10 @@ mod_survey_rents_server <- function(
             "Expenses Trash Valet",
             "Expenses Parking"
           ),
-          contextMenu = TRUE,
           stretchH = "all",
           width = "100%"
         ) |>
-          rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE) |>
+          rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE, contextMenu = FALSE) |>
           rhandsontable::hot_col(1, type = "dropdown", source = get_survey_choices("floorplans", "floorplan_type"), halign = "htCenter") |>
           rhandsontable::hot_col(2, halign = "htCenter") |>
           rhandsontable::hot_col(3, type = "numeric", halign = "htCenter", format = "$0,0.00") |>

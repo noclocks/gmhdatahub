@@ -358,7 +358,7 @@ mod_survey_parking_server <- function(
 
         rhandsontable::rhandsontable(
           data = tbl_data,
-          contextMenu = TRUE,
+          contextMenu = FALSE,
           rowHeaders = NULL,
           stretchH = "all",
           width = "100%",
